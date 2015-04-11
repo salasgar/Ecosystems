@@ -19,4 +19,13 @@ for i in range(0, 10):
     individuals.append(individual)
 
 # Creation of biotope
-biotope = {'status': {'temperature': 100}}
+
+
+BIOTOPE_SIZE_X = 100;
+BIOTOPE_SIZE_Y = 100;
+
+biotope = {
+    'size' : {'x': BIOTOPE_SIZE_X, 'y': BIOTOPE_SIZE_Y},
+    'array_of_individuals':  [[None for i in range(BIOTOPE_SIZE_X)] for j in range(BIOTOPE_SIZE_Y)],
+    'status': {'temperature': 100}
+    }
