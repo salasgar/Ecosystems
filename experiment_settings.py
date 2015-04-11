@@ -10,7 +10,12 @@ for i in range(0, 10):
                             'speed': 0.0,
                             'do_photosynthesis': True},
                   'status': {'energy': 10,
-                             'age': 50}}
+                             'age': 50,
+                             'coordinates': {
+                                 'x': random(),
+                                 'y': random()}
+                             }
+                }
     individuals.append(individual)
 
 # Creation of biotope

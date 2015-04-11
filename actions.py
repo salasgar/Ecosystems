@@ -18,6 +18,10 @@ class Individual:
         pass
 
     @staticmethod
+    def procreate(individual, ecosystem):
+        pass
+
+    @staticmethod
     def check_if_die_and_delete(individual, ecosystem):
         # Temporary random delete
         from random import random
