@@ -19,11 +19,17 @@ class Biotope:
         self.ecosystem = E
         
     def seek_free_pos_close_to(self, center, radius, attempts):
+        # This is used by an organism in order to move to an empty place
+        # or to give birth to a new organism in an empty place
         for i in range(attempts):
             x = int(center.x() + sRandom() * radius)
             y = int(center.y() + sRandom() * radius)
-            if organismsArray[x][y] = None:
+            if (organismsArray[x][y] == None): 
                 return (x, y)
         return None
+    
+    def evolve(self):
+        # Climate changes
+        pass
         
 
