@@ -1,5 +1,5 @@
 import actions
-import experiment_settings
+import ecosystem_settings
 from GUI import GUI
 from time import sleep  # To remove
 
@@ -34,8 +34,8 @@ class Ecosystem(object):
 
 def main():
     # create Ecosystem
-    ecosystem = Ecosystem(experiment_settings.organisms,
-                          experiment_settings.biotope)
+    ecosystem = Ecosystem(ecosystem_settings.organisms,
+                          ecosystem_settings.biotope)
     gui = GUI()
     # Loop
     while len(ecosystem.organisms) > 0:  # TODO: Define correct condition
