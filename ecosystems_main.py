@@ -15,12 +15,21 @@ class Ecosystem(object):
         actions.Biotope.change_temperature(self)
 
         # Individuals actions
-        for individual in self.individuals[:]:
+        i = 0
+        while i < len(ecosystem.individuals):
+            individual = self.individuals[i]
+            # Actions:
             actions.Individual.move(individual, self)
             actions.Individual.eat(individual, self)
             if individual['genes']['do_photosynthesis']:
                 actions.Individual.do_photosynthesis(individual, self)
-            actions.Individual.check_if_die_and_delete(individual, self)
+
+            # Procreation and death of individual:
+            n_new = actions.Individual.procreate(individual, self)
+            n_deleted = actions.Individual.check_if_die_and_delete(individual,
+                                                                   self)
+            # Get i pointing to right individual:
+            i += 1 + n_new - n_deleted
 
 
 def main():
@@ -28,14 +37,12 @@ def main():
     ecosystem = Ecosystem(experiment_settings.individuals,
                           experiment_settings.biotope)
     gui = GUI()
-
     # Loop
     while len(ecosystem.individuals) > 0:  # TODO: Define correct condition
         ecosystem.evolve()
         gui.handle_events(ecosystem)
         gui.draw_ecosystem(ecosystem)
         sleep(0.1)
-
     gui.delete()
 
 

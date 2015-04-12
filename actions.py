@@ -19,7 +19,9 @@ class Individual:
 
     @staticmethod
     def procreate(individual, ecosystem):
-        pass
+        # add new individuals at the beginning of the list (as a queue)
+        # using ecosystem.individuals.insert(0, new_individual)
+        pass #return number of new individuals
 
     @staticmethod
     def check_if_die_and_delete(individual, ecosystem):
@@ -30,3 +32,4 @@ class Individual:
                    ecosystem.individuals.index(individual))
             ecosystem.individuals.remove(individual)
             print 'Num of individuals: %d' % len(ecosystem.individuals)
+        # return 1 if deleted, else 0
