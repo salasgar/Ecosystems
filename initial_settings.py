@@ -1,13 +1,14 @@
 # inviduals and biotope creation
 
 from random import random
+import Biotope
 
-
+'''
 def add_organism_to_biotope(organism, biotope):
     x = organism['status']['coordinates']['x']
     y = organism['status']['coordinates']['y']
     biotope['array_of_organisms'][x][y] = organism
-
+'''
 
 def create_empty_list_of_lists(size_x, size_y):
     return [[None for i in range(size_x)] for j in range(size_y)]
@@ -16,7 +17,9 @@ def create_empty_list_of_lists(size_x, size_y):
 BIOTOPE_SIZE_X = 100
 BIOTOPE_SIZE_Y = 100
 
-biotope = {
+biotope = Biotope.Biotope(BIOTOPE_SIZE_X, BIOTOPE_SIZE_Y)
+
+biotope2 = {
     'size': {'x': BIOTOPE_SIZE_X, 'y': BIOTOPE_SIZE_Y},
     'array_of_organisms':  create_empty_list_of_lists(BIOTOPE_SIZE_X,
                                                       BIOTOPE_SIZE_Y),
@@ -41,4 +44,4 @@ for i in range(0, 10):
 
 # Add organisms references in biotope
 for organism in organisms:
-    add_organism_to_biotope(organism, biotope)
+    biotope.add_org(organism)
