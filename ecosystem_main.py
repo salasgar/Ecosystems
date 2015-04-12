@@ -16,7 +16,7 @@ class Ecosystem(object):
 
         # Individuals actions
         i = 0
-        while i < len(ecosystem.individuals):
+        while i < len(self.individuals):
             individual = self.individuals[i]
             # Actions:
             actions.Individual.move(individual, self)
@@ -29,7 +29,7 @@ class Ecosystem(object):
             n_deleted = actions.Individual.check_if_die_and_delete(individual,
                                                                    self)
             # Get i pointing to right individual:
-            i += 1 + n_new - n_deleted
+            i = i + 1 + n_new - n_deleted
 
 
 def main():
@@ -42,7 +42,7 @@ def main():
         ecosystem.evolve()
         gui.handle_events(ecosystem)
         gui.draw_ecosystem(ecosystem)
-        sleep(0.1)
+        sleep(0.1)  # To remove
     gui.delete()
 
 
