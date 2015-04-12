@@ -9,6 +9,7 @@ class Ecosystem(object):
     def __init__(self, organisms, biotope):
         self.organisms = organisms
         self.biotope = biotope
+        self.biotope.set_Ecosystem(self)
 
     def evolve(self):
         # Biotope actions
