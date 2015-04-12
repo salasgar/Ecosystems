@@ -6,39 +6,39 @@ from time import sleep  # To remove
 
 class Ecosystem(object):
 
-    def __init__(self, individuals, biotope):
-        self.individuals = individuals
+    def __init__(self, organisms, biotope):
+        self.organisms = organisms
         self.biotope = biotope
 
     def evolve(self):
         # Biotope actions
         actions.Biotope.change_temperature(self)
 
-        # Individuals actions
+        # Organisms actions
         i = 0
-        while i < len(self.individuals):
-            individual = self.individuals[i]
+        while i < len(self.organisms):
+            organism = self.organisms[i]
             # Actions:
-            actions.Individual.move(individual, self)
-            actions.Individual.eat(individual, self)
-            if individual['genes']['do_photosynthesis']:
-                actions.Individual.do_photosynthesis(individual, self)
+            actions.Organism.move(organism, self)
+            actions.Organism.eat(organism, self)
+            if organism['genes']['do_photosynthesis']:
+                actions.Organism.do_photosynthesis(organism, self)
 
-            # Procreation and death of individual:
-            n_new = actions.Individual.procreate(individual, self)
-            n_deleted = actions.Individual.check_if_die_and_delete(individual,
-                                                                   self)
-            # Get i pointing to right individual:
+            # Procreation and death of organism:
+            n_new = actions.Organism.procreate(organism, self)
+            n_deleted = actions.Organism.check_if_die_and_delete(organism,
+                                                                 self)
+            # Get i pointing to right organism:
             i = i + 1 + n_new - n_deleted
 
 
 def main():
     # create Ecosystem
-    ecosystem = Ecosystem(experiment_settings.individuals,
+    ecosystem = Ecosystem(experiment_settings.organisms,
                           experiment_settings.biotope)
     gui = GUI()
     # Loop
-    while len(ecosystem.individuals) > 0:  # TODO: Define correct condition
+    while len(ecosystem.organisms) > 0:  # TODO: Define correct condition
         ecosystem.evolve()
         gui.handle_events(ecosystem)
         gui.draw_ecosystem(ecosystem)
