@@ -5,6 +5,9 @@ from time import sleep  # To remove
 
 
 class Ecosystem(object):
+    organisms = []
+    newborns = []
+    biotope = None
 
     def __init__(self, organisms, biotope):
         self.organisms = organisms
@@ -26,11 +29,12 @@ class Ecosystem(object):
                 actions.OrganismActions.do_photosynthesis(organism, self) # Temporal
             
             # Procreation and death of organism:
-            n_new = actions.OrganismActions.procreate(organism, self)
+            organism.procreate(self)
             n_deleted = actions.OrganismActions.check_if_die_and_delete(organism,
                                                                  self)
             # Get i pointing to right organism:
-            i = i + 1 + n_new - n_deleted
+            i = i + 1 - n_deleted
+        self.organisms += self.newborns
 
 
 def main():

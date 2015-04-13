@@ -1,8 +1,12 @@
+from random import random
 
+import Tools
 
-class CoordinatesTuple:
+REPRODUCTION_FREQUENCY = 0.01
+
+class CoordinatesTupleClass:
     x, y = None, None
-    def __init__(x, y):
+    def __init__(self, x, y):
         self.x = x
         self.y = y
     def __getitem__(self, key):
@@ -24,7 +28,7 @@ def coordinatesDict(coordTuple):
     return {'x': coordTuple[0], 'y': coordTuple[1]}
     
 def coordinatesTuple(coordDict):
-    return CoordinatesTuple(coordDict['x'], coordDict['y'])
+    return CoordinatesTupleClass(coordDict['x'], coordDict['y'])
 
 class Organism:
     Data = None  # All organism's attributes (genes and status)
@@ -45,7 +49,10 @@ class Organism:
         return self.Data['status']
         
     def position(self):
-        return coorinatesTuple(self.Data['status']['coordinates'])     
+        return coordinatesTuple(self.Data['status']['coordinates'])     
+    
+    def setLocation(self, newLocation):
+        self.Data['status']['coordinates'] = coordinatesDict(newLocation)
     
     def speed(self):
         return self.Data['genes']['speed']
@@ -68,13 +75,17 @@ class Organism:
         # TEMPORARY EXAMPLE
         # add new organisms at the beginning of the list (as a queue)
         # using ecosystem.organisms.insert(0, new_organism)
-        from random import random
-        if random() > 0.99:
-            print ('Oh organism %d-th had a baby:' %
-                   ecosystem.organisms.index(organism))
-            ecosystem.organisms.insert(0, organism.copy())  # Mutation?
-            print 'Num of organisms: %d' % len(ecosystem.organisms)
-            return 1
+        if (random() < REPRODUCTION_FREQUENCY) and (self.status()['energy'] > 5):
+            newLocation = ecosystem.biotope.seek_free_pos_close_to(self.position(), 3, 3)
+            if newLocation != None:    
+                print ('Oh organism %d-th had a baby:' % ecosystem.organisms.index(self))
+                baby = self.copy()
+                baby.setLocation(newLocation)
+                ecosystem.newborns.append(baby)  # Mutation?
+                print 'Num of organisms: %d' % len(ecosystem.organisms)
+                return 1
+            else:
+                return 0
         else:
             return 0
 

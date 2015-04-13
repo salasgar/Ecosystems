@@ -4,6 +4,8 @@ from random import random
 import Biotope
 import Organism
 
+
+
 '''
 def add_organism_to_biotope(organism, biotope):
     x = organism['status']['coordinates']['x']
