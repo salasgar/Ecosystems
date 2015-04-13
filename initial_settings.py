@@ -2,6 +2,7 @@
 
 from random import random
 import Biotope
+import Organism
 
 '''
 def add_organism_to_biotope(organism, biotope):
@@ -40,7 +41,7 @@ for i in range(0, 10):
                                'y': int(random()*BIOTOPE_SIZE_Y)}
                            }
                 }
-    organisms.append(organism)
+    organisms.append(Organism.Organism(Data = organism))
 
 # Add organisms references in biotope
 for organism in organisms:

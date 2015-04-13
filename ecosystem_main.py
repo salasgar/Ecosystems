@@ -13,17 +13,17 @@ class Ecosystem(object):
 
     def evolve(self):
         # Biotope actions
-        actions.BiotopeActions.change_temperature(self)
+        actions.BiotopeActions.change_temperature(self)  # Temporal
 
         # Organisms actions
         i = 0
         while i < len(self.organisms):
             organism = self.organisms[i]
             # Actions:
-            actions.OrganismActions.move(organism, self)
-            actions.OrganismActions.eat(organism, self)
+            actions.OrganismActions.move(organism, self) # Temporal
+            actions.OrganismActions.eat(organism, self) # Temporal
             if organism['genes']['do_photosynthesis']:
-                actions.OrganismActions.do_photosynthesis(organism, self)
+                actions.OrganismActions.do_photosynthesis(organism, self) # Temporal
             
             # Procreation and death of organism:
             n_new = actions.OrganismActions.procreate(organism, self)
