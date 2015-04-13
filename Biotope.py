@@ -1,7 +1,7 @@
 from random import random
 
 import Tools
-
+import Organism
 
 def create_empty_list_of_lists(size_x, size_y):
     return [[None for i in range(size_x)] for j in range(size_y)]
@@ -34,6 +34,13 @@ class Biotope:
                 y_ = x[1]
         self.organismsArray[x_][y_] = organism
     
+    def delete_org(self, x, y):
+        self.organismsArray[x][y] = None     
+
+    def delete_org(self, organism):
+        (x, y) = organism['status']['coordinates'].values()
+        self.organismsArray[x][y] = None
+    
     def __getitem__(self, x, y = None):
         if y == None:
             return self.organismsArray[x[0]][x[1]]
@@ -47,19 +54,34 @@ class Biotope:
             self.organismsArray[x][y] = organism
             
     def Location_is_OK(self, location):
-        if (location.x > 0) and (location.y > 0) and (location.x < size_x) and (location.y < size_y):
+        return Location_is_OK(location.x, location.y)
+
+    def Location_is_OK(self, x, y):
+        if (x >= 0) and (y >= 0) and (x < self.size_x) and (y < self.size_y):
             return True
         else:
             return False
         
-    def seek_free_pos_close_to(self, center, radius, attempts):
+    def seek_free_pos(self, attempts = 10):
         # This is used by an organism in order to move to an empty place
         # or to give birth to a new organism in an empty place
         for i in range(attempts):
-            x = int(center.x() + Tools.sRandom() * radius)
-            y = int(center.y() + Tools.sRandom() * radius)
-            if (self.organismsArray[x][y] == None): 
-                return (x, y)
+            x = int(random() * self.size_x)
+            y = int(random() * self.size_y)
+            if self.Location_is_OK(x, y):
+                if (self.organismsArray[x][y] == None): 
+                    return (x, y)
+        return None
+    
+    def seek_free_pos_close_to(self, center, radius, attempts = 1):
+        # This is used by an organism in order to move to an empty place
+        # or to give birth to a new organism in an empty place
+        for i in range(attempts):
+            x = int(center[0] + Tools.sRandom() * radius)
+            y = int(center[1] + Tools.sRandom() * radius)
+            if self.Location_is_OK(x, y):
+                if (self.organismsArray[x][y] == None): 
+                    return (x, y)
         return None
     
     def evolve(self):

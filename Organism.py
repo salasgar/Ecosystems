@@ -1,34 +1,7 @@
 from random import random
 
 import Tools
-
-REPRODUCTION_FREQUENCY = 0.01
-
-class CoordinatesTupleClass:
-    x, y = None, None
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-    def __getitem__(self, key):
-        if key == 0: 
-            return self.x
-        else:
-            return self.y
-    def __setitem__(self, key, value):
-        if key == 0: 
-            self.x = value
-        else:
-            self.y = value
-    def x():
-        return self.x
-    def y():
-        return self.y        
-
-def coordinatesDict(coordTuple):
-    return {'x': coordTuple[0], 'y': coordTuple[1]}
-    
-def coordinatesTuple(coordDict):
-    return CoordinatesTupleClass(coordDict['x'], coordDict['y'])
+import initial_settings
 
 class Organism:
     Data = None  # All organism's attributes (genes and status)
@@ -49,10 +22,10 @@ class Organism:
         return self.Data['status']
         
     def position(self):
-        return coordinatesTuple(self.Data['status']['coordinates'])     
+        return Tools.coordinatesTuple(self.Data['status']['coordinates'])     
     
     def setLocation(self, newLocation):
-        self.Data['status']['coordinates'] = coordinatesDict(newLocation)
+        self.Data['status']['coordinates'] = Tools.coordinatesDict(newLocation)
     
     def speed(self):
         return self.Data['genes']['speed']
@@ -75,19 +48,29 @@ class Organism:
         # TEMPORARY EXAMPLE
         # add new organisms at the beginning of the list (as a queue)
         # using ecosystem.organisms.insert(0, new_organism)
-        if (random() < REPRODUCTION_FREQUENCY) and (self.status()['energy'] > 5):
+        if (random() < initial_settings.REPRODUCTION_FREQUENCY) and (self.status()['energy'] > 5):
             newLocation = ecosystem.biotope.seek_free_pos_close_to(self.position(), 3, 3)
             if newLocation != None:    
                 print ('Oh organism %d-th had a baby:' % ecosystem.organisms.index(self))
-                baby = self.copy()
+                baby = Organism(self.Data.copy()) 
+                # Mutation?
                 baby.setLocation(newLocation)
-                ecosystem.newborns.append(baby)  # Mutation?
-                print 'Num of organisms: %d' % len(ecosystem.organisms)
+                ecosystem.biotope.add_org(baby, newLocation)
+                ecosystem.newborns.append(baby)  
                 return 1
             else:
                 return 0
         else:
             return 0
+
+    def age(self, ecosystem):
+        self.Data['status']['age'] += 1 
+        if random()*self.Data['status']['age'] > initial_settings.GLOBAL_LONGEVITY:
+            ecosystem.organisms.remove(self)
+            ecosystem.biotope.delete_org(self)
+            return 'Dead'
+        else:
+            return 'Still alive'
 
     def check_if_die_and_delete(self, ecosystem):
         # Temporary random delete
@@ -100,3 +83,11 @@ class Organism:
             return 1
         else:
             return 0
+
+
+
+
+
+
+
+

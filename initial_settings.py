@@ -1,50 +1,34 @@
 # inviduals and biotope creation
 
 from random import random
-import Biotope
-import Organism
-
-
-
-'''
-def add_organism_to_biotope(organism, biotope):
-    x = organism['status']['coordinates']['x']
-    y = organism['status']['coordinates']['y']
-    biotope['array_of_organisms'][x][y] = organism
-'''
-
-def create_empty_list_of_lists(size_x, size_y):
-    return [[None for i in range(size_x)] for j in range(size_y)]
 
 # Creation of biotope
 BIOTOPE_SIZE_X = 100
 BIOTOPE_SIZE_Y = 100
 
-biotope = Biotope.Biotope(BIOTOPE_SIZE_X, BIOTOPE_SIZE_Y)
-
-biotope2 = {
-    'size': {'x': BIOTOPE_SIZE_X, 'y': BIOTOPE_SIZE_Y},
-    'array_of_organisms':  create_empty_list_of_lists(BIOTOPE_SIZE_X,
-                                                      BIOTOPE_SIZE_Y),
-    'status': {'temperature': 100}
-    }
-
 # Creation of inviduals
-organisms = []
-for i in range(0, 10):
-    organism = {'genes': {'attack_capacity':  random() * 5.0,
-                          'defense_capacity': random() * 3.0,
-                          'speed': 0.0,
-                          'do_photosynthesis': True},
-                'status': {'energy': 10,
-                           'age': 50,
-                           'coordinates': {
-                               'x': int(random()*BIOTOPE_SIZE_X),
-                               'y': int(random()*BIOTOPE_SIZE_Y)}
-                           }
-                }
-    organisms.append(Organism.Organism(Data = organism))
+REPRODUCTION_FREQUENCY = 0.1
+GLOBAL_LONGEVITY = 500
 
-# Add organisms references in biotope
-for organism in organisms:
-    biotope.add_org(organism)
+initial_organisms = []
+
+N = 10 # Number of initial organisms of the following kind:
+organism_data = {'genes': {'attack_capacity':  random() * 5.0,
+                           'defense_capacity': random() * 100.0,
+                           'speed': 0.0,
+                           'do_photosynthesis': True},
+                 'status': {'energy': 10,
+                            'age': 0}
+                }
+initial_organisms.append((N, organism_data))
+
+N = 10 # Number of initial organisms of the following kind:
+organism_data = {'genes': {'attack_capacity':  random() * 100.0,
+                           'defense_capacity': random() * 30.0,
+                           'speed': 4.0,
+                           'do_photosynthesis': False},
+                 'status': {'energy': 10,
+                            'age': 0}
+                }
+initial_organisms.append((N, organism_data))
+    
