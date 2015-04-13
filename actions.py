@@ -1,10 +1,10 @@
-class Biotope:
+class BiotopeActions:
     @staticmethod
     def change_temperature(Ecosystem):
         pass
 
 
-class Organism:
+class OrganismActions:
     @staticmethod
     def move(organism, ecosystem):
         pass
