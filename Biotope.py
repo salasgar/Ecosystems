@@ -33,9 +33,17 @@ class Biotope:
                 x_ = x[0]
                 y_ = x[1]
         self.organismsArray[x_][y_] = organism
+
+    def move_organism(self, organism, new_place):
+        new_x, new_y = new_place
+        old_x = organism['status']['coordinates']['x'] # Como debo acceder?
+        old_y = organism['status']['coordinates']['y']
+        self.organismsArray[old_x][old_y] = None
+        self.organismsArray[new_x][new_y] = self
+
     
     def delete_org(self, x, y):
-        self.organismsArray[x][y] = None     
+        self.organismsArray[x][y] = None
 
     def delete_org(self, organism):
         (x, y) = organism['status']['coordinates'].values()

@@ -1,6 +1,6 @@
 from random import random
-
-import Tools
+from Tools import coordinatesDict, coordinatesTuple
+from copy import deepcopy
 import initial_settings
 
 class Organism:
@@ -22,10 +22,10 @@ class Organism:
         return self.Data['status']
         
     def position(self):
-        return Tools.coordinatesTuple(self.Data['status']['coordinates'])     
+        return coordinatesTuple(self.Data['status']['coordinates'])
     
     def setLocation(self, newLocation):
-        self.Data['status']['coordinates'] = Tools.coordinatesDict(newLocation)
+        self.Data['status']['coordinates'] = coordinatesDict(newLocation)
     
     def speed(self):
         return self.Data['genes']['speed']
@@ -34,9 +34,8 @@ class Organism:
         if self.speed() > 0:
             new_place = ecosystem.biotope.seek_free_pos_close_to(self.position(), self.speed(), 3)
             if new_place != None:
-                ecosystem.biotope.move_org(self, new_place)
+                ecosystem.biotope.move_organism(self, new_place)
                 self.Data['status']['coordinates'] = coordinatesDict(new_place)
-        pass
 
     def eat(self, organism, ecosystem):
         pass
@@ -51,12 +50,11 @@ class Organism:
         if (random() < initial_settings.REPRODUCTION_FREQUENCY) and (self.status()['energy'] > 5):
             newLocation = ecosystem.biotope.seek_free_pos_close_to(self.position(), 3, 3)
             if newLocation != None:    
-                print ('Oh organism %d-th had a baby:' % ecosystem.organisms.index(self))
-                baby = Organism(self.Data.copy()) 
+                baby = Organism(deepcopy(self.Data))
                 # Mutation?
                 baby.setLocation(newLocation)
                 ecosystem.biotope.add_org(baby, newLocation)
-                ecosystem.newborns.append(baby)  
+                ecosystem.newborns.append(baby)
                 return 1
             else:
                 return 0
@@ -66,23 +64,10 @@ class Organism:
     def age(self, ecosystem):
         self.Data['status']['age'] += 1 
         if random()*self.Data['status']['age'] > initial_settings.GLOBAL_LONGEVITY:
-            ecosystem.organisms.remove(self)
             ecosystem.biotope.delete_org(self)
             return 'Dead'
         else:
-            return 'Still alive'
-
-    def check_if_die_and_delete(self, ecosystem):
-        # Temporary random delete
-        from random import random
-        if random() > 0.98:
-            print ('%d-th organism DIED:' %
-                   ecosystem.organisms.index(organism))
-            ecosystem.organisms.remove(organism)
-            print 'Num of organisms: %d' % len(ecosystem.organisms)
-            return 1
-        else:
-            return 0
+            return 'Alive'
 
 
 

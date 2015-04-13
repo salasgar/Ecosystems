@@ -3,6 +3,7 @@ import actions
 import initial_settings
 from GUI import GUI
 from time import sleep  # To remove
+from copy import deepcopy
 import Biotope
 import Organism
 
@@ -22,10 +23,10 @@ class Ecosystem(object):
         
     def create_organisms(self, org_list):
         for (N, Data) in org_list:
-            for i in range(N):
+            for i in range(0, N):
                 new_loc = self.biotope.seek_free_pos()
                 if new_loc != None:
-                    new_org = Organism.Organism(Data)
+                    new_org = Organism.Organism(deepcopy(Data))
                     new_org.setLocation(new_loc)
                     self.organisms.append(new_org)
 
@@ -37,15 +38,14 @@ class Ecosystem(object):
         i = 0
         while i < len(self.organisms):
             organism = self.organisms[i]
-            # Actions:
-            actions.OrganismActions.move(organism, self) # Temporal
-            actions.OrganismActions.eat(organism, self) # Temporal
-            if organism['genes']['do_photosynthesis']:
-                actions.OrganismActions.do_photosynthesis(organism, self) # Temporal
-            
+            # Actions
+            organism.move(self)
+
             # Procreation and death of organism:
             organism.procreate(self)
-            organism.age(self)
+            org_status = organism.age(self)
+            if org_status == 'Dead':
+                self.organisms.remove(organism)
             
             # Get i pointing to right organism:
             i = i + 1
@@ -60,13 +60,13 @@ def main():
     # Add initial organisms to the ecosystem:
     ecosystem.create_organisms(initial_settings.initial_organisms)
     
-    gui = GUI()
+    gui = GUI(ecosystem)
     # Loop
     time = 0
     while (len(ecosystem.organisms) > 0) and (time < 300):  # TODO: Define correct condition
         ecosystem.evolve()
-        gui.handle_events(ecosystem)
-        gui.draw_ecosystem(ecosystem)
+        gui.handle_events()
+        gui.draw_ecosystem()
         sleep(0.1)  # To remove
         time += 1
         if time%10 == 0:
