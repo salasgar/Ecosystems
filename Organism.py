@@ -1,9 +1,30 @@
 
+
+class CoordinatesTuple:
+    x, y = None, None
+    def __init__(x, y):
+        self.x = x
+        self.y = y
+    def __getitem__(self, key):
+        if key == 0: 
+            return self.x
+        else:
+            return self.y
+    def __setitem__(self, key, value):
+        if key == 0: 
+            self.x = value
+        else:
+            self.y = value
+    def x():
+        return self.x
+    def y():
+        return self.y        
+
 def coordinatesDict(coordTuple):
     return {'x': coordTuple[0], 'y': coordTuple[1]}
     
 def coordinatesTuple(coordDict):
-    return (coordDict['x'], coordDict['y'])
+    return CoordinatesTuple(coordDict['x'], coordDict['y'])
 
 class Organism:
     Data = None  # All organism's attributes (genes and status)
