@@ -21,6 +21,9 @@ class Array:
         
     def __setitem__(self, coords, value):
         self.Array[coords[0] % self.size_x][coords[1] % self.size_y] = value
+        
+    def __str__(self):
+        return "\n".join(str(self.Array[i]) for i in range(len(self.Array)))
 
 # Substance codes:
 NO_SUBSTANCE = 0
@@ -46,7 +49,7 @@ class SubstanceOfDegree0(Array):
 
     def Modify(self, coords, variation): # Increments or decrements the quantity of substance in the given area
         old_value = self[coords]
-        new_value = old_value + variation*self.size_x*self.size_y/(BIOTOPE_SIZE_X * BIOTOPE_SIZE_Y)
+        new_value = old_value + variation*self.size_x*self.size_y/(BIOTOPE_SIZE_X * BIOTOPE_SIZE_Y)  # El incremento o decremento se reparte entre todo el area del biotopo representada por esa casilla del Array de la sustancia
         self[coords] = new_value        
     
 class SubstanceOfDegree1(Array):
@@ -64,7 +67,7 @@ class SubstanceOfDegree1(Array):
         Bx = (Ax + 1) % self.size_x
         By = (Ay + 1) % self.size_y
         # interpolamos el valor en las coordenadas exactas a partir del valor en los puntos (Ax, Ay), (Ax, By), (Bx, Ay) y (Bx, By),
-        # que son los puntos de la tabla que están alrededor del punto del biotopo del cual queremos averiguar su concentración de 
+        # que son los puntos de la tabla que estan alrededor del punto del biotopo del cual queremos averiguar su concentracion de 
         # sustancia. Las coordenadas (x, y) son las coordenadas relativas de ese punto dentro del cuadrado (Ax, Ay), (Bx, By)
         x = coords[0] % BIOTOPE_SIZE_X - Ax * BIOTOPE_SIZE_X / self.size_x
         y = coords[1] % BIOTOPE_SIZE_Y - Ay * BIOTOPE_SIZE_Y / self.size_y
@@ -72,6 +75,9 @@ class SubstanceOfDegree1(Array):
     
     def __setitem__(self, coords, value): #we interpolate linearly the values:
         pass        
+    
+    def Modify(self, coords, variation): # Increments or decrements the quantity of substance in the given area
+        pass
     
 class Biotope:
     ecosystem = None # Reference to the ecosystem it belongs to
@@ -165,4 +171,10 @@ class Biotope:
         # Climate changes
         pass
         
+A = Array(3, 4)
 
+A[2, 2] = 5000
+
+A[3, 2] = A[2, 2] + 1
+
+print A
