@@ -35,7 +35,7 @@ class SubstanceOfDegree0(Array):
     def __init__(self, Name, size_x, size_y):
         self.size_x = min(size_x, BIOTOPE_SIZE_X)
         self.size_y = min(size_y, BIOTOPE_SIZE_Y)
-        self.Array = [[None for i in range(self.size_y)] for j in range(self.size_x)]
+        self.Array = [[0 for i in range(self.size_y)] for j in range(self.size_x)]
         self.Name = Name
         
     def __getitem__(self, coords): #if self.size_x < BIOTOPE_SIZE_X, we reduce the coordinates proportionally:
@@ -43,6 +43,11 @@ class SubstanceOfDegree0(Array):
         
     def __setitem__(self, coords, value): #if self.size_x < BIOTOPE_SIZE_X, we reduce the coordinates proportionally:
         self.Array[int(coords[0]*self.size_x/BIOTOPE_SIZE_X) % self.size_x][int(coords[1]*self.size_y/BIOTOPE_SIZE_Y) % self.size_y] = value
+
+    def Modify(self, coords, variation): # Increments or decrements the quantity of substance in the given area
+        old_value = self[coords]
+        new_value = old_value + variation*self.size_x*self.size_y/(BIOTOPE_SIZE_X * BIOTOPE_SIZE_Y)
+        self[coords] = new_value        
     
 class SubstanceOfDegree1(Array):
     Name = NO_SUBSTANCE
@@ -54,7 +59,16 @@ class SubstanceOfDegree1(Array):
         self.Name = Name
         
     def __getitem__(self, coords): #we interpolate linearly the values:
-        pass
+        Ax = int((coords[0] % BIOTOPE_SIZE_X)*self.size_x/BIOTOPE_SIZE_X)
+        Ay = int((coords[1] % BIOTOPE_SIZE_Y)*self.size_y/BIOTOPE_SIZE_Y)
+        Bx = (Ax + 1) % self.size_x
+        By = (Ay + 1) % self.size_y
+        # interpolamos el valor en las coordenadas exactas a partir del valor en los puntos (Ax, Ay), (Ax, By), (Bx, Ay) y (Bx, By),
+        # que son los puntos de la tabla que están alrededor del punto del biotopo del cual queremos averiguar su concentración de 
+        # sustancia. Las coordenadas (x, y) son las coordenadas relativas de ese punto dentro del cuadrado (Ax, Ay), (Bx, By)
+        x = coords[0] % BIOTOPE_SIZE_X - Ax * BIOTOPE_SIZE_X / self.size_x
+        y = coords[1] % BIOTOPE_SIZE_Y - Ay * BIOTOPE_SIZE_Y / self.size_y
+        return (1-x)*(1-y)*Array[Ax][Ay]  +  x*(1-y)*Array[Bx][Ay] + (1-x)*y*Array[Ax][By]  +  x*y*Array[Bx][By] 
     
     def __setitem__(self, coords, value): #we interpolate linearly the values:
         pass        
