@@ -8,7 +8,7 @@ BIOTOPE_SIZE_Y = 100
 
 # Creation of inviduals
 REPRODUCTION_FREQUENCY = 0.1
-GLOBAL_LONGEVITY = 20
+GLOBAL_LONGEVITY = 200
 
 initial_organisms = []
 

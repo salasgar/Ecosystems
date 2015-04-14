@@ -6,10 +6,64 @@ import Organism
 def create_empty_list_of_lists(size_x, size_y):
     return [[None for i in range(size_x)] for j in range(size_y)]
 
+class Array:
+    Array = []
+    size_x = 0
+    size_y = 0
+    
+    def __init__(self, size_x, size_y):
+        self.Array = [[None for i in range(size_y)] for j in range(size_x)]
+        self.size_x = size_x
+        self.size_y = size_y
+        
+    def __getitem__(self, coords):
+        return self.Array[coords[0] % self.size_x][coords[1] % self.size_y]
+        
+    def __setitem__(self, coords, value):
+        self.Array[coords[0] % self.size_x][coords[1] % self.size_y] = value
+
+# Substance codes:
+NO_SUBSTANCE = 0
+WATER = 1
+ENERGY = 2
+NITRATE = 3
+PHOSPHATE = 4
+
+class SubstanceOfDegree0(Array):
+    Name = NO_SUBSTANCE
+    
+    def __init__(self, Name, size_x, size_y):
+        self.size_x = min(size_x, BIOTOPE_SIZE_X)
+        self.size_y = min(size_y, BIOTOPE_SIZE_Y)
+        self.Array = [[None for i in range(self.size_y)] for j in range(self.size_x)]
+        self.Name = Name
+        
+    def __getitem__(self, coords): #if self.size_x < BIOTOPE_SIZE_X, we reduce the coordinates proportionally:
+        return self.Array[int(coords[0]*self.size_x/BIOTOPE_SIZE_X) % self.size_x][int(coords[1]*self.size_y/BIOTOPE_SIZE_Y) % self.size_y]
+        
+    def __setitem__(self, coords, value): #if self.size_x < BIOTOPE_SIZE_X, we reduce the coordinates proportionally:
+        self.Array[int(coords[0]*self.size_x/BIOTOPE_SIZE_X) % self.size_x][int(coords[1]*self.size_y/BIOTOPE_SIZE_Y) % self.size_y] = value
+    
+class SubstanceOfDegree1(Array):
+    Name = NO_SUBSTANCE
+    
+    def __init__(self, Name, size_x, size_y):
+        self.size_x = min(size_x, BIOTOPE_SIZE_X)
+        self.size_y = min(size_y, BIOTOPE_SIZE_Y)
+        self.Array = [[None for i in range(self.size_y)] for j in range(self.size_x)]
+        self.Name = Name
+        
+    def __getitem__(self, coords): #we interpolate linearly the values:
+        pass
+    
+    def __setitem__(self, coords, value): #we interpolate linearly the values:
+        pass        
+    
 class Biotope:
     ecosystem = None # Reference to the ecosystem it belongs to
     organismsArray = None # Array that indicates wich organism is in each place
     size_x, size_y = 100, 100
+    substances = []
 
     def __init__(self, size_x, size_y):
         self.size_x = size_x
@@ -91,6 +145,7 @@ class Biotope:
                 if (self.organismsArray[x][y] == None): 
                     return (x, y)
         return None
+    
     
     def evolve(self):
         # Climate changes
