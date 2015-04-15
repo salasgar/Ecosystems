@@ -1,10 +1,11 @@
 from random import random
 
+import initial_settings
 import Tools
 import Organism
+BIOTOPE_SIZE_X = initial_settings.BIOTOPE_SIZE_X  #  TO DO: Mirar si se puede conseguir de alguna manera que no haya que poner siempre "initial_settings." delante cada vez que usamos una constante.
+BIOTOPE_SIZE_Y = initial_settings.BIOTOPE_SIZE_Y 
 
-def create_empty_list_of_lists(size_x, size_y):
-    return [[None for i in range(size_x)] for j in range(size_y)]
 
 class Array:
     Array = []
@@ -12,7 +13,7 @@ class Array:
     size_y = 0
     
     def __init__(self, size_x, size_y):
-        self.Array = [[None for i in range(size_y)] for j in range(size_x)]
+        self.Array = [[None] * size_y for i in range(size_x)]  # No usar [[None] * size_y] * size_x, ya que no hace copia profunda
         self.size_x = size_x
         self.size_y = size_y
         
@@ -31,14 +32,19 @@ WATER = 1
 ENERGY = 2
 NITRATE = 3
 PHOSPHATE = 4
+TEMPERATURE = 5  
+ALTITUDE = 6
+DEPTH = 7  # Depth of a sea, a lake or a river
+SUNLIGHT = 8  # Is there an equivalence between ENERGY and SUNLIGHT  ???
+RAIN = 9 # The presence of RAIN increases the amount of WATER in the soil, and in the end, if there is enought humidity, it become DEPTH
 
 class SubstanceOfDegree0(Array):
     Name = NO_SUBSTANCE
     
-    def __init__(self, Name, size_x, size_y):
+    def __init__(self, Name, size_x = BIOTOPE_SIZE_X, size_y = BIOTOPE_SIZE_Y):
         self.size_x = min(size_x, BIOTOPE_SIZE_X)
         self.size_y = min(size_y, BIOTOPE_SIZE_Y)
-        self.Array = [[0 for i in range(self.size_y)] for j in range(self.size_x)]
+        self.Array = [[0] * self.size_y for i in range(self.size_x)]
         self.Name = Name
         
     def __getitem__(self, coords): #if self.size_x < BIOTOPE_SIZE_X, we reduce the coordinates proportionally:
@@ -55,10 +61,10 @@ class SubstanceOfDegree0(Array):
 class SubstanceOfDegree1(Array):
     Name = NO_SUBSTANCE
     
-    def __init__(self, Name, size_x, size_y):
+    def __init__(self, Name, size_x = BIOTOPE_SIZE_X, size_y = BIOTOPE_SIZE_Y):
         self.size_x = min(size_x, BIOTOPE_SIZE_X)
         self.size_y = min(size_y, BIOTOPE_SIZE_Y)
-        self.Array = [[None for i in range(self.size_y)] for j in range(self.size_x)]
+        self.Array = [[None] * self.size_y for j in range(self.size_x)]
         self.Name = Name
         
     def __getitem__(self, coords): #we interpolate linearly the values:
@@ -171,10 +177,8 @@ class Biotope:
         # Climate changes
         pass
         
-A = Array(3, 4)
+A = SubstanceOfDegree0(NO_SUBSTANCE, BIOTOPE_SIZE_X/2, BIOTOPE_SIZE_Y/2)
 
-A[2, 2] = 5000
-
-A[3, 2] = A[2, 2] + 1
-
+A[9, 1] = 7
+A[1, 10] = 2
 print A

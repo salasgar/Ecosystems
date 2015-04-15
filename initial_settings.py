@@ -3,8 +3,8 @@
 from random import random
 
 # Creation of biotope
-BIOTOPE_SIZE_X = 100
-BIOTOPE_SIZE_Y = 100
+BIOTOPE_SIZE_X = 10
+BIOTOPE_SIZE_Y = 12
 
 # Creation of inviduals
 REPRODUCTION_FREQUENCY = 0.1
