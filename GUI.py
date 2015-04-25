@@ -42,6 +42,23 @@ class GUI(object):
                                  (o_x + px_begin, o_y + px_end)))
         pygame.display.update()
 
+    def draw_substance(self, substance_code):
+        substance = self.ecosystem.biotope.substance(substance_code)
+        px_begin = 1
+        px_end = self.size_organism - 1
+        for x in range(self.ecosystem.biotope.size_x):
+            for y in range(self.ecosystem.biotope.size_y):
+                s_x = x * self.size_organism
+                s_y = y * self.size_organism
+                pygame.draw.polygon(self.windowSurface,
+                                substance.color(x, y),
+                                ((s_x + px_begin, s_y + px_begin),
+                                 (s_x + px_end, s_y + px_begin),
+                                 (s_x + px_end, s_y + px_end),
+                                 (s_x + px_begin, s_y + px_end)))
+        pygame.display.update()
+                
+
     def handle_events(self):
         pass  # Get events and modify Ecosystem accordingly
 
