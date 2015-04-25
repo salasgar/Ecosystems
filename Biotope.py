@@ -103,10 +103,10 @@ class substance(Array):
         else:
             return False
     
-    def setRandomValues(self, lowerBond, higherBond):
+    def setRandomValues(self, lowerBond = 0, higherBond = 100):
         for i in range(self.size_x):
             for j in range(self.size_y):
-                self[i,j] = higherBond + random() * (higherBond - lowerBond)
+                self[i,j] = lowerBond + random() * (higherBond - lowerBond)
         
     
 class Biotope:
@@ -192,19 +192,37 @@ class Biotope:
         return None
     
     def modify_amount_of_substance(self, Code, coordinates, Variation):
-        self.substances[SubstanceIndex[Code]][coordinates] += Variation
+        self.substances[self.SubstanceIndex[Code]][coordinates] += Variation
+        
+    def substance(self, Code):
+        return self.substances[self.substanceIndex[Code]]
     
     def evolve(self):
         for S in self.substances:
             S.Evolve()
 
 
-# Pruebas:
-"""
-B = Biotope(4, 5)
+# Ejemplos:
+
+# probar con (BIOTOPE_SIZE_X, BIOTOPE_SIZE_Y) = (4, 8)
+B = Biotope(BIOTOPE_SIZE_X, BIOTOPE_SIZE_Y)
+B.set_Substances(initial_settings.SUBSTANCES)
+B.substance(WATER).setRandomValues(10, 99)
+B.substance(NITRATE).setRandomValues(10, 99)
+
+print "WATER:"
+for j in range(BIOTOPE_SIZE_Y):
+    print [int(B.substance(WATER)[i, j]) for i in range(BIOTOPE_SIZE_X)]
+
+print "NITRATE:"
+for j in range(BIOTOPE_SIZE_Y):
+    print [int(B.substance(NITRATE)[i, j]) for i in range(BIOTOPE_SIZE_X)]
+
+print B.substance(NITRATE).size_x
+
 for i in range(7):
     new_pos = B.seek_free_pos()
     if new_pos:
         B[new_pos] = 'Ey'      
 print B
-"""
+
