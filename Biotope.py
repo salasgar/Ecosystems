@@ -66,7 +66,7 @@ class substance(Array):
         self.Name = Name
         self.Code = Code
         self.Block_size = Block_size
-        self.Block_area = self.Block_size^2
+        self.Block_area = self.Block_size * self.Block_size
         self.size_x = BIOTOPE_SIZE_X // self.Block_size
         self.size_y = BIOTOPE_SIZE_Y // self.Block_size
         self.Array = [[0] * self.size_y for i in range(self.size_x)]
@@ -208,17 +208,20 @@ class Biotope:
 B = Biotope(BIOTOPE_SIZE_X, BIOTOPE_SIZE_Y)
 B.set_Substances(initial_settings.SUBSTANCES)
 B.substance(WATER).setRandomValues(10, 99)
-B.substance(NITRATE).setRandomValues(10, 99)
+B.substance(NITRATE).setRandomValues(40, 99)
 
 print "WATER:"
 for j in range(BIOTOPE_SIZE_Y):
-    print [int(B.substance(WATER)[i, j]) for i in range(BIOTOPE_SIZE_X)]
+    S = B.substance(WATER)
+    print [int(S.concentration([i, j])) for i in range(BIOTOPE_SIZE_X)]
 
 print "NITRATE:"
 for j in range(BIOTOPE_SIZE_Y):
-    print [int(B.substance(NITRATE)[i, j]) for i in range(BIOTOPE_SIZE_X)]
+    S = B.substance(NITRATE)
+    print [int(S.concentration([i, j])) for i in range(BIOTOPE_SIZE_X)]
 
-print B.substance(NITRATE).size_x
+
+print B.substance(NITRATE).Spread_speed
 
 for i in range(7):
     new_pos = B.seek_free_pos()
