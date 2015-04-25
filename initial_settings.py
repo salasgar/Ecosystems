@@ -32,3 +32,6 @@ organism_data = {'genes': {'attack_capacity':  random() * 100.0,
                 }
 initial_organisms.append((N, organism_data))
     
+#SUBSTANCES:
+    
+# Substance codes:

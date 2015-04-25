@@ -27,4 +27,4 @@ def coordinatesTuple(coordDict):
     return CoordinatesTupleClass(coordDict['x'], coordDict['y'])
 
 def create_empty_list_of_lists(size_x, size_y):
-    return [[None] * size_x for i in range(size_y)] 
+    return [[None] * size_y for i in range(size_x)] 

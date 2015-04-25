@@ -127,9 +127,5 @@ Biotopo[1007, 1008] = 'Organisma Antonieta'
 print Biotopo[205, 206], "   <--- Nota que (205, 206) es igual a (5, 6) modulo (SIZE_X, SIZE_Y)"
 print Biotopo[7, 8], "   <--- Nota que (7, 8) es igual a (1007, 1008) modulo (SIZE_X, SIZE_Y)"
 
-print int(7.4), int(7.5), int(7.6)
-
-print 7.4 % 3
-
 
 

@@ -14,7 +14,10 @@ class Organism:
         
     def __setitem__(self, keys, value):
         self.Data[keys] = value        
-        
+
+    def __str__(self):
+        return str(tuple(self.Data['status']['age']))
+
     def genes(self):
         return self.Data['genes']
         
