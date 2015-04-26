@@ -5,10 +5,10 @@ from time import sleep  # To remove
 
 class GUI(object):
     def __init__(self, ecosystem):
-        self.size_organism = 4
+        self.zoom = 4
         self.ecosystem = ecosystem
-        size_pixels_x = ecosystem.biotope.size_x * self.size_organism
-        size_pixels_y = ecosystem.biotope.size_y * self.size_organism
+        size_pixels_x = ecosystem.biotope.size_x * self.zoom
+        size_pixels_y = ecosystem.biotope.size_y * self.zoom
         pygame.init()
         self.windowSurface = pygame.display.set_mode((size_pixels_x,
                                                       size_pixels_y),
@@ -22,8 +22,8 @@ class GUI(object):
 
             # Get organism information
             # TODO: access by organism.get_x() or similar
-            o_x = organism['status']['coordinates']['x'] * self.size_organism
-            o_y = organism['status']['coordinates']['y'] * self.size_organism
+            o_x = organism['status']['coordinates']['x'] * self.zoom
+            o_y = organism['status']['coordinates']['y'] * self.zoom
 
             # Draw organism
             # TODO: Define proper color
@@ -33,7 +33,7 @@ class GUI(object):
                 o_color = (200, 200, 200)
 
             px_begin = 1
-            px_end = self.size_organism - 1
+            px_end = self.zoom - 1
             pygame.draw.polygon(self.windowSurface,
                                 o_color,
                                 ((o_x + px_begin, o_y + px_begin),
@@ -45,11 +45,11 @@ class GUI(object):
     def draw_substance(self, substance_code):
         substance = self.ecosystem.biotope.substance(substance_code)
         px_begin = 1
-        px_end = self.size_organism - 1
+        px_end = self.zoom - 1
         for x in range(self.ecosystem.biotope.size_x):
             for y in range(self.ecosystem.biotope.size_y):
-                s_x = x * self.size_organism
-                s_y = y * self.size_organism
+                s_x = x * self.zoom
+                s_y = y * self.zoom
                 pygame.draw.polygon(self.windowSurface,
                                 substance.color(x, y),
                                 ((s_x + px_begin, s_y + px_begin),
