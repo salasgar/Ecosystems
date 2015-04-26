@@ -44,7 +44,7 @@ class Organism(object):
         pass
 
     def do_photosynthesis(self, ecosystem):
-        pass
+        self.variate_substance(ENERGY_RESERVE, self.photosynthesis_capacity())
 
     def procreate(self, ecosystem):
         # TEMPORARY EXAMPLE
@@ -54,6 +54,10 @@ class Organism(object):
             newLocation = ecosystem.biotope.seek_free_pos_close_to(self.position(), 3, 3)
             if newLocation != None:    
                 baby = Organism(deepcopy(self.Data))
+                # Reparto de reservas de sustancias:
+                for SUSTANCE in self.substances.keys():
+                    baby.variate_substance(SUSTANCE, - baby.amount_of_substance(SUSTANCE) / 2)
+                    self.variate_substance(SUSTANCE, - baby.amount_of_substance(SUSTANCE) / 2)
                 # Mutation?
                 baby.setLocation(newLocation)
                 ecosystem.biotope.add_org(baby, newLocation)

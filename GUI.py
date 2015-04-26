@@ -51,7 +51,7 @@ class GUI(object):
                 s_x = x * self.zoom
                 s_y = y * self.zoom
                 pygame.draw.polygon(self.windowSurface,
-                                substance.color(x, y),
+                                substance.color(x, y),   # Lo del color esta todavia sin implementar
                                 ((s_x + px_begin, s_y + px_begin),
                                  (s_x + px_end, s_y + px_begin),
                                  (s_x + px_end, s_y + px_end),
