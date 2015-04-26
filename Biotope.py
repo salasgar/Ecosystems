@@ -7,25 +7,6 @@ BIOTOPE_SIZE_X = initial_settings.BIOTOPE_SIZE_X  #  TO DO: Mirar si se puede co
 BIOTOPE_SIZE_Y = initial_settings.BIOTOPE_SIZE_Y 
 
 
-class Array:
-    Array = []
-    size_x = 0
-    size_y = 0
-    
-    def __init__(self, size_x, size_y):
-        self.Array = [[None] * size_y for i in range(size_x)]  # No usar [[None] * size_y] * size_x, ya que no hace copia profunda
-        self.size_x = size_x
-        self.size_y = size_y
-        
-    def __getitem__(self, coords):
-        return self.Array[coords[0] % self.size_x][coords[1] % self.size_y]
-        
-    def __setitem__(self, coords, value):
-        self.Array[coords[0] % self.size_x][coords[1] % self.size_y] = value
-        
-    def __str__(self):
-        return "\n".join(str(self.Array[i]) for i in range(len(self.Array)))
-
 # Substance codes:
 # Substances spread in the biotope:
 NO_SUBSTANCE = 0
@@ -51,28 +32,21 @@ NITRATE_RESERVE = 204
 PHOSPHATE_RESERVE = 205
 
 
-
-
-class substance(Array):
+class substance(Tools.Array):
     Name = ''
     Code = NO_SUBSTANCE
     Block_size = 1
     Block_area = 1
     Time_counter = 0
     Spread_speed = 0
-    Spread_lapse = 10000
     
-    def __init__(self, Name, Code, Block_size = 1, Spread_speed = 0, Spread_lapse = 10000):
+    def __init__(self, Name, Code, Block_size = 1, Spread_speed = 0):
+        super(substance, self).__init__(BIOTOPE_SIZE_X // self.Block_size, BIOTOPE_SIZE_Y // self.Block_size, Value = 0)        
         self.Name = Name
         self.Code = Code
         self.Block_size = Block_size
         self.Block_area = self.Block_size * self.Block_size
-        self.size_x = BIOTOPE_SIZE_X // self.Block_size
-        self.size_y = BIOTOPE_SIZE_Y // self.Block_size
-        self.Array = [[0] * self.size_y for i in range(self.size_x)]
         self.Spread_speed = Spread_speed
-        self.Spread_lapse = Spread_lapse
-        self.Time_counter = 0
 
     def setValue(self, coordinates, value):
         (i, j) = (int(coordinates[0] // self.Block_size), int(coordinates[1] // self.Block_size))
@@ -86,22 +60,16 @@ class substance(Array):
         (i, j) = (int(coordinates[0] // self.Block_size), int(coordinates[1] // self.Block_size))
         return self[i, j] / self.Block_area
         
-    def Modify(self, coordinates, variation):
+    def variate_value(self, coordinates, variation):
         (i, j) = (int(coordinates[0] // self.Block_size), int(coordinates[1] // self.Block_size))
         self[i, j] += value
         
     def Evolve(self):
-        self.Time_counter += 1
-        if self.Time_counter > self.Spread_lapse:
-            New_array = Array(self.size_x, self.size_y)
-            for i in range(self.size_x):
-                for j in range(self.size_y):
-                    New_array[i, j] = self.Spread_speed * math.fsum(self[i+k, j+m] for k in (-1, 0, 1) for m in (-1, 0, 1)) / 9 + (1-self.Spread_speed)*self[i,j]
-            self.Array = New_array.Array
-            self.Time_counter = 0
-            return True
-        else:
-            return False
+        New_array = Array(self.size_x, self.size_y)
+        for i in range(self.size_x):
+            for j in range(self.size_y):
+                New_array[i, j] = self.Spread_speed * math.fsum(self[i+k, j+m] for k in (-1, 0, 1) for m in (-1, 0, 1)) / 9 + (1-self.Spread_speed)*self[i,j]
+        self.Array = New_array.Array
     
     def setRandomValues(self, lowerBond = 0, higherBond = 100):
         for i in range(self.size_x):
@@ -109,7 +77,7 @@ class substance(Array):
                 self[i,j] = lowerBond + random() * (higherBond - lowerBond)
         
     
-class Biotope:
+class Biotope(object):
     ecosystem = None # Reference to the ecosystem it belongs to
     organismsArray = None # Array that indicates wich organism is in each place
     size_x, size_y = 100, 100
@@ -134,7 +102,7 @@ class Biotope:
         self.substanceIndex = [None] * 200  
         index = 0
         for S in substances_list:
-            new_substance = substance(S['Name'], S['Code'], S['Block_size'], S['Spread_speed'], S['Spread_lapse'])
+            new_substance = substance(S['Name'], S['Code'], S['Block_size'], S['Spread_speed'])
             new_substance.setRandomValues(0, 100)
             self.substances.append(new_substance)
             self.substanceIndex[S['Code']] = index          

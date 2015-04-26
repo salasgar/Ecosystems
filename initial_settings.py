@@ -61,7 +61,7 @@ PHOSPHATE_RESERVE = 205
 
 
 SUBSTANCES = [
-{'Name': 'water',       'Code' : WATER,     'Block_size': 1,  'Spread_speed': 0.9,  'Spread_lapse': 10},
-{'Name': 'nitrate',     'Code' : NITRATE,   'Block_size': 2,  'Spread_speed': 0.01, 'Spread_lapse': 200},
-{'Name': 'phosphate',   'Code' : PHOSPHATE, 'Block_size': 1,  'Spread_speed': 0.02, 'Spread_lapse': 100}
+{'Name': 'water',       'Code' : WATER,     'Block_size': 1,  'Spread_speed': 0.9},
+{'Name': 'nitrate',     'Code' : NITRATE,   'Block_size': 2,  'Spread_speed': 0.01},
+{'Name': 'phosphate',   'Code' : PHOSPHATE, 'Block_size': 1,  'Spread_speed': 0.02}
 ]    

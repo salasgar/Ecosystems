@@ -3,7 +3,7 @@ from Tools import coordinatesDict, coordinatesTuple
 from copy import deepcopy
 import initial_settings
 
-class Organism:
+class Organism(object):
     Data = None  # All organism's attributes (genes and status)
     
     def __init__(self, Data):
