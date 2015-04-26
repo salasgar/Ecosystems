@@ -129,4 +129,3 @@ print Biotopo[7, 8], "   <--- Nota que (7, 8) es igual a (1007, 1008) modulo (SI
 
 
 
-

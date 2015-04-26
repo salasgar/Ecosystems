@@ -19,6 +19,7 @@ class Ecosystem(object):
 
     def __init__(self, biotope_size_x, biotope_size_y):
         self.biotope = Biotope.Biotope(biotope_size_x, biotope_size_y)
+        self.biotope.set_Substances(initial_settings.SUBSTANCES)
         self.biotope.set_Ecosystem(self)
         
     def create_organisms(self, org_list):
@@ -67,7 +68,7 @@ def main():
         ecosystem.evolve()
         gui.handle_events()
         gui.draw_ecosystem()
-        sleep(0.1)  # To remove
+        #sleep(0.1)  # To remove
         time += 1
         if time%10 == 0:
             print "time =", time, "Num of organisms =", len(ecosystem.organisms)
