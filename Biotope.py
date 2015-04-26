@@ -87,17 +87,11 @@ class Biotope(object):
     def __init__(self, size_x, size_y):
         self.size_x = size_x
         self.size_y = size_y
-        self.organismsArray = Tools.create_empty_list_of_lists(size_x, size_y)
-
-    def __getitem__(self, coords):
-        return self.organismsArray[coords[0] % self.size_x][coords[1] % self.size_y]
+        self.organismsArray = Tools.Array(size_x, size_y)
         
-    def __setitem__(self, coords, value):
-        self.organismsArray[coords[0] % self.size_x][coords[1] % self.size_y] = value
+    def __str__(self):    # esto es solo para hacer pruebas en modo consola
+        return str(self.organismsArray) 
         
-    def __str__(self):
-        return '\n'.join(str(row) for row in self.organismsArray)
-
     def set_Substances(self, substances_list):
         self.substanceIndex = [None] * 200  
         index = 0
@@ -114,23 +108,23 @@ class Biotope(object):
             self.add_org(org, org['status']['coordinates'])
         
     def add_org(self, organism, location):
-        self[location] = organism
+        self.organismsArray[location] = organism
 
     def move_organism(self, organism, new_place):
         new_x, new_y = new_place
         old_x = organism['status']['coordinates']['x'] # Como debo acceder?
         old_y = organism['status']['coordinates']['y']
-        self[old_x, old_y] = None
-        self[new_x, new_y] = self
+        self.organismsArray[old_x, old_y] = None
+        self.organismsArray[new_x, new_y] = self
     
     def delete_org(self, x, y):
-        self[x, y] = None
+        self.organismsArray[x, y] = None
 
     def delete_org(self, organism):
         (x, y) = organism['status']['coordinates'].values()
-        self[x, y] = None
+        self.organismsArray[x, y] = None
     
-    def Location_is_OK(self, location):
+    def Location_is_OK(self, location):  # This functions is "en desuso". Shall we remove it?
         return self.Location_is_OK(location.x, location.y)
 
     def Location_is_OK(self, x, y):
@@ -145,7 +139,7 @@ class Biotope(object):
         for i in range(attempts):
             x = int(random() * self.size_x) % self.size_x
             y = int(random() * self.size_y) % self.size_y
-            if (self[x, y] == None): 
+            if (self.organismsArray[x, y] == None): 
                 return (x, y)
         return None
     
@@ -155,7 +149,7 @@ class Biotope(object):
         for i in range(attempts):
             x = int(center[0] + Tools.sRandom() * radius) % self.size_x
             y = int(center[1] + Tools.sRandom() * radius) % self.size_y
-            if (self[x, y] == None): 
+            if (self.organismsArray[x, y] == None): 
                 return (x, y)
         return None
     
@@ -194,6 +188,6 @@ print B.substance(NITRATE).Spread_speed
 for i in range(7):
     new_pos = B.seek_free_pos()
     if new_pos:
-        B[new_pos] = 'Ey'      
+        B.organismsArray[new_pos] = 'Ey'      
 print B
 
