@@ -1,85 +1,116 @@
 from random import random
-from Tools import coordinatesDict, coordinatesTuple
 from copy import deepcopy
-import initial_settings
+
 
 class Organism(object):
-    Data = None  # All organism's attributes (genes and status)
-    
-    def __init__(self, Data):
-        self.Data = Data
-    
+
+    def __init__(self,
+                 organism_data,
+                 parent_ecosystem,
+                 substances):
+        self.organism_data = organism_data
+        self.parent_ecosystem = parent_ecosystem
+        self.substances = substances
+
     def __getitem__(self, keys):
-        return self.Data[keys]
-        
+        return self.organism_data[keys]
+
     def __setitem__(self, keys, value):
-        self.Data[keys] = value        
+        self.organism_data[keys] = value
 
-    def __str__(self):
-        return str(tuple(self.Data['status']['age']))
+    def __str__(self):  # Just for debug
+        return str(tuple(self['status']['age']))
 
-    def genes(self):
-        return self.Data['genes']
-        
-    def status(self):
-        return self.Data['status']
-        
-    def position(self):
-        return coordinatesTuple(self.Data['status']['coordinates'])
-    
-    def setLocation(self, newLocation):
-        self.Data['status']['coordinates'] = coordinatesDict(newLocation)
-    
-    def speed(self):
-        return self.Data['genes']['speed']
-        
+    def set_location(self, x, y):
+        self['status']['coordinates']['x'] = x
+        self['status']['coordinates']['y'] = y
+
     def move(self, ecosystem):
-        if self.speed() > 0:
-            new_place = ecosystem.biotope.seek_free_pos_close_to(self.position(), self.speed(), 3)
-            if new_place != None:
-                ecosystem.biotope.move_organism(self, new_place)
-                self.Data['status']['coordinates'] = coordinatesDict(new_place)
+        """
+            Check if there is a new available location. If yes
+            then: - Update biotope (organisms matrix)
+                  - Update location
+        """
+        # 1. Get organism current data
+        speed = self['genes']['speed']
+        old_x = self['status']['coordinates']['x']
+        old_y = self['status']['coordinates']['y']
+        if speed > 0:
+            # 2. Check if there is a new available location
+            new_x, new_y = ecosystem.biotope.seek_free_pos_close_to(
+                old_x, old_y, radius=speed)
+            if new_x is not None and new_y is not None:
+                # 3. Update biotope (organisms matrix)
+                self.parent_ecosystem.biotope.move_organism_in_matrix(
+                    self, new_x, new_y)
+                # 4. Update location
+                self.set_location(new_x, new_y)
 
     def eat(self, organism, ecosystem):
         pass
 
     def do_photosynthesis(self, ecosystem):
-        self.variate_substance(ENERGY_RESERVE, self.photosynthesis_capacity())
+        photosynthesis_capacity = self['genes']['photosynthesis_capacity']
+        ENERGY_RESERVE = 0  # TODO: Import from somewhere
+        self.variate_substance(ENERGY_RESERVE, photosynthesis_capacity)
 
-    def procreate(self, ecosystem):
-        # TEMPORARY EXAMPLE
-        # add new organisms at the beginning of the list (as a queue)
-        # using ecosystem.organisms.insert(0, new_organism)
-        if (random() < initial_settings.REPRODUCTION_FREQUENCY) and (self.status()['energy'] > 5):
-            newLocation = ecosystem.biotope.seek_free_pos_close_to(self.position(), 3, 3)
-            if newLocation != None:    
-                baby = Organism(deepcopy(self.Data))
-                # Reparto de reservas de sustancias:
-                for SUSTANCE in self.substances.keys():
-                    baby.variate_substance(SUSTANCE, - baby.amount_of_substance(SUSTANCE) / 2)
-                    self.variate_substance(SUSTANCE, - baby.amount_of_substance(SUSTANCE) / 2)
-                # Mutation?
-                baby.setLocation(newLocation)
-                ecosystem.biotope.add_org(baby, newLocation)
-                ecosystem.newborns.append(baby)
-                return 1
-            else:
-                return 0
-        else:
-            return 0
+    def procreate_if_possible(self):
+        """
+            Depending on the reproduction frequency and the energy,
+            a baby can be created and added to:
+              - the organisms matrix in biotope
+              - the list of organisms in parent_ecosystem
+            Return true if procreated, else return false.
+        """
+        procreated = False
+        # 1. Get organism current data
+        reproduction_frequency = self['genes']['reproduction_frequency']
+        x = self['status']['coordinates']['x']
+        y = self['status']['coordinates']['y']
+        energy_threshold = 5  # TODO: Define in genes
+
+        # 2. Check if it is the moment to reproduce
+        if ((random() < reproduction_frequency) and
+                (self['status']['energy'] > energy_threshold)):
+            # 3. Find a new location in the biotope. If there is not
+            #    free position, the baby won't be born.
+            new_x, new_y = self.parent_ecosystem.\
+                biotope.seek_free_pos_close_to(x, y, radius=3)
+            # TODO: Why 3? Define elsewhere
+            if new_x is not None and new_y is not None:
+                # 4. Create a baby
+                # 4.1. Create a exact copy of self
+                baby = deepcopy(self)
+
+                # 4.2. Split substances between self and baby
+                # TODO: Why divide by 2? Maybe baby is much smaller... check.
+                for substance_code in self.substances.keys():
+                    baby.variate_substance(
+                        substance_code,
+                        - baby.amount_of_substance(substance_code) / 2)
+                    self.variate_substance(
+                        substance_code,
+                        - baby.amount_of_substance(substance_code) / 2)
+
+                # 4.3. Set location of baby
+                baby.set_location(new_x, new_y)
+                # 4.4. Add organism in organisms matrix in biotope
+                self.parent_ecosystem.biotope.add_organism(baby, new_x, new_y)
+                # 4.5. Add organism to parent ecosystem
+                self.parent_ecosystem.organisms_list.append(baby)
+                procreated = True
+        return procreated
 
     def age(self, ecosystem):
-        self.Data['status']['age'] += 1 
-        if random()*self.Data['status']['age'] > initial_settings.GLOBAL_LONGEVITY:
-            ecosystem.biotope.delete_org(self)
-            return 'Dead'
-        else:
-            return 'Alive'
-
-
-
-
-
-
-
-
+        """
+            Increment age 1 unit. If age > longevity it dies. When it dies:
+            - it set a None in organisms matrix in Biotope
+            - it is deleted from organisms_matrix in parent_ecosystem
+            Once the last reference of self is lost, the current organism
+            will be garbage collected
+        """
+        longevity = self['genes']['longevity']
+        self['status']['age'] += 1
+        if self['status']['age'] > longevity:
+            self.parent_ecosystem.biotope.delete_organism(self)
+            self.parent_ecosystem.organisms_list.remove(self)
