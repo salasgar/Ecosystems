@@ -13,21 +13,19 @@ class Ecosystem(object):
     biotope = None
     experiment = None
 
-    def initialize_organisms(self, experiment):
-        for (N, Data) in org_list:
-            for i in range(0, N):
-                new_loc = self.biotope.seek_free_pos()
-                if new_loc != None:
-                    new_org = Organism.Organism(deepcopy(Data))
-                    new_org.setLocation(new_loc)
-                    self.organisms.append(new_org)
-
-    def initialize_biotope(self, experiment):
-        pass
-
     def __init__(self, experiment):
-        self.initialize_organisms(experiment)
-        self.initialize_biotope(experiment)
+        self.initialize_organisms(experiment['organisms'])
+        self.initialize_biotope(experiment['biotope'])
+        self.initialize_substances(experiment['substances'])
+
+    def initialize_biotope(self, experiment_biotope_data):
+        pass # TODO
+
+    def initialize_organisms(self, experiment_organisms_data):
+        pass # TODO
+
+    def initialize_substances(self, experiment_substances_data):
+        pass # TODO
 
     def evolve(self):
         # Biotope actions
