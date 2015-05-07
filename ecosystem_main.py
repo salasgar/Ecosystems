@@ -7,22 +7,13 @@ from copy import deepcopy
 import Biotope
 import Organism
 
-# Creation of biotope
-BIOTOPE_SIZE_X, BIOTOPE_SIZE_Y, REPRODUCTION_FREQUENCY, GLOBAL_LONGEVITY = initial_settings.BIOTOPE_SIZE_X, initial_settings.BIOTOPE_SIZE_Y, initial_settings.REPRODUCTION_FREQUENCY, initial_settings.GLOBAL_LONGEVITY
-
-
 
 class Ecosystem(object):
     organisms = []
-    newborns = []
     biotope = None
+    experiment = None
 
-    def __init__(self, biotope_size_x, biotope_size_y):
-        self.biotope = Biotope.Biotope(biotope_size_x, biotope_size_y)
-        self.biotope.set_Substances(initial_settings.SUBSTANCES)
-        self.biotope.set_Ecosystem(self)
-        
-    def create_organisms(self, org_list):
+    def initialize_organisms(self, experiment):
         for (N, Data) in org_list:
             for i in range(0, N):
                 new_loc = self.biotope.seek_free_pos()
@@ -30,6 +21,13 @@ class Ecosystem(object):
                     new_org = Organism.Organism(deepcopy(Data))
                     new_org.setLocation(new_loc)
                     self.organisms.append(new_org)
+
+    def initialize_biotope(self, experiment):
+        pass
+
+    def __init__(self, experiment):
+        self.initialize_organisms(experiment)
+        self.initialize_biotope(experiment)
 
     def evolve(self):
         # Biotope actions
