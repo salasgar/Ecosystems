@@ -1,5 +1,3 @@
-import actions
-import initial_settings
 from GUI import GUI
 # from time import sleep  # To remove
 #import Biotope
@@ -24,9 +22,11 @@ class Ecosystem(object):
 
     def evolve(self):
         # Biotope actions
-        actions.BiotopeActions.change_temperature(self)  # Temporal
+        self.biotope.evolve()
 
         # Organisms actions
+        # TODO: Adaptar a nuevos métodos
+        """
         i = 0
         while i < len(self.organisms):
             organism = self.organisms[i]
@@ -43,6 +43,7 @@ class Ecosystem(object):
             i = i + 1
         self.organisms += self.newborns
         self.newborns = []
+        """
         # print 'Num of organisms + newborns: %d' % len(self.organisms)
 
 
