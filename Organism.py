@@ -99,6 +99,6 @@ class Organism(object):
     def age(self, ecosystem):
         longevity = self['genes']['longevity']
         self['status']['age'] += 1
-        if self['status']['age'] > longevity: # Die
+        if self['status']['age'] > longevity:  # Die
             self.parent_ecosystem.biotope.delete_organism(self)
             self.parent_ecosystem.organisms_list.remove(self)
