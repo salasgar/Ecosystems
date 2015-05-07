@@ -1,5 +1,5 @@
 
-# Substance codes:
+#-- Substance codes ---------------------
 # Substances spread in the biotope:
 NO_SUBSTANCE = 0
 WATER = 1
@@ -25,7 +25,7 @@ WATER_RESERVE = 201
 NITRATE_RESERVE = 204
 PHOSPHATE_RESERVE = 205
 
-class substance(Tools.Matrix):
+class Substance(Tools.Matrix):
     
     def __init__(self, substance_metadata):
         self.substance_metadata = substance_metadata
@@ -46,12 +46,11 @@ class substance(Tools.Matrix):
         return self[i, j]
 
     def get_concentration(self, coordinates):
+        """ 
+            It returns the amount of substance divided by the block_area.
+        """
         block_area = self.block_size ** 2
-        # The amount of substance that an organism can absorve 
-        # depends on the concentration of that substance
-        (i, j) = (int(coordinates[0] // self.block_size),
-                  int(coordinates[1] // self.block_size))
-        return self[i, j] / block_area
+        return self.get_value(location) / block_area
         
     def variate_value(self, coordinates, variation):
         (i, j) = (int(coordinates[0] // self.block_size),
