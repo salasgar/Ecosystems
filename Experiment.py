@@ -44,7 +44,7 @@ Experiment_1 = {
                  'initial value': 10,
                  'mutability': {
                      'increments': {
-                         'type': 'built-in function',
+                         'type': 'random function',
                          'name': 'gaussian',
                          'mean': 0.0, 
                          'variance': 0.01},
@@ -64,38 +64,37 @@ Experiment_1 = {
     ],
 
   'outlays': {
-              'hunting': {
-			'type': 'built-in function',
-			'name': 'linear function',
-			'terms': [
-				{'parameter': 'strength', 'coefficient': 3.0}, 
-                 		{'parameter': 'speed', 'coefficient': 0.2}, 
-                       	{'parameter': None, 'coefficient': 5.0}]},
-              'moving': {
-			'type': 'built-in function',
-			'name': 'linear function',
-			'terms': [
-				{'parameter': 'strength', 'coefficient': 1.0}, 
-                         	{'parameter': 'photosynthesis_capacity', 'coefficient': 25.0}, 
-                       	{'parameter': 'speed', 'coefficient': 5.0}, 
-                       	{'parameter': None, 'coefficient': 1.0}]},
-              'procreating': {
-			'type': 'built-in function',
-			'name': 'linear function',
-			'terms': [
-				{'parameter': 'strength', 'coefficient': 3.0}, 
-                      	{'parameter': 'photosynthesis_capacity', 'coefficient': 3.0}, 
-                       	{'parameter': 'speed', 'coefficient': 3.0}, 
-                         	{'parameter': None, 'coefficient': 5.0}]},
-	        'living': {
-			'type': 'built-in function',
-			'name': 'linear function',
-			'terms': [
-				{'parameter': 'strength', 'coefficient': 1.0}, 
-                        	{'parameter': 'photosynthesis_capacity', 'coefficient': -1.0},
-                      	{'parameter': 'speed', 'coefficient': 2.0}, 
-                      	{'parameter': None, 'coefficient': 5.0}]}
-              },
+      'hunting': {
+          'type': 'function of one organism',
+          'name': 'linear function',
+          'terms': [
+              {'parameter': 'strength', 'coefficient': 3.0}, 
+              {'parameter': 'speed', 'coefficient': 0.2}, 
+              {'parameter': None, 'coefficient': 5.0}]},
+      'moving': {
+          'type': 'function of one organism',
+          'name': 'linear function',
+          'terms': [
+              {'parameter': 'strength', 'coefficient': 1.0}, 
+              {'parameter': 'photosynthesis_capacity', 'coefficient': 25.0}, 
+              {'parameter': 'speed', 'coefficient': 5.0}, 
+              {'parameter': None, 'coefficient': 1.0}]},
+      'procreating': {
+          'type': 'function of one organism',
+          'name': 'linear function',
+          'terms': [
+              {'parameter': 'strength', 'coefficient': 3.0}, 
+              {'parameter': 'photosynthesis_capacity', 'coefficient': 3.0}, 
+              {'parameter': 'speed', 'coefficient': 3.0}, 
+              {'parameter': None, 'coefficient': 5.0}]},
+      'living': {
+          'type': 'function of one organism',
+          'name': 'linear function',
+          'terms': [
+              {'parameter': 'strength', 'coefficient': 1.0}, 
+              {'parameter': 'photosynthesis_capacity', 'coefficient': -1.0},
+              {'parameter': 'speed', 'coefficient': 2.0}, 
+              {'parameter': None, 'coefficient': 5.0}]}},
 
   'constraints': {
    	'procreating': {
