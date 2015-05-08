@@ -33,16 +33,36 @@ class Biotope(object):
         for organism in self.parent_ecosystem.organisms:
             location = organism['location']
             self.add_organism(organism, location)
+            """ SALAS:
+            Deberiamos borrar los organismos que pueda haber previamente en este biotopo?
+            """
 
     def add_organism(self, organism, location):
         (x, y) = location
         self.organisms_matrix[x, y] = organism
-
+        """ SALAS:
+        Es mas sencillo poner simplemente:
+        self.organism_matrix[location] = organism
+        Y funciona igual. Poner Variable[3, 4] es equivalente a poner Variable[(3, 4)]
+        """
+        
     def move_organism(self, organism, new_location):
         (new_x, new_y) = new_location
         (old_x, old_y) = organism['location']
         self.organismsArray[old_x, old_y] = None
         self.organismsArray[new_x, new_y] = organism
+        """ SALAS:
+        Aqui hay que llevar cuidado, porque hay que llamar a esta funcion antes de cambiar orgaism['location']
+        En un futuro nos podriamos confundir y cambiar organism['location'] antes de llamar a esta funcion.
+        Propongo que la funcion sea:
+        
+    def move_organism(self, organism, old_location, new_location):
+        self.organismsArray[old_location] = None
+        self.organismsArray[new_location] = organism
+        
+        
+        Y asi no hay dudas.
+        """
 
     def delete_organism(self, location):
         (x, y) = location
@@ -70,11 +90,18 @@ class Biotope(object):
             a radius (None if not possible)
         """
         # TODO: La misma idea de la lista que en el método anterior
+        """ SALAS:
+        Para la funcion anterior me parece muy buena idea, pero para esta no, ya que habria que guardar una lista para cada center y cada radius
+        """
         pass 
 
     def get_substance(self, substance_code):
         return self.substances[substance_code]
 
     def evolve(self):
+        """ SALAS:
+        TO DO: Posteriormente habra que definir el "clima", que consistira en cierto regimen de "lluvia" de distintas substancias, como agua, luz solar o sales minerales,
+        que iran apareciendo en el biotopo y de las cuales se iran alimentando los organismos. Las sales minerales van apareciendo por la disolucion de las rocas.
+        """
         for substance in self.substances_dict.values():
             substance.spread()

@@ -23,9 +23,10 @@ class Ecosystem(object):
     def evolve(self):
         # Biotope actions
         self.biotope.evolve()
-
+    
         # Organisms actions
         # TODO: Adaptar a nuevos métodos
+    
         """
         i = 0
         while i < len(self.organisms):

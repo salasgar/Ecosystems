@@ -63,6 +63,9 @@ class GUI(object):
         pygame.display.update()
 
     def handle_events(self):
+        """
+        # Este metodo no deberia llamar a algun metodo como pygame.handle_events o algo asi?
+        """
         pass  # Get events and modify Ecosystem accordingly
 
     def delete(self):
