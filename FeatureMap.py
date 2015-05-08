@@ -1,6 +1,6 @@
 
-# -- Substance codes ---------------------
-# Substances spread in the biotope:
+# -- FeatureMap codes ---------------------
+# FeatureMaps spread in the biotope:
 NO_SUBSTANCE = 0
 WATER = 1
 CARBON_DIOXIDE = 2
@@ -20,19 +20,19 @@ RAIN = 103
 # and in the end, if there is enought humidity, it become DEPTH
 ALTITUDE = 104
 DEPTH = 105  # Depth of a sea, a lake or a river
-# Substances inside organisms:
+# FeatureMaps inside organisms:
 WATER_RESERVE = 201
 NITRATE_RESERVE = 204
 PHOSPHATE_RESERVE = 205
 
 
-class Substance(Tools.Matrix):
+class FeatureMap(Tools.Matrix):
 
-    def __init__(self, substance_metadata):
-        self.substance_metadata = substance_metadata
-        (self.size_x, self.size_y) = self.substance_metadata['dimensions']
-        self.block_size = self.substance_metadata['block_size']
-        super(substance, self).__init__(size_x // block_size,
+    def __init__(self, featuremap_metadata):
+        self.featuremap_metadata = featuremap_metadata
+        (self.size_x, self.size_y) = self.featuremap_metadata['dimensions']
+        self.block_size = self.featuremap_metadata['block_size']
+        super(featuremap, self).__init__(size_x // block_size,
                                         size_y // block_size,
                                         value=0)
 
@@ -48,7 +48,7 @@ class Substance(Tools.Matrix):
 
     def get_concentration(self, coordinates):
         """
-            It returns the amount of substance divided by the block_area.
+            It returns the amount of featuremap divided by the block_area.
         """
         block_area = self.block_size ** 2
         return self.get_value(location) / block_area
@@ -60,7 +60,7 @@ class Substance(Tools.Matrix):
 
     def evolve(self):
         aux_matrix = Tools.Matrix(self.size_x, self.size_y)
-        spread_speed = self.substance_metadata['spread_speed']
+        spread_speed = self.featuremap_metadata['spread_speed']
         for i in range(self.size_x):
             for j in range(self.size_y):
                 aux_matrix[i, j] = spread_speed * \

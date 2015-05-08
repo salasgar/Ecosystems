@@ -9,7 +9,7 @@ class Ecosystem(object):
     def __init__(self, experiment):
         self.initialize_organisms(experiment['organisms'])
         self.initialize_biotope(experiment['biotope'])
-        self.initialize_substances(experiment['substances'])
+        self.initialize_featuremaps(experiment['featuremaps'])
 
     def initialize_biotope(self, experiment_biotope_data):
         pass  # TODO

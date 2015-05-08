@@ -10,7 +10,7 @@ class Biotope(object):
         self.biotope_data = biotope_data
         self.parent_ecosystem = parent_ecosystem
         self.organisms_matrix = Tools.Matrix(size_x, size_y)
-        self.substances_dict = {}
+        self.featuremaps_dict = {}
 
     def __getitem__(self, keys):
         return self.biotope_data[keys]
@@ -18,11 +18,11 @@ class Biotope(object):
     def __setitem__(self, keys, value):
         self.biotope_data[keys] = value
 
-    def __str__(self):  # Just for debug
+    def __str__(self):  # Just sfor debug
         return str(self.organisms_matrix)
 
-    def add_substance(substance):
-        self.substances_dict[substance.code] = substance
+    def add_featuremap(featuremap):
+        self.featuremaps_dict[featuremap.code] = featuremap
 
     def set_parent_ecosystem(self, parent_ecosystem):
         """
@@ -95,13 +95,13 @@ class Biotope(object):
         """
         pass 
 
-    def get_substance(self, substance_code):
-        return self.substances[substance_code]
+    def get_featuremap(self, featuremap_code):
+        return self.featuremaps[featuremap_code]
 
     def evolve(self):
         """ SALAS:
         TO DO: Posteriormente habra que definir el "clima", que consistira en cierto regimen de "lluvia" de distintas substancias, como agua, luz solar o sales minerales,
         que iran apareciendo en el biotopo y de las cuales se iran alimentando los organismos. Las sales minerales van apareciendo por la disolucion de las rocas.
         """
-        for substance in self.substances_dict.values():
-            substance.spread()
+        for featuremap in self.featuremaps_dict.values():
+            featuremap.spread()

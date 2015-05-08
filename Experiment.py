@@ -116,7 +116,7 @@ Experiment_1 = {'experiment name': "Strength vs photosyntesis capacity",
 Default_experiment = {'experiment name': "Experiment name",
  'biotope': {
 	'size': (100, 200),
-	'substances': None },
+	'featuremaps': None },
  'organisms': [{'category': 'General_category',
        'number_of_organisms': 10,
        'genes': {

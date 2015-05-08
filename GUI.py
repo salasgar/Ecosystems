@@ -44,9 +44,9 @@ class GUI(object):
                                  (o_x + px_begin, o_y + px_end)))
         pygame.display.update()
 
-    def draw_substance(self, substance_code):
-        substance = self.parent_ecosystem.biotope.get_substance(
-                substance_code)
+    def draw_featuremap(self, featuremap_code):
+        featuremap = self.parent_ecosystem.biotope.get_featuremap(
+                featuremap_code)
         px_begin = 1
         px_end = self.zoom - 1
         for x in range(self.ecosystem.biotope.size_x):
@@ -55,7 +55,7 @@ class GUI(object):
                 s_y = y * self.zoom
                 # Lo del color esta todavia sin implementar
                 pygame.draw.polygon(self.windowSurface,
-                                    substance.color(x, y),
+                                    featuremap.color(x, y),
                                     ((s_x + px_begin, s_y + px_begin),
                                      (s_x + px_end, s_y + px_begin),
                                      (s_x + px_end, s_y + px_end),
