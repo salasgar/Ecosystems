@@ -30,3 +30,31 @@ class Matrix(object):
 
     def __str__(self):
         return "\n".join(str(self.Data[i]) for i in range(len(self.Data)))
+
+def random_function_maker(function_dict):
+    def choice_value(values, r):
+        i = 0
+        while r > values[i]['probability']:
+            i += 1
+        return values[i]['value']   
+    if function_dict['type'] == 'random function':
+        if function_dict['name'] == 'gaussian':
+            mean = function_dict['mean']
+            variance = function_dict['variance']
+            return lambda: random.gauss(mean, variance)
+        elif function_dict['name'] == 'uniform distribution':
+            interval = function_dict['interval']
+            return lambda: random.uniform(*interval)
+        elif function_dict['name'] == 'discrete distribution':
+            values = copy.deepcopy(function_dict['values'])
+            total = 0
+            for pair in values:
+                total += pair['probability']
+                pair['probability'] = total
+            return lambda: choice_value(values, random.random())
+        elif function_dict['name'] == 'chi-squared distribution':
+            k = function_dict['k']
+            coefficient = function_dict['coefficient']
+            return lambda: coefficient * math.fsum(random.gauss(0, 1)**2 for i in range(k))
+    return lambda: random.random()
+    

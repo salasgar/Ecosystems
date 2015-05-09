@@ -1,9 +1,10 @@
-experiment = {'biotope': {},
-              'organisms': {},}
+            
               
-              
-Experiment_1 = {
+experiment = {
  'experiment name': "Strength vs photosyntesis capacity",
+ 'biotope': {
+	'size': (100, 200),
+	'featuremaps': None },
  'organisms': [
      {'category': 'Plants',
          'number_of_organisms': 50,
@@ -65,7 +66,7 @@ Experiment_1 = {
 
   'outlays': {
       'hunting': {
-          'type': 'function of one organism',
+          'type': 'outlay function',
           'name': 'linear function',
           'terms': [
               {'parameter': 'strength', 'coefficient': 3.0}, 
@@ -116,7 +117,6 @@ Experiment_1 = {
 		'name': 'death_because_of_low_energy',
 		'minimun_level_of_energy': 10.0
 		} },
-
 }
 
 
@@ -283,7 +283,7 @@ def print_Experiment(Experiment, indent_level = 0):
         print "   "*indent_level, Experiment
     
     
-for E in (Default_experiment, Experiment_1, Experiment_2, Experiment_3):
+for E in (Default_experiment, experiment, Experiment_2, Experiment_3):
     print "\n\n\n"
     print_Experiment(E)
     

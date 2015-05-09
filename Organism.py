@@ -10,11 +10,11 @@ class Organism(object):
         self.organism_data = organism_data
         self.parent_ecosystem = parent_ecosystem
 
-    def __getitem__(self, keys):
-        return self.organism_data[keys]
+    def __getitem__(self, key):
+        return self.organism_data[key]
 
-    def __setitem__(self, keys, value):
-        self.organism_data[keys] = value
+    def __setitem__(self, key, value):
+        self.organism_data[key] = value
 
     def __str__(self):  # Just for debug
         return str(tuple(self['age']))
