@@ -15,7 +15,7 @@ def complete_with_default_values(experiment):
 
 def replace_definitions_by_functions(experiment):
     """
-        Replace recursively definitions of functions by actual functions.
+        Recursively replace definitions of functions by actual functions.
     """
     if 'type' in experiment.keys():
         if experiment['type'] == 'random function':
