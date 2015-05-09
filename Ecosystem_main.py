@@ -5,49 +5,47 @@ import Tools
 # import Organism
 
 
-def complete_with_default_values(experiment):
-    if 'biotope' not in experiment.keys():
-        experiment['biotope'] = {
-            'size': (100, 200),
-            'featuremaps': None}
-    # TODO More things
-
-
-def replace_definitions_by_functions(experiment):
-    """
-        Recursively replace definitions of functions by actual functions.
-    """
-    if 'type' in experiment.keys():
-        if experiment['type'] == 'random function':
-            return Tools.random_function_maker(experiment)
-        elif experiment['type'] == 'outlay function':
-            return Tools.outlay_function_maker(experiment)
-        elif experiment['type'] == 'interpreted function':
-            return Tools.interpreted_function_maker(experiment)
-    else:
-        # Get in a deeper level
-        for key in experiment.keys():
-            if isinstance(experiment[key], dict):
-                replace_definitions_by_functions(experiment[key])
-            elif hasattr(experiment[key], '__iter__'):  # If it's iterable
-                for item in experiment[key]:
-                    if isinstance(item, dict):
-                        replace_definitions_by_functions(item)
-            elif (isinstance(experiment[key], int) or
-                  isinstance(experiment[key], float)):
-                def get_x(x): return x
-                experiment[key] = get_x
-    return experiment
-
-
 class Ecosystem(object):
 
     def __init__(self, experiment):
         self.experiment = experiment
-        complete_with_default_values(self.experiment)
-        replace_definitions_by_functions(self.experiment)
+        self.complete_with_default_values(self.experiment)
+        self.replace_definitions_by_functions(self.experiment)
         self.initialize_biotope(self.experiment['biotope'])
         self.initialize_organisms(self.experiment['organisms'])
+
+    def complete_with_default_values(self, experiment):
+        if 'biotope' not in experiment.keys():
+            experiment['biotope'] = {
+                'size': (100, 200),
+                'featuremaps': None}
+        # TODO More things
+
+    def replace_definitions_by_functions(self, experiment):
+        """
+            Recursively replace definitions of functions by actual functions.
+        """
+        if 'type' in experiment.keys():
+            if experiment['type'] == 'random function':
+                return Tools.random_function_maker(experiment)
+            elif experiment['type'] == 'outlay function':
+                return Tools.outlay_function_maker(experiment)
+            elif experiment['type'] == 'interpreted function':
+                return Tools.interpreted_function_maker(experiment)
+        else:
+            # Get in a deeper level
+            for key in experiment.keys():
+                if isinstance(experiment[key], dict):
+                    self.replace_definitions_by_functions(experiment[key])
+                elif hasattr(experiment[key], '__iter__'):  # If it's iterable
+                    for item in experiment[key]:
+                        if isinstance(item, dict):
+                            self.replace_definitions_by_functions(item)
+                elif (isinstance(experiment[key], int) or
+                      isinstance(experiment[key], float)):
+                    def get_x(x): return x
+                    experiment[key] = get_x
+        return experiment
 
     def initialize_biotope(self, experiment_biotope_data):
         pass  # TODO
