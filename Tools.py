@@ -64,11 +64,23 @@ def random_function_maker(function_dict):
     
 def outlay_function_maker(function_dict):
     if function_dict['type'] == 'outlay function':
-        pass
+        if function_dict['name'] == 'linear function':
+            independent_term = 0
+            dependent_terms = []
+            for term in function_dict['terms']:
+                if term['parameter'] == None:
+                    independent_term = term['coefficient']
+                else:
+                    dependent_terms.append((term['parameter'], term['coefficient']))
+            return lambda organism: sum([(organism[parameter] * coefficient) for (parameter, coefficient) in dependent_terms], independent_term)
+        elif function_dict['name'] == 'n-linear function':
+            return lambda organism: sum([(prod([organism[parameter] for parameter in term['parameters']])*term['coefficient']) for term in function_dict['terms']])
+    return lambda organism: 0
+
     
-    
-    
-    
+"""
+podemos juntar random_function_maker, outlay_function_maker, etc... en un solo metodo: function_maker
+"""
     
     
     

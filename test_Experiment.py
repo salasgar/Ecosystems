@@ -18,6 +18,12 @@ living = {
                   	{'parameters': ['photosynthesis capacity'], 				'coefficient': -1.0},
 			{'parameters': ['attack capacity', 'photosynthesis capacity'], 	'coefficient': 25.0}, 
 			{'parameters': [], 								'coefficient': 0.5}]} 
+dying = {
+		'type': 'built-in function',
+		'name': 'death_because_of_low_energy',
+		'minimun_level_of_energy': 10.0
+		}
+
 
 organism = {'strength': 2.0, 
             'speed': 3.0,
