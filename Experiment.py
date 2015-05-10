@@ -73,7 +73,7 @@ experiment = {
               {'parameter': 'speed', 'coefficient': 0.2}, 
               {'parameter': None, 'coefficient': 5.0}]},
       'moving': {
-          'type': 'function of one organism',
+          'type': 'outlay function',
           'name': 'linear function',
           'terms': [
               {'parameter': 'strength', 'coefficient': 1.0}, 
@@ -81,7 +81,7 @@ experiment = {
               {'parameter': 'speed', 'coefficient': 5.0}, 
               {'parameter': None, 'coefficient': 1.0}]},
       'procreating': {
-          'type': 'function of one organism',
+          'type': 'outlay function',
           'name': 'linear function',
           'terms': [
               {'parameter': 'strength', 'coefficient': 3.0}, 
@@ -89,7 +89,7 @@ experiment = {
               {'parameter': 'speed', 'coefficient': 3.0}, 
               {'parameter': None, 'coefficient': 5.0}]},
       'living': {
-          'type': 'function of one organism',
+          'type': 'outlay function',
           'name': 'linear function',
           'terms': [
               {'parameter': 'strength', 'coefficient': 1.0}, 
@@ -150,7 +150,7 @@ Experiment_2	 = {
             		'strength': 'default',
                    	'photosynthesis_capacity': 20.0,
                  	'speed': {
-				'type': 'built-in function',
+				'type': 'random function',
 				'name': 'discrete distribution',
 				'value_list': [
 					{'value': 0.0, 'frequency': 0.25},
@@ -164,7 +164,7 @@ Experiment_2	 = {
             		'strength': 'default',
                    	'photosynthesis_capacity': 20.0,
                  	'speed': {
-				'type': 'built-in function',
+				'type': 'random function',
 				'name': 'discrete distribution',
 				'value_list': [
 					{'value': 0.0, 'frequency': 0.25},
@@ -179,7 +179,7 @@ Experiment_2	 = {
   'mutability': {
 	'strength': {
 		'percentage_increments': {
-			'type': 'built-in function',
+			'type': 'random function',
 			'name': 'gaussian',
 			'mean': 0.0, 
 			'variance': 0.01},
@@ -197,7 +197,7 @@ Experiment_2	 = {
 
 	'mutability': {
 		'percentage_increments': {
-			'type': 'built-in function',
+			'type': 'random function',
 			'name': 'gaussian',
 			'mean': 0.0, 
 			'variance': 0.01},
@@ -214,11 +214,11 @@ Experiment_3 = {
     'organisms': [
 	{'genes': {
             	'attack_capacity': { 
-			'type': 'built-in function',
+			'type': 'random function',
 			'name': 'chi-squared',
 			'k': 3},
             	'defense_capacity': { 
-			'type': 'built-in function',
+			'type': 'random function',
 			'name': 'chi-squared',
 			'k': 3},
              	'photosynthesis_capacity': 20.0,
@@ -228,7 +228,7 @@ Experiment_3 = {
 'outlays': {
 	'load outlays': "/Pepito/Experiments/cool experiment 2.exp",
 	'living': {
-		'type': 'built-in function',
+		'type': 'outlay function',
 		'name': 'n-linear function',
 		'terms': [
 			{'parameters': ['attack_capacity', 'defense_capacity'], 		'coefficient': 1.0}, 
@@ -251,7 +251,7 @@ Experiment_3 = {
   'mutability': {
 	'all genes': {
 		'percentage_increments': {
-			'type': 'built-in function',
+			'type': 'random function',
 			'name': 'gaussian',
 			'mean': 0.0, 
 			'variance': 0.01},
@@ -281,10 +281,12 @@ def print_Experiment(Experiment, indent_level = 0):
             print_Experiment(element, indent_level + 1)
     else:
         print "   "*indent_level, Experiment
-    
+
+"""   
     
 for E in (Default_experiment, experiment, Experiment_2, Experiment_3):
     print "\n\n\n"
     print_Experiment(E)
     
 
+"""

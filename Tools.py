@@ -1,5 +1,8 @@
 from random import random
+from functools import reduce
 
+def prod(iterable): # Calculates the product of all the elements in the iterable
+    return reduce((lambda x, y: x * y), iterable, 1)
 
 def signed_random():
     return 2*random() - 1
@@ -57,4 +60,25 @@ def random_function_maker(function_dict):
             coefficient = function_dict['coefficient']
             return lambda: coefficient * math.fsum(random.gauss(0, 1)**2 for i in range(k))
     return lambda: random.random()
+
+    
+def outlay_function_maker(function_dict):
+    if function_dict['type'] == 'outlay function':
+        pass
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     
