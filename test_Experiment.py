@@ -2,57 +2,77 @@ from Experiment import experiment
 from Tools import *
 
 
-hunting = {
+hunting_outlay_dict = {
           'type': 'outlay function',
-          'name': 'linear function',
+          'subtype': 'linear function',
           'terms': [
               {'parameter': 'strength', 'coefficient': 3.0}, 
               {'parameter': 'speed', 'coefficient': 0.2}, 
               {'parameter': None, 'coefficient': 5.0}]}
 
-living = {
+living_outlay_dict = {
 		'type': 'outlay function',
-		'name': 'n-linear function',
+		'subtype': 'n-linear function',
 		'terms': [
 			{'parameters': ['attack capacity', 'defense capacity'], 		'coefficient': 1.0}, 
                   	{'parameters': ['photosynthesis capacity'], 				'coefficient': -1.0},
 			{'parameters': ['attack capacity', 'photosynthesis capacity'], 	'coefficient': 25.0}, 
 			{'parameters': [], 								'coefficient': 0.5}]} 
-dying = {
-		'type': 'built-in function',
-		'name': 'death_because_of_low_energy',
-		'minimun_level_of_energy': 10.0
+dying_constraint_dict = {
+		'type': 'constraint function',
+		'subtype': 'thresholds',
+            'operator': 'or',
+            'terms': [
+                {'parameter': 'energy reserve', 
+                'operator': '<',
+                'threshold': 10.0},
+                {'parameter': 'age',
+                'operator': '>',
+                'random threshold': {
+                    'type': 'random function',
+                    'subtype': 'gaussian',
+                    'mean': 120,
+                    'variance': 20}
+                    }              
+                ]
 		}
+  
+hunting_constraint_dict = {
+		'type': 'constraint function',
+		'subtype': 'hunting',
+		'a': ('predator', 'strength'),
+		'b': ('prey', 'strength'),
+		'r1': ('random number', 'uniform_distribution [0, 1]'),
+		'r2': ('random number', 'uniform_distribution [0, 1]'),
+		'expression': "a*r1 > b*r2"  }
+
 
 
 organism = {'strength': 2.0, 
             'speed': 3.0,
             'attack capacity': 5.0,
             'defense capacity': 2.0,
-            'photosynthesis capacity': 10.0}
-
-def outlay_function_maker(function_dict):
-    if function_dict['type'] == 'outlay function':
-        print function_dict['name']
-        if function_dict['name'] == 'linear function':
-            independent_term = 0
-            dependent_terms = []
-            for term in function_dict['terms']:
-                if term['parameter'] == None:
-                    independent_term = term['coefficient']
-                else:
-                    dependent_terms.append((term['parameter'], term['coefficient']))
-            return lambda organism: sum([(organism[parameter] * coefficient) for (parameter, coefficient) in dependent_terms], independent_term)
-        elif function_dict['name'] == 'n-linear function':
-            return lambda organism: sum([(prod([organism[parameter] for parameter in term['parameters']])*term['coefficient']) for term in function_dict['terms']])
-    return lambda organism: 0
+            'photosynthesis capacity': 10.0,
+            'age': 120,
+            'energy reserve': 15.0}    
             
+organism_prey = {'strength': 2.0, 
+            'speed': 3.0,
+            'attack capacity': 5.0,
+            'defense capacity': 2.0,
+            'photosynthesis capacity': 10.0,
+            'age': 120,
+            'energy reserve': 15.0}    
+            
+            
+    
+hunting_outlay = outlay_function_maker(hunting_outlay_dict)
 
-hunting_outlay = outlay_function_maker(hunting)
+living_outlay = outlay_function_maker(living_outlay_dict)
 
-living_outlay = outlay_function_maker(living)
+dying_test = constraint_function_maker(dying_constraint_dict)
 
-print hunting_outlay(organism), living_outlay(organism)
+hunting_constraint = constraint_function_maker(hunting_constraint_dict)
 
+print hunting_outlay(organism), living_outlay(organism), dying_test(organism), hunting_constraint(organism, organism_prey)
 
-print prod([2, 3, 4]), prod([])

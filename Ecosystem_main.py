@@ -30,6 +30,8 @@ class Ecosystem(object):
                 return Tools.random_function_maker(experiment)
             elif experiment['type'] == 'outlay function':
                 return Tools.outlay_function_maker(experiment)
+            elif experiment['type'] == 'constraint function':
+                return Tools.constraint_function_maker(experiment)
             elif experiment['type'] == 'interpreted function':
                 return Tools.interpreted_function_maker(experiment)
         else:

@@ -1,4 +1,4 @@
-from random import random
+import random
 from functools import reduce
 
 def prod(iterable): # Calculates the product of all the elements in the iterable
@@ -41,30 +41,36 @@ def random_function_maker(function_dict):
             i += 1
         return values[i]['value']   
     if function_dict['type'] == 'random function':
-        if function_dict['name'] == 'gaussian':
+        if function_dict['subtype'] == 'gaussian':
             mean = function_dict['mean']
             variance = function_dict['variance']
             return lambda: random.gauss(mean, variance)
-        elif function_dict['name'] == 'uniform distribution':
+        elif function_dict['subtype'] == 'uniform distribution':
             interval = function_dict['interval']
             return lambda: random.uniform(*interval)
-        elif function_dict['name'] == 'discrete distribution':
+        elif function_dict['subtype'] == 'discrete distribution':
             values = copy.deepcopy(function_dict['values'])
             total = 0
             for pair in values:
                 total += pair['probability']
                 pair['probability'] = total
             return lambda: choice_value(values, random.random())
-        elif function_dict['name'] == 'chi-squared distribution':
+        elif function_dict['subtype'] == 'chi-squared distribution':
             k = function_dict['k']
             coefficient = function_dict['coefficient']
             return lambda: coefficient * math.fsum(random.gauss(0, 1)**2 for i in range(k))
     return lambda: random.random()
 
+def built_in_function_maker(function_name):
+    if function_name == 'uniform distribution [0, 1]':
+        return random_function_maker({'type': 'random function', 'subtype': 'uniform distribution', 'interval': [0, 1]})
+        #or we can write:
+        #return random.uniform([0, 1])
+    
     
 def outlay_function_maker(function_dict):
     if function_dict['type'] == 'outlay function':
-        if function_dict['name'] == 'linear function':
+        if function_dict['subtype'] == 'linear function':
             independent_term = 0
             dependent_terms = []
             for term in function_dict['terms']:
@@ -73,21 +79,46 @@ def outlay_function_maker(function_dict):
                 else:
                     dependent_terms.append((term['parameter'], term['coefficient']))
             return lambda organism: sum([(organism[parameter] * coefficient) for (parameter, coefficient) in dependent_terms], independent_term)
-        elif function_dict['name'] == 'n-linear function':
+        elif function_dict['subtype'] == 'n-linear function':
             return lambda organism: sum([(prod([organism[parameter] for parameter in term['parameters']])*term['coefficient']) for term in function_dict['terms']])
     return lambda organism: 0
+
+def constraint_function_maker(function_dict):
+    if function_dict['type'] == 'constraint function':
+        if function_dict['subtype'] == 'thresholds':
+            def make_term(term):
+                if term['operator'] == '>':
+                    compare = lambda x, y: (x > y)
+                elif term['operator'] == '<':
+                    compare = lambda x, y: (x < y)
+                else:
+                    return 'error: unknown operator ' + term['operator']
+                if 'threshold' in term.keys():
+                    threshold = lambda: term['threshold']
+                elif 'random threshold' in term.keys():
+                    threshold = random_function_maker(term['random threshold'])
+                return lambda organism: compare(organism[term['parameter']], threshold())
+            if len(function_dict['terms']) == 0:
+                return 'Error in constraint function from input data'
+            if function_dict['operator'] == 'and':
+                bool_operator = lambda x, y: (x and y)
+            elif function_dict['operator'] == 'or':
+                bool_operator = lambda x, y: (x or y)
+            else:
+                bool_operator = lambda x, y: (x or y) # buscar operador xor en python
+            terms = [make_term(term) for term in function_dict['terms']]
+            return lambda organism: reduce(bool_operator, [term(organism) for term in terms[1:]], terms[0](organism))    
+        elif function_dict['subtype'] == 'hunting':
+            
+            
+            return lambda predator, prey: True or False  # To do
+            pass
 
     
 """
 podemos juntar random_function_maker, outlay_function_maker, etc... en un solo metodo: function_maker
+e incluirlo como metodo de la clase Ecosystem
 """
-    
-    
-    
-    
-    
-    
-    
     
     
     

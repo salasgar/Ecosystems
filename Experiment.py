@@ -12,32 +12,33 @@ experiment = {
              'strength': {
                  'initial values': {
                      'type': 'random function',
-                     'name': 'gaussian',
+                     'subtype': 'gaussian',
                      'mean': 10, 
                      'variance': 2},
                  'mutability': {
                      'increments': {
                          'type': 'random function',
-                         'name': 'gaussian',
+                         'subtype': 'gaussian',
                          'mean': 0.0, 
                          'variance': 0.01},
-                     'mutation_frequency': 0.05,
+                     'mutation frequency': 0.05,
                      'allowed_interval': [0, 'infinity']}},
-             'photosynthesis_capacity': {
+             'photosynthesis capacity': {
                  'initial values': {
                      'type': 'random function',
-                     'name': 'uniform distribution',
+                     'subtype': 'uniform distribution',
                      'interval': [10, 30] },
                  'mutability': {
                      'increments': {
                          'type': 'random function',
-                         'name': 'gaussian',
+                         'subtype': 'gaussian',
                          'mean': 0.0, 
                          'variance': 0.15},
-                     'mutation_frequency': 0.001}  }
+                     'mutation frequency': 0.001}  }
          },
          'status': {
-             'energy_reserve': 100.0} },
+             'age': 0,
+             'energy reserve': 100.0} },
      {'category': 'Animals',
          'number_of_organisms': 50,
          'genes': {
@@ -46,76 +47,89 @@ experiment = {
                  'mutability': {
                      'increments': {
                          'type': 'random function',
-                         'name': 'gaussian',
+                         'subtype': 'gaussian',
                          'mean': 0.0, 
                          'variance': 0.01},
-                     'mutation_frequency': 0.05,
+                     'mutation frequency': 0.05,
                      'allowed_interval': [0, 'infinity']}},
              'speed': {
                  'initial values': {
                      'type': 'random function',
-                     'name': 'discrete distribution',
+                     'subtype': 'discrete distribution',
                      'values': [
                          {'value': 0.0, 'probability': 0.25},
                          {'value': 1.0, 'probability': 0.70},
                          {'value': 5.0, 'probability': 0.05}] }}
          },  
          'status': {
-             'energy_reserve': 100} }
+             'energy reserve': 100} }
     ],
 
   'outlays': {
       'hunting': {
           'type': 'outlay function',
-          'name': 'linear function',
+          'subtype': 'linear function',
           'terms': [
               {'parameter': 'strength', 'coefficient': 3.0}, 
               {'parameter': 'speed', 'coefficient': 0.2}, 
               {'parameter': None, 'coefficient': 5.0}]},
       'moving': {
           'type': 'outlay function',
-          'name': 'linear function',
+          'subtype': 'linear function',
           'terms': [
               {'parameter': 'strength', 'coefficient': 1.0}, 
-              {'parameter': 'photosynthesis_capacity', 'coefficient': 25.0}, 
+              {'parameter': 'photosynthesis capacity', 'coefficient': 25.0}, 
               {'parameter': 'speed', 'coefficient': 5.0}, 
               {'parameter': None, 'coefficient': 1.0}]},
       'procreating': {
           'type': 'outlay function',
-          'name': 'linear function',
+          'subtype': 'linear function',
           'terms': [
               {'parameter': 'strength', 'coefficient': 3.0}, 
-              {'parameter': 'photosynthesis_capacity', 'coefficient': 3.0}, 
+              {'parameter': 'photosynthesis capacity', 'coefficient': 3.0}, 
               {'parameter': 'speed', 'coefficient': 3.0}, 
               {'parameter': None, 'coefficient': 5.0}]},
       'living': {
           'type': 'outlay function',
-          'name': 'linear function',
+          'subtype': 'linear function',
           'terms': [
               {'parameter': 'strength', 'coefficient': 1.0}, 
-              {'parameter': 'photosynthesis_capacity', 'coefficient': -1.0},
+              {'parameter': 'photosynthesis capacity', 'coefficient': -1.0},
               {'parameter': 'speed', 'coefficient': 2.0}, 
               {'parameter': None, 'coefficient': 5.0}]}},
 
   'constraints': {
    	'procreating': {
 		'type': 'interpreted function',
-		'name': 'organism constraint',
-		'a': 'energy_reserve',
+		'subtype': 'organism constraint',
+		'a': 'energy reserve',
 		'r': ('random number', 'uniform_distribution [0, 1]'),
 		'expression': "a*r > 100.0"  },
  	'hunting': {
 		'type': 'interpreted function',
-		'name': 'compare_predator_vs_prey',
+		'subtype': 'compare_predator_vs_prey',
 		'a': ('predator', 'strength'),
 		'b': ('prey', 'strength'),
 		'r1': ('random number', 'uniform_distribution [0, 1]'),
 		'r2': ('random number', 'uniform_distribution [0, 1]'),
 		'expression': "a*r1 > b*r2"  },
 	'dying': {
-		'type': 'built-in function',
-		'name': 'death_because_of_low_energy',
-		'minimun_level_of_energy': 10.0
+		'type': 'constraint function',
+		'subtype': 'thresholds',
+            'operator': 'or',
+            'terms': [
+                {'parameter': 'energy reserve', 
+                'operator': '<',
+                'threshold': 10.0},
+                {'parameter': 'age',
+                'operator': '>',
+                'random threshold': {
+                    'type': 'random function',
+                    'subtype': 'gaussian',
+                    'mean': 120,
+                    'variance': 20}
+                    }              
+                ]
 		} },
 }
 
@@ -129,12 +143,12 @@ Default_experiment = {'experiment name': "Experiment name",
        'number_of_organisms': 10,
        'genes': {
 		'speed': 0.0,
-		'mutation_frequency': 1.0
+		'mutation frequency': 1.0
 		},
     	'status': {
   		'coordinates': {
 			'type': 'Biotope call',
-			'name': 'seek_free_position'}
+			'subtype': 'seek free position'}
 		} }],
   'outlays': { },
   'constraints': { },
@@ -148,31 +162,31 @@ Experiment_2	 = {
 	{'category': 'Mutants',
 		'genes': {
             		'strength': 'default',
-                   	'photosynthesis_capacity': 20.0,
+                   	'photosynthesis capacity': 20.0,
                  	'speed': {
 				'type': 'random function',
-				'name': 'discrete distribution',
+				'subtype': 'discrete distribution',
 				'value_list': [
 					{'value': 0.0, 'frequency': 0.25},
 					{'value': 1.0, 'frequency': 0.75}]},  
 			'generation': 0 ,
-                   	'mutation_frequency': 0.1},
+                   	'mutation frequency': 0.1},
 		'status': {
-                 	'energy_reserve': 100.0} },
+                 	'energy reserve': 100.0} },
 	{'category': 'No_Mutants',
 		'genes': {
             		'strength': 'default',
-                   	'photosynthesis_capacity': 20.0,
+                   	'photosynthesis capacity': 20.0,
                  	'speed': {
 				'type': 'random function',
-				'name': 'discrete distribution',
+				'subtype': 'discrete distribution',
 				'value_list': [
 					{'value': 0.0, 'frequency': 0.25},
 					{'value': 1.0, 'frequency': 0.75}]},  
 			'generation': 0,
-                   	'mutation_frequency': 0.0},
+                   	'mutation frequency': 0.0},
 		'status': {
-                    'energy_reserve': 100.0} }],
+                    'energy reserve': 100.0} }],
   'outlays': {
 	'load outlays': "/Pepito/Experiments/cool experiment.exp" },
   'constraints': {},
@@ -180,10 +194,10 @@ Experiment_2	 = {
 	'strength': {
 		'percentage_increments': {
 			'type': 'random function',
-			'name': 'gaussian',
+			'subtype': 'gaussian',
 			'mean': 0.0, 
 			'variance': 0.01},
-		'mutation_frequency': 0.05,
+		'mutation frequency': 0.05,
 		'allowed_interval': [0, 'infinity']	
 		},
 	'speed': {
@@ -198,7 +212,7 @@ Experiment_2	 = {
 	'mutability': {
 		'percentage_increments': {
 			'type': 'random function',
-			'name': 'gaussian',
+			'subtype': 'gaussian',
 			'mean': 0.0, 
 			'variance': 0.01},
 		'allowed_interval': [0, 1]
@@ -213,38 +227,38 @@ Experiment_2	 = {
 Experiment_3 = {
     'organisms': [
 	{'genes': {
-            	'attack_capacity': { 
+            	'attack capacity': { 
 			'type': 'random function',
-			'name': 'chi-squared',
+			'subtype': 'chi-squared',
 			'k': 3},
-            	'defense_capacity': { 
+            	'defense capacity': { 
 			'type': 'random function',
-			'name': 'chi-squared',
+			'subtype': 'chi-squared',
 			'k': 3},
-             	'photosynthesis_capacity': 20.0,
+             	'photosynthesis capacity': 20.0,
 		'energy_reserve_at_birth': 100.0,
 		'minimun_energy_reserve_at_procreation': 200.0},
-	'status': { 'energy_reserve': 200.0} }],
+	'status': { 'energy reserve': 200.0} }],
 'outlays': {
 	'load outlays': "/Pepito/Experiments/cool experiment 2.exp",
 	'living': {
 		'type': 'outlay function',
-		'name': 'n-linear function',
+		'subtype': 'n-linear function',
 		'terms': [
-			{'parameters': ['attack_capacity', 'defense_capacity'], 		'coefficient': 1.0}, 
-                  	{'parameters': ['photosynthesis_capacity'], 				'coefficient': -1.0},
-			{'parameters': ['attack_capacity', 'photosynthesis_capacity'], 	'coefficient': 25.0}, 
+			{'parameters': ['attack capacity', 'defense capacity'], 		'coefficient': 1.0}, 
+                  	{'parameters': ['photosynthesis capacity'], 				'coefficient': -1.0},
+			{'parameters': ['attack capacity', 'photosynthesis capacity'], 	'coefficient': 25.0}, 
 			{'parameters': [], 								'coefficient': 0.5}]} },
 'constraints': {
    	'procreating': {
 		'type': 'threshold',
-		'parameter': 'energy_reserve',
+		'parameter': 'energy reserve',
 		'threshold': 'minimun_energy_reserve_at_procreation'},
 	'hunting': {
 		'type': 'interpreted function',
-		'name': 'compare_predator_vs_prey',
-		'a': ('predator', 'attack_capacity'),
-		'b': ('prey', 'defense_capacity'),
+		'subtype': 'compare_predator_vs_prey',
+		'a': ('predator', 'attack capacity'),
+		'b': ('prey', 'defense capacity'),
 		'r1': ('random number', 'uniform_distribution [0, 1]'),
 		'r2': ('random number', 'uniform_distribution [0, 1]'),
 		'expression': "a*r1 > b*r2"  } },
@@ -252,10 +266,10 @@ Experiment_3 = {
 	'all genes': {
 		'percentage_increments': {
 			'type': 'random function',
-			'name': 'gaussian',
+			'subtype': 'gaussian',
 			'mean': 0.0, 
 			'variance': 0.01},
-		'mutation_frequency': 0.05,
+		'mutation frequency': 0.05,
 		'allowed_interval': [0, 'infinity']	}
 	}
 }
