@@ -10,35 +10,59 @@ experiment = {
          'number_of_organisms': 50,
          'genes': {
              'strength': {
-                 'initial values': {
+                 'initial value': {
                      'type': 'random function',
                      'subtype': 'gaussian',
                      'mean': 10, 
                      'variance': 2},
                  'mutability': {
-                     'increment': {
+                     'absolute variation': {
                          'type': 'random function',
                          'subtype': 'gaussian',
                          'mean': 0.0, 
                          'variance': 0.01},
-                     'mutation frequency': 0.05,
-                     'allowed_interval': [0, 'infinity']}},
+                     'percentage variation': {
+                         'type': 'random function',
+                         'subtype': 'gaussian',
+                         'mean': 0.0, 
+                         'variance': 2.0},
+                     'mutation frequency': 'strength mutation frequency',
+                     'allowed_interval': [0, 'infinity']
+                     }},
+             'strength mutation frequency': {
+                 'initial value': 0.05,
+                 'mutability': {
+                     'new value': {
+                         'type': 'random function',
+                         'subtype': 'uniform distribution',
+                         'interval': [0, 0.1]},
+                     'mutation frequency': 0.01
+                     }},
              'photosynthesis capacity': {
-                 'initial values': {
+                 'initial value': {
                      'type': 'random function',
                      'subtype': 'uniform distribution',
                      'interval': [10, 30] },
                  'mutability': {
-                     'increment': {
+                     'absolute increment': {
                          'type': 'random function',
                          'subtype': 'gaussian',
                          'mean': 0.0, 
                          'variance': 0.15},
-                     'mutation frequency': 0.001}  }
+                     'mutation frequency': 0.001}  },
+             'energy storage capacity': {
+                 'initial value': 1000.0,
+                 'mutability': {
+                     'percentage variation': {
+                         'type': 'random function',
+                         'subtype': 'uniform distribution',
+                         'interval': [-5.0, 5.0]},
+                     'mutation frequency': 0.02
+                  }}
          },
          'status': {
              'age': 0,
-             'energy reserve': 100.0} },
+             'energy reserve': 100.0}  },
      {'category': 'Animals',
          'number_of_organisms': 50,
          'genes': {
@@ -80,6 +104,7 @@ experiment = {
               {'parameter': 'strength', 'coefficient': 1.0}, 
               {'parameter': 'photosynthesis capacity', 'coefficient': 25.0}, 
               {'parameter': 'speed', 'coefficient': 5.0}, 
+              {'parameter': 'energy storage capacity', 'coefficient': 0.001}, 
               {'parameter': None, 'coefficient': 1.0}]},
       'procreating': {
           'type': 'outlay function',
@@ -95,6 +120,7 @@ experiment = {
           'terms': [
               {'parameter': 'strength', 'coefficient': 1.0}, 
               {'parameter': 'photosynthesis capacity', 'coefficient': -1.0},
+              {'parameter': 'energy storage capacity', 'coefficient': 0.002}, 
               {'parameter': 'speed', 'coefficient': 2.0}, 
               {'parameter': None, 'coefficient': 5.0}]}},
 
