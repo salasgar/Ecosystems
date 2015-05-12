@@ -7,7 +7,7 @@ experiment = {
 	'featuremaps': None },
  'organisms': [
      {'category': 'Plants',
-         'number_of_organisms': 50,
+         'number of organisms': 50,
          'genes': {
              'strength': {
                  'initial value': {
@@ -27,7 +27,7 @@ experiment = {
                          'mean': 0.0, 
                          'variance': 2.0},
                      'mutation frequency': 'strength mutation frequency',
-                     'allowed_interval': [0, 'infinity']
+                     'allowed interval': [0, 'infinity']
                      }},
              'strength mutation frequency': {
                  'initial value': 0.05,
@@ -44,7 +44,7 @@ experiment = {
                      'subtype': 'uniform distribution',
                      'interval': [10, 30] },
                  'mutability': {
-                     'absolute increment': {
+                     'absolute variation': {
                          'type': 'random function',
                          'subtype': 'gaussian',
                          'mean': 0.0, 
@@ -64,18 +64,18 @@ experiment = {
              'age': 0,
              'energy reserve': 100.0}  },
      {'category': 'Animals',
-         'number_of_organisms': 50,
+         'number of organisms': 50,
          'genes': {
              'strength': {
                  'initial value': 10,
                  'mutability': {
-                     'increment': {
+                     'variation': {
                          'type': 'random function',
                          'subtype': 'gaussian',
                          'mean': 0.0, 
                          'variance': 0.01},
                      'mutation frequency': 0.05,
-                     'allowed_interval': [0, 'infinity']}},
+                     'allowed interval': [0, 'infinity']}},
              'speed': {
                  'initial values': {
                      'type': 'random function',
@@ -129,15 +129,15 @@ experiment = {
 		'type': 'interpreted function',
 		'subtype': 'organism constraint',
 		'a': 'energy reserve',
-		'r': ('random number', 'uniform_distribution [0, 1]'),
+		'r': ('random number', 'uniform distribution [0, 1]'),
 		'expression': "a*r > 100.0"  },
  	'hunting': {
 		'type': 'interpreted function',
-		'subtype': 'compare_predator_vs_prey',
+		'subtype': 'compare predator vs prey',
 		'a': ('predator', 'strength'),
 		'b': ('prey', 'strength'),
-		'r1': ('random number', 'uniform_distribution [0, 1]'),
-		'r2': ('random number', 'uniform_distribution [0, 1]'),
+		'r1': ('random number', 'uniform distribution [0, 1]'),
+		'r2': ('random number', 'uniform distribution [0, 1]'),
 		'expression': "a*r1 > b*r2"  },
 	'dying': {
 		'type': 'constraint function',
@@ -165,8 +165,8 @@ Default_experiment = {'experiment name': "Experiment name",
  'biotope': {
 	'size': (100, 200),
 	'featuremaps': None },
- 'organisms': [{'category': 'General_category',
-       'number_of_organisms': 10,
+ 'organisms': [{'category': 'General category',
+       'number of organisms': 10,
        'genes': {
 		'speed': 0.0,
 		'mutation frequency': 1.0
@@ -192,21 +192,21 @@ Experiment_2	 = {
                  	'speed': {
 				'type': 'random function',
 				'subtype': 'discrete distribution',
-				'value_list': [
+				'value list': [
 					{'value': 0.0, 'frequency': 0.25},
 					{'value': 1.0, 'frequency': 0.75}]},  
 			'generation': 0 ,
                    	'mutation frequency': 0.1},
 		'status': {
                  	'energy reserve': 100.0} },
-	{'category': 'No_Mutants',
+	{'category': 'No Mutants',
 		'genes': {
             		'strength': 'default',
                    	'photosynthesis capacity': 20.0,
                  	'speed': {
 				'type': 'random function',
 				'subtype': 'discrete distribution',
-				'value_list': [
+				'value list': [
 					{'value': 0.0, 'frequency': 0.25},
 					{'value': 1.0, 'frequency': 0.75}]},  
 			'generation': 0,
@@ -218,30 +218,30 @@ Experiment_2	 = {
   'constraints': {},
   'mutability': {
 	'strength': {
-		'percentage_increments': {
+		'percentage variation': {
 			'type': 'random function',
 			'subtype': 'gaussian',
 			'mean': 0.0, 
 			'variance': 0.01},
 		'mutation frequency': 0.05,
-		'allowed_interval': [0, 'infinity']	
+		'allowed interval': [0, 'infinity']	
 		},
 	'speed': {
-		'type': 'probabilistic_automaton',
+		'type': 'probabilistic automaton',
 		'states': {0.0, 1.0},
-		'probabilities_matrix': [
+		'probabilities matrix': [
 			[0.99, 0.01],
 			[0.02, 0.98]] },
 	'generation': {
-		'increments': 1},
+		'variation': 1},
 
 	'mutability': {
-		'percentage_increments': {
+		'percentage variation': {
 			'type': 'random function',
 			'subtype': 'gaussian',
 			'mean': 0.0, 
 			'variance': 0.01},
-		'allowed_interval': [0, 1]
+		'allowed interval': [0, 1]
 		}
   	}
 }
@@ -262,8 +262,8 @@ Experiment_3 = {
 			'subtype': 'chi-squared',
 			'k': 3},
              	'photosynthesis capacity': 20.0,
-		'energy_reserve_at_birth': 100.0,
-		'minimun_energy_reserve_at_procreation': 200.0},
+		'energy reserve at birth': 100.0,
+		'minimun energy reserve at procreation': 200.0},
 	'status': { 'energy reserve': 200.0} }],
 'outlays': {
 	'load outlays': "/Pepito/Experiments/cool experiment 2.exp",
@@ -279,24 +279,24 @@ Experiment_3 = {
    	'procreating': {
 		'type': 'threshold',
 		'parameter': 'energy reserve',
-		'threshold': 'minimun_energy_reserve_at_procreation'},
+		'threshold': 'minimun energy reserve at procreation'},
 	'hunting': {
 		'type': 'interpreted function',
-		'subtype': 'compare_predator_vs_prey',
+		'subtype': 'compare predator vs prey',
 		'a': ('predator', 'attack capacity'),
 		'b': ('prey', 'defense capacity'),
-		'r1': ('random number', 'uniform_distribution [0, 1]'),
-		'r2': ('random number', 'uniform_distribution [0, 1]'),
+		'r1': ('random number', 'uniform distribution [0, 1]'),
+		'r2': ('random number', 'uniform distribution [0, 1]'),
 		'expression': "a*r1 > b*r2"  } },
   'mutability': {
 	'all genes': {
-		'percentage_increments': {
+		'percentage variation': {
 			'type': 'random function',
 			'subtype': 'gaussian',
 			'mean': 0.0, 
 			'variance': 0.01},
 		'mutation frequency': 0.05,
-		'allowed_interval': [0, 'infinity']	}
+		'allowed interval': [0, 'infinity']	}
 	}
 }
 
