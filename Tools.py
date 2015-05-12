@@ -1,6 +1,13 @@
 import random
 from functools import reduce
 
+def is_number(x):
+    try:
+        x + 1
+        return True
+    except TypeError:
+        return False
+
 def prod(iterable): # Calculates the product of all the elements in the iterable
     return reduce((lambda x, y: x * y), iterable, 1)
 
@@ -61,6 +68,7 @@ def random_function_maker(function_dict):
             return lambda: coefficient * math.fsum(random.gauss(0, 1)**2 for i in range(k))
     return lambda: random.random()
 
+""" esta funcion estoy pensando en no usarla:"""
 def built_in_function_maker(function_name):
     if function_name == 'uniform distribution [0, 1]':
         return random_function_maker({'type': 'random function', 'subtype': 'uniform distribution', 'interval': [0, 1]})

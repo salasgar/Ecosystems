@@ -16,7 +16,7 @@ experiment = {
                      'mean': 10, 
                      'variance': 2},
                  'mutability': {
-                     'increments': {
+                     'increment': {
                          'type': 'random function',
                          'subtype': 'gaussian',
                          'mean': 0.0, 
@@ -29,7 +29,7 @@ experiment = {
                      'subtype': 'uniform distribution',
                      'interval': [10, 30] },
                  'mutability': {
-                     'increments': {
+                     'increment': {
                          'type': 'random function',
                          'subtype': 'gaussian',
                          'mean': 0.0, 
@@ -45,7 +45,7 @@ experiment = {
              'strength': {
                  'initial value': 10,
                  'mutability': {
-                     'increments': {
+                     'increment': {
                          'type': 'random function',
                          'subtype': 'gaussian',
                          'mean': 0.0, 
