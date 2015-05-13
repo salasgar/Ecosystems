@@ -18,6 +18,11 @@ print """\n\n TEST prod(iterable) """
 
 print prod([3, 4, 5]) # gives de product of all numbers in an iterable object:  3 * 4 * 5 = 60
 
+print """\n\n TEST float_range(start, stop, step) """
+for x in float_range(12, 11, -0.11):
+    print x
+
+
 print """\n\n TEST make_function(definition) """
 
 living_outlay_dict = {
@@ -46,5 +51,5 @@ function1 = {
         'subtype': 'uniform distribution',
         'interval': ['photosynthesis capacity', 'energy reserve']
     }}  
-print [make_function(function1)(organism) for i in range(10)]    
-print make_function(living_outlay_dict)(organism)   
+#print [make_function(function1)(organism) for i in range(10)]    
+#print make_function(living_outlay_dict)(organism)   

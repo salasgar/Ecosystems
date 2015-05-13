@@ -1,9 +1,4 @@
-# -*- coding: utf-8 -*-
-"""
-Created on Tue May 12 02:52:25 2015
-
-@author: JuanLuis
-"""
+from Tools import *
 
 print type("c")
 
@@ -17,3 +12,5 @@ definition =9
 print type(definition) == str
 
 print isinstance(definition, str)
+
+print sqrt(25)

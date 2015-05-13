@@ -1,4 +1,5 @@
 from random import *
+from math import *
 import initial_settings
 import Tools
 import Organism
@@ -65,18 +66,12 @@ class Biotope(object):
                 organism['location'] = location
         self.organisms_matrix[location] = organism
         
-    def move_organism(self, organism, old_location, new_location):
+    def move_organism(self, old_location, new_location):
+        self.organisms_matrix[new_location] = self.organisms_matrix[old_location]
         self.organisms_matrix[old_location] = None
-        self.organisms_matrix[new_location] = organism
-
+        
     def delete_organism(self, location):
         self.organisms_matrix[location] = None
-
-    def location_is_ok(self, location):
-        (x, y) = location
-        (size_x, size_y) = self['dimensions']
-        return ((x >= 0) and (y >= 0) and
-                (x < size_x) and (y < size_y))
 
     def seek_free_location(self):
         """
@@ -85,16 +80,48 @@ class Biotope(object):
         """
         return self.random_locations.get_new_location()
         
-    def seek_free_location_close_to(self, center, radius):
+    def seek_free_location_close_to(self, center, radius, mode = 'circle'):
         """ 
             This method return a random free position close to a center within
             a radius (None if not possible)
         """
-        # TODO: La misma idea de la lista que en el metodo anterior
-        """ SALAS:
-        Para la funcion anterior me parece muy buena idea, pero para esta no, ya que habria que guardar una lista para cada center y cada radius
+        (xc, yc) = center
+        left = int(round(xc - radius))
+        right = int(round(xc + radius))
+        up = int(round(yc - radius))
+        down = int(round(yc + radius))
+        if mode == 'square':
+            list_of_free_locations = [(x, y) for x in range(left, right) for y in range(up, down) if (self.organisms_matrix[x, y] == None)]
+        elif mode == 'circle':
+            list_of_free_locations = [(x, y) for x in range(left, right) for y in range(up, down) if (self.organisms_matrix[x, y] == None) and ((x-xc)**2 + (y-yc)**2 <= radius**2)]
+        if list_of_free_locations == []:
+            return None
+        else:
+            (x, y) = choice(list_of_free_locations)
+            return (x % self['size'][0], y % self['size'][1])
+            
+    def distance(self, A, B, mode = 'circle'): 
         """
-        pass 
+            Gives the distance from the location A to the location B, taking 
+            into account that coordinates are taken (x % size_x, y % size_y)
+            and, thus, the location (size_x, size_y) is equivalent to (0, 0),
+            so the distance between the locations (0, 0) and (size_x - 1, size_y - 1)
+            is really small
+        """
+        if hasattr(A, '__iter__') and hasattr(B, '__iter__') and (len(A)==2) and (len(B)==2):
+            size_x, size_y = self['size']
+            Ax, Ay, Bx, By = A[0] % size_x, A[1] % size_y, B[0] % size_x, B[1] % size_y
+            dif_x = min(abs(Bx - Ax), size_x - abs(Bx - Ax))
+            dif_y = min(abs(By - Ay), size_y - abs(By - Ay))
+            if mode == 'circle':
+                return sqrt(dif_x**2 + dif_y**2)
+            elif mode == 'square':
+                return max(dif_x, dif_y)
+            elif mode == 'tilted square':
+                return dif_x + dif_y
+        else:
+            return None
+
 
     def get_featuremap(self, featuremap_code):
         return self.featuremaps[featuremap_code]

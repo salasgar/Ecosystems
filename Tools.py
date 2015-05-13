@@ -1,5 +1,6 @@
-import random
+from random import *
 from functools import reduce
+from math import *
 
 def is_number(x):
     try:
@@ -14,6 +15,22 @@ def prod(iterable): # Calculates the product of all the elements in the iterable
 def signed_random():
     return 2*random() - 1
 
+def float_range(start, stop = 0.0, step = 1.0): # equivalent to range( ) but with float parameters
+    result = []
+    if step * (stop - start) < 0:    
+        start, stop = stop, start
+    x = start
+    if step > 0:
+        while x < stop:
+            result.append(x)
+            x += step
+    elif step < 0:
+        while x > stop:
+            result.append(x)
+            x += step       
+    return result
+    
+  
 """ 
 #unused function:
 
