@@ -90,10 +90,12 @@ class Biotope(object):
         right = int(round(xc + radius))
         up = int(round(yc - radius))
         down = int(round(yc + radius))
-        if mode == 'square':
+        if mode in {'square', 'chess'}:
             list_of_free_locations = [(x, y) for x in range(left, right) for y in range(up, down) if (self.organisms_matrix[x, y] == None)]
-        elif mode == 'circle':
+        elif mode in {'circle', 'euclidean'}:
             list_of_free_locations = [(x, y) for x in range(left, right) for y in range(up, down) if (self.organisms_matrix[x, y] == None) and ((x-xc)**2 + (y-yc)**2 <= radius**2)]
+        elif mode in {'tilted square', 'taxist'}:
+            list_of_free_locations = [(x, y) for x in range(left, right) for y in range(up, down) if (self.organisms_matrix[x, y] == None) and (abs(x-xc) + abs(y-yc) <= radius)]        
         if list_of_free_locations == []:
             return None
         else:
@@ -113,11 +115,11 @@ class Biotope(object):
             Ax, Ay, Bx, By = A[0] % size_x, A[1] % size_y, B[0] % size_x, B[1] % size_y
             dif_x = min(abs(Bx - Ax), size_x - abs(Bx - Ax))
             dif_y = min(abs(By - Ay), size_y - abs(By - Ay))
-            if mode == 'circle':
-                return sqrt(dif_x**2 + dif_y**2)
-            elif mode == 'square':
+            if mode in {'square', 'chess'}:
                 return max(dif_x, dif_y)
-            elif mode == 'tilted square':
+            elif mode in {'circle', 'euclidean'}:
+                return sqrt(dif_x**2 + dif_y**2)
+            elif mode in {'tilted square', 'taxist'}:
                 return dif_x + dif_y
         else:
             return None
@@ -133,3 +135,27 @@ class Biotope(object):
         """
         for featuremap in self.featuremaps_dict.values():
             featuremap.spread()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

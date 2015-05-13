@@ -1,5 +1,6 @@
 from Biotope import *
 from Tools import *
+from random import *
 
 
 print """   TEST class Biotope """
@@ -36,4 +37,61 @@ while loc:
     print loc,
     B.add_organism(fake_organism, loc)    
     loc = B.seek_free_location()
-    
+
+""" three different definitions of distance: """
+size = (25, 25)
+biotope_data['size'] = size
+B = Biotope(biotope_data, fake_ecosystem)
+center = (choice(range(size[0])), choice(range(size[1])))
+matrix = Matrix(*size)
+for x in range(size[0]):
+    for y in range(size[1]):
+        matrix[x, y] = round(B.distance((x, y), center, 'circle'))/10
+print "\n"*3, matrix
+for x in range(size[0]):
+    for y in range(size[1]):
+        matrix[x, y] = round(B.distance((x, y), center, 'square'))/10
+print "\n"*3, matrix
+for x in range(size[0]):
+    for y in range(size[1]):
+        matrix[x, y] = round(B.distance((x, y), center, 'tilted square'))/10
+print "\n"*3, matrix
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

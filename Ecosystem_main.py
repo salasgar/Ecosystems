@@ -4,7 +4,33 @@ import Tools
 # import Biotope
 # import Organism
 
-
+def make_mutability(description, gene):
+    if 'new value' in description:
+        calculate_new_value = make_function(description['new value'])
+    elif 'absolute variation' in description:
+        absolute_variation = make_function(description['absolute variation'])
+        if 'percentage variation' in description:
+            percentage_variation = make_function(description['percentage variation'])
+            calculate_new_value = lambda organism: organism[gene] * (1 + percentage_variation(organism)) + absolute_variation(organism)
+        else:
+            calculate_new_value = lambda organism: organism[gene] + absolute_variation(organism)
+    elif 'percentage variation' in description:
+        calculate_new_value = lambda organism: organism[gene] * (1 + percentage_variation(organism))
+    else:
+        calculate_new_value = lambda organism: organism[gene] # (no mutation) 
+    if 'mutation frequency' in description:
+        mutation_frequency = make_function(description['mutation frequency'])
+    else:
+        mutation_frequency = lambda organism: 1
+    will_mutate = lambda organism: (random() < mutation_frequency(organism))
+    if 'allowed interval' in description:
+        new_value = lambda 
+    else:
+        new_value = calculate_new_value
+    # TODO: 'allowed interval'
+    return new_value
+    
+        
 class Ecosystem(object):
 
     def __init__(self, experiment):
@@ -33,21 +59,20 @@ class Ecosystem(object):
         if organism in self.newborns:
             self.newborns.delete(organism) 
         if organism in self.organisms_list:
-            self.organisms_list.delete(organism) 
-            
+            self.organisms_list.delete(organism)            
         
     def initialize_organisms(self, experiment_organisms_data):
         self.newborns = []
         for organisms_category in experiment_organisms_data:
             for _ in range(experiment_organisms_data['number of organisms']):
                 # Note: By the moment, location has random distribution
-                organism = {'location': self.biotope.seek_free_location()}
+                organism = {'location': self.biotope.seek_free_location(), 'mutability': {}}
                 genes_dict = organisms_category['genes']
                 for gene in genes_dict.keys():
                     initial_value_generator = Tools.make_function(genes_dict[gene]['initial value'])
                     organism[gene] = initial_value_generator(organism)
                     if 'mutability' in genes_dict[gene]:
-                        organism[gene + ' mutability'] = make_mutability(genes_dict[gene]['mutability'])       
+                        organism['mutability'][gene] = make_mutability(genes_dict[gene]['mutability'], gene)       
                 status_dict = organisms_category['status']
                 for status in status_dict:
                     initial_value_generator = Tools.make_function(status_dict[status]['initial value'])
