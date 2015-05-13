@@ -14,16 +14,14 @@ def prod(iterable): # Calculates the product of all the elements in the iterable
 def signed_random():
     return 2*random() - 1
 
+""" 
+#unused function:
 
 def create_empty_list_of_lists(size_x, size_y):
     return [[None] * size_y for i in range(size_x)]
-
+"""
 
 class Matrix(object):
-    data = []
-    size_x = 0
-    size_y = 0
-
     def __init__(self, size_x, size_y, value=None):
         self.data = [[value] * size_y for i in range(size_x)]
         # No usar [[None] * size_y] * size_x, ya que no hace copia profunda
@@ -36,10 +34,14 @@ class Matrix(object):
 
     def __setitem__(self, coordinates, value):
         x, y = coordinates
-        self.Data[x % self.size_x][y % self.size_y] = value
+
+        if (x == None) or (y == None):
+            print "Eh, te pille!!!"
+        
+        self.data[x % self.size_x][y % self.size_y] = value
 
     def __str__(self):
-        return "\n".join(str(self.Data[i]) for i in range(len(self.Data)))
+        return "\n".join(str(self.data[i]) for i in range(len(self.data)))
 
 def make_function(definition):
     if is_number(definition):

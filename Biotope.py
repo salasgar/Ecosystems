@@ -1,16 +1,35 @@
-from random import random
+from random import *
 import initial_settings
 import Tools
 import Organism
 
 
 class Biotope(object):
+    class random_locations_list(object):
+        def __init__(self, parent_biotope):
+            self.parent_biotope = parent_biotope
+            self.reset()
+        def reset(self):
+            size = self.parent_biotope['size']
+            self.list = [(x, y) for x in range(size[0]) for y in range(size[1])]
+            shuffle(self.list)
+            self.last_location_index = len(self.list) - 1           
+        def get_new_location(self):
+            i = (self.last_location_index + 1)%len(self.list)
+            while (self.parent_biotope.organisms_matrix[self.list[i]] != None) and (i != self.last_location_index):
+                i = (i+1)%len(self.list)
+            if self.parent_biotope.organisms_matrix[self.list[i]] == None:
+                self.last_location_index = i
+                return self.list[i]
+            else:
+                return None # Error: Full biotope. There're no more free locations 
 
     def __init__(self, biotope_data, parent_ecosystem):
         self.biotope_data = biotope_data
         self.parent_ecosystem = parent_ecosystem
-        self.organisms_matrix = Tools.Matrix(biotope_data['size'])
-        self.featuremaps_dict = {}
+        self.organisms_matrix = Tools.Matrix(*biotope_data['size'])
+        self.featuremaps_dict = {}        
+        self.random_locations = self.random_locations_list(self)
 
     def __getitem__(self, keys):
         return self.biotope_data[keys]
@@ -20,7 +39,7 @@ class Biotope(object):
 
     def __str__(self):  # Just sfor debug
         return str(self.organisms_matrix)
-
+        
     def add_featuremap(featuremap):
         self.featuremaps_dict[featuremap.code] = featuremap
 
@@ -47,11 +66,11 @@ class Biotope(object):
         self.organisms_matrix[location] = organism
         
     def move_organism(self, organism, old_location, new_location):
-        self.organismsArray[old_location] = None
-        self.organismsArray[new_location] = organism
+        self.organisms_matrix[old_location] = None
+        self.organisms_matrix[new_location] = organism
 
     def delete_organism(self, location):
-        self.organismsArray[location] = None
+        self.organisms_matrix[location] = None
 
     def location_is_ok(self, location):
         (x, y) = location
@@ -64,11 +83,8 @@ class Biotope(object):
             This method return a random free position 
             (None if not possible)
         """
-        # TODO: Yo tendria una lista de posiciones libres en el biotope.
-        #       cada vez que se add o delete un organismo, se modificaria esta
-        #       lista. Asi no hay que hacer attemps.
-        pass
-
+        return self.random_locations.get_new_location()
+        
     def seek_free_location_close_to(self, center, radius):
         """ 
             This method return a random free position close to a center within
