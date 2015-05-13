@@ -9,7 +9,7 @@ class Biotope(object):
     def __init__(self, biotope_data, parent_ecosystem):
         self.biotope_data = biotope_data
         self.parent_ecosystem = parent_ecosystem
-        self.organisms_matrix = Tools.Matrix(size_x, size_y)
+        self.organisms_matrix = Tools.Matrix(biotope_data['size'])
         self.featuremaps_dict = {}
 
     def __getitem__(self, keys):
@@ -37,36 +37,21 @@ class Biotope(object):
             Deberiamos borrar los organismos que pueda haber previamente en este biotopo?
             """
 
-    def add_organism(self, organism, location):
-        (x, y) = location
-        self.organisms_matrix[x, y] = organism
-        """ SALAS:
-        Es mas sencillo poner simplemente:
-        self.organism_matrix[location] = organism
-        Y funciona igual. Poner Variable[3, 4] es equivalente a poner Variable[(3, 4)]
-        """
-        
-    def move_organism(self, organism, new_location):
-        (new_x, new_y) = new_location
-        (old_x, old_y) = organism['location']
-        self.organismsArray[old_x, old_y] = None
-        self.organismsArray[new_x, new_y] = organism
-        """ SALAS:
-        Aqui hay que llevar cuidado, porque hay que llamar a esta funcion antes de cambiar orgaism['location']
-        En un futuro nos podriamos confundir y cambiar organism['location'] antes de llamar a esta funcion.
-        Propongo que la funcion sea:
+    def add_organism(self, organism, location = None):
+        if location == None:
+            if 'location' in organism.keys():
+                location = organism['location']
+            else:
+                location = self.seek_free_location()
+                organism['location'] = location
+        self.organisms_matrix[location] = organism
         
     def move_organism(self, organism, old_location, new_location):
         self.organismsArray[old_location] = None
         self.organismsArray[new_location] = organism
-        
-        
-        Y asi no hay dudas.
-        """
 
     def delete_organism(self, location):
-        (x, y) = location
-        self.organismsArray[x, y] = None
+        self.organismsArray[location] = None
 
     def location_is_ok(self, location):
         (x, y) = location
@@ -79,9 +64,9 @@ class Biotope(object):
             This method return a random free position 
             (None if not possible)
         """
-        # TODO: Yo tendría una lista de posiciones libres en el biotope.
-        #       cada vez que se add o delete un organismo, se modificaría esta
-        #       lista. Así no hay que hacer attemps.
+        # TODO: Yo tendria una lista de posiciones libres en el biotope.
+        #       cada vez que se add o delete un organismo, se modificaria esta
+        #       lista. Asi no hay que hacer attemps.
         pass
 
     def seek_free_location_close_to(self, center, radius):
@@ -89,7 +74,7 @@ class Biotope(object):
             This method return a random free position close to a center within
             a radius (None if not possible)
         """
-        # TODO: La misma idea de la lista que en el método anterior
+        # TODO: La misma idea de la lista que en el metodo anterior
         """ SALAS:
         Para la funcion anterior me parece muy buena idea, pero para esta no, ya que habria que guardar una lista para cada center y cada radius
         """

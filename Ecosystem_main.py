@@ -10,7 +10,6 @@ class Ecosystem(object):
     def __init__(self, experiment):
         self.experiment = experiment
         self.complete_with_default_values(self.experiment)
-        self.replace_definitions_by_functions(self.experiment)
         self.initialize_biotope(self.experiment['biotope'])
         self.initialize_organisms(self.experiment['organisms'])
 
@@ -21,49 +20,41 @@ class Ecosystem(object):
                 'featuremaps': None}
         # TODO More things
 
-    def replace_definitions_by_functions(self, experiment):
-        """
-            Recursively replace definitions of functions by actual functions.
-        """
-        if 'type' in experiment.keys():
-            if experiment['type'] == 'random function':
-                return Tools.random_function_maker(experiment)
-            elif experiment['type'] == 'outlay function':
-                return Tools.outlay_function_maker(experiment)
-            elif experiment['type'] == 'constraint function':
-                return Tools.constraint_function_maker(experiment)
-            elif experiment['type'] == 'interpreted function':
-                return Tools.interpreted_function_maker(experiment)
-        else:
-            # Get in a deeper level
-            for key in experiment.keys():
-                if isinstance(experiment[key], dict):
-                    self.replace_definitions_by_functions(experiment[key])
-                elif hasattr(experiment[key], '__iter__'):  # If it's iterable
-                    for item in experiment[key]:
-                        if isinstance(item, dict):
-                            self.replace_definitions_by_functions(item)
-                elif (isinstance(experiment[key], int) or
-                      isinstance(experiment[key], float)):
-                    def get_x(x): return x
-                    experiment[key] = get_x
-        return experiment
 
-    def initialize_biotope(self, experiment_biotope_data):
-        pass  # TODO
+    def initialize_biotope(self, biotope_data_definition):
+        self.biotope = Biotope(biotope_data = biotope_data_definition, parent_ecosystem = self)
 
+    def add_organism(organism):
+        self.biotope.add_organism(organism)
+        self.newborns.append(organism)  
+        
+    def delete_organism(organism):
+        self.biotope.delete_organism(organism['location'])
+        if organism in self.newborns:
+            self.newborns.delete(organism) 
+        if organism in self.organisms_list:
+            self.organisms_list.delete(organism) 
+            
+        
     def initialize_organisms(self, experiment_organisms_data):
+        self.newborns = []
         for organisms_category in experiment_organisms_data:
             for _ in range(experiment_organisms_data['number of organisms']):
                 # Note: By the moment, location has random distribution
                 organism = {'location': self.biotope.seek_free_location()}
-                for gene in organisms_category['genes']:
-                    organism[gene] = organisms_category[
-                        'genes'][gene]['initial values']()
-                for status in organisms_category['status']:
-                    organism[status] = organisms_category[
-                        'status'][status]['initial values']()
+                genes_dict = organisms_category['genes']
+                for gene in genes_dict.keys():
+                    initial_value_generator = Tools.make_function(genes_dict[gene]['initial value'])
+                    organism[gene] = initial_value_generator(organism)
+                    if 'mutability' in genes_dict[gene]:
+                        organism[gene + ' mutability'] = make_mutability(genes_dict[gene]['mutability'])       
+                status_dict = organisms_category['status']
+                for status in status_dict:
+                    initial_value_generator = Tools.make_function(status_dict[status]['initial value'])
+                    organism[status] = initial_value_generator(organism)
                 self.add_organism(organism)
+        self.organisms_list = self.newborns
+        self.newborns = []
 
     def evolve(self):
         # Biotope actions
