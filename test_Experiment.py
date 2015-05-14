@@ -2,7 +2,7 @@ from Experiment import experiment
 from Tools import *
 
 
-hunting_outlay_dict = {
+hunting_outlay_definition = {
           'type': 'outlay function',
           'subtype': 'linear function',
           'terms': [
@@ -10,7 +10,7 @@ hunting_outlay_dict = {
               {'parameter': 'speed', 'coefficient': 0.2}, 
               {'parameter': None, 'coefficient': 5.0}]}
 
-living_outlay_dict = {
+living_outlay_definition = {
 		'type': 'outlay function',
 		'subtype': 'n-linear function',
 		'terms': [
@@ -19,7 +19,7 @@ living_outlay_dict = {
 			{'parameters': ['attack capacity', 'photosynthesis capacity'], 	'coefficient': 25.0}, 
 			{'parameters': [], 								'coefficient': 0.5}]} 
    
-dying_constraint_dict = {
+dying_constraint_definition = {
 		'type': 'constraint function',
 		'subtype': 'thresholds',
             'operator': 'or',
@@ -38,7 +38,7 @@ dying_constraint_dict = {
                 ]
 		}
   
-hunting_constraint_dict = {
+hunting_constraint_definition = {
 		'type': 'constraint function',
 		'subtype': 'hunting',
             'predator value': {
@@ -78,7 +78,7 @@ function1 = {
         'interval': ['photosynthesis capacity', 'energy reserve']
     }}  
 print [make_function(function1)(organism) for i in range(10)]    
-print make_function(living_outlay_dict)(organism)   
+print make_function(living_outlay_definition)(organism)   
     
 
 
@@ -90,24 +90,24 @@ def built_in_function_maker(function_name):
         #return random.uniform([0, 1])
     
     
-def outlay_function_maker(function_dict):
-    if function_dict['type'] == 'outlay function':
-        if function_dict['subtype'] == 'linear function':
+def outlay_function_maker(function_definition):
+    if function_definition['type'] == 'outlay function':
+        if function_definition['subtype'] == 'linear function':
             independent_term = 0
             dependent_terms = []
-            for term in function_dict['terms']:
+            for term in function_definition['terms']:
                 if term['parameter'] == None:
                     independent_term = term['coefficient']
                 else:
                     dependent_terms.append((term['parameter'], term['coefficient']))
             return lambda organism: sum([(organism[parameter] * coefficient) for (parameter, coefficient) in dependent_terms], independent_term)
-        elif function_dict['subtype'] == 'n-linear function':
-            return lambda organism: sum([(prod([organism[parameter] for parameter in term['parameters']])*term['coefficient']) for term in function_dict['terms']])
+        elif function_definition['subtype'] == 'n-linear function':
+            return lambda organism: sum([(prod([organism[parameter] for parameter in term['parameters']])*term['coefficient']) for term in function_definition['terms']])
     return lambda organism: 0
 
-def constraint_function_maker(function_dict):
-    if function_dict['type'] == 'constraint function':
-        if function_dict['subtype'] == 'thresholds':
+def constraint_function_maker(function_definition):
+    if function_definition['type'] == 'constraint function':
+        if function_definition['subtype'] == 'thresholds':
             def make_term(term):
                 if term['operator'] == '>':
                     compare = lambda x, y: (x > y)
@@ -120,17 +120,17 @@ def constraint_function_maker(function_dict):
                 elif 'random threshold' in term.keys():
                     threshold = random_function_maker(term['random threshold'])
                 return lambda organism: compare(organism[term['parameter']], threshold())
-            if len(function_dict['terms']) == 0:
+            if len(function_definition['terms']) == 0:
                 return 'Error in constraint function from input data'
-            if function_dict['operator'] == 'and':
+            if function_definition['operator'] == 'and':
                 bool_operator = lambda x, y: (x and y)
-            elif function_dict['operator'] == 'or':
+            elif function_definition['operator'] == 'or':
                 bool_operator = lambda x, y: (x or y)
             else:
                 bool_operator = lambda x, y: (x or y) # buscar operador xor en python
-            terms = [make_term(term) for term in function_dict['terms']]
+            terms = [make_term(term) for term in function_definition['terms']]
             return lambda organism: reduce(bool_operator, [term(organism) for term in terms[1:]], terms[0](organism))    
-        elif function_dict['subtype'] == 'hunting':
+        elif function_definition['subtype'] == 'hunting':
             
             
             return lambda predator, prey: True or False  # To do
@@ -144,13 +144,13 @@ e incluirlo como metodo de la clase Ecosystem
     
     
     
-hunting_outlay = outlay_function_maker(hunting_outlay_dict)
+hunting_outlay = outlay_function_maker(hunting_outlay_definition)
 
-living_outlay = outlay_function_maker(living_outlay_dict)
+living_outlay = outlay_function_maker(living_outlay_definition)
 
-dying_test = constraint_function_maker(dying_constraint_dict)
+dying_test = constraint_function_maker(dying_constraint_definition)
 
-hunting_constraint = constraint_function_maker(hunting_constraint_dict)
+hunting_constraint = constraint_function_maker(hunting_constraint_definition)
 
 print hunting_outlay(organism), living_outlay(organism), dying_test(organism), hunting_constraint(organism, organism_prey)
 

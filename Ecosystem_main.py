@@ -1,5 +1,5 @@
 from GUI import GUI
-import Tools
+from Tools import *
 # from time import sleep  # To remove
 # import Biotope
 # import Organism
@@ -41,8 +41,7 @@ def make_mutability(mutability_definition, gene):
             new_value = lambda organism: lower_constraint_function(calculate_new_value(organism), organism[gene], interval[0])
         else:
             lower_and_upper_constraint_function = lambda value, default_value, lower_constraint, upper_constraint: value if (value > lower_constraint) and (value <= upper_constraint) else default_value
-            new_value = lambda organism: lower_and_upper_constraint_function(calculate_new_value(organism), organism[gene], *interval)     
-    
+            new_value = lambda organism: lower_and_upper_constraint_function(calculate_new_value(organism), organism[gene], *interval)         
     return {'will mutate?': will_mutate, 'new value': new_value}
         
 class Ecosystem(object):

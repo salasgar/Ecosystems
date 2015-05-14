@@ -60,7 +60,7 @@ class Matrix(object):
     def __str__(self):
         return "\n".join(str(self.data[i]) for i in range(len(self.data)))
         
-""" this method returns a random function that accept no arguments: """        
+""" this method returns a random function that accept no arguments: """ # This method is unused by the moment, but it may will. And it works!
 def random_function_maker_with_no_argument(function_definition):
     def choice_value(values, r):
         i = 0
@@ -88,6 +88,16 @@ def random_function_maker_with_no_argument(function_definition):
             return lambda: coefficient * math.fsum(random.gauss(0, 1)**2 for i in range(k))
     return lambda: random.random()
 
+def make_comparison_operator(comparison_operator):
+    comparison_operators_dictionary = {
+        '>': lambda x, y: x > y,
+        '<': lambda x, y: x < y,
+        '>=': lambda x, y: x >= y,
+        '<=': lambda x, y: x <= y,
+        '==': lambda x, y: x == y,
+        '!=': lambda x, y: x != y}
+    return comparison_operators_dictionary[comparison_operator]
+    
 def make_function(function_definition):
     if is_number(function_definition):
         return lambda organism: function_definition
@@ -140,41 +150,36 @@ def make_function(function_definition):
                     return lambda organism: sum([(prod([organism[parameter] for parameter in parameters])*coeficient(organism)) for (parameters, coeficient) in terms])
                 return lambda organism: 0
                 
-                # CONSTRAINT FUNCTIONS:
-                if function_definition['type'] == 'constraint function':
-                    if function_definition['subtype'] == 'thresholds':
-                        def make_term(term):
-                            if term['operator'] == '>':
-                                compare = lambda x, y: (x > y)
-                            elif term['operator'] == '<':
-                                compare = lambda x, y: (x < y)
-                            else:
-                                return 'error: unknown operator ' + term['operator']
-                            if 'threshold' in term.keys():
-                                threshold = lambda: term['threshold']
-                            elif 'random threshold' in term.keys():
-                                threshold = random_function_maker(term['random threshold'])
-                            return lambda organism: compare(organism[term['parameter']], threshold())
-                        if len(function_definition['terms']) == 0:
-                            return 'Error in constraint function from input data'
-                        if function_definition['operator'] == 'and':
-                            bool_operator = lambda x, y: (x and y)
-                        elif function_definition['operator'] == 'or':
-                            bool_operator = lambda x, y: (x or y)
+            # CONSTRAINT FUNCTIONS:
+            if function_definition['type'] == 'constraint function':
+                if function_definition['subtype'] == 'thresholds':
+                    def make_term(term):
+                        if term['operator'] == '>':
+                            compare = lambda x, y: (x > y)
+                        elif term['operator'] == '<':
+                            compare = lambda x, y: (x < y)
                         else:
-                            bool_operator = lambda x, y: logical_xor(x, y)
-                        terms = [make_term(term) for term in function_definition['terms']]
-                        return lambda organism: reduce(bool_operator, [term(organism) for term in terms[1:]], terms[0](organism))    
-                    elif function_definition['subtype'] == 'hunting':
-                        if is_number(function_definition['predator value']):
-                            predator_value = lambda predator: function_definition['predator value']
-                        elif isinstance(function_definition['predator value'], dict):
-                            predator_value = random_function_maker(function_definition['predator value'])
-                        else:
-                            predator_value = lambda predator: predator[function_definition['predator value']]
-            
-                        return lambda predator, prey: True or False  # To do
-                        pass
+                            return 'error: unknown operator ' + term['operator']
+                        if 'threshold' in term.keys():
+                            threshold = lambda: term['threshold']
+                        elif 'random threshold' in term.keys():
+                            threshold = random_function_maker(term['random threshold'])
+                        return lambda organism: compare(organism[term['parameter']], threshold())
+                    if len(function_definition['terms']) == 0:
+                        return 'Error in constraint function from input data'
+                    if function_definition['operator'] == 'and':
+                        bool_operator = lambda x, y: (x and y)
+                    elif function_definition['operator'] == 'or':
+                        bool_operator = lambda x, y: (x or y)
+                    else:
+                        bool_operator = lambda x, y: logical_xor(x, y)
+                    terms = [make_term(term) for term in function_definition['terms']]
+                    return lambda organism: reduce(bool_operator, [term(organism) for term in terms[1:]], terms[0](organism))    
+                elif function_definition['subtype'] == 'hunting':
+                    predator_value = make_function(function_definition['predator value'])
+                    prey_value = make_function(function_definition['prey value'])
+                    comparison = make_comparison_operator(function_definition['operator'])
+                    return lambda predator, prey: comparison(predator_value(predator), prey_value(prey))
 
 
     
