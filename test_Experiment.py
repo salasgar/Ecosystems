@@ -81,32 +81,6 @@ print [make_function(function1)(organism) for i in range(10)]
 print make_function(living_outlay_dict)(organism)   
     
 
-def random_function_maker(function_dict):
-    def choice_value(values, r):
-        i = 0
-        while r > values[i]['probability']:
-            i += 1
-        return values[i]['value']   
-    if function_dict['type'] == 'random function':
-        if function_dict['subtype'] == 'gaussian':
-            mean = function_dict['mean']
-            variance = function_dict['variance']
-            return lambda: random.gauss(mean, variance)
-        elif function_dict['subtype'] == 'uniform distribution':
-            interval = function_dict['interval']
-            return lambda: random.uniform(*interval)
-        elif function_dict['subtype'] == 'discrete distribution':
-            values = copy.deepcopy(function_dict['values'])
-            total = 0
-            for pair in values:
-                total += pair['probability']
-                pair['probability'] = total
-            return lambda: choice_value(values, random.random())
-        elif function_dict['subtype'] == 'chi-squared distribution':
-            k = function_dict['k']
-            coefficient = function_dict['coefficient']
-            return lambda: coefficient * math.fsum(random.gauss(0, 1)**2 for i in range(k))
-    return lambda: random.random()
 
 """ esta funcion estoy pensando en no usarla:"""
 def built_in_function_maker(function_name):

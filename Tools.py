@@ -59,62 +59,90 @@ class Matrix(object):
 
     def __str__(self):
         return "\n".join(str(self.data[i]) for i in range(len(self.data)))
+        
+""" this method returns a random function that accept no arguments: """        
+def random_function_maker_with_no_argument(function_definition):
+    def choice_value(values, r):
+        i = 0
+        while r > values[i]['probability']:
+            i += 1
+        return values[i]['value']   
+    if function_definition['type'] == 'random function':
+        if function_definition['subtype'] == 'gaussian':
+            mean = function_definition['mean']
+            variance = function_definition['variance']
+            return lambda: random.gauss(mean, variance)
+        elif function_definition['subtype'] == 'uniform distribution':
+            interval = function_definition['interval']
+            return lambda: random.uniform(*interval)
+        elif function_definition['subtype'] == 'discrete distribution':
+            values = copy.deepcopy(function_definition['values'])
+            total = 0
+            for pair in values:
+                total += pair['probability']
+                pair['probability'] = total
+            return lambda: choice_value(values, random.random())
+        elif function_definition['subtype'] == 'chi-squared distribution':
+            k = function_definition['k']
+            coefficient = function_definition['coefficient']
+            return lambda: coefficient * math.fsum(random.gauss(0, 1)**2 for i in range(k))
+    return lambda: random.random()
 
-def make_function(definition):
-    if is_number(definition):
-        return lambda organism: definition
-    elif isinstance(definition, str):
-        return lambda organism: organism[definition]
-    elif isinstance(definition, dict):
-        if 'type' in definition.keys():
+def make_function(function_definition):
+    if is_number(function_definition):
+        return lambda organism: function_definition
+    elif isinstance(function_definition, str):
+        return lambda organism: organism[function_definition]
+    elif isinstance(function_definition, dict):
+        if 'type' in function_definition.keys():
             # RANDOM FUNCTIONS:
-            if definition['type'] == 'random function':
-                if definition['subtype'] == 'gaussian':
-                    mean = make_function(definition['mean'])
-                    variance = make_function(definition['variance'])
+            if function_definition['type'] == 'random function':
+                if function_definition['subtype'] == 'gaussian':
+                    mean = make_function(function_definition['mean'])
+                    variance = make_function(function_definition['variance'])
                     return lambda organism: random.gauss(mean(organism), variance(organism))
-                elif definition['subtype'] == 'uniform distribution':
-                    a = make_function(definition['interval'][0])
-                    b = make_function(definition['interval'][1])
+                elif function_definition['subtype'] == 'uniform distribution':
+                    a = make_function(function_definition['interval'][0])
+                    b = make_function(function_definition['interval'][1])
                     return lambda organism: random.uniform(a(organism), b(organism))
-                elif definition['subtype'] == 'discrete distribution':
+                elif function_definition['subtype'] == 'discrete distribution':
                     def choice_value(values, r):
                         i = 0
                         while r > values[i]['probability']:
                             i += 1
                         return values[i]['value']
-                    values = copy.deepcopy(definition['values'])
+                    values = copy.deepcopy(function_definition['values'])
                     total = 0
                     for pair in values:
                         total += pair['probability']
                         pair['probability'] = total
                     return lambda organism: choice_value(values, random.random())
-                elif definition['subtype'] == 'chi-squared distribution':
-                    coefficient = make_function(definition['coefficient'])
-                    k = make_function(definition['k'])
+                elif function_definition['subtype'] == 'chi-squared distribution':
+                    coefficient = make_function(function_definition['coefficient'])
+                    k = make_function(function_definition['k'])
                     return lambda organism: coefficient(organism) * math.fsum(random.gauss(0, 1)**2 for i in range(k(organism)))
                 else:
                     return lambda organism: random.random()
              
             # OUTAY FUNCTIONS:
-            elif definition['type'] == 'outlay function':
-                if definition['subtype'] == 'linear function':
+            elif function_definition['type'] == 'outlay function':
+                if function_definition['subtype'] == 'linear function':
                     independent_term = 0
                     dependent_terms = []
-                    for term in definition['terms']:
+                    for term in function_definition['terms']:
                         if term['parameter'] == None:
                             independent_term = make_function(term['coefficient'])
                         else:
                             dependent_terms.append((term['parameter'], make_function(term['coefficient'])))
                     return lambda organism: sum([(organism[parameter] * coefficient(organism)) for (parameter, coefficient) in dependent_terms], independent_term(organism))
-                elif definition['subtype'] == 'n-linear function':
-                    terms = [(term['parameters'], make_function(term['coefficient'])) for term in definition['terms']]
+                elif function_definition['subtype'] == 'n-linear function':
+                    terms = [(term['parameters'], make_function(term['coefficient'])) for term in function_definition['terms']]
                     return lambda organism: sum([(prod([organism[parameter] for parameter in parameters])*coeficient(organism)) for (parameters, coeficient) in terms])
                 return lambda organism: 0
                 
                 # CONSTRAINT FUNCTIONS:
-                if function_dict['type'] == 'constraint function':
-                    if function_dict['subtype'] == 'thresholds':
+                if function_definition['type'] == 'constraint function':
+                    if function_definition['subtype'] == 'thresholds':
                         def make_term(term):
                             if term['operator'] == '>':
                                 compare = lambda x, y: (x > y)
@@ -127,23 +155,23 @@ def make_function(definition):
                             elif 'random threshold' in term.keys():
                                 threshold = random_function_maker(term['random threshold'])
                             return lambda organism: compare(organism[term['parameter']], threshold())
-                        if len(function_dict['terms']) == 0:
+                        if len(function_definition['terms']) == 0:
                             return 'Error in constraint function from input data'
-                        if function_dict['operator'] == 'and':
+                        if function_definition['operator'] == 'and':
                             bool_operator = lambda x, y: (x and y)
-                        elif function_dict['operator'] == 'or':
+                        elif function_definition['operator'] == 'or':
                             bool_operator = lambda x, y: (x or y)
                         else:
                             bool_operator = lambda x, y: logical_xor(x, y)
-                        terms = [make_term(term) for term in function_dict['terms']]
+                        terms = [make_term(term) for term in function_definition['terms']]
                         return lambda organism: reduce(bool_operator, [term(organism) for term in terms[1:]], terms[0](organism))    
-                    elif function_dict['subtype'] == 'hunting':
-                        if is_number(function_dict['predator value']):
-                            predator_value = lambda predator: function_dict['predator value']
-                        elif isinstance(function_dict['predator value'], dict):
-                            predator_value = random_function_maker(function_dict['predator value'])
+                    elif function_definition['subtype'] == 'hunting':
+                        if is_number(function_definition['predator value']):
+                            predator_value = lambda predator: function_definition['predator value']
+                        elif isinstance(function_definition['predator value'], dict):
+                            predator_value = random_function_maker(function_definition['predator value'])
                         else:
-                            predator_value = lambda predator: predator[function_dict['predator value']]
+                            predator_value = lambda predator: predator[function_definition['predator value']]
             
                         return lambda predator, prey: True or False  # To do
                         pass

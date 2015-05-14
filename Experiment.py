@@ -2,26 +2,26 @@
               
 experiment = {
  'experiment name': "Strength vs photosyntesis capacity",
- 'biotope': {
-	'size': (100, 200),
+ 'biotope': {  # SALAS: ponemos 'biotope definition' ?
+	'size': (100, 200), # SALAS: ponemos 'size definition' ?
 	'featuremaps': None },
- 'organisms': [
+ 'organisms': [ # SALAS: ponemos 'organisms definition' ?
      {'category': 'Plants',
          'number of organisms': 50,
-         'genes': {
+         'genes': { # SALAS: ponemos 'genes definition' ?
              'strength': {
-                 'initial value': {
+                 'initial value': { # SALAS: ponemos 'initial value definition' ?
                      'type': 'random function',
                      'subtype': 'gaussian',
                      'mean': 10, 
                      'variance': 2},
-                 'mutability': {
+                 'mutability': { # SALAS: ponemos 'mutability definition' ?
                      'absolute variation': {
                          'type': 'random function',
                          'subtype': 'gaussian',
                          'mean': 0.0, 
                          'variance': 0.01},
-                     'percentage variation': {
+                     'percentage variation': { # SALAS: ponemos 'percentage variation definition' ?
                          'type': 'random function',
                          'subtype': 'gaussian',
                          'mean': 0.0, 
@@ -38,7 +38,7 @@ experiment = {
                          'interval': [0, 0.1]},
                      'mutation frequency': 0.01
                      }},
-             'photosynthesis capacity': {
+             'photosynthesis capacity': { # SALAS: etc, etc....
                  'initial value': {
                      'type': 'random function',
                      'subtype': 'uniform distribution',
