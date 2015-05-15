@@ -58,7 +58,7 @@ class Ecosystem(object):
                 'size': (100, 200),
                 'featuremaps': None}
         # TODO More things
-
+                
 
     def initialize_biotope(self, biotope_data_definition):
         self.biotope = Biotope(biotope_data = biotope_data_definition, parent_ecosystem = self)

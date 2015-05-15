@@ -22,7 +22,7 @@ class Organism(object):
     def set_location(self, (x, y)):
         self['location'] = (x, y)
 
-    def move(self, ecosystem):
+    def move(self):
         """
             Check if there is a new available location. If yes
             then: - Update biotope (organisms matrix)
@@ -42,7 +42,10 @@ class Organism(object):
                 # 4. Update location
                 self.set_location(new_location)
 
-    def eat(self, organism, ecosystem):
+    def eat(self, organism):
+        pass
+    
+    def hunt(self):
         pass
 
     def do_photosynthesis(self, ecosystem):

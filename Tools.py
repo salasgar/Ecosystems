@@ -57,9 +57,11 @@ class Matrix(object):
         
         self.data[x % self.size_x][y % self.size_y] = value
 
-    def __str__(self):
-        return "\n".join(str(self.data[i]) for i in range(len(self.data)))
-        
+    def __str__(self, traspose = False):
+        if traspose:        
+            return "\n".join(str(self.data[i]) for i in range(len(self.data)))
+        else:
+            return "\n".join(str([self.data[i][j] for i in range(self.size_x)]) for j in range(self.size_y))
 """ this method returns a random function that accept no arguments: """ # This method is unused by the moment, but it may will. And it works!
 def random_function_maker_with_no_argument(function_definition):
     def choice_value(values, r):

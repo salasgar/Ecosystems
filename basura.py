@@ -1,31 +1,25 @@
 from Tools import *
 from copy import *
+from Biotope import *
 
-print type("c")
+size = (3, 2)
+B = Biotope({'size': size}, {})
+for i in range(10):
+    print B.random_free_locations.list, B.random_free_locations.last_location_index
+    loc = B.seek_free_location()
+    print B.add_organism({}, location = loc)
+    print B.organisms_matrix
+
+for i in range(10):
+    loc = B.seek_possible_prey_close_to((1, 1), i)
+    B.delete_organism(loc)
+    print "\n", B.organisms_matrix
+    
+for i in range(10):
+    print B.random_free_locations.list, B.random_free_locations.last_location_index
+    loc = B.seek_free_location_close_to(center = (0,0), radius = 1)
+    print B.add_organism({}, location = loc)
+    print B.organisms_matrix
 
 
-def make_function(definition):
-    if is_number(definition):
-        return lambda organism: definition
 
-definition = 9
-
-print type(definition) == str
-
-print isinstance(definition, str)
-
-print sqrt(25)
-
-make_copy = lambda definition: (definition + 1) 
-
-A = lambda: make_copy(definition)
-
-definition = 47
-
-print A()
-
-B = [lambda: i for i in range(9)]
-
-print [B[i]() for i in range(9)]
-
-cosa(*jdfda, ekjf)
