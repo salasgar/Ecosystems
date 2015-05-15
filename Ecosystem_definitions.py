@@ -1,7 +1,7 @@
             
               
-experiment = {
- 'experiment name': "Strength vs photosyntesis capacity",
+ecosystem_definition = {
+ 'ecosystem name': "Strength vs photosyntesis capacity",
  'biotope': {  # SALAS: ponemos 'biotope definition' ?
 	'size': (100, 200), # SALAS: ponemos 'size definition' ?
 	'featuremaps': None },
@@ -160,8 +160,8 @@ experiment = {
 }
 
 
-# Default experiment		(Estos son los valores por defecto)											
-Default_experiment = {'experiment name': "Experiment name",
+# Default ecosystem definition		(Estos son los valores por defecto)											
+Default_ecosystem_definition = {'ecosystem name': "Ecosystem name",
  'biotope': {
 	'size': (100, 200),
 	'featuremaps': None },
@@ -183,7 +183,7 @@ Default_experiment = {'experiment name': "Experiment name",
 
 
 
-Experiment_2	 = {
+ecosystem_definition_2	 = {
     'organisms': [
 	{'category': 'Mutants',
 		'genes': {
@@ -214,7 +214,7 @@ Experiment_2	 = {
 		'status': {
                     'energy reserve': 100.0} }],
   'outlays': {
-	'load outlays': "/Pepito/Experiments/cool experiment.exp" },
+	'load outlays': "/Pepito/ecosystem_definitions/cool ecosystem.eco" },
   'constraints': {},
   'mutability': {
 	'strength': {
@@ -250,7 +250,7 @@ Experiment_2	 = {
 # guerra por la supervivencia 
 
 
-Experiment_3 = {
+ecosystem_definition_3 = {
     'organisms': [
 	{'genes': {
             	'attack capacity': { 
@@ -266,7 +266,7 @@ Experiment_3 = {
 		'minimun energy reserve at procreation': 200.0},
 	'status': { 'energy reserve': 200.0} }],
 'outlays': {
-	'load outlays': "/Pepito/Experiments/cool experiment 2.exp",
+	'load outlays': "/Pepito/ecosystem_definitions/cool ecosystem_definition 2.exp",
 	'living': {
 		'type': 'outlay function',
 		'subtype': 'n-linear function',
@@ -306,27 +306,27 @@ Experiment_3 = {
 
 
 
-def print_Experiment(Experiment, indent_level = 0):
-    if type(Experiment) == dict:
+def print_ecosystem_definition(ecosystem_definition, indent_level = 0):
+    if type(ecosystem_definition) == dict:
         print "    "*indent_level, '{' # This line could be removed
-        for key in Experiment.keys():
-            if hasattr(Experiment[key], '__iter__'):
+        for key in ecosystem_definition.keys():
+            if hasattr(ecosystem_definition[key], '__iter__'):
                 print "    "*indent_level, str(key)+":"
-                print_Experiment(Experiment[key], indent_level + 1)
+                print_ecosystem_definition(ecosystem_definition[key], indent_level + 1)
             else:
-                print "    "*indent_level, str(key)+": ", Experiment[key]  
+                print "    "*indent_level, str(key)+": ", ecosystem_definition[key]  
         print "    "*indent_level, '}' # This line also could be removed
-    elif hasattr(Experiment, '__iter__'):
-        for element in Experiment:
-            print_Experiment(element, indent_level + 1)
+    elif hasattr(ecosystem_definition, '__iter__'):
+        for element in ecosystem_definition:
+            print_ecosystem_definition(element, indent_level + 1)
     else:
-        print "   "*indent_level, Experiment
+        print "   "*indent_level, ecosystem_definition
 
 """   
     
-for E in (Default_experiment, experiment, Experiment_2, Experiment_3):
+for E in (Default_ecosystem_definition, ecosystem_definition, ecosystem_definition_2, ecosystem_definition_3):
     print "\n\n\n"
-    print_Experiment(E)
+    print_ecosystem_definition(E)
     
 
 """

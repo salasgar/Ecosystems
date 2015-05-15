@@ -46,15 +46,15 @@ def make_mutability(mutability_definition, gene):
         
 class Ecosystem(object):
 
-    def __init__(self, experiment):
-        self.experiment = experiment
-        self.complete_with_default_values(self.experiment)
-        self.initialize_biotope(self.experiment['biotope'])
-        self.initialize_organisms(self.experiment['organisms'])
+    def __init__(self, ecosystem_definition):
+        self.ecosystem_definition = ecosystem_definition
+        self.complete_with_default_values(self.ecosystem_definition)
+        self.initialize_biotope(self.ecosystem_definition['biotope'])
+        self.initialize_organisms(self.ecosystem_definition['organisms'])
 
-    def complete_with_default_values(self, experiment):
-        if 'biotope' not in experiment.keys():
-            experiment['biotope'] = {
+    def complete_with_default_values(self, ecosystem_definition):
+        if 'biotope' not in ecosystem_definition.keys():
+            ecosystem_definition['biotope'] = {
                 'size': (100, 200),
                 'featuremaps': None}
         # TODO More things
@@ -74,10 +74,10 @@ class Ecosystem(object):
         if organism in self.organisms_list:
             self.organisms_list.delete(organism)            
         
-    def initialize_organisms(self, experiment_organisms_data):
+    def initialize_organisms(self, ecosystem_definition_organisms_data):
         self.newborns = []
-        for organisms_category in experiment_organisms_data:
-            for _ in range(experiment_organisms_data['number of organisms']):
+        for organisms_category in ecosystem_definition_organisms_data:
+            for _ in range(ecosystem_definition_organisms_data['number of organisms']):
                 # Note: By the moment, location has random distribution
                 organism = {'location': self.biotope.seek_free_location(), 'mutating genes': {}}
                 genes_dict = organisms_category['genes']
@@ -118,8 +118,8 @@ class Ecosystem(object):
 
 def main():
     # create Ecosystem
-    experiment = None
-    ecosystem = Ecosystem(experiment)
+    ecosystem_definition = None
+    ecosystem = Ecosystem(ecosystem_definition)
     # Add initial organisms to the ecosystem:
 
     gui = GUI(ecosystem)
