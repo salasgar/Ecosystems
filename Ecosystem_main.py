@@ -1,5 +1,8 @@
 from GUI import GUI
 from Tools import *
+from Biotope import Biotope
+
+
 # from time import sleep  # To remove
 # import Biotope
 # import Organism
@@ -42,6 +45,8 @@ def make_mutability(mutability_definition, gene):
         else:
             lower_and_upper_constraint_function = lambda value, default_value, lower_constraint, upper_constraint: value if (value > lower_constraint) and (value <= upper_constraint) else default_value
             new_value = lambda organism: lower_and_upper_constraint_function(calculate_new_value(organism), organism[gene], *interval)         
+    else:
+        new_value = calculate_new_value
     return {'will mutate?': will_mutate, 'new value': new_value}
         
 class Ecosystem(object):
@@ -60,10 +65,10 @@ class Ecosystem(object):
         # TODO More things
                 
 
-    def initialize_biotope(self, biotope_data_definition):
-        self.biotope = Biotope(biotope_data = biotope_data_definition, parent_ecosystem = self)
+    def initialize_biotope(self, biotope_definition):
+        self.biotope = Biotope(biotope_definition = biotope_definition, parent_ecosystem = self)
 
-    def add_organism(organism):
+    def add_organism(self, organism):
         self.biotope.add_organism(organism)
         self.newborns.append(organism)  
         
@@ -74,21 +79,29 @@ class Ecosystem(object):
         if organism in self.organisms_list:
             self.organisms_list.delete(organism)            
         
-    def initialize_organisms(self, ecosystem_definition_organisms_data):
+    def initialize_organisms(self, organisms_definition):
         self.newborns = []
-        for organisms_category in ecosystem_definition_organisms_data:
-            for _ in range(ecosystem_definition_organisms_data['number of organisms']):
+        if isinstance(organisms_definition, dict):
+            organisms_definition = [organisms_definition]
+        for organisms_category in organisms_definition:
+            for _ in range(organisms_category['number of organisms']):
                 # Note: By the moment, location has random distribution
                 organism = {'location': self.biotope.seek_free_location(), 'mutating genes': {}}
-                genes_dict = organisms_category['genes']
-                for gene in genes_dict.keys():
-                    initial_value_generator = Tools.make_function(genes_dict[gene]['initial value'])
+                genes_definition = organisms_category['genes']
+                for gene in genes_definition.keys():
+                    if isinstance(genes_definition[gene], dict):
+                        initial_value_generator = make_function(genes_definition[gene]['initial value'])
+                    else:
+                        initial_value_generator = make_function(genes_definition[gene])
                     organism[gene] = initial_value_generator(organism)
-                    if 'mutability' in genes_dict[gene]:
-                        organism['mutating genes'][gene] = make_mutability(genes_dict[gene]['mutability'], gene)       
-                status_dict = organisms_category['status']
-                for status in status_dict:
-                    initial_value_generator = Tools.make_function(status_dict[status]['initial value'])
+                    if isinstance(genes_definition[gene], dict) and ('mutability' in genes_definition[gene]):
+                        organism['mutating genes'][gene] = make_mutability(genes_definition[gene]['mutability'], gene)       
+                status_definition = organisms_category['status']
+                for status in status_definition:
+                    if isinstance(status_definition[status], dict) and ('initial value' in status_definition[status]):
+                        initial_value_generator = make_function(status_definition[status]['initial value'])
+                    else:
+                        initial_value_generator = make_function(status_definition[status])
                     organism[status] = initial_value_generator(organism)
                 self.add_organism(organism)
         self.organisms_list = self.newborns
@@ -122,20 +135,24 @@ def main():
     ecosystem = Ecosystem(ecosystem_definition)
     # Add initial organisms to the ecosystem:
 
-    gui = GUI(ecosystem)
+    enable_graphics = False
+    if enable_graphics:
+        gui = GUI(ecosystem)
     # Loop
     time = 0
     while (len(ecosystem.organisms) > 0) and (time < 300):
         # TODO: Define correct condition
         ecosystem.evolve()
-        gui.handle_events()
-        gui.draw_ecosystem()
+        if enable_graphics:
+            gui.handle_events()
+            gui.draw_ecosystem()
         # sleep(0.1)  # To remove
         time += 1
         if time % 10 == 0:
             print ("time =", time, "Num of organisms =",
                    len(ecosystem.organisms))
-    gui.delete()
+    if enable_graphics:
+        gui.delete()
 
 if __name__ == '__main__':
     main()

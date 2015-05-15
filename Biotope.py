@@ -30,18 +30,18 @@ class Biotope(object):
             else:
                 return None # Error: Full biotope. There're no more free locations 
 
-    def __init__(self, biotope_data, parent_ecosystem):
-        self.biotope_data = biotope_data
+    def __init__(self, biotope_definition, parent_ecosystem):
+        self.biotope_definition = biotope_definition
         self.parent_ecosystem = parent_ecosystem
-        self.organisms_matrix = Tools.Matrix(*biotope_data['size'])
+        self.organisms_matrix = Tools.Matrix(*biotope_definition['size'])
         self.featuremaps_dict = {}        
         self.random_free_locations = self.random_free_locations_list(self)
 
     def __getitem__(self, keys):
-        return self.biotope_data[keys]
+        return self.biotope_definition[keys]
 
     def __setitem__(self, keys, value):
-        self.biotope_data[keys] = value
+        self.biotope_definition[keys] = value
 
     def __str__(self):  # Just sfor debug
         return str(self.organisms_matrix)
@@ -92,22 +92,22 @@ class Biotope(object):
         #print "seeking"
         return self.random_free_locations.get_new_free_location()
         
-    def list_of_locations_close_to(self, center, radius, condition = lambda x: (x==None), mode = 'circle'):
+    def list_of_locations_close_to(self, center, radius, condition = lambda x: (x==None), mode = 'euclidean distance'):
         (xc, yc) = center
         left = int(round(xc - radius))
         right = int(round(xc + radius)) + 1 # we write + 1 because range(a, b+1) = [a, a+1, a+1, ..., b] = [a, ..., b]
         up = int(round(yc - radius))
         down = int(round(yc + radius)) + 1  # we write + 1 because range(a, b+1) = [a, a+1, a+1, ..., b] = [a, ..., b]
-        if mode in {'square', 'chess'}:
+        if mode in {'square', 'chess', 'chess distance'}:
             return [(x, y) for x in range(left, right) for y in range(up, down) if condition(self.organisms_matrix[x, y])]
-        elif mode in {'circle', 'euclidean'}:
+        elif mode in {'circle', 'euclidean', 'euclidean distance'}:
             return [(x, y) for x in range(left, right) for y in range(up, down) if condition(self.organisms_matrix[x, y]) and ((x-xc)**2 + (y-yc)**2 <= radius**2)]
-        elif mode in {'tilted square', 'taxist'}:
+        elif mode in {'tilted square', 'taxist', 'taxist distance'}:
             return [(x, y) for x in range(left, right) for y in range(up, down) if condition(self.organisms_matrix[x, y]) and (abs(x-xc) + abs(y-yc) <= radius)]        
         else:
             return []
         
-    def seek_free_location_close_to(self, center, radius, mode = 'circle'):
+    def seek_free_location_close_to(self, center, radius, mode = 'euclidean distance'):
         """ 
             This method return a random free position close to a center within
             a radius (None if not possible)
@@ -119,7 +119,7 @@ class Biotope(object):
             (x, y) = choice(list_of_free_locations)
             return (x % self['size'][0], y % self['size'][1])
     
-    def seek_possible_prey_close_to(self, center, radius, mode = 'circle'):
+    def seek_possible_prey_close_to(self, center, radius, mode = 'euclidean distance'):
         condition = lambda x: (x != None) and (x['location'] != center)
         list_of_locations = self.list_of_locations_close_to(center, radius, condition, mode)
         if list_of_locations == []:
@@ -129,7 +129,7 @@ class Biotope(object):
             return (x % self['size'][0], y % self['size'][1])
             
             
-    def distance(self, A, B, mode = 'circle'): 
+    def distance(self, A, B, mode = 'euclidean distance'): 
         """
             Gives the distance from the location A to the location B, taking 
             into account that coordinates are taken (x % size_x, y % size_y)
@@ -142,11 +142,11 @@ class Biotope(object):
             Ax, Ay, Bx, By = A[0] % size_x, A[1] % size_y, B[0] % size_x, B[1] % size_y
             dif_x = min(abs(Bx - Ax), size_x - abs(Bx - Ax))
             dif_y = min(abs(By - Ay), size_y - abs(By - Ay))
-            if mode in {'square', 'chess'}:
+            if mode in {'square', 'chess', 'chess distance'}:
                 return max(dif_x, dif_y)
-            elif mode in {'circle', 'euclidean'}:
+            elif mode in {'circle', 'euclidean', 'euclidean distance'}:
                 return sqrt(dif_x**2 + dif_y**2)
-            elif mode in {'tilted square', 'taxist'}:
+            elif mode in {'tilted square', 'taxist', 'taxist distance'}:
                 return dif_x + dif_y
         else:
             return None

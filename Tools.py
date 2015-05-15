@@ -112,11 +112,11 @@ def make_function(function_definition):
                 if function_definition['subtype'] == 'gaussian':
                     mean = make_function(function_definition['mean'])
                     variance = make_function(function_definition['variance'])
-                    return lambda organism: random.gauss(mean(organism), variance(organism))
+                    return lambda organism: gauss(mean(organism), variance(organism))
                 elif function_definition['subtype'] == 'uniform distribution':
                     a = make_function(function_definition['interval'][0])
                     b = make_function(function_definition['interval'][1])
-                    return lambda organism: random.uniform(a(organism), b(organism))
+                    return lambda organism: uniform(a(organism), b(organism))
                 elif function_definition['subtype'] == 'discrete distribution':
                     def choice_value(values, r):
                         i = 0
@@ -183,6 +183,21 @@ def make_function(function_definition):
                     comparison = make_comparison_operator(function_definition['operator'])
                     return lambda predator, prey: comparison(predator_value(predator), prey_value(prey))
 
+def print_dictionary(dictionary, indent_level = 0):
+    if type(dictionary) == dict:
+        print "    "*indent_level, '{' # This line could be removed
+        for key in dictionary.keys():
+            if hasattr(dictionary[key], '__iter__'):
+                print "    "*indent_level, str(key)+":"
+                print_dictionary(dictionary[key], indent_level + 1)
+            else:
+                print "    "*indent_level, str(key)+": ", dictionary[key]  
+        print "    "*indent_level, '}' # This line also could be removed
+    elif hasattr(dictionary, '__iter__'):
+        for element in dictionary:
+            print_dictionary(element, indent_level + 1)
+    else:
+        print "   "*indent_level, dictionary
 
     
     
