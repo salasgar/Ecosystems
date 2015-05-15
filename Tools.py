@@ -1,6 +1,7 @@
 from random import *
 from functools import reduce
 from math import *
+from copy import *
 
 def is_number(x):
     try:
@@ -73,22 +74,22 @@ def random_function_maker_with_no_argument(function_definition):
         if function_definition['subtype'] == 'gaussian':
             mean = function_definition['mean']
             variance = function_definition['variance']
-            return lambda: random.gauss(mean, variance)
+            return lambda: gauss(mean, variance)
         elif function_definition['subtype'] == 'uniform distribution':
             interval = function_definition['interval']
-            return lambda: random.uniform(*interval)
+            return lambda: uniform(*interval)
         elif function_definition['subtype'] == 'discrete distribution':
             values = copy.deepcopy(function_definition['values'])
             total = 0
             for pair in values:
                 total += pair['probability']
                 pair['probability'] = total
-            return lambda: choice_value(values, random.random())
+            return lambda: choice_value(values, random())
         elif function_definition['subtype'] == 'chi-squared distribution':
             k = function_definition['k']
             coefficient = function_definition['coefficient']
-            return lambda: coefficient * math.fsum(random.gauss(0, 1)**2 for i in range(k))
-    return lambda: random.random()
+            return lambda: coefficient * math.fsum(gauss(0, 1)**2 for i in range(k))
+    return lambda: random()
 
 def make_comparison_operator(comparison_operator):
     comparison_operators_dictionary = {
@@ -123,18 +124,18 @@ def make_function(function_definition):
                         while r > values[i]['probability']:
                             i += 1
                         return values[i]['value']
-                    values = copy.deepcopy(function_definition['values'])
+                    values = deepcopy(function_definition['values'])
                     total = 0
                     for pair in values:
                         total += pair['probability']
                         pair['probability'] = total
-                    return lambda organism: choice_value(values, random.random())
+                    return lambda organism: choice_value(values, random())
                 elif function_definition['subtype'] == 'chi-squared distribution':
                     coefficient = make_function(function_definition['coefficient'])
                     k = make_function(function_definition['k'])
-                    return lambda organism: coefficient(organism) * math.fsum(random.gauss(0, 1)**2 for i in range(k(organism)))
+                    return lambda organism: coefficient(organism) * math.fsum(gauss(0, 1)**2 for i in range(k(organism)))
                 else:
-                    return lambda organism: random.random()
+                    return lambda organism: random()
              
             # OUTAY FUNCTIONS:
             elif function_definition['type'] == 'outlay function':
@@ -182,6 +183,12 @@ def make_function(function_definition):
                     prey_value = make_function(function_definition['prey value'])
                     comparison = make_comparison_operator(function_definition['operator'])
                     return lambda predator, prey: comparison(predator_value(predator), prey_value(prey))
+    elif hasattr(function_definition, '__iter__'):
+        function_list = [make_function(item) for item in function_definition]
+        return lambda organism: [item(organism) for item in function_list]
+
+    print "Hey, dude! We shouldn't be here!"
+    print_dictionary( function_definition )
 
 def print_dictionary(dictionary, indent_level = 0):
     if type(dictionary) == dict:

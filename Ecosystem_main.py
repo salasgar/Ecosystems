@@ -89,7 +89,7 @@ class Ecosystem(object):
                 organism = {'location': self.biotope.seek_free_location(), 'mutating genes': {}}
                 genes_definition = organisms_category['genes']
                 for gene in genes_definition.keys():
-                    if isinstance(genes_definition[gene], dict):
+                    if isinstance(genes_definition[gene], dict) and ('initial value' in genes_definition[gene]):
                         initial_value_generator = make_function(genes_definition[gene]['initial value'])
                     else:
                         initial_value_generator = make_function(genes_definition[gene])

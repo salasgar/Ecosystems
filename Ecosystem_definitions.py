@@ -7,7 +7,7 @@ ecosystem_definition = {
 	'featuremaps': None },
  'organisms': [ # SALAS: ponemos 'organisms definition' ?
      {'category': 'Plants',
-         'number of organisms': 50,
+         'number of organisms': 1,
          'genes': { # SALAS: ponemos 'genes definition' ?
              'strength': {
                  'initial value': { # SALAS: ponemos 'initial value definition' ?
@@ -64,7 +64,7 @@ ecosystem_definition = {
              'age': 0,
              'energy reserve': 100.0}  },
      {'category': 'Animals',
-         'number of organisms': 50,
+         'number of organisms': 1,
          'genes': {
              'strength': {
                  'initial value': 10,
@@ -77,7 +77,7 @@ ecosystem_definition = {
                      'mutation frequency': 0.05,
                      'allowed interval': [0, 'infinity']}},
              'speed': {
-                 'initial values': {
+                 'initial value': {
                      'type': 'random function',
                      'subtype': 'discrete distribution',
                      'values': [
@@ -86,6 +86,7 @@ ecosystem_definition = {
                          {'value': 5.0, 'probability': 0.05}] }}
          },  
          'status': {
+             'age': 0,
              'energy reserve': 100} }
     ],
 
