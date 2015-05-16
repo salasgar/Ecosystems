@@ -184,11 +184,11 @@ def make_function(function_settings):
                     prey_value = make_function(function_settings['prey value'])
                     comparison = make_comparison_operator(function_settings['operator'])
                     return lambda predator, prey: comparison(predator_value(predator), prey_value(prey))
-                    
+                                
             # BUILT-IN FUNCTIONS:
             if function_settings['type'] == 'built-in function':
-                if functions_settings['name'] == 'seek free position':
-                    return lambda organism: organism.parent_ecosystem.biotope.seek_free_position() 
+                if functions_settings['name'] == 'seek free location':
+                    return lambda organism: organism.parent_ecosystem.biotope.seek_free_location() 
             
     elif hasattr(function_settings, '__iter__'):
         function_list = [make_function(item) for item in function_settings]
@@ -196,6 +196,7 @@ def make_function(function_settings):
 
     print "Hey, dude! We shouldn't be here!"
     print_dictionary( function_settings )
+    return lambda organism: 'Error: unknown function'
 
 def dictionary_to_string(dictionary, indent_level = 0):
     dict_string = ""

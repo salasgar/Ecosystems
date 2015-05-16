@@ -107,7 +107,7 @@ class Ecosystem(object):
         for organisms_category in organisms_settings:
             for _ in range(organisms_category['number of organisms']):
                 # Note: By the moment, location has random distribution
-                organism = Organism(self, {'location': self.biotope.seek_free_location(), 'mutating genes': {}})
+                organism = Organism(self, {'mutating genes': {}})
                 genes_settings = organisms_category['genes']
                 for gene in genes_settings.keys():
                     if isinstance(genes_settings[gene], dict) and ('initial value' in genes_settings[gene]):
