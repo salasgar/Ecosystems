@@ -23,7 +23,7 @@ for x in float_range(12, 11, -0.11):
     print x
 
 
-print """\n\n TEST make_function(definition) """
+print """\n\n TEST make_function(function_settings) """
 
 living_outlay_dict = {
 		'type': 'outlay function',

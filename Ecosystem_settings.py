@@ -1,27 +1,27 @@
             
               
-ecosystem_definition = {
+ecosystem_settings = {
  'ecosystem name': "Strength vs photosyntesis capacity",
- 'biotope': {  # SALAS: ponemos 'biotope definition' ?
-	'size': (100, 200), # SALAS: ponemos 'size definition' ?
+ 'biotope': {  # SALAS: ponemos 'biotope settings' ?
+	'size': (100, 200), # SALAS: ponemos 'size settings' ?
 	'featuremaps': None },
- 'organisms': [ # SALAS: ponemos 'organisms definition' ?
+ 'organisms': [ # SALAS: ponemos 'organisms settings' ?
      {'category': 'Plants',
          'number of organisms': 1,
-         'genes': { # SALAS: ponemos 'genes definition' ?
+         'genes': { # SALAS: ponemos 'genes settings' ?
              'strength': {
-                 'initial value': { # SALAS: ponemos 'initial value definition' ?
+                 'initial value': { # SALAS: ponemos 'initial value settings' ?
                      'type': 'random function',
                      'subtype': 'gaussian',
                      'mean': 10, 
                      'variance': 2},
-                 'mutability': { # SALAS: ponemos 'mutability definition' ?
+                 'mutability': { # SALAS: ponemos 'mutability settings' ?
                      'absolute variation': {
                          'type': 'random function',
                          'subtype': 'gaussian',
                          'mean': 0.0, 
                          'variance': 0.01},
-                     'percentage variation': { # SALAS: ponemos 'percentage variation definition' ?
+                     'percentage variation': { # SALAS: ponemos 'percentage variation settings' ?
                          'type': 'random function',
                          'subtype': 'gaussian',
                          'mean': 0.0, 
@@ -161,8 +161,8 @@ ecosystem_definition = {
 }
 
 
-# Default ecosystem definition		(Estos son los valores por defecto)											
-Default_ecosystem_definition = {'ecosystem name': "Ecosystem name",
+# Default ecosystem settings		(Estos son los valores por defecto)											
+Default_ecosystem_settings = {'ecosystem name': "Ecosystem name",
  'biotope': {
 	'size': (100, 200),
 	'featuremaps': None },
@@ -184,7 +184,7 @@ Default_ecosystem_definition = {'ecosystem name': "Ecosystem name",
 
 
 
-ecosystem_definition_2	 = {
+ecosystem_settings_2	 = {
     'organisms': [
 	{'category': 'Mutants',
 		'genes': {
@@ -215,7 +215,7 @@ ecosystem_definition_2	 = {
 		'status': {
                     'energy reserve': 100.0} }],
   'outlays': {
-	'load outlays': "/Pepito/ecosystem_definitions/cool ecosystem.eco" },
+	'load outlays': "/Pepito/ecosystem_settings/cool ecosystem.eco" },
   'constraints': {},
   'mutability': {
 	'strength': {
@@ -251,7 +251,7 @@ ecosystem_definition_2	 = {
 # guerra por la supervivencia 
 
 
-ecosystem_definition_3 = {
+ecosystem_settings_3 = {
     'organisms': [
 	{'genes': {
             	'attack capacity': { 
@@ -267,7 +267,7 @@ ecosystem_definition_3 = {
 		'minimun energy reserve at procreation': 200.0},
 	'status': { 'energy reserve': 200.0} }],
 'outlays': {
-	'load outlays': "/Pepito/ecosystem_definitions/cool ecosystem_definition 2.exp",
+	'load outlays': "/Pepito/ecosystem_settings/cool ecosystem_settings 2.exp",
 	'living': {
 		'type': 'outlay function',
 		'subtype': 'n-linear function',
@@ -307,27 +307,27 @@ ecosystem_definition_3 = {
 
 
 
-def print_ecosystem_definition(ecosystem_definition, indent_level = 0):
-    if type(ecosystem_definition) == dict:
+def print_ecosystem_settings(ecosystem_settings, indent_level = 0):
+    if type(ecosystem_settings) == dict:
         print "    "*indent_level, '{' # This line could be removed
-        for key in ecosystem_definition.keys():
-            if hasattr(ecosystem_definition[key], '__iter__'):
+        for key in ecosystem_settings.keys():
+            if hasattr(ecosystem_settings[key], '__iter__'):
                 print "    "*indent_level, str(key)+":"
-                print_ecosystem_definition(ecosystem_definition[key], indent_level + 1)
+                print_ecosystem_settings(ecosystem_settings[key], indent_level + 1)
             else:
-                print "    "*indent_level, str(key)+": ", ecosystem_definition[key]  
+                print "    "*indent_level, str(key)+": ", ecosystem_settings[key]  
         print "    "*indent_level, '}' # This line also could be removed
-    elif hasattr(ecosystem_definition, '__iter__'):
-        for element in ecosystem_definition:
-            print_ecosystem_definition(element, indent_level + 1)
+    elif hasattr(ecosystem_settings, '__iter__'):
+        for element in ecosystem_settings:
+            print_ecosystem_settings(element, indent_level + 1)
     else:
-        print "   "*indent_level, ecosystem_definition
+        print "   "*indent_level, ecosystem_settings
 
 """   
     
-for E in (Default_ecosystem_definition, ecosystem_definition, ecosystem_definition_2, ecosystem_definition_3):
+for E in (Default_ecosystem_settings, ecosystem_settings, ecosystem_settings_2, ecosystem_settings_3):
     print "\n\n\n"
-    print_ecosystem_definition(E)
+    print_ecosystem_settings(E)
     
 
 """

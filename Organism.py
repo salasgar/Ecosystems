@@ -5,16 +5,16 @@ from copy import deepcopy
 class Organism(object):
 
     def __init__(self,
-                 organism_data,
+                 organism_settings,
                  parent_ecosystem):
-        self.organism_data = organism_data
+        self.organism_settings = organism_settings
         self.parent_ecosystem = parent_ecosystem
 
     def __getitem__(self, key):
-        return self.organism_data[key]
+        return self.organism_settings[key]
 
     def __setitem__(self, key, value):
-        self.organism_data[key] = value
+        self.organism_settings[key] = value
 
     def __str__(self):  # Just for debug
         return str(tuple(self['age']))

@@ -1,5 +1,5 @@
 from Ecosystem_main import *
-from Ecosystem_definitions import ecosystem_definition
+from Ecosystem_settings import ecosystem_settings
 
 """
 print " TEST 1 "
@@ -26,17 +26,17 @@ basic_category = {'category': 'Plants',
          }  },
 
 
-basic_ecosystem_definition = {
+basic_ecosystem_settings = {
     'biotope': {'size': (3, 3)},
     'organisms': basic_category,
     'outlays': {},
     'constraints': {}                
 }
     
-E = Ecosystem(basic_ecosystem_definition)
+E = Ecosystem(basic_ecosystem_settings)
 print_dictionary( E.organisms_list )
 """
 
 print " TEST 2 "
-E = Ecosystem(ecosystem_definition)
+E = Ecosystem(ecosystem_settings)
 print_dictionary( E.organisms_list )

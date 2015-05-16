@@ -5,13 +5,13 @@ from copy import *
 
 
 print """   TEST class Biotope """
-biotope_data = {'size': (4, 6)}
+biotope_settings = {'size': (4, 6)}
 fake_ecosystem = {}
 fake_organism = {}
 
-B = Biotope(biotope_data, parent_ecosystem = fake_ecosystem)
+B = Biotope(biotope_settings, parent_ecosystem = fake_ecosystem)
 
-print B.biotope_data
+print B.biotope_settings
 
 loc = B.seek_free_location()
 while loc:
@@ -62,10 +62,10 @@ for i in range(10):
     print B.organisms_matrix
 
 
-print "\n"*3, """ three different definitions of distance: """
+print "\n"*3, """ three different definitionss of distance: """
 size = (25, 25)
-biotope_data['size'] = size
-B = Biotope(biotope_data, fake_ecosystem)
+biotope_settings['size'] = size
+B = Biotope(biotope_settings, fake_ecosystem)
 center = (choice(range(size[0])), choice(range(size[1])))
 matrix = Matrix(*size)
 for x in range(size[0]):
@@ -85,8 +85,8 @@ print "\n"*3, matrix
 
 print "\n"*3, """ SEEK LOCATION """
 size = (5, 5)
-biotope_data['size'] = size
-B = Biotope(biotope_data, fake_ecosystem)
+biotope_settings['size'] = size
+B = Biotope(biotope_settings, fake_ecosystem)
 center = (choice(range(size[0])), choice(range(size[1])))
 B.add_organism(fake_organism, center)
 for i in range(10):

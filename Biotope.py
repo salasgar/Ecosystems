@@ -1,6 +1,5 @@
 from random import *
 from math import *
-import initial_settings
 import Tools
 import Organism
 from copy import *
@@ -30,18 +29,18 @@ class Biotope(object):
             else:
                 return None # Error: Full biotope. There're no more free locations 
 
-    def __init__(self, biotope_definition, parent_ecosystem):
-        self.biotope_definition = biotope_definition
+    def __init__(self, biotope_settings, parent_ecosystem):
+        self.biotope_settings = biotope_settings
         self.parent_ecosystem = parent_ecosystem
-        self.organisms_matrix = Tools.Matrix(*biotope_definition['size'])
+        self.organisms_matrix = Tools.Matrix(*biotope_settings['size'])
         self.featuremaps_dict = {}        
         self.random_free_locations = self.random_free_locations_list(self)
 
     def __getitem__(self, keys):
-        return self.biotope_definition[keys]
+        return self.biotope_settings[keys]
 
     def __setitem__(self, keys, value):
-        self.biotope_definition[keys] = value
+        self.biotope_settings[keys] = value
 
     def __str__(self):  # Just sfor debug
         return str(self.organisms_matrix)
