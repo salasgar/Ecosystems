@@ -2,6 +2,7 @@ from random import *
 from functools import reduce
 from math import *
 from copy import *
+from Ecosystem_settings import *
 
 def is_number(x):
     try:
@@ -183,6 +184,12 @@ def make_function(function_settings):
                     prey_value = make_function(function_settings['prey value'])
                     comparison = make_comparison_operator(function_settings['operator'])
                     return lambda predator, prey: comparison(predator_value(predator), prey_value(prey))
+                    
+            # BUILT-IN FUNCTIONS:
+            if function_settings['type'] == 'built-in function':
+                if functions_settings['name'] == 'seek free position':
+                    return lambda organism: organism.parent_ecosystem.biotope.seek_free_position() 
+            
     elif hasattr(function_settings, '__iter__'):
         function_list = [make_function(item) for item in function_settings]
         return lambda organism: [item(organism) for item in function_list]
@@ -190,23 +197,42 @@ def make_function(function_settings):
     print "Hey, dude! We shouldn't be here!"
     print_dictionary( function_settings )
 
-def print_dictionary(dictionary, indent_level = 0):
-    if type(dictionary) == dict:
-        print "    "*indent_level, '{' # This line could be removed
+def dictionary_to_string(dictionary, indent_level = 0):
+    dict_string = ""
+    tabulator = " "*4
+    if isinstance(dictionary, dict):
+        dict_string += tabulator*indent_level + '{\n' # This line could be removed
         for key in dictionary.keys():
             if hasattr(dictionary[key], '__iter__'):
-                print "    "*indent_level, str(key)+":"
-                print_dictionary(dictionary[key], indent_level + 1)
+                dict_string += tabulator*indent_level + str(key)+":\n"
+                dict_string += dictionary_to_string(dictionary[key], indent_level + 1)
             else:
-                print "    "*indent_level, str(key)+": ", dictionary[key]  
-        print "    "*indent_level, '}' # This line also could be removed
+                dict_string += tabulator*indent_level + str(key) + ": " + str(dictionary[key]) + "\n"
+        dict_string +=  tabulator*indent_level + '}\n' # This line also could be removed
     elif hasattr(dictionary, '__iter__'):
         for element in dictionary:
-            print_dictionary(element, indent_level + 1)
+            dict_string += dictionary_to_string(element, indent_level + 1)
     else:
-        print "   "*indent_level, dictionary
+        dict_string += tabulator*indent_level + str(dictionary) + "\n"
+    return dict_string
+    
+def print_dictionary(dictionary):
+    print dictionary_to_string(dictionary)
 
-    
-    
-    
-    
+def merge_dictionaries(dictionary_to_be_completed, dictionary_to_complete_with):
+    for item in dictionary_to_complete_with:
+        if item in dictionary_to_be_completed:
+            if isinstance(dictionary_to_be_completed[item], dict) and isinstance(dictionary_to_complete_with[item], dict):
+                merge_dictionaries(dictionary_to_be_completed[item], dictionary_to_complete_with[item])
+            else:
+                dictionary_to_be_completed[item] = dictionary_to_complete_with[item]
+                
+
+
+            
+            
+            
+            
+            
+            
+            

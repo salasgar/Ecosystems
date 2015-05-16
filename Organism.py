@@ -1,26 +1,20 @@
 from random import random
 from copy import deepcopy
+from Tools import *
 
 
-class Organism(object):
+class Organism(dict):
 
-    def __init__(self,
-                 organism_settings,
-                 parent_ecosystem):
-        self.organism_settings = organism_settings
+    def __init__(self, parent_ecosystem, organism_data = None):
         self.parent_ecosystem = parent_ecosystem
+        for key in organism_data:
+            self[key] = organism_data[key]
+    
+    def __str__(self, indent_level = 0):  # Just for debug
+        return dictionary_to_string(self, indent_level)
 
-    def __getitem__(self, key):
-        return self.organism_settings[key]
-
-    def __setitem__(self, key, value):
-        self.organism_settings[key] = value
-
-    def __str__(self):  # Just for debug
-        return str(tuple(self['age']))
-
-    def set_location(self, (x, y)):
-        self['location'] = (x, y)
+    def act(self):
+        pass
 
     def move(self):
         """
@@ -48,8 +42,11 @@ class Organism(object):
     def hunt(self):
         pass
 
-    def do_photosynthesis(self, ecosystem):
-        pass
+    def do_photosynthesis(self):
+        if ('photosynthesis_capacity' in self) and ('energy reserve' in self):
+            self['energy reserve'] += 'photosynthesis_capacity'
+            if ('energy storage capacity' in self):
+                self['energy reserve'] = min(self['energy reserve'], self['energy storage capacity'])   
 
     def procreate_if_possible(self):
         """
@@ -98,8 +95,6 @@ class Organism(object):
                 procreated = True
         return procreated
 
-    def age(self, ecosystem):
-        self['status']['age'] += 1
-        if self['status']['age'] > self['longevity']:  # Die
-            self.parent_ecosystem.biotope.delete_organism(self)
-            self.parent_ecosystem.organisms_list.remove(self)
+    def age(self):
+        if 'age' in self:
+            self['age'] += 1

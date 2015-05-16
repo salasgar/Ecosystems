@@ -1,4 +1,17 @@
-            
+         
+DEFAULT_ECOSYSTEM_SETTINGS = {
+    'ecosystem name': 'DEFAULT ECOSYSTEM NAME',
+    'biotope': {'size': (100, 100)},
+    'organisms': {'number of organisms': 0,
+                  'genes': {},
+                  'status': {
+                      'location': {
+                          'type': 'built-in function',
+                          'name': 'seek free location'}                    
+                  } },
+    'outlays': {},
+    'constraints': {}            
+    }
               
 ecosystem_settings = {
  'ecosystem name': "Strength vs photosyntesis capacity",
@@ -7,7 +20,7 @@ ecosystem_settings = {
 	'featuremaps': None },
  'organisms': [ # SALAS: ponemos 'organisms settings' ?
      {'category': 'Plants',
-         'number of organisms': 1,
+         'number of organisms': 2,
          'genes': { # SALAS: ponemos 'genes settings' ?
              'strength': {
                  'initial value': { # SALAS: ponemos 'initial value settings' ?
@@ -64,7 +77,7 @@ ecosystem_settings = {
              'age': 0,
              'energy reserve': 100.0}  },
      {'category': 'Animals',
-         'number of organisms': 1,
+         'number of organisms': 3,
          'genes': {
              'strength': {
                  'initial value': 10,
@@ -331,3 +344,4 @@ for E in (Default_ecosystem_settings, ecosystem_settings, ecosystem_settings_2, 
     
 
 """
+

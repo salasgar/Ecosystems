@@ -1,7 +1,8 @@
 from GUI import GUI
 from Tools import *
 from Biotope import Biotope
-from Ecosystem_settings import ecosystem_settings
+from Ecosystem_settings import DEFAULT_ECOSYSTEM_SETTINGS, ecosystem_settings
+from Organism import Organism
 
 
 # from time import sleep  # To remove
@@ -51,23 +52,36 @@ def make_mutability(mutability_settings, gene):
     return {'will mutate?': will_mutate, 'new value': new_value}
         
 class Ecosystem(object):
+    """ Attributes:
+    self.biotope
+    self.organisms_list
+    self.newborns    
+    self.outlays
+    self.constraints
+    """
 
-    def __init__(self, ecosystem_settings):
-        self.ecosystem_settings = ecosystem_settings
-        self.complete_with_default_values(self.ecosystem_settings)
-        self.initialize_biotope(self.ecosystem_settings['biotope'])
-        self.initialize_organisms(self.ecosystem_settings['organisms'])
-
-    def complete_with_default_values(self, ecosystem_settings):
-        if 'biotope' not in ecosystem_settings.keys():
-            ecosystem_settings['biotope'] = {
-                'size': (100, 200),
-                'featuremaps': None}
-        # TODO More things
+    def __init__(self, settings, default_settings = DEFAULT_ECOSYSTEM_SETTINGS):
+        merge_dictionaries(
+            dictionary_to_be_completed = settings,
+            dictionary_to_complete_with = default_settings)
+        self.settings = settings
+        self.initialize_biotope()
+        self.initialize_outlays()
+        self.initialize_constraints()
+        self.initialize_organisms()
+        
+    def initialize_biotope(self):
+        self.biotope = Biotope(settings = self.settings['biotope'], parent_ecosystem = self)
                 
-
-    def initialize_biotope(self, biotope_settings):
-        self.biotope = Biotope(biotope_settings = biotope_settings, parent_ecosystem = self)
+    def initialize_outlays(self):
+        self.outlays = {}
+        for action in self.settings['outlays']:
+            self.outlays[action] = make_function(self.settings['outlays'][action])
+    
+    def initialize_constraints(self):
+        self.constraints = {}
+        for action in self.settings['constraints']:
+            self.constraints[action] = make_function(self.settings['constraints'][action])        
 
     def add_organism(self, organism):
         self.biotope.add_organism(organism)
@@ -80,14 +94,20 @@ class Ecosystem(object):
         if organism in self.organisms_list:
             self.organisms_list.delete(organism)            
         
-    def initialize_organisms(self, organisms_settings):
+    def initialize_organisms(self):
+        """ 
+        PRE-CONDITIONS:
+            This initialization must be called AFTER self.initialize_biotope, 
+            because we use here Biotope.seek_free_location
+        """
         self.newborns = []
+        organisms_settings = self.settings['organisms']
         if isinstance(organisms_settings, dict):
             organisms_settings = [organisms_settings]
         for organisms_category in organisms_settings:
             for _ in range(organisms_category['number of organisms']):
                 # Note: By the moment, location has random distribution
-                organism = {'location': self.biotope.seek_free_location(), 'mutating genes': {}}
+                organism = Organism(self, {'location': self.biotope.seek_free_location(), 'mutating genes': {}})
                 genes_settings = organisms_category['genes']
                 for gene in genes_settings.keys():
                     if isinstance(genes_settings[gene], dict) and ('initial value' in genes_settings[gene]):

@@ -11,7 +11,7 @@ fake_organism = {}
 
 B = Biotope(biotope_settings, parent_ecosystem = fake_ecosystem)
 
-print B.biotope_settings
+print B.settings
 
 loc = B.seek_free_location()
 while loc:

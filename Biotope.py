@@ -29,18 +29,18 @@ class Biotope(object):
             else:
                 return None # Error: Full biotope. There're no more free locations 
 
-    def __init__(self, biotope_settings, parent_ecosystem):
-        self.biotope_settings = biotope_settings
+    def __init__(self, settings, parent_ecosystem):
+        self.settings = settings
         self.parent_ecosystem = parent_ecosystem
-        self.organisms_matrix = Tools.Matrix(*biotope_settings['size'])
+        self.organisms_matrix = Tools.Matrix(*self.settings['size'])
         self.featuremaps_dict = {}        
         self.random_free_locations = self.random_free_locations_list(self)
 
     def __getitem__(self, keys):
-        return self.biotope_settings[keys]
+        return self.settings[keys]
 
     def __setitem__(self, keys, value):
-        self.biotope_settings[keys] = value
+        self.settings[keys] = value
 
     def __str__(self):  # Just sfor debug
         return str(self.organisms_matrix)

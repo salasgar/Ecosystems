@@ -53,3 +53,25 @@ function1 = {
     }}  
 #print [make_function(function1)(organism) for i in range(10)]    
 #print make_function(living_outlay_dict)(organism)   
+   
+print """ TEST merge_dictionaries """
+A = {1: 'a',
+     2: {
+         1: 'a',
+         2: {1: 'a',
+             2: 'b'}
+     }}
+     
+B = {1: 'fail',
+     2: {
+         1: {1: 'fail'},
+         2: {2: 'fail',
+             'ok': 'ok'}},
+     3: 'ok'}
+     
+merge_dictionaries(dictionary_to_be_completed = A, dictionary_to_complete_with = B)
+print_dictionary(A)    
+    
+    
+    
+    
