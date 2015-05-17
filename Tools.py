@@ -53,10 +53,6 @@ class Matrix(object):
 
     def __setitem__(self, coordinates, value):
         x, y = coordinates
-
-        if (x == None) or (y == None):
-            print "Eh, te pille!!!"
-        
         self.data[x % self.size_x][y % self.size_y] = value
 
     def __str__(self, traspose = False):
@@ -64,6 +60,7 @@ class Matrix(object):
             return "\n".join(str(self.data[i]) for i in range(len(self.data)))
         else:
             return "\n".join(str([self.data[i][j] for i in range(self.size_x)]) for j in range(self.size_y))
+
 """ this method returns a random function that accept no arguments: """ # This method is unused by the moment, but it may will. And it works!
 def random_function_with_no_argument_maker(function_settings):
     def choice_value(values, r):
@@ -109,6 +106,7 @@ def make_function(function_settings):
         return lambda organism: organism[function_settings]
     elif isinstance(function_settings, dict):
         if 'type' in function_settings.keys():
+            
             # RANDOM FUNCTIONS:
             if function_settings['type'] == 'random function':
                 if function_settings['subtype'] == 'gaussian':
@@ -187,8 +185,15 @@ def make_function(function_settings):
                                 
             # BUILT-IN FUNCTIONS:
             if function_settings['type'] == 'built-in function':
-                if functions_settings['name'] == 'seek free location':
+                if function_settings['name'] == 'seek free location':
                     return lambda organism: organism.parent_ecosystem.biotope.seek_free_location() 
+                if function_settings['name'] == 'seek free location close to':
+                    center = make_function(function_settings['center'])
+                    radius = make_function(function_settings['radius'])
+                    return lambda organism: organism.parent_ecosystem.biotope.seek_free_location_close_to(
+                        center(organism),
+                        radius(organism)) 
+                
             
     elif hasattr(function_settings, '__iter__'):
         function_list = [make_function(item) for item in function_settings]

@@ -26,6 +26,7 @@ def make_mutability(mutability_settings, gene):
         else:
             calculate_new_value = lambda organism: organism[gene] + absolute_variation(organism)
     elif 'percentage variation' in mutability_settings:
+        percentage_variation = make_function(mutability_settings['percentage variation'])
         calculate_new_value = lambda organism: organism[gene] * (1 + percentage_variation(organism))
     else:
         calculate_new_value = lambda organism: organism[gene] # (no mutation) 
@@ -51,6 +52,43 @@ def make_mutability(mutability_settings, gene):
         new_value = calculate_new_value
     return {'will mutate?': will_mutate, 'new value': new_value}
         
+def make_modifying_status(modifying_settings, status):    
+    if 'new value' in modifying_settings:
+        calculate_new_value = make_function(modifying_settings['new value'])
+    elif 'absolute variation' in modifying_settings:
+        absolute_variation = make_function(modifying_settings['absolute variation'])
+        if 'percentage variation' in modifying_settings:
+            percentage_variation = make_function(modifying_settings['percentage variation'])
+            calculate_new_value = lambda organism: organism[status] * (1 + percentage_variation(organism)) + absolute_variation(organism)
+        else:
+            calculate_new_value = lambda organism: organism[status] + absolute_variation(organism)
+    elif 'percentage variation' in modifying_settings:
+        percentage_variation = make_function(modifying_settings['percentage variation'])
+        calculate_new_value = lambda organism: organism[status] * (1 + percentage_variation(organism))
+    else:
+        calculate_new_value = lambda organism: organism[status] # (no change) 
+    if 'changing frequency' in modifying_settings:
+        changing_frequency = make_function(modifying_settings['mutation frequency'])
+    else:
+        changing_frequency = lambda organism: 1
+    will_change = lambda organism: (random() < changing_frequency(organism))
+    if 'allowed interval' in modifying_settings:
+        interval = modifying_settings['allowed interval']
+        if  (interval[0] in {'- infinity', '-infinity'}) and (interval[1] in {'+ infinity', '+infinity', 'infinity'}): # this means no constraints
+            new_value = calculate_new_value
+        elif interval[0] in {'- infinity', '-infinity'}:
+            upper_constraint_function = lambda value, default_value, constraint: value if value < constraint else default_value
+            new_value = lambda organism: upper_constraint_function(calculate_new_value(organism), organism[status], interval[1])
+        elif interval[1] in {'+ infinity', '+infinity', 'infinity'}:
+            lower_constraint_function = lambda value, default_value, constraint: value if value > constraint else default_value
+            new_value = lambda organism: lower_constraint_function(calculate_new_value(organism), organism[status], interval[0])
+        else:
+            lower_and_upper_constraint_function = lambda value, default_value, lower_constraint, upper_constraint: value if (value > lower_constraint) and (value <= upper_constraint) else default_value
+            new_value = lambda organism: lower_and_upper_constraint_function(calculate_new_value(organism), organism[status], *interval)         
+    else:
+        new_value = calculate_new_value
+    return {'will change?': will_change, 'new value': new_value}
+        
 class Ecosystem(object):
     """ Attributes:
     self.biotope
@@ -60,15 +98,25 @@ class Ecosystem(object):
     self.constraints
     """
 
-    def __init__(self, settings, default_settings = DEFAULT_ECOSYSTEM_SETTINGS):
-        merge_dictionaries(
-            dictionary_to_be_completed = settings,
-            dictionary_to_complete_with = default_settings)
-        self.settings = settings
+    def __init__(self, ecosystem_settings, default_settings = DEFAULT_SETTINGS):
+        self.load_settings(ecosystem_settings, default_settings)
         self.initialize_biotope()
         self.initialize_outlays()
         self.initialize_constraints()
         self.initialize_organisms()
+        
+    def load_settings(self, ecosystem_settings, default_settings):
+        merge_dictionaries(
+            dictionary_to_be_completed = ecosystem_settings,
+            dictionary_to_complete_with = default_settings['ecosystem'])
+        if isinstance(ecosystem_settings['organisms'], dict):
+            ecosystem_settings['organisms'] = [ecosystem_settings['organisms']]
+        if ('attack capacity' in ecosystem_settings['organisms']) or 
+           ('strength' in ecosystem_settings['organisms']):
+                merge_dictionaries(
+                    dictionary_to_be_completed = ecosystem_settings['organisms'],
+                    dictionary_to_complete_with = default_settings['seeking prey'])
+        self.settings = ecosystem_settings                
         
     def initialize_biotope(self):
         self.biotope = Biotope(settings = self.settings['biotope'], parent_ecosystem = self)
@@ -102,8 +150,6 @@ class Ecosystem(object):
         """
         self.newborns = []
         organisms_settings = self.settings['organisms']
-        if isinstance(organisms_settings, dict):
-            organisms_settings = [organisms_settings]
         for organisms_category in organisms_settings:
             for _ in range(organisms_category['number of organisms']):
                 # Note: By the moment, location has random distribution
@@ -124,6 +170,8 @@ class Ecosystem(object):
                     else:
                         initial_value_generator = make_function(status_settings[status])
                     organism[status] = initial_value_generator(organism)
+                    if isinstance(status_settings[status], dict) and ('modifying' in status_settings[status]):
+                        organism['modifying status'][status] = make_modifying_status(status_settings[status]['modifying'], status)       
                 self.add_organism(organism)
         self.organisms_list = self.newborns
         self.newborns = []

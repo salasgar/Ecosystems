@@ -22,24 +22,46 @@ class Organism(dict):
             then: - Update biotope (organisms matrix)
                   - Update location
         """
-        # 1. Get organism current data
-        speed = self['speed']
-        old_location = self['location']
-        if speed > 0:
-            # 2. Check if there is a new free location
-            new_location = ecosystem.biotope.seek_free_location_close_to(
-                old_location, radius=speed)
-            if new_location is not None:
-                # 3. Update biotope (organisms matrix)
-                self.parent_ecosystem.biotope.move_organism_in_matrix(
-                    self, new_location)
-                # 4. Update location
-                self.set_location(new_location)
+        # 1. Check if this organism can move itself:
+        if 'speed' in self:
+            # 2. Check if this organism decide to move:
+            if (('movie?' in self) and self['move?']()):
+                or not 'move?' in self:
+                # 3. Get a new location:
+                new_location = self.biotope.seek_free_location_close_to(self['location'], self['speed'])
+                # 4. Check if it has found a new location:
+                if new_location != None:
+                    old_location = self['location']
+                    # 5. Update location
+                    self['location'] = new_location
+                    # 6. Update biotope (organisms matrix):
+                    self.parent_ecosystem.biotope.move_organism(old_location, new_location)
+
+    def move2(self):
+        """
+            Check if there is a new available location. If yes
+            then: - Update biotope (organisms matrix)
+                  - Update location
+        """
+        # 1. Check if this organism can move itself:
+        if 'location' in self['modifying status']:
+            # 2. Check if this organism decide to move:
+            if self['modifying status']['location']['will change?'](self):
+                # 3. Get a new location:
+                new_location = self['modifying status']['location']['new value'](self)
+                # 4. Check if it has found a new location:
+                if new_location != None:
+                    old_location = self['location']
+                    # 5. Update location
+                    self['location'] = new_location
+                    # 6. Update biotope (organisms matrix):
+                    self.parent_ecosystem.biotope.move_organism(old_location, new_location)
 
     def eat(self, organism):
         pass
     
     def hunt(self):
+        
         pass
 
     def do_photosynthesis(self):

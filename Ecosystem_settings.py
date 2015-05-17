@@ -1,17 +1,55 @@
          
-DEFAULT_ECOSYSTEM_SETTINGS = {
-    'ecosystem name': 'DEFAULT ECOSYSTEM NAME',
-    'biotope': {'size': (100, 100)},
-    'organisms': {'number of organisms': 0,
-                  'genes': {},
-                  'status': {
-                      'location': {
-                          'type': 'built-in function',
-                          'name': 'seek free location'}                    
-                  } },
-    'outlays': {},
-    'constraints': {}            
+DEFAULT_SETTINGS = {
+    'ecosystem': {
+        'ecosystem name': 'DEFAULT ECOSYSTEM NAME',
+        'biotope': {'size': (100, 100)},
+        'organisms': {'number of organisms': 1,
+            'genes': {
+                'speed': 0,
+                'moving frequency': 1.0},
+            'status': {
+                'location': {
+                    'initial value': {
+                        'type': 'built-in function',
+                        'name': 'seek free location'},
+                    'modifying': {
+                        'new value': {
+                            'type': 'built-in function',
+                            'name': 'seek free location close to',
+                            'center': 'location',
+                            'radius': 'speed'},            
+                        'changing frequency': 'moving frequency'}
+                    }
+                } },
+        'outlays': {},
+        'constraints': {} },
+            }     
+            
+    'seeking prey': {
+        'maximum attack distance': 1.5,
+        'mode of seeking prey': 'exhaustive'                    
+        }
+        
+    'doing photosynthesis': {
+        'photosynthesis capacity': 10.0
+        }
+        
+    'procreating': {
+        'procreating frequency': 0.1  # 10%      
+        }
+         
+    'GRAPHICS': {
+        'zoom': 4
+        'color function': {
+            'show biotope features': False,
+            'show organisms': True,
+            'organisms color function': {
+                'type': 'built-in function',
+                'name': 'default organisms color function'}
+            }
+        }
     }
+    
               
 ecosystem_settings = {
  'ecosystem name': "Strength vs photosyntesis capacity",

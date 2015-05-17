@@ -76,8 +76,9 @@ class Biotope(object):
             return 'fail'
         
     def move_organism(self, old_location, new_location):
-        self.organisms_matrix[new_location] = self.organisms_matrix[old_location]
-        self.organisms_matrix[old_location] = None
+        if old_location != new_location:
+            self.organisms_matrix[new_location] = self.organisms_matrix[old_location]
+            self.organisms_matrix[old_location] = None
         
     def delete_organism(self, location):
         if location:
