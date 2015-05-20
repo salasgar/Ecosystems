@@ -111,10 +111,11 @@ class Ecosystem(object):
             dictionary_to_complete_with = default_settings['ecosystem'])
         if isinstance(ecosystem_settings['organisms'], dict):
             ecosystem_settings['organisms'] = [ecosystem_settings['organisms']]
-        if ('attack capacity' in ecosystem_settings['organisms']) or 
-           ('strength' in ecosystem_settings['organisms']):
+        for category in ecosystem_settings['organisms']:
+            if ('attack capacity' in category) or 
+               ('strength' in category):
                 merge_dictionaries(
-                    dictionary_to_be_completed = ecosystem_settings['organisms'],
+                    dictionary_to_be_completed = category,
                     dictionary_to_complete_with = default_settings['seeking prey'])
         self.settings = ecosystem_settings                
         
@@ -153,25 +154,33 @@ class Ecosystem(object):
         for organisms_category in organisms_settings:
             for _ in range(organisms_category['number of organisms']):
                 # Note: By the moment, location has random distribution
-                organism = Organism(self, {'mutating genes': {}})
+                organism = Organism(self, {'mutating genes': {}, 'list of reserve substances': {}})
                 genes_settings = organisms_category['genes']
                 for gene in genes_settings.keys():
-                    if isinstance(genes_settings[gene], dict) and ('initial value' in genes_settings[gene]):
-                        initial_value_generator = make_function(genes_settings[gene]['initial value'])
+                    if isinstance(genes_settings[gene], dict):
+                        if 'initial value' in genes_settings[gene]:
+                            initial_value_generator = make_function(genes_settings[gene]['initial value'])
+                            organism[gene] = initial_value_generator(organism)
+                        else: # the gene is a function:
+                            organism[gene] = make_function(genes_settings[gene])         
+                        if 'mutability' in genes_settings[gene]):
+                            organism['mutating genes'][gene] = make_mutability(genes_settings[gene]['mutability'], gene)       
                     else:
-                        initial_value_generator = make_function(genes_settings[gene])
-                    organism[gene] = initial_value_generator(organism)
-                    if isinstance(genes_settings[gene], dict) and ('mutability' in genes_settings[gene]):
-                        organism['mutating genes'][gene] = make_mutability(genes_settings[gene]['mutability'], gene)       
+                        organism[gene] = genes_settings[gene]
                 status_settings = organisms_category['status']
                 for status in status_settings:
-                    if isinstance(status_settings[status], dict) and ('initial value' in status_settings[status]):
-                        initial_value_generator = make_function(status_settings[status]['initial value'])
+                    if isinstance(status_settings[status], dict):
+                        if 'initial value' in status_settings[status]:
+                            initial_value_generator = make_function(status_settings[status]['initial value'])
+                            organism[status] = initial_value_generator(organism)
+                        else:
+                            organism[status] = make_function(status_settings[status])
+                        if 'modifying' in status_settings[status]:
+                            organism['modifying status'][status] = make_modifying_status(status_settings[status]['modifying'], status)       
                     else:
-                        initial_value_generator = make_function(status_settings[status])
-                    organism[status] = initial_value_generator(organism)
-                    if isinstance(status_settings[status], dict) and ('modifying' in status_settings[status]):
-                        organism['modifying status'][status] = make_modifying_status(status_settings[status]['modifying'], status)       
+                        organism[status] = status_settings[status]                
+                if 'energy reserve' in self:
+                    self['list of reserve substances'].append('energy reserve')
                 self.add_organism(organism)
         self.organisms_list = self.newborns
         self.newborns = []

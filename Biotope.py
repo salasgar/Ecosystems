@@ -6,8 +6,9 @@ from copy import *
 
 
 class Biotope(object):
+    
     class random_free_locations_list(object):
-        def __init__(self, parent_biotope):
+        def __init__(self, parent_biotope): # warning: this is not the __init__ method of Biotope class!
             self.parent_biotope = parent_biotope
             self.reset()
         def reset(self):
@@ -35,7 +36,14 @@ class Biotope(object):
         self.organisms_matrix = Tools.Matrix(*self.settings['size'])
         self.featuremaps_dict = {}        
         self.random_free_locations = self.random_free_locations_list(self)
-
+        # The 'distance' between two points A and B is subjective. Depends on
+        # the topology of the biotope (currently it's a flat torus) and the
+        # metric we use (euclidean, chess, taxicab,...). So, we define:      
+        if 'distance' in self.settings:
+            self.distance = lambda A, B: self.calculate_distance(A, B, self.settings['distance'])
+        else:
+            self.distance = lambda A, B: self.calculate_distance(A, B)
+        
     def __getitem__(self, keys):
         return self.settings[keys]
 
@@ -60,7 +68,9 @@ class Biotope(object):
             """ SALAS:
             Deberiamos borrar los organismos que pueda haber previamente en este biotopo?
             """
-
+    def get_organism(self, location):
+        return self.organisms_matrix[location]
+        
     def add_organism(self, organism, location = 'find location'):
         if location == 'find location':
             if 'location' in organism.keys():
@@ -89,39 +99,33 @@ class Biotope(object):
             This method return a random free position 
             (None if not possible)
         """
-        #print "seeking"
         return self.random_free_locations.get_new_free_location()
         
-    def list_of_locations_close_to(self, center, radius, condition = lambda x: (x==None), mode = 'euclidean distance'):
+    def list_of_locations_close_to(self, center, radius, condition = lambda x: (x==None)):
         (xc, yc) = center
+        # borders of a square around center (xc, yc):
         left = int(round(xc - radius))
         right = int(round(xc + radius)) + 1 # we write + 1 because range(a, b+1) = [a, a+1, a+1, ..., b] = [a, ..., b]
         up = int(round(yc - radius))
         down = int(round(yc + radius)) + 1  # we write + 1 because range(a, b+1) = [a, a+1, a+1, ..., b] = [a, ..., b]
-        if mode in {'square', 'chess', 'chess distance'}:
-            return [(x, y) for x in range(left, right) for y in range(up, down) if condition(self.organisms_matrix[x, y])]
-        elif mode in {'circle', 'euclidean', 'euclidean distance'}:
-            return [(x, y) for x in range(left, right) for y in range(up, down) if condition(self.organisms_matrix[x, y]) and ((x-xc)**2 + (y-yc)**2 <= radius**2)]
-        elif mode in {'tilted square', 'taxist', 'taxist distance'}:
-            return [(x, y) for x in range(left, right) for y in range(up, down) if condition(self.organisms_matrix[x, y]) and (abs(x-xc) + abs(y-yc) <= radius)]        
-        else:
-            return []
+        return [(x, y) for x in range(left, right) for y in range(up, down) if condition(self.organisms_matrix[x, y]) and (self.distance(center, (x, y)) <= radius)]
         
-    def seek_free_location_close_to(self, center, radius, mode = 'euclidean distance'):
+    def seek_free_location_close_to(self, center, radius):
         """ 
             This method return a random free position close to a center within
             a radius (None if not possible)
         """
-        list_of_free_locations = self.list_of_locations_close_to(center, radius, lambda x: (x==None), mode)
+        list_of_free_locations = self.list_of_locations_close_to(center, radius, lambda x: (x==None))
         if list_of_free_locations == []:
             return None
         else:
             (x, y) = choice(list_of_free_locations)
             return (x % self['size'][0], y % self['size'][1])
     
-    def seek_possible_prey_close_to(self, center, radius, mode = 'euclidean distance'):
-        condition = lambda x: (x != None) and (x['location'] != center)
-        list_of_locations = self.list_of_locations_close_to(center, radius, condition, mode)
+    def seek_possible_prey_close_to(self, center, radius, condition = None):
+        if condition == None:
+            condition = lambda x: (x != None) and (x['location'] != center)
+        list_of_locations = self.list_of_locations_close_to(center, radius, condition)
         if list_of_locations == []:
             return None
         else:
@@ -129,7 +133,7 @@ class Biotope(object):
             return (x % self['size'][0], y % self['size'][1])
             
             
-    def distance(self, A, B, mode = 'euclidean distance'): 
+    def calculate_distance(self, A, B, distance = 'euclidean distance'): 
         """
             Gives the distance from the location A to the location B, taking 
             into account that coordinates are taken (x % size_x, y % size_y)
@@ -142,11 +146,11 @@ class Biotope(object):
             Ax, Ay, Bx, By = A[0] % size_x, A[1] % size_y, B[0] % size_x, B[1] % size_y
             dif_x = min(abs(Bx - Ax), size_x - abs(Bx - Ax))
             dif_y = min(abs(By - Ay), size_y - abs(By - Ay))
-            if mode in {'square', 'chess', 'chess distance'}:
+            if distance in {'square', 'chess', 'chess distance'}:
                 return max(dif_x, dif_y)
-            elif mode in {'circle', 'euclidean', 'euclidean distance'}:
+            elif distance in {'circle', 'euclidean', 'euclidean distance'}:
                 return sqrt(dif_x**2 + dif_y**2)
-            elif mode in {'tilted square', 'taxist', 'taxist distance'}:
+            elif distance in {'tilted square', 'taxicab', 'taxist', 'taxist distance'}:
                 return dif_x + dif_y
         else:
             return None

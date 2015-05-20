@@ -1,3 +1,5 @@
+"""
+
 from Tools import *
 from copy import *
 from Biotope import *
@@ -21,5 +23,19 @@ for i in range(10):
     print B.add_organism({}, location = loc)
     print B.organisms_matrix
 
+"""
+
+f = lambda:"ey!"
+
+print isinstance(f, FunctionType)
+
+print hasattr(f, '__call__')
 
 
+K = lambda x: (
+    x() if isinstance(x, FunctionType) else x,
+    1)
+
+print K(f)
+
+print K('f')

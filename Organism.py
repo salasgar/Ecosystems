@@ -57,12 +57,18 @@ class Organism(dict):
                     # 6. Update biotope (organisms matrix):
                     self.parent_ecosystem.biotope.move_organism(old_location, new_location)
 
-    def eat(self, organism):
-        pass
+    def eat(self, prey):
+        for substance_reserve in prey['list of reserve substances']:
+            if substance_reserve in self:
+                self[substance_reserve] += prey[substance_reserve]
     
     def hunt(self):
-        
-        pass
+        prey_location = self['seeking prey technique'](self)
+        if prey_location != None:
+            prey = parent_ecosystem.biotope.get_organism(prey_location)
+        if parent_ecosystem.constraints['hunting'](self, prey):
+            self.eat(prey)
+            prey.die()            
 
     def do_photosynthesis(self):
         if ('photosynthesis_capacity' in self) and ('energy reserve' in self):
@@ -120,3 +126,7 @@ class Organism(dict):
     def age(self):
         if 'age' in self:
             self['age'] += 1
+            
+    def die(self):
+        parent_ecosystem.delete_organism(self) # parent_ecosystem tells biotope to erase organism from it
+        

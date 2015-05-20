@@ -9,13 +9,10 @@ DEFAULT_SETTINGS = {
                 'moving frequency': 1.0},
             'status': {
                 'location': {
-                    'initial value': {
-                        'type': 'built-in function',
-                        'name': 'seek free location'},
+                    'initial value': {'function': 'seek free location'},
                     'modifying': {
                         'new value': {
-                            'type': 'built-in function',
-                            'name': 'seek free location close to',
+                            'function': 'seek free location close to',
                             'center': 'location',
                             'radius': 'speed'},            
                         'changing frequency': 'moving frequency'}
@@ -27,7 +24,10 @@ DEFAULT_SETTINGS = {
             
     'seeking prey': {
         'maximum attack distance': 1.5,
-        'mode of seeking prey': 'exhaustive'                    
+        'seeking prey technique': {
+            'function': 'seek random organism',
+            'center': 'location',
+            'radius': 'maximum attack distance'}                  
         }
         
     'doing photosynthesis': {
@@ -43,166 +43,151 @@ DEFAULT_SETTINGS = {
         'color function': {
             'show biotope features': False,
             'show organisms': True,
-            'organisms color function': {
-                'type': 'built-in function',
-                'name': 'default organisms color function'}
+            'organisms color function': {'function': 'default organisms color function'}
             }
         }
     }
     
               
 ecosystem_settings = {
- 'ecosystem name': "Strength vs photosyntesis capacity",
- 'biotope': {  # SALAS: ponemos 'biotope settings' ?
-	'size': (100, 200), # SALAS: ponemos 'size settings' ?
-	'featuremaps': None },
- 'organisms': [ # SALAS: ponemos 'organisms settings' ?
-     {'category': 'Plants',
-         'number of organisms': 2,
-         'genes': { # SALAS: ponemos 'genes settings' ?
-             'strength': {
-                 'initial value': { # SALAS: ponemos 'initial value settings' ?
-                     'type': 'random function',
-                     'subtype': 'gaussian',
-                     'mean': 10, 
-                     'variance': 2},
-                 'mutability': { # SALAS: ponemos 'mutability settings' ?
-                     'absolute variation': {
-                         'type': 'random function',
-                         'subtype': 'gaussian',
-                         'mean': 0.0, 
-                         'variance': 0.01},
-                     'percentage variation': { # SALAS: ponemos 'percentage variation settings' ?
-                         'type': 'random function',
-                         'subtype': 'gaussian',
-                         'mean': 0.0, 
-                         'variance': 2.0},
-                     'mutation frequency': 'strength mutation frequency',
-                     'allowed interval': [0, 'infinity']
-                     }},
-             'strength mutation frequency': {
-                 'initial value': 0.05,
-                 'mutability': {
-                     'new value': {
-                         'type': 'random function',
-                         'subtype': 'uniform distribution',
-                         'interval': [0, 0.1]},
-                     'mutation frequency': 0.01
-                     }},
-             'photosynthesis capacity': { # SALAS: etc, etc....
-                 'initial value': {
-                     'type': 'random function',
-                     'subtype': 'uniform distribution',
-                     'interval': [10, 30] },
-                 'mutability': {
-                     'absolute variation': {
-                         'type': 'random function',
-                         'subtype': 'gaussian',
-                         'mean': 0.0, 
-                         'variance': 0.15},
-                     'mutation frequency': 0.001}  },
-             'energy storage capacity': {
-                 'initial value': 1000.0,
-                 'mutability': {
-                     'percentage variation': {
-                         'type': 'random function',
-                         'subtype': 'uniform distribution',
-                         'interval': [-5.0, 5.0]},
-                     'mutation frequency': 0.02
-                  }}
-         },
-         'status': {
-             'age': 0,
-             'energy reserve': 100.0}  },
-     {'category': 'Animals',
-         'number of organisms': 3,
-         'genes': {
-             'strength': {
-                 'initial value': 10,
-                 'mutability': {
-                     'variation': {
-                         'type': 'random function',
-                         'subtype': 'gaussian',
-                         'mean': 0.0, 
-                         'variance': 0.01},
-                     'mutation frequency': 0.05,
-                     'allowed interval': [0, 'infinity']}},
-             'speed': {
-                 'initial value': {
-                     'type': 'random function',
-                     'subtype': 'discrete distribution',
-                     'values': [
-                         {'value': 0.0, 'probability': 0.25},
-                         {'value': 1.0, 'probability': 0.70},
-                         {'value': 5.0, 'probability': 0.05}] }}
-         },  
-         'status': {
-             'age': 0,
-             'energy reserve': 100} }
+    'ecosystem name': "Strength vs photosyntesis capacity",
+    'biotope': { 
+        'size': (100, 200),
+        'featuremaps': None },
+    'organisms': [
+        {'category': 'Plants',
+        'number of organisms': 2,
+        'genes': { 
+            'strength': {
+                'initial value': { 
+                    'function': 'gaussian',
+                    'mean': 10, 
+                    'variance': 2},
+                'mutability': {
+                    'absolute variation': {
+                        'function': 'gaussian',
+                        'mean': 0.0, 
+                        'variance': 0.01},
+                    'percentage variation': {
+                        'function': 'gaussian',
+                        'mean': 0.0, 
+                        'variance': 2.0},
+                    'mutation frequency': 'strength mutation frequency',
+                    'allowed interval': [0, 'infinity']
+                }},
+            'strength mutation frequency': {
+                'initial value': 0.05,
+                'mutability': {
+                    'new value': {
+                        'function': 'uniform distribution',
+                        'interval': [0, 0.1]},
+                    'mutation frequency': 0.01
+                }},
+            'photosynthesis capacity': { # SALAS: etc, etc....
+                'initial value': {
+                    'function': 'uniform distribution',
+                    'interval': [10, 30] },
+                'mutability': {
+                    'absolute variation': {
+                        'function': 'gaussian',
+                        'mean': 0.0, 
+                        'variance': 0.15},
+                    'mutation frequency': 0.001}  },
+            'energy storage capacity': {
+                'initial value': 1000.0,
+                'mutability': {
+                    'percentage variation': {
+                        'function': 'uniform distribution',
+                        'interval': [-5.0, 5.0]},
+                    'mutation frequency': 0.02
+                }}
+        },
+        'status': {
+            'age': 0,
+            'energy reserve': 100.0}  },
+        {'category': 'Animals',
+        'number of organisms': 3,
+        'genes': {
+            'average attack capacity': {
+                'initial value': 10,
+                'mutability': {
+                    'variation': {
+                        'function': 'gaussian',
+                        'mean': 0.0, 
+                        'variance': 0.01},
+                    'mutation frequency': 0.05,
+                    'allowed interval': [0, 'infinity']}},
+            'attack capacity': # This gene is function of the organism itself:
+                make_function(
+                    {
+                        'function': 'gaussian',
+                        'mean': 'average attack capacity',
+                        'variance': 'average attack capacity'},
+                    number_of_arguments = 1),
+            'speed': {
+                'initial value': {
+                    'function': 'discrete distribution',
+                    'values list': [
+                        {'value': 0.0, 'probability': 0.25},
+                        {'value': 1.0, 'probability': 0.70},
+                        {'value': 5.0, 'probability': 0.05}] }}
+        },  
+        'status': {
+            'age': 0,
+            'energy reserve': 100} }
     ],
-
-  'outlays': {
-      'hunting': {
-          'type': 'outlay function',
-          'subtype': 'linear function',
-          'terms': [
-              {'parameter': 'strength', 'coefficient': 3.0}, 
-              {'parameter': 'speed', 'coefficient': 0.2}, 
-              {'parameter': None, 'coefficient': 5.0}]},
-      'moving': {
-          'type': 'outlay function',
-          'subtype': 'linear function',
-          'terms': [
-              {'parameter': 'strength', 'coefficient': 1.0}, 
-              {'parameter': 'photosynthesis capacity', 'coefficient': 25.0}, 
-              {'parameter': 'speed', 'coefficient': 5.0}, 
-              {'parameter': 'energy storage capacity', 'coefficient': 0.001}, 
-              {'parameter': None, 'coefficient': 1.0}]},
+                    
+    'outlays': {
+        'hunting': {
+            '+': (
+                {'*': (3.0, 'strength')}, 
+                {'*': (0.2, 'speed')},
+                5.0)},         
+        'moving': {
+            '+': (
+                {'*': ('strength', 1.0)}, 
+                {'*': ('photosynthesis capacity', 25.0)}, 
+                {'*': ('speed', 5.0)}, 
+                {'*': ('energy storage capacity', 0.001)}, 
+                1.0)},
       'procreating': {
-          'type': 'outlay function',
-          'subtype': 'linear function',
-          'terms': [
-              {'parameter': 'strength', 'coefficient': 3.0}, 
-              {'parameter': 'photosynthesis capacity', 'coefficient': 3.0}, 
-              {'parameter': 'speed', 'coefficient': 3.0}, 
-              {'parameter': None, 'coefficient': 5.0}]},
+            '+': (
+                {'*': ('strength', 3.0)}, 
+                {'*': ('photosynthesis capacity', 3.0)}, 
+                {'*': ('speed', 3.0)}, 
+                5.0)},
       'living': {
-          'type': 'outlay function',
-          'subtype': 'linear function',
-          'terms': [
-              {'parameter': 'strength', 'coefficient': 1.0}, 
-              {'parameter': 'photosynthesis capacity', 'coefficient': -1.0},
-              {'parameter': 'energy storage capacity', 'coefficient': 0.002}, 
-              {'parameter': 'speed', 'coefficient': 2.0}, 
-              {'parameter': None, 'coefficient': 5.0}]}},
+            '+': (
+                {'*': ('strength', 1.0)}, 
+                {'*': ('photosynthesis capacity', -1.0)},
+                {'*': ('energy storage capacity', 0.002)}, 
+                {'*': ('speed', 2.0)}, 
+                5.0)}},
 
-  'constraints': {
-   	'procreating': {
-		'type': 'interpreted function',
-		'subtype': 'organism constraint',
-		'a': 'energy reserve',
-		'r': ('random number', 'uniform distribution [0, 1]'),
-		'expression': "a*r > 100.0"  },
- 	'hunting': {
-		'type': 'interpreted function',
-		'subtype': 'compare predator vs prey',
-		'a': ('predator', 'strength'),
-		'b': ('prey', 'strength'),
-		'r1': ('random number', 'uniform distribution [0, 1]'),
-		'r2': ('random number', 'uniform distribution [0, 1]'),
-		'expression': "a*r1 > b*r2"  },
-	'dying': {
-		'type': 'constraint function',
-		'subtype': 'thresholds',
-            'operator': 'or',
-            'terms': [
-                {'parameter': 'energy reserve', 
-                'operator': '<',
-                'threshold': 10.0},
-                {'parameter': 'age',
+    'constraints': {
+        'procreating': {
+            'and': (
+                {'<': (
+                    {'function': 'uniform distribution', 'interval': [0, 1]}, 
+                    'procreating frequency')},
+                {'>': (
+                    'energy reserve',
+                    'energy reserve procreating threshold')} )},
+                    
+        'hunting': {
+            '>': (
+                {'predator': 'attack capacity'},
+                {'prey': 'defence capacity'})},
+            
+        'dying': {
+            'or': (
+                {'<': (
+                    'energy reserve', 
+                    10.0)},
+                {'>': ('age',
                 'operator': '>',
                 'random threshold': {
-                    'type': 'random function',
+                    'function',
                     'subtype': 'gaussian',
                     'mean': 120,
                     'variance': 20}
@@ -242,7 +227,7 @@ ecosystem_settings_2	 = {
             		'strength': 'default',
                    	'photosynthesis capacity': 20.0,
                  	'speed': {
-				'type': 'random function',
+				'function',
 				'subtype': 'discrete distribution',
 				'value list': [
 					{'value': 0.0, 'frequency': 0.25},
@@ -256,7 +241,7 @@ ecosystem_settings_2	 = {
             		'strength': 'default',
                    	'photosynthesis capacity': 20.0,
                  	'speed': {
-				'type': 'random function',
+				'function',
 				'subtype': 'discrete distribution',
 				'value list': [
 					{'value': 0.0, 'frequency': 0.25},
@@ -271,7 +256,7 @@ ecosystem_settings_2	 = {
   'mutability': {
 	'strength': {
 		'percentage variation': {
-			'type': 'random function',
+			'function',
 			'subtype': 'gaussian',
 			'mean': 0.0, 
 			'variance': 0.01},
@@ -289,7 +274,7 @@ ecosystem_settings_2	 = {
 
 	'mutability': {
 		'percentage variation': {
-			'type': 'random function',
+			'function',
 			'subtype': 'gaussian',
 			'mean': 0.0, 
 			'variance': 0.01},
@@ -306,12 +291,10 @@ ecosystem_settings_3 = {
     'organisms': [
 	{'genes': {
             	'attack capacity': { 
-			'type': 'random function',
-			'subtype': 'chi-squared',
+			'function': 'chi-squared',
 			'k': 3},
             	'defense capacity': { 
-			'type': 'random function',
-			'subtype': 'chi-squared',
+			'function': 'chi-squared',
 			'k': 3},
              	'photosynthesis capacity': 20.0,
 		'energy reserve at birth': 100.0,
@@ -320,20 +303,20 @@ ecosystem_settings_3 = {
 'outlays': {
 	'load outlays': "/Pepito/ecosystem_settings/cool ecosystem_settings 2.exp",
 	'living': {
-		'type': 'outlay function',
+		'function',
 		'subtype': 'n-linear function',
 		'terms': [
-			{'parameters': ['attack capacity', 'defense capacity'], 		'coefficient': 1.0}, 
-                  	{'parameters': ['photosynthesis capacity'], 				'coefficient': -1.0},
-			{'parameters': ['attack capacity', 'photosynthesis capacity'], 	'coefficient': 25.0}, 
-			{'parameters': [], 								'coefficient': 0.5}]} },
+			{'*s': ['attack capacity', 'defense capacity'], 		1.0}, 
+                  	{'*s': ['photosynthesis capacity'], 				-1.0},
+			{'*s': ['attack capacity', 'photosynthesis capacity'], 	25.0}, 
+			{'*s': [], 								0.5}]} },
 'constraints': {
    	'procreating': {
 		'type': 'threshold',
-		'parameter': 'energy reserve',
+		'*': 'energy reserve',
 		'threshold': 'minimun energy reserve at procreation'},
 	'hunting': {
-		'type': 'interpreted function',
+		'function',
 		'subtype': 'compare predator vs prey',
 		'a': ('predator', 'attack capacity'),
 		'b': ('prey', 'defense capacity'),
@@ -343,7 +326,7 @@ ecosystem_settings_3 = {
   'mutability': {
 	'all genes': {
 		'percentage variation': {
-			'type': 'random function',
+			'function',
 			'subtype': 'gaussian',
 			'mean': 0.0, 
 			'variance': 0.01},
@@ -352,9 +335,44 @@ ecosystem_settings_3 = {
 	}
 }
 
-# Nota: En este experimento veremos si los mutantes ganan a los no mutantes en la 
-# guerra por la supervivencia 
+# Nota: En este experimento veremos cual es la mejor tecnica para jugar a
+# piedra, papel, tijera: 
 
+ecosystem_settings4 = {
+    'constraints': {
+        'hunting': {'or': (
+            {'and': (
+                {'==': (
+                    {'predator': 'weapon'},
+                    {'string': 'stone'})},      
+                {'==': (
+                    {'prey': 'weapon'},
+                    {'string': 'scissors'})} )},
+            
+            {'and': (
+                {'==': (
+                    {'predator': 'weapon'},
+                    {'string': 'scissors'})},      
+                {'==': (
+                    {'prey': 'weapon'},
+                    {'string': 'paper'})} )},
+            
+            {'and': (
+                {'==': (
+                    {'predator': 'weapon'},
+                    {'string': 'paper'})},      
+                {'==': (
+                    {'prey': 'weapon'},
+                    {'string': 'stone'})} )}}}}
+                    
+ecosystem_settings4B = {
+    'constraings': {
+        'hunting': {'in': (
+            ({'predator': 'weapon'}, {'prey': 'weapon'}),
+            (({'literal': 'stone'},    {'literal': 'scissors'}),
+             ({'literal': 'scissors'}, {'literal': 'paper'}),
+             ({'literal': 'paper'},    {'literal': 'stone'}))}        
+    }}
 
 
 

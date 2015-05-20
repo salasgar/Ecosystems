@@ -109,3 +109,25 @@ hunting_constraint = make_function(hunting_constraint_settings)
 
 print hunting_outlay(organism), living_outlay(organism), dying_test(organism), hunting_constraint(organism, organism_prey)
 
+
+outlays = {
+    'hunting': { '+': (
+        {'*': (3.0, 'strength')},
+        {'*': (0.2, 'speed')},
+        5.0) }}
+
+constraints = {
+    'procreating': {'and':(
+        {'<=': ('uniform distribution [0, 1]', 'procreating frequency')},
+        {'>': ('energy reserve', 'procreating energy threshold')} )},
+    'hunting': {'>': (
+        {'gaussian': {
+            'mean': {'predator': 'attack capacity'},
+            'variance': {'predator': 'attack capacity'}}},
+        {'prey': 'defense capacity'})},
+    'dying': {'or': (
+        {'<': ('energy reserve', 10.0)},
+        {'>': ('age', {'gaussian': {'mean': 120, 'variance': 20}})} ) } }
+
+    
+
