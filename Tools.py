@@ -132,7 +132,7 @@ def make_function(function_settings, number_of_arguments):
         elif isinstance(function_settings, str):
             return lambda: function_settings
         elif hasattr(function_settings, '__iter__') and not isinstance(function_settings, dict):
-            return [make_function(item, number_of_arguments) for item in function_settings]
+            return [make_function(item, number_of_arguments) for item in function_settings]  # Yes, it's not a function, but a list of functions
         elif isinstance(function_settings, dict):
             if 'literal' in function_settings:
                 return lambda: function_settings['literal']
@@ -176,7 +176,7 @@ def make_function(function_settings, number_of_arguments):
         elif isinstance(function_settings, str):
             return lambda organism: organism[function_settings](organism) if isinstance(organism[function_settings], FunctionType) else organism[function_settings]
         elif hasattr(function_settings, '__iter__') and not isinstance(function_settings, dict):
-            return [make_function(item, number_of_arguments) for item in function_settings]
+            return [make_function(item, number_of_arguments) for item in function_settings] # Yes, it's not a function, but a list of functions
         elif isinstance(function_settings, dict):
             if 'literal' in function_settings:
                 return lambda organism: function_settings['literal']
@@ -235,7 +235,7 @@ def make_function(function_settings, number_of_arguments):
                 predator[function_settings](predator) if isinstance(predator[function_settings], FunctionType) else predator[function_settings], 
                 prey[function_settings](prey) if isinstance(prey[function_settings], FunctionType) else prey[function_settings])
         elif hasattr(function_settings, '__iter__') and not isinstance(function_settings, dict):
-            return [make_function(item, number_of_arguments) for item in function_settings]
+            return [make_function(item, number_of_arguments) for item in function_settings] # Yes, it's not a function, but a list of functions
         elif isinstance(function_settings, dict):
             if 'predator' in function_settings:
                 return lambda predator, prey: predator[function_settings['predator']](predator) if isinstance(predator[function_settings['predator']], FunctionType) else predator[function_settings['predator']]
