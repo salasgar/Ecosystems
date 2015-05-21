@@ -20,7 +20,6 @@ DEFAULT_SETTINGS = {
                 } },
         'outlays': {},
         'constraints': {} },
-            }     
             
     'seeking prey': {
         'maximum attack distance': 1.5,
@@ -28,18 +27,18 @@ DEFAULT_SETTINGS = {
             'function': 'seek random organism',
             'center': 'location',
             'radius': 'maximum attack distance'}                  
-        }
+        },
         
     'doing photosynthesis': {
         'photosynthesis capacity': 10.0
-        }
+        },
         
     'procreating': {
         'procreating frequency': 0.1  # 10%      
-        }
+        },
          
     'GRAPHICS': {
-        'zoom': 4
+        'zoom': 4,
         'color function': {
             'show biotope features': False,
             'show organisms': True,
@@ -117,13 +116,10 @@ ecosystem_settings = {
                         'variance': 0.01},
                     'mutation frequency': 0.05,
                     'allowed interval': [0, 'infinity']}},
-            'attack capacity': # This gene is function of the organism itself:
-                make_function(
-                    {
+            'attack capacity': { # This gene is function of the organism itself:
                         'function': 'gaussian',
                         'mean': 'average attack capacity',
                         'variance': 'average attack capacity'},
-                    number_of_arguments = 1),
             'speed': {
                 'initial value': {
                     'function': 'discrete distribution',
@@ -184,22 +180,18 @@ ecosystem_settings = {
                 {'<': (
                     'energy reserve', 
                     10.0)},
-                {'>': ('age',
-                'operator': '>',
-                'random threshold': {
-                    'function',
-                    'subtype': 'gaussian',
-                    'mean': 120,
-                    'variance': 20}
-                    }              
-                ]
-		} },
-}
+                {'>': (
+                    'age',
+                    {'function': 'gaussian',
+                         'mean': 120,
+                         'variance': 20})})}}
+ }
 
 
 # Default ecosystem settings		(Estos son los valores por defecto)											
-Default_ecosystem_settings = {'ecosystem name': "Ecosystem name",
- 'biotope': {
+Default_ecosystem_settings = {
+    'ecosystem name': "Ecosystem name",
+    'biotope': {
 	'size': (100, 200),
 	'featuremaps': None },
  'organisms': [{'category': 'General category',
@@ -227,8 +219,7 @@ ecosystem_settings_2	 = {
             		'strength': 'default',
                    	'photosynthesis capacity': 20.0,
                  	'speed': {
-				'function',
-				'subtype': 'discrete distribution',
+				'function': 'discrete distribution',
 				'value list': [
 					{'value': 0.0, 'frequency': 0.25},
 					{'value': 1.0, 'frequency': 0.75}]},  
@@ -241,8 +232,7 @@ ecosystem_settings_2	 = {
             		'strength': 'default',
                    	'photosynthesis capacity': 20.0,
                  	'speed': {
-				'function',
-				'subtype': 'discrete distribution',
+				'function': 'discrete distribution',
 				'value list': [
 					{'value': 0.0, 'frequency': 0.25},
 					{'value': 1.0, 'frequency': 0.75}]},  
@@ -256,8 +246,7 @@ ecosystem_settings_2	 = {
   'mutability': {
 	'strength': {
 		'percentage variation': {
-			'function',
-			'subtype': 'gaussian',
+			'function': 'gaussian',
 			'mean': 0.0, 
 			'variance': 0.01},
 		'mutation frequency': 0.05,
@@ -274,8 +263,7 @@ ecosystem_settings_2	 = {
 
 	'mutability': {
 		'percentage variation': {
-			'function',
-			'subtype': 'gaussian',
+			'function': 'gaussian',
 			'mean': 0.0, 
 			'variance': 0.01},
 		'allowed interval': [0, 1]
@@ -303,21 +291,19 @@ ecosystem_settings_3 = {
 'outlays': {
 	'load outlays': "/Pepito/ecosystem_settings/cool ecosystem_settings 2.exp",
 	'living': {
-		'function',
-		'subtype': 'n-linear function',
+		'function': 'n-linear function',
 		'terms': [
-			{'*s': ['attack capacity', 'defense capacity'], 		1.0}, 
-                  	{'*s': ['photosynthesis capacity'], 				-1.0},
-			{'*s': ['attack capacity', 'photosynthesis capacity'], 	25.0}, 
-			{'*s': [], 								0.5}]} },
+			{'*': ['attack capacity', 'defense capacity', 		 1.0]}, 
+                  	{'*': ['photosynthesis capacity', 				-1.0]},
+			{'*': ['attack capacity', 'photosynthesis capacity', 	25.0]}, 
+			0.5]} },
 'constraints': {
    	'procreating': {
 		'type': 'threshold',
 		'*': 'energy reserve',
 		'threshold': 'minimun energy reserve at procreation'},
 	'hunting': {
-		'function',
-		'subtype': 'compare predator vs prey',
+		'function': 'compare predator vs prey',
 		'a': ('predator', 'attack capacity'),
 		'b': ('prey', 'defense capacity'),
 		'r1': ('random number', 'uniform distribution [0, 1]'),
@@ -326,8 +312,7 @@ ecosystem_settings_3 = {
   'mutability': {
 	'all genes': {
 		'percentage variation': {
-			'function',
-			'subtype': 'gaussian',
+			'function': 'gaussian',
 			'mean': 0.0, 
 			'variance': 0.01},
 		'mutation frequency': 0.05,
@@ -363,7 +348,7 @@ ecosystem_settings4 = {
                     {'string': 'paper'})},      
                 {'==': (
                     {'prey': 'weapon'},
-                    {'string': 'stone'})} )}}}}
+                    {'string': 'stone'})} )})}}}
                     
 ecosystem_settings4B = {
     'constraings': {
@@ -371,7 +356,7 @@ ecosystem_settings4B = {
             ({'predator': 'weapon'}, {'prey': 'weapon'}),
             (({'literal': 'stone'},    {'literal': 'scissors'}),
              ({'literal': 'scissors'}, {'literal': 'paper'}),
-             ({'literal': 'paper'},    {'literal': 'stone'}))}        
+             ({'literal': 'paper'},    {'literal': 'stone'})))}        
     }}
 
 

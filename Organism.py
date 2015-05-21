@@ -25,8 +25,7 @@ class Organism(dict):
         # 1. Check if this organism can move itself:
         if 'speed' in self:
             # 2. Check if this organism decide to move:
-            if (('movie?' in self) and self['move?']()):
-                or not 'move?' in self:
+            if (('movie?' in self) and self['move?']()) or not 'move?' in self:
                 # 3. Get a new location:
                 new_location = self.biotope.seek_free_location_close_to(self['location'], self['speed'])
                 # 4. Check if it has found a new location:

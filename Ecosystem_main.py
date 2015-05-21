@@ -1,7 +1,7 @@
 from GUI import GUI
 from Tools import *
 from Biotope import Biotope
-from Ecosystem_settings import DEFAULT_ECOSYSTEM_SETTINGS, ecosystem_settings
+from Ecosystem_settings import DEFAULT_SETTINGS, ecosystem_settings
 from Organism import Organism
 
 
@@ -68,7 +68,7 @@ def make_modifying_status(modifying_settings, status):
     else:
         calculate_new_value = lambda organism: organism[status] # (no change) 
     if 'changing frequency' in modifying_settings:
-        changing_frequency = make_function(modifying_settings['mutation frequency'])
+        changing_frequency = make_function(modifying_settings['changing frequency'])
     else:
         changing_frequency = lambda organism: 1
     will_change = lambda organism: (random() < changing_frequency(organism))
@@ -112,8 +112,7 @@ class Ecosystem(object):
         if isinstance(ecosystem_settings['organisms'], dict):
             ecosystem_settings['organisms'] = [ecosystem_settings['organisms']]
         for category in ecosystem_settings['organisms']:
-            if ('attack capacity' in category) or 
-               ('strength' in category):
+            if ('attack capacity' in category) or ('strength' in category):
                 merge_dictionaries(
                     dictionary_to_be_completed = category,
                     dictionary_to_complete_with = default_settings['seeking prey'])
@@ -154,7 +153,7 @@ class Ecosystem(object):
         for organisms_category in organisms_settings:
             for _ in range(organisms_category['number of organisms']):
                 # Note: By the moment, location has random distribution
-                organism = Organism(self, {'mutating genes': {}, 'list of reserve substances': {}})
+                organism = Organism(self, {'mutating genes': {}, 'modifying status': {}, 'list of reserve substances': []})
                 genes_settings = organisms_category['genes']
                 for gene in genes_settings.keys():
                     if isinstance(genes_settings[gene], dict):
@@ -163,7 +162,7 @@ class Ecosystem(object):
                             organism[gene] = initial_value_generator(organism)
                         else: # the gene is a function:
                             organism[gene] = make_function(genes_settings[gene])         
-                        if 'mutability' in genes_settings[gene]):
+                        if 'mutability' in genes_settings[gene]:
                             organism['mutating genes'][gene] = make_mutability(genes_settings[gene]['mutability'], gene)       
                     else:
                         organism[gene] = genes_settings[gene]
@@ -179,8 +178,8 @@ class Ecosystem(object):
                             organism['modifying status'][status] = make_modifying_status(status_settings[status]['modifying'], status)       
                     else:
                         organism[status] = status_settings[status]                
-                if 'energy reserve' in self:
-                    self['list of reserve substances'].append('energy reserve')
+                if 'energy reserve' in organism:
+                    organism['list of reserve substances'].append('energy reserve')
                 self.add_organism(organism)
         self.organisms_list = self.newborns
         self.newborns = []

@@ -111,7 +111,7 @@ for operator in {'and', 'AND', '&', '&&'}:  # Este bucle for es por ahorrarme es
 for operator in {'or', 'OR', '|', '||'}:
     Binary_operators_dictionary[operator] = lambda x, y: x or y
 for operator in {'xor', 'XOR'}:
-    Binary_operators_dictionary[operator] = logical_xor
+    Binary_operators_dictionary[operator] = lambda x, y: (x and not y) or (y and not x)
 
 Unary_operators_dictionary = {
     'abs': abs,
@@ -121,7 +121,8 @@ Unary_operators_dictionary = {
     'cos': cos,
     'tan': tan,
     'tg':  tan,
-    'round': lambda x: round(x, 0) }
+    'round': lambda x: round(x, 0),
+    'not': lambda x: not x }
 
 def make_function(function_settings, number_of_arguments = 1):
     if number_of_arguments == 0:           
@@ -135,7 +136,7 @@ def make_function(function_settings, number_of_arguments = 1):
         elif isinstance(function_settings, dict):
             if 'literal' in function_settings:
                 return lambda: function_settings['literal']
-             for operator in Binary_operators_dictionary:
+            for operator in Binary_operators_dictionary:
                 if operator in function_settings:
                     terms = make_function(function_settings[operator], number_of_arguments)
                     return lambda: reduce(Binary_operators_dictionary[operator], [term() for term in terms[1:]], terms[0]())        
@@ -162,7 +163,7 @@ def make_function(function_settings, number_of_arguments = 1):
                     values_list = [(make_function(pair['probability'], number_of_arguments),
                                     make_function(pair['value'], number_of_arguments))
                                     for pair in function_settings['values list']]
-                    return lambda: choice_value(, values_list, random())
+                    return lambda: choice_value(values_list, random())
                 elif function_settings['function'] == 'chi-squared distribution':
                     coefficient = make_function(function_settings['coefficient'], number_of_arguments)
                     k = make_function(function_settings['k'], number_of_arguments)
@@ -242,7 +243,7 @@ def make_function(function_settings, number_of_arguments = 1):
                 return lambda predator, prey: predator[function_settings['predator']](predator) if isinstance(predator[function_settings['predator']], FunctionType) else predator[function_settings['predator']]
             if 'prey' in function_settings:
                 return lambda predator, prey: prey[function_settings['prey']](prey) if isinstance(prey[function_settings['prey']], FunctionType) else prey[function_settings['prey']]
-            if 'literal' if function_settings:
+            if 'literal' in function_settings:
                 return lambda predator, prey: function_settings['literal']
             for operator in Binary_operators_dictionary:
                 if operator in function_settings:
@@ -277,7 +278,8 @@ def make_function(function_settings, number_of_arguments = 1):
                     k = make_function(function_settings['k'], number_of_arguments)
                     return lambda predator, prey: coefficient(predator, prey) * math.fsum(gauss(0, 1)**2 for i in range(k(predator, prey)))                    
     print "Hey, dude! We shouldn't be here!"
-    print_dictionary( function_settings )
+    #print_dictionary( function_settings )
+    print function_settings
     return lambda organism: 'Error: unknown function'
 
 
@@ -465,8 +467,8 @@ def merge_dictionaries(dictionary_to_be_completed, dictionary_to_complete_with):
         if item in dictionary_to_be_completed:
             if isinstance(dictionary_to_be_completed[item], dict) and isinstance(dictionary_to_complete_with[item], dict):
                 merge_dictionaries(dictionary_to_be_completed[item], dictionary_to_complete_with[item])
-            else:
-                dictionary_to_be_completed[item] = dictionary_to_complete_with[item]
+        else:
+            dictionary_to_be_completed[item] = dictionary_to_complete_with[item]
                 
 
 
