@@ -52,7 +52,17 @@ class Biotope(object):
 
     def __str__(self):  # Just sfor debug
         return str(self.organisms_matrix)
-        
+    
+    def size_x(self):
+        return self['size'][0]
+
+    def size_y(self):
+        return self['size'][1]
+
+    def print_matrix(self):
+        for y in range(self.size_y()):
+            print [0 if self.organisms_matrix[x, y] == None else 1 for x in range(self.size_x())]
+   
     def add_featuremap(featuremap):
         self.featuremaps_dict[featuremap.code] = featuremap
 

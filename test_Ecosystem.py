@@ -40,4 +40,14 @@ if test1:
 if test2:
     print " TEST 2 "
     E = Ecosystem(ecosystem_settings)
-    #print_dictionary( E.organisms_list )
+    #print_dictionary(E.settings)
+    for i in range(40):    
+        print "\n",
+        E.biotope.print_matrix()
+        for organism in E.organisms_list:
+            organism.act()
+        E.organisms_list += E.newborns
+        E.newborns = []
+    print_dictionary( E.organisms_list )
+    
+ 

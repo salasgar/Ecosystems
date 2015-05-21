@@ -12,9 +12,15 @@ class Organism(dict):
     
     def __str__(self, indent_level = 0):  # Just for debug
         return dictionary_to_string(self, indent_level)
-
+        
     def act(self):
-        pass
+        self.do_photosynthesis()
+        self.move()
+        self.hunt()
+        self.procreate_if_possible()
+        self.age()
+        if self.parent_ecosystem.constraints['dying'](self):
+            self.die()
 
     def move(self):
         """
@@ -25,9 +31,9 @@ class Organism(dict):
         # 1. Check if this organism can move itself:
         if 'speed' in self:
             # 2. Check if this organism decide to move:
-            if (('movie?' in self) and self['move?']()) or not 'move?' in self:
+            if (('move?' in self) and self['move?']()) or not 'move?' in self:
                 # 3. Get a new location:
-                new_location = self.biotope.seek_free_location_close_to(self['location'], self['speed'])
+                new_location = self.parent_ecosystem.biotope.seek_free_location_close_to(self['location'], self['speed'])
                 # 4. Check if it has found a new location:
                 if new_location != None:
                     old_location = self['location']
@@ -60,20 +66,33 @@ class Organism(dict):
         for substance_reserve in prey['list of reserve substances']:
             if substance_reserve in self:
                 self[substance_reserve] += prey[substance_reserve]
+                storage_capacity = parent_ecosystem.storage_capacities_dictionary[substance_reserve] 
+                if storage_capacity in self:
+                    self[substance_reserve] = min(self[substance_reserve], self[storage_capacity])
     
     def hunt(self):
-        prey_location = self['seeking prey technique'](self)
+        if 'seeking prey technique' in self:            
+            prey_location = self['seeking prey technique'](self)
+        else:
+            prey_location = self.parent_ecosystem.biotope.seek_possible_prey_close_to(
+                center = self['location'],
+                radius = 1.5)
         if prey_location != None:
-            prey = parent_ecosystem.biotope.get_organism(prey_location)
-        if parent_ecosystem.constraints['hunting'](self, prey):
-            self.eat(prey)
-            prey.die()            
+            prey = self.parent_ecosystem.biotope.get_organism(prey_location)
+            if self.parent_ecosystem.constraints['hunting'](predator = self, prey = prey):
+                self.eat(prey)
+                prey.die()            
 
     def do_photosynthesis(self):
         if ('photosynthesis_capacity' in self) and ('energy reserve' in self):
             self['energy reserve'] += 'photosynthesis_capacity'
             if ('energy storage capacity' in self):
                 self['energy reserve'] = min(self['energy reserve'], self['energy storage capacity'])   
+
+    def mutate(self):
+        for mutating_gene in self['mutating genes']:
+            if self['mutating genes'][mutating_gene]['will mutate?'](self):
+                self[mutating_gene] = self['mutating genes'][mutating_gene]['new value'](self)
 
     def procreate_if_possible(self):
         """
@@ -84,41 +103,23 @@ class Organism(dict):
             Return true if procreated, else return false.
         """
         procreated = False
-        # 1. Get organism current data
-        reproduction_frequency = self['reproduction_frequency']
-        location = self['location']
-        energy_threshold = 5  # TODO: Define in genes
-
-        # 2. Check if it is the moment to reproduce
-        if ((random() < reproduction_frequency) and
-                (self['energy'] > energy_threshold)):
-            # 3. Find a new location in the biotope.
-            new_location = self.parent_ecosystem.\
-                biotope.seek_free_location_close_to(location, radius=3)
-            # TODO: Why 3? Define elsewhere
-            if new_location is not None:
-                # 4. Create a baby
-                # 4.1. Create a exact copy of self
-                baby = deepcopy(self)
-                # 4.2. Split substances between self and baby
-                # TODO: Why divide by 2? Maybe baby is much smaller... check.
-                """
-                TODO: Rethink this
-                for substance_code in self.substances.keys():
-                    baby.variate_substance(
-                        substance_code,
-                        -1.0 * baby.amount_of_substance(substance_code) / 2)
-                    self.variate_substance(
-                        substance_code,
-                        -1.0 * baby.amount_of_substance(substance_code) / 2)
-                """
-                # 4.3. Set location of baby
-                baby.set_location(new_location)
-                # 4.4. Add organism in organisms matrix in biotope
-                self.parent_ecosystem.biotope.add_organism(baby,
-                                                           new_location)
-                # 4.5. Add organism to parent ecosystem
-                self.parent_ecosystem.organisms_list.append(baby)
+        # Check weather the organism can procreate:
+        if self.parent_ecosystem.constraints['procreating'](self):
+            # Get a new location for the new baby:
+            if 'radius of procreation' in self:
+                radius_of_procreation = self['radius of procreation']
+            else:
+                radius_of_procreation = 1.5
+            new_location = self.parent_ecosystem.biotope.\
+                seek_free_location_close_to(center = self['location'], radius = radius_of_procreation)
+            if new_location != None: # if there is enough space:
+                # Create the baby:
+                newborn = deepcopy(self)
+                newborn['location'] = new_location
+                # Trigger mutations:
+                newborn.mutate()
+                # Add the new organism to the ecosystem:
+                self.parent_ecosystem.add_organism(newborn)
                 procreated = True
         return procreated
 

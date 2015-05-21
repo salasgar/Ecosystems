@@ -17,21 +17,21 @@ things_to_see = {
 
 def make_mutability(mutability_settings, gene):    
     if 'new value' in mutability_settings:
-        calculate_new_value = make_function(mutability_settings['new value'])
+        calculate_new_value = make_function(mutability_settings['new value'], number_of_arguments = 1)
     elif 'absolute variation' in mutability_settings:
-        absolute_variation = make_function(mutability_settings['absolute variation'])
+        absolute_variation = make_function(mutability_settings['absolute variation'], number_of_arguments = 1)
         if 'percentage variation' in mutability_settings:
-            percentage_variation = make_function(mutability_settings['percentage variation'])
+            percentage_variation = make_function(mutability_settings['percentage variation'], number_of_arguments = 1)
             calculate_new_value = lambda organism: organism[gene] * (1 + percentage_variation(organism)) + absolute_variation(organism)
         else:
             calculate_new_value = lambda organism: organism[gene] + absolute_variation(organism)
     elif 'percentage variation' in mutability_settings:
-        percentage_variation = make_function(mutability_settings['percentage variation'])
+        percentage_variation = make_function(mutability_settings['percentage variation'], number_of_arguments = 1)
         calculate_new_value = lambda organism: organism[gene] * (1 + percentage_variation(organism))
     else:
         calculate_new_value = lambda organism: organism[gene] # (no mutation) 
     if 'mutation frequency' in mutability_settings:
-        mutation_frequency = make_function(mutability_settings['mutation frequency'])
+        mutation_frequency = make_function(mutability_settings['mutation frequency'], number_of_arguments = 1)
     else:
         mutation_frequency = lambda organism: 1
     will_mutate = lambda organism: (random() < mutation_frequency(organism))
@@ -54,21 +54,21 @@ def make_mutability(mutability_settings, gene):
         
 def make_modifying_status(modifying_settings, status):    
     if 'new value' in modifying_settings:
-        calculate_new_value = make_function(modifying_settings['new value'])
+        calculate_new_value = make_function(modifying_settings['new value'], number_of_arguments = 1)
     elif 'absolute variation' in modifying_settings:
-        absolute_variation = make_function(modifying_settings['absolute variation'])
+        absolute_variation = make_function(modifying_settings['absolute variation'], number_of_arguments = 1)
         if 'percentage variation' in modifying_settings:
-            percentage_variation = make_function(modifying_settings['percentage variation'])
+            percentage_variation = make_function(modifying_settings['percentage variation'], number_of_arguments = 1)
             calculate_new_value = lambda organism: organism[status] * (1 + percentage_variation(organism)) + absolute_variation(organism)
         else:
             calculate_new_value = lambda organism: organism[status] + absolute_variation(organism)
     elif 'percentage variation' in modifying_settings:
-        percentage_variation = make_function(modifying_settings['percentage variation'])
+        percentage_variation = make_function(modifying_settings['percentage variation'], number_of_arguments = 1)
         calculate_new_value = lambda organism: organism[status] * (1 + percentage_variation(organism))
     else:
         calculate_new_value = lambda organism: organism[status] # (no change) 
     if 'changing frequency' in modifying_settings:
-        changing_frequency = make_function(modifying_settings['changing frequency'])
+        changing_frequency = make_function(modifying_settings['changing frequency'], number_of_arguments = 1)
     else:
         changing_frequency = lambda organism: 1
     will_change = lambda organism: (random() < changing_frequency(organism))
@@ -124,12 +124,15 @@ class Ecosystem(object):
     def initialize_outlays(self):
         self.outlays = {}
         for action in self.settings['outlays']:
-            self.outlays[action] = make_function(self.settings['outlays'][action])
+            self.outlays[action] = make_function(self.settings['outlays'][action], number_of_arguments = 1)
     
     def initialize_constraints(self):
         self.constraints = {}
         for action in self.settings['constraints']:
-            self.constraints[action] = make_function(self.settings['constraints'][action])        
+            if action == 'hunting':
+                self.constraints[action] = make_function(self.settings['constraints'][action], number_of_arguments = 2)        
+            else:
+                self.constraints[action] = make_function(self.settings['constraints'][action], number_of_arguments = 1)        
 
     def add_organism(self, organism):
         self.biotope.add_organism(organism)
@@ -142,6 +145,13 @@ class Ecosystem(object):
         if organism in self.organisms_list:
             self.organisms_list.delete(organism)            
         
+    def size_x(self):
+        return self.biotope['size'][0]
+
+    def size_y(self):
+        return self.biotope['size'][1]
+
+    
     def initialize_organisms(self):
         """ 
         PRE-CONDITIONS:
@@ -158,10 +168,10 @@ class Ecosystem(object):
                 for gene in genes_settings.keys():
                     if isinstance(genes_settings[gene], dict):
                         if 'initial value' in genes_settings[gene]:
-                            initial_value_generator = make_function(genes_settings[gene]['initial value'])
+                            initial_value_generator = make_function(genes_settings[gene]['initial value'], number_of_arguments = 1)
                             organism[gene] = initial_value_generator(organism)
                         else: # the gene is a function:
-                            organism[gene] = make_function(genes_settings[gene])         
+                            organism[gene] = make_function(genes_settings[gene], number_of_arguments = 1)         
                         if 'mutability' in genes_settings[gene]:
                             organism['mutating genes'][gene] = make_mutability(genes_settings[gene]['mutability'], gene)       
                     else:
@@ -170,10 +180,10 @@ class Ecosystem(object):
                 for status in status_settings:
                     if isinstance(status_settings[status], dict):
                         if 'initial value' in status_settings[status]:
-                            initial_value_generator = make_function(status_settings[status]['initial value'])
+                            initial_value_generator = make_function(status_settings[status]['initial value'], number_of_arguments = 1)
                             organism[status] = initial_value_generator(organism)
                         else:
-                            organism[status] = make_function(status_settings[status])
+                            organism[status] = make_function(status_settings[status], number_of_arguments = 1)
                         if 'modifying' in status_settings[status]:
                             organism['modifying status'][status] = make_modifying_status(status_settings[status]['modifying'], status)       
                     else:
@@ -216,7 +226,7 @@ def main():
         gui = GUI(ecosystem)
     # Loop
     time = 0
-    while (len(ecosystem.organisms) > 0) and (time < 300):
+    while (len(ecosystem.organisms_list) > 0) and (time < 30):
         # TODO: Define correct condition
         ecosystem.evolve()
         if enable_graphics:
@@ -226,7 +236,9 @@ def main():
         time += 1
         if time % 10 == 0:
             print ("time =", time, "Num of organisms =",
-                   len(ecosystem.organisms))
+                   len(ecosystem.organisms_list))
+            print [organism['age'] for organism in ecosystem.organisms_list]
+            
     if enable_graphics:
         gui.delete()
 

@@ -51,11 +51,11 @@ DEFAULT_SETTINGS = {
 ecosystem_settings = {
     'ecosystem name': "Strength vs photosyntesis capacity",
     'biotope': { 
-        'size': (100, 200),
+        'size': (4, 4),
         'featuremaps': None },
     'organisms': [
         {'category': 'Plants',
-        'number of organisms': 2,
+        'number of organisms': 0,
         'genes': { 
             'strength': {
                 'initial value': { 
@@ -74,6 +74,7 @@ ecosystem_settings = {
                     'mutation frequency': 'strength mutation frequency',
                     'allowed interval': [0, 'infinity']
                 }},
+            'defense capacity': 'strength',
             'strength mutation frequency': {
                 'initial value': 0.05,
                 'mutability': {
@@ -82,6 +83,8 @@ ecosystem_settings = {
                         'interval': [0, 0.1]},
                     'mutation frequency': 0.01
                 }},
+            'energy reserve procreating threshold': 50,
+            'procreating frequency': 0.1,
             'photosynthesis capacity': { # SALAS: etc, etc....
                 'initial value': {
                     'function': 'uniform distribution',
@@ -120,6 +123,9 @@ ecosystem_settings = {
                         'function': 'gaussian',
                         'mean': 'average attack capacity',
                         'variance': 'average attack capacity'},
+            'defense capacity': 'attack capacity',
+            'procreating frequency': 0.1,
+            'energy reserve procreating threshold': 50,
             'speed': {
                 'initial value': {
                     'function': 'discrete distribution',
@@ -173,7 +179,7 @@ ecosystem_settings = {
         'hunting': {
             '>': (
                 {'predator': 'attack capacity'},
-                {'prey': 'defence capacity'})},
+                {'prey': 'defense capacity'})},
             
         'dying': {
             'or': (
