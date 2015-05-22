@@ -17,10 +17,46 @@ class Organism(dict):
         self.do_photosynthesis()
         self.move()
         self.hunt()
+        self.interchange_substances_with_the_biotope()
+        self.interchange_substances_with_other_organisms()
+        self.fertilize_other_organisms()
         self.procreate_if_possible()
+        self.stay_alive()
         self.age()
         if self.parent_ecosystem.constraints['dying'](self):
             self.die()
+            
+    def interchange_substances_with_the_biotope(self):
+        pass
+
+    def interchange_substances_with_other_organisms(self):
+        """ 
+        Peacefull trade of substances:
+            Each organism has a list of offers for other organisms that can 
+        buy or not. An organism may want to sell its surplus of certain substances 
+        in exchange for other substances that it needs. It offers an 
+        amount of substance and a price (i. e. a ratio) in terms of other
+        substance.
+        
+        Not so pacefull interchange of substances:
+            An organism can stole a part of substance reserves from other organisms,
+        as herbivorous do with plants, or as parasites do with their hosts.
+            An organism may also inject a substance to other organism in order
+        to kill it or damage it in self-defense of to eat it after it dies.
+        """
+        pass
+
+    def fertilize_other_organisms(self):
+        """ To partially transmit its own genes to other organisms that
+        accepts them in order to produce a new being that inherit genes from
+        both parents
+        """
+        pass
+    
+    def stay_alive(self):
+        """ An organism has to spend energy and maybe other substances only to
+        stay alive.
+        """
 
     def move(self):
         """

@@ -207,6 +207,7 @@ class Ecosystem(object):
 
 
 def main():
+    print "Se va a porceder a la ejecucion de un programa terriblemente ineficiente..."
     # create Ecosystem
     ecosystem = Ecosystem(ecosystem_settings)
     # Add initial organisms to the ecosystem:
@@ -216,7 +217,7 @@ def main():
         gui = GUI(ecosystem)
     # Loop
     time = 0
-    while (len(ecosystem.organisms_list) > 0) and (time < 30):
+    while (len(ecosystem.organisms_list) > 0) and (time < 100):
         # TODO: Define correct condition
         ecosystem.evolve()
         if enable_graphics:
