@@ -195,24 +195,14 @@ class Ecosystem(object):
         self.newborns = []
 
     def evolve(self):
-        # Biotope actions
+        # Biotope actions:
         self.biotope.evolve()
-        # Organisms actions
-        # TODO: Adaptar a nuevos metodos
-        """
-        for organism in self.organisms:
-            # Actions
-            organism.move(self)
-
-            # Procreation and death of organism:
-            organism.procreate(self)
-            org_status = organism.age(self)
-            if org_status == 'Dead':
-                self.organisms.remove(organism)
-
-        self.organisms += self.newborns
+        # Organisms actions:
+        for organism in self.organisms_list:
+            organism.act()
+        self.organisms_list += self.newborns
         self.newborns = []
-        """
+        
         # print 'Num of organisms + newborns: %d' % len(self.organisms)
 
 
