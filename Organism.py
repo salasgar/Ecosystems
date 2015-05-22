@@ -102,17 +102,19 @@ class Organism(dict):
         for substance_reserve in prey['list of reserve substances']:
             if substance_reserve in self:
                 self[substance_reserve] += prey[substance_reserve]
-                storage_capacity = parent_ecosystem.storage_capacities_dictionary[substance_reserve] 
+                storage_capacity = self.parent_ecosystem.storage_capacities_dictionary[substance_reserve] 
                 if storage_capacity in self:
                     self[substance_reserve] = min(self[substance_reserve], self[storage_capacity])
     
     def hunt(self):
+        prey_location = None
         if 'seeking prey technique' in self:            
             prey_location = self['seeking prey technique'](self)
         else:
-            prey_location = self.parent_ecosystem.biotope.seek_possible_prey_close_to(
-                center = self['location'],
-                radius = 1.5)
+            if 'attack capacity' in self:
+                prey_location = self.parent_ecosystem.biotope.seek_possible_prey_close_to(
+                    center = self['location'],
+                    radius = 1.5)
         if prey_location != None:
             prey = self.parent_ecosystem.biotope.get_organism(prey_location)
             if self.parent_ecosystem.constraints['hunting'](predator = self, prey = prey):
@@ -121,9 +123,15 @@ class Organism(dict):
 
     def do_photosynthesis(self):
         if ('photosynthesis_capacity' in self) and ('energy reserve' in self):
-            self['energy reserve'] += 'photosynthesis_capacity'
+            if isinstance(self['photosynthesis capacity'], FunctionType):               
+                self['energy reserve'] += self['photosynthesis_capacity'](self)
+            else:
+                self['energy reserve'] += self['photosynthesis_capacity']
             if ('energy storage capacity' in self):
-                self['energy reserve'] = min(self['energy reserve'], self['energy storage capacity'])   
+                if isinstance(self['energy storage capacity'], FunctionType):                   
+                    self['energy reserve'] = min(self['energy reserve'], self['energy storage capacity'](self))   
+                else:
+                    self['energy reserve'] = min(self['energy reserve'], self['energy storage capacity'])   
 
     def mutate(self):
         for mutating_gene in self['mutating genes']:
@@ -152,6 +160,8 @@ class Organism(dict):
                 # Create the baby:
                 newborn = deepcopy(self)
                 newborn['location'] = new_location
+                if 'age' in newborn:
+                    newborn['age'] = 0
                 # Trigger mutations:
                 newborn.mutate()
                 # Add the new organism to the ecosystem:
@@ -164,5 +174,5 @@ class Organism(dict):
             self['age'] += 1
             
     def die(self):
-        parent_ecosystem.delete_organism(self) # parent_ecosystem tells biotope to erase organism from it
+        self.parent_ecosystem.delete_organism(self) # parent_ecosystem tells biotope to erase organism from it
         

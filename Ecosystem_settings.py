@@ -55,34 +55,10 @@ ecosystem_settings = {
         'featuremaps': None },
     'organisms': [
         {'category': 'Plants',
-        'number of organisms': 0,
+        'number of organisms': 2,
         'genes': { 
-            'strength': {
-                'initial value': { 
-                    'function': 'gaussian',
-                    'mean': 10, 
-                    'variance': 2},
-                'mutability': {
-                    'absolute variation': {
-                        'function': 'gaussian',
-                        'mean': 0.0, 
-                        'variance': 0.01},
-                    'percentage variation': {
-                        'function': 'gaussian',
-                        'mean': 0.0, 
-                        'variance': 2.0},
-                    'mutation frequency': 'strength mutation frequency',
-                    'allowed interval': [0, 'infinity']
-                }},
-            'defense capacity': 'strength',
-            'strength mutation frequency': {
-                'initial value': 0.05,
-                'mutability': {
-                    'new value': {
-                        'function': 'uniform distribution',
-                        'interval': [0, 0.1]},
-                    'mutation frequency': 0.01
-                }},
+            'attack capacity': 0,
+            'defense capacity': 30,
             'energy reserve procreating threshold': 50,
             'procreating frequency': 0.1,
             'photosynthesis capacity': { # SALAS: etc, etc....
@@ -101,19 +77,18 @@ ecosystem_settings = {
                     'percentage variation': {
                         'function': 'uniform distribution',
                         'interval': [-5.0, 5.0]},
-                    'mutation frequency': 0.02
-                }}
-        },
+                    'mutation frequency': 0.02}},
+            'speed': 0},
         'status': {
             'age': 0,
-            'energy reserve': 100.0}  },
+            'energy reserve': 1000.0}  },
         {'category': 'Animals',
         'number of organisms': 3,
         'genes': {
             'average attack capacity': {
                 'initial value': 10,
                 'mutability': {
-                    'variation': {
+                    'absolute variation': {
                         'function': 'gaussian',
                         'mean': 0.0, 
                         'variance': 0.01},
@@ -122,21 +97,15 @@ ecosystem_settings = {
             'attack capacity': { # This gene is function of the organism itself:
                         'function': 'gaussian',
                         'mean': 'average attack capacity',
-                        'variance': 'average attack capacity'},
-            'defense capacity': 'attack capacity',
+                        'variance': {"/": ('average attack capacity', 2.0)}},
+            'defense capacity': 50,
             'procreating frequency': 0.1,
             'energy reserve procreating threshold': 50,
-            'speed': {
-                'initial value': {
-                    'function': 'discrete distribution',
-                    'values list': [
-                        {'value': 0.0, 'probability': 0.25},
-                        {'value': 1.0, 'probability': 0.70},
-                        {'value': 5.0, 'probability': 0.05}] }}
+            'speed': 1.5
         },  
         'status': {
             'age': 0,
-            'energy reserve': 100} }
+            'energy reserve': 1000} }
     ],
                     
     'outlays': {
@@ -147,18 +116,17 @@ ecosystem_settings = {
                 5.0)},         
         'moving': {
             '+': (
-                {'*': ('strength', 1.0)}, 
                 {'*': ('photosynthesis capacity', 25.0)}, 
                 {'*': ('speed', 5.0)}, 
                 {'*': ('energy storage capacity', 0.001)}, 
                 1.0)},
-      'procreating': {
+        'procreating': {
             '+': (
                 {'*': ('strength', 3.0)}, 
                 {'*': ('photosynthesis capacity', 3.0)}, 
                 {'*': ('speed', 3.0)}, 
                 5.0)},
-      'living': {
+        'living': {
             '+': (
                 {'*': ('strength', 1.0)}, 
                 {'*': ('photosynthesis capacity', -1.0)},
@@ -189,8 +157,8 @@ ecosystem_settings = {
                 {'>': (
                     'age',
                     {'function': 'gaussian',
-                         'mean': 120,
-                         'variance': 20})})}}
+                         'mean': 20,
+                         'variance': 2})})}}
  }
 
 

@@ -104,6 +104,11 @@ class Ecosystem(object):
         self.initialize_outlays()
         self.initialize_constraints()
         self.initialize_organisms()
+        self.storage_capacities_dictionary = {
+            'energy reserve': 'energy storage capacity',
+            'water reserve': 'water storage capacity'
+            # to do: add more thigs
+            }
         
     def load_settings(self, ecosystem_settings, default_settings):
         merge_dictionaries(
@@ -138,12 +143,13 @@ class Ecosystem(object):
         self.biotope.add_organism(organism)
         self.newborns.append(organism)  
         
-    def delete_organism(organism):
+    def delete_organism(self, organism):
         self.biotope.delete_organism(organism['location'])
         if organism in self.newborns:
             self.newborns.delete(organism) 
         if organism in self.organisms_list:
-            self.organisms_list.delete(organism)            
+            del self.organisms_list[self.organisms_list.index(organism)]
+            # warning: list.index() can be very slow. We should use a double chain list            
         
     def size_x(self):
         return self.biotope['size'][0]
@@ -175,7 +181,10 @@ class Ecosystem(object):
                         if 'mutability' in genes_settings[gene]:
                             organism['mutating genes'][gene] = make_mutability(genes_settings[gene]['mutability'], gene)       
                     else:
-                        organism[gene] = genes_settings[gene]
+                        if genes_settings[gene] in genes_settings:
+                            organism[gene] = make_function(genes_settings[gene], number_of_arguments = 1)
+                        else:
+                            organism[gene] = genes_settings[gene]
                 status_settings = organisms_category['status']
                 for status in status_settings:
                     if isinstance(status_settings[status], dict):
@@ -217,7 +226,7 @@ def main():
         gui = GUI(ecosystem)
     # Loop
     time = 0
-    while (len(ecosystem.organisms_list) > 0) and (time < 100):
+    while (len(ecosystem.organisms_list) > 0) and (time < 40):
         # TODO: Define correct condition
         ecosystem.evolve()
         if enable_graphics:
@@ -225,7 +234,7 @@ def main():
             gui.draw_ecosystem()
         # sleep(0.1)  # To remove
         time += 1
-        if time % 10 == 0:
+        if time % 1 == 0:
             print ("time =", time, "Num of organisms =",
                    len(ecosystem.organisms_list))
             print [organism['age'] for organism in ecosystem.organisms_list]

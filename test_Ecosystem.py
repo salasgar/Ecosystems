@@ -2,7 +2,8 @@ from Ecosystem_main import *
 from Ecosystem_settings import ecosystem_settings
 
 test1 = False
-test2 = True
+test2 = False
+test3 = True
 
 if test1:
     print " TEST 1 "
@@ -49,5 +50,15 @@ if test2:
         E.organisms_list += E.newborns
         E.newborns = []
     print_dictionary( E.organisms_list )
-    
+  
+if test3:
+    print " TEST 3"
+    E = Ecosystem(ecosystem_settings)
+    prey = E.organisms_list[0]
+    predator = E.organisms_list[2]
+    print "\nPREDATOR:", predator
+    print "\nPREY:", prey
+    print predator['attack capacity'](predator)
+    print prey['defense capacity']
+    print E.constraints['hunting'](predator, prey)
  
