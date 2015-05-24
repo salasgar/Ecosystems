@@ -22,24 +22,31 @@ class Organism(dict):
             self[key] = organism_data[key]
     
     def __str__(self, indent_level = 0, list_of_attributes = None):  # Just for debug
-        if list_of_attributes == None:
+        if (list_of_attributes == None) or len(list_of_attributes) == 0:
             return dictionary_to_string(self, indent_level)
         else:
-            return " ".join((attribute, self[attribute]).__str__() for attribute in list_of_attributes if attribute in self)
+            if isinstance(list_of_attributes, str):
+                return self[list_of_attributes].__str__()                
+            elif len(list_of_attributes) == 1:
+                return self[list_of_attributes[0]].__str__()
+            else:
+                return " ".join((attribute, self[attribute]).__str__() for attribute in list_of_attributes if attribute in self)
             
     def act(self):
         for action in self['actions list']:
             actions_dictionary[action](self)
         if self.parent_ecosystem.constraints['dying'](self):
-            print "dying alone", self.__str__(list_of_attributes = ('age', 'energy reserve'))
+            #print "dying alone", self.__str__(list_of_attributes = ('category', 'age', 'energy reserve'))
             self.die()
                        
     def subtract_outlays(self, action, factor = 1):
         if action in self.parent_ecosystem.outlays:
-            for substance_reserve in self.parent_ecosystem.outlays[action]:                       
-                if substance_reserve in self:
-                    self[substance_reserve] = max(0, self[substance_reserve] - factor * self.parent_ecosystem.outlays[action][substance_reserve](self)  )                  
-        
+            for reserve_substance in self.parent_ecosystem.outlays[action]:                       
+                if reserve_substance in self:
+                    print " - " + self.__str__(0, ('category', 'age', 'energy reserve')), 
+                    self[reserve_substance] = max(0, self[reserve_substance] - factor * self.parent_ecosystem.outlays[action][reserve_substance](self)  )                  
+                    print "--> " + self.__str__(0, 'energy reserve')
+
     def interchange_substances_with_the_biotope(self):
         pass
 
@@ -137,14 +144,14 @@ class Organism(dict):
                     self.subtract_outlays('move', factor = self.parent_ecosystem.biotope.distance(old_location, new_location))
 
     def eat(self, prey):
-        for substance_reserve in prey['list of reserve substances']:
-            if substance_reserve in self:
-                print 'eating', prey['category'], self['energy reserve'], prey['energy reserve'],                 
-                self[substance_reserve] += prey[substance_reserve]
-                storage_capacity = self.parent_ecosystem.storage_capacities_dictionary[substance_reserve] 
+        for reserve_substance in prey['list of reserve substances']:
+            if reserve_substance in self:
+                #print 'eating', prey['category'], self[reserve_substance], "+", prey[reserve_substance], "=",                 
+                self[reserve_substance] += prey[reserve_substance]
+                storage_capacity = self.parent_ecosystem.storage_capacities_dictionary[reserve_substance] 
                 if storage_capacity in self:
-                    self[substance_reserve] = min(self[substance_reserve], self[storage_capacity])
-                print self['energy reserve']
+                    self[reserve_substance] = min(self[reserve_substance], self[storage_capacity])
+                #print self['energy reserve']
         self.subtract_outlays('eat')
                 
     def hunt(self):
@@ -160,7 +167,6 @@ class Organism(dict):
             prey = self.parent_ecosystem.biotope.get_organism(prey_location)
             if self.parent_ecosystem.constraints['hunting'](predator = self, prey = prey):
                 self.eat(prey)
-                print 'How is it possible?'
                 prey.die('killed by a predator')  
             self.subtract_outlays('hunt', factor = self.parent_ecosystem.biotope.distance(self['location'], prey_location))
 
@@ -209,7 +215,7 @@ class Organism(dict):
                 newborn.mutate()
                 # The parent and the child share reserves:
                 for reserve_substance in self['list of reserve substances']:
-                    newborn[reserve_substance] = 100.0 # the amount or proportion of substance that a parent transmit to its child should be in its genes
+                    newborn[reserve_substance] = newborn['energy reserve at birth'] 
                     self[reserve_substance] -= newborn[reserve_substance]
                     pass
                 # Add the new organism to the ecosystem:
@@ -222,8 +228,7 @@ class Organism(dict):
         if 'age' in self:
             self['age'] += 1
     
-    # esta funcion de momento no se si la vamos a usar. Creo que no:        
     def die(self, cause = 'natural deth'):
         # self.parent_ecosystem.delete_organism(self) # parent_ecosystem tells biotope to erase organism from it
-        print self.__str__(list_of_attributes = ('age', 'energy reserve')), 'is dying!!', cause        
+        print 'dying', self.__str__(list_of_attributes = ('category', 'age', 'energy reserve')), cause        
         self.parent_ecosystem.new_deads.append(self)

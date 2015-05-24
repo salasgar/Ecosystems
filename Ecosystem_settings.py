@@ -13,7 +13,8 @@ ecosystem_settings = {
             'longevity': 30,
             'attack capacity': 0,
             'defense capacity': 7,
-            'energy reserve procreating threshold': 50,
+            'energy reserve procreating threshold': 1000,
+            'energy reserve at birth': 100,
             'procreating frequency': 0.2,
             'photosynthesis capacity': { # SALAS: etc, etc....
                 'initial value': {
@@ -57,8 +58,9 @@ ecosystem_settings = {
             'defense capacity': 50,
             'photosynthesis capacity': 0,
             'procreating frequency': 0.2,
-            'energy reserve procreating threshold': 80,
+            'energy reserve procreating threshold': 620,
             'energy storage capacity':  15000,
+            'energy reserve at birth': 300,
             'speed': 1.5
         },  
         'status': {
@@ -69,21 +71,21 @@ ecosystem_settings = {
     'outlays': {
         'hunt': {'energy reserve': {
             '+': (
-                {'*': (3.0, 'attack capacity')}, 
+                {'*': (0.3, 'attack capacity')}, 
                 {'*': (0.2, 'speed')},
-                5.0)}},         
+                0.1)}},         
         'move': {'energy reserve': {
             '+': (
                 {'*': ('photosynthesis capacity', 25.0)}, 
-                {'*': ('speed', 0.5)}, 
-                {'*': ('energy storage capacity', 0.001)}, 
+                {'*': ('speed', 0.08)}, 
+                {'*': ('energy storage capacity', 0.002)}, 
                 0.1)}},
         'procreate': {'energy reserve': {
             '+': (
-                {'*': ('strength', 3.0)}, 
-                {'*': ('photosynthesis capacity', 3.0)}, 
-                {'*': ('speed', 3.0)}, 
-                5.0)}},
+                {'*': ('attack capacity', 0.8)}, 
+                {'*': ('photosynthesis capacity', 0.3)}, 
+                {'*': ('speed', 0.3)}, 
+                0.05)}},
         'stay alive': {'energy reserve': {
             '+': (
                 {'*': ('attack capacity', 0.01)}, 

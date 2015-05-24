@@ -223,7 +223,7 @@ class Ecosystem(object):
                             organism['modifying status'][status] = make_modifying_status(status_settings[status]['modifying'], status)       
                     else:
                         organism[status] = status_settings[status]                
-                if 'energy reserve' in organism:
+                if 'energy reserve' in organism and not 'energy reserve' in organism['list of reserve substances']:
                     organism['list of reserve substances'].append('energy reserve')
                 self.add_organism(organism)
         self.organisms_list = self.newborns
@@ -239,7 +239,7 @@ class Ecosystem(object):
             i += 1
             for dead_organism in self.new_deads:
                 if self.organisms_list.index(dead_organism) < i:
-                    print 'dying', dead_organism.__str__(list_of_attributes = ('category', 'energy reserve'))
+                    #print 'dying', dead_organism.__str__(list_of_attributes = ('category', 'energy reserve'))
                     i -= 1
                     self.delete_organism(dead_organism) # this erases the organism from the biotope too
             self.new_deads = []
@@ -250,17 +250,25 @@ class Ecosystem(object):
 
 
 def main():
-    print "Se va a porceder a la ejecucion de un programa terriblemente ineficiente..."
+    print " *"*50, "\nWe start NOW!"
     # create Ecosystem
     ecosystem = Ecosystem(ecosystem_settings)
     # Add initial organisms to the ecosystem:
 
     enable_graphics = False
+    time_lapse = 1
+    
     if enable_graphics:
         gui = GUI(ecosystem)
     # Loop
     time = 0
     while (len(ecosystem.organisms_list) > 0) and (time < 10):
+        if time % time_lapse == 0:
+            print ("time =", time, "Num of organisms =",
+                   len(ecosystem.organisms_list))
+            print [organism['age'] for organism in ecosystem.organisms_list]
+            for organism in ecosystem.organisms_list:            
+                print organism.__str__(list_of_attributes = ('age', 'category', 'energy reserve'))
         # TODO: Define correct condition
         ecosystem.evolve()
         if enable_graphics:
@@ -268,12 +276,6 @@ def main():
             gui.draw_ecosystem()
         # sleep(0.1)  # To remove
         time += 1
-        if time % 1 == 0:
-            print ("time =", time, "Num of organisms =",
-                   len(ecosystem.organisms_list))
-            print [organism['age'] for organism in ecosystem.organisms_list]
-            for organism in ecosystem.organisms_list:            
-                print organism.__str__(list_of_attributes = ('age', 'category', 'energy reserve'))
     if enable_graphics:
         gui.delete()
         
@@ -283,6 +285,9 @@ def main():
         print i, a
         if i < 10:
             del a[a.index(i)]
+            
+    print "vamos a ver".join(('age'))
+    print "vamos a ver".join(('age', 'age'))
     
 if __name__ == '__main__':
     main()
