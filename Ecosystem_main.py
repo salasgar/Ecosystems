@@ -258,8 +258,8 @@ class Ecosystem(object):
                 if self.organisms_list.index(dead_organism) < i:
                     #print 'dying', dead_organism.__str__(list_of_attributes = ('category', 'energy reserve'))
                     i -= 1
-                    self.delete_organism(dead_organism) # this erases the organism from the biotope too
-                    print "number of organisms", len(self.organisms_list)
+                self.delete_organism(dead_organism) # this erases the organism from the biotope too
+                print "number of organisms", len(self.organisms_list)
             self.new_deads = []
         self.organisms_list += self.newborns
         self.newborns = []
