@@ -3,11 +3,11 @@
 ecosystem_settings = {
     'ecosystem name': "Strength vs photosyntesis capacity",
     'biotope': { 
-        'size': (10, 10),
+        'size': (40, 40),
         'featuremaps': None },
     'organisms': [
         {'category': 'Plants',
-        'number of organisms': 3,
+        'number of organisms': 10,
         'genes': { 
             'category': 'plant',
             'longevity': 30,
@@ -19,7 +19,7 @@ ecosystem_settings = {
             'photosynthesis capacity': { # SALAS: etc, etc....
                 'initial value': {
                     'function': 'uniform distribution',
-                    'interval': [100, 300] },
+                    'interval': [300, 2000] },
                 'mutability': {
                     'absolute variation': {
                         'function': 'gaussian',
@@ -65,7 +65,7 @@ ecosystem_settings = {
         },  
         'status': {
             'age': 0,
-            'energy reserve': 10000} }
+            'energy reserve': 4000} }
     ],
                     
     'outlays': {
@@ -78,6 +78,7 @@ ecosystem_settings = {
             '+': (
                 {'*': ('photosynthesis capacity', 25.0)}, 
                 {'*': ('speed', 0.08)}, 
+                {'*': ('energy reserve', 0.5)},
                 {'*': ('energy storage capacity', 0.002)}, 
                 0.1)}},
         'procreate': {'energy reserve': {
@@ -91,6 +92,7 @@ ecosystem_settings = {
                 {'*': ('attack capacity', 0.01)}, 
                 {'*': ('photosynthesis capacity', -0.01)},
                 {'*': ('energy storage capacity', 0.002)}, 
+                {'*': ('energy reserve', 0.5)},
                 {'*': ('speed', 2.0)}, 
                 0.1)}}},
 

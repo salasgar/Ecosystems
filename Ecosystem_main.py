@@ -3,7 +3,7 @@ from Tools import *
 from Biotope import Biotope
 from Ecosystem_settings import DEFAULT_SETTINGS, ecosystem_settings
 from Organism import Organism
-
+from time import *
 
 # from time import sleep  # To remove
 # import Biotope
@@ -146,7 +146,8 @@ class Ecosystem(object):
                     actions_list.append('stay alive')   
                 if 'age' in organisms_attributes_list:
                     actions_list.append('age')  
-        self.settings = ecosystem_settings                
+        self.settings = ecosystem_settings  
+        #print_dictionary( self.settings     )         
         
     def initialize_biotope(self):
         self.biotope = Biotope(settings = self.settings['biotope'], parent_ecosystem = self)
@@ -175,7 +176,7 @@ class Ecosystem(object):
             self.statistics['number of births of ' + category['category']] = 0
             self.statistics['number of natural deths of ' + category['category']] = 0
             self.statistics['number of ' + category['category'] + ' killed by a predator'] = 0
-            for reserve_substance in category['list of reserve substances']:
+            for reserve_substance in category['genes']['list of reserve substances']:
                 self.statistics['total amount of ' + reserve_substance] = 0
                 self.statistics['average amount of ' + reserve_substance] = 0
                 self.statistics['total amount of ' + reserve_substance + ' in ' + category['category']] = 0
@@ -258,6 +259,7 @@ class Ecosystem(object):
                     #print 'dying', dead_organism.__str__(list_of_attributes = ('category', 'energy reserve'))
                     i -= 1
                     self.delete_organism(dead_organism) # this erases the organism from the biotope too
+                    print "number of organisms", len(self.organisms_list)
             self.new_deads = []
         self.organisms_list += self.newborns
         self.newborns = []
@@ -273,7 +275,7 @@ def main():
 
     enable_graphics = False
     time_lapse = 1
-    Total_time = 40
+    Total_time = 200
     
     if enable_graphics:
         gui = GUI(ecosystem)
@@ -286,12 +288,15 @@ def main():
             print [organism['age'] for organism in ecosystem.organisms_list]
             for organism in ecosystem.organisms_list:            
                 print organism.__str__(list_of_attributes = ('age', 'category', 'energy reserve'))
+                #if organism['age'] > 100:
+                #    print ecosystem.constraints['dying'](organism)
+                    
         # TODO: Define correct condition
         ecosystem.evolve()
         if enable_graphics:
             gui.handle_events()
             gui.draw_ecosystem()
-        # sleep(0.1)  # To remove
+        #sleep(0.5)  # To remove
         time += 1
     if enable_graphics:
         gui.delete()
@@ -302,9 +307,16 @@ def main():
         print i, a
         if i < 10:
             del a[a.index(i)]
-            
-    print "vamos a ver".join(('age'))
-    print "vamos a ver".join(('age', 'age'))
     
+    print ecosystem.constraints['dying']({'energy reserve': 11, 'age': 100, 'longevity': 30})
+    print ecosystem.constraints['dying']({'energy reserve': 10, 'age': 100, 'longevity': 30})
+    print ecosystem.constraints['dying']({'energy reserve': 9, 'age': 100, 'longevity': 30})
+    print ecosystem.constraints['dying']({'energy reserve': 11, 'age': 1, 'longevity': 30})
+    print ecosystem.constraints['dying']({'energy reserve': 10, 'age': 1, 'longevity': 30})
+    print ecosystem.constraints['dying']({'energy reserve': 9, 'age': 1, 'longevity': 30})
+    print ecosystem.constraints['dying']({'energy reserve': 110, 'age': 30, 'longevity': 30})
+    print ecosystem.constraints['dying']({'energy reserve': 100, 'age': 30, 'longevity': 30})
+    print ecosystem.constraints['dying']({'energy reserve': 190, 'age': 30, 'longevity': 30})
+            
 if __name__ == '__main__':
     main()
