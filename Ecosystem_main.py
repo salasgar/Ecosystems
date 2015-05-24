@@ -110,6 +110,7 @@ class Ecosystem(object):
             # to do: add more thigs
             }
         self.new_deads = []
+        self.initialize_statistics()
         
     def load_settings(self, ecosystem_settings, default_settings):
         merge_dictionaries(
@@ -164,6 +165,21 @@ class Ecosystem(object):
                 self.constraints[action] = make_function(self.settings['constraints'][action], number_of_arguments = 2)        
             else:
                 self.constraints[action] = make_function(self.settings['constraints'][action], number_of_arguments = 1)        
+    
+    def initialize_statistics(self):
+        self.statistics = {
+            'number of natural deths': 0,
+            'number of killed by a predator': 0,
+            'number of births': 0}
+        for category in self.settings['organisms']:
+            self.statistics['number of births of ' + category['category']] = 0
+            self.statistics['number of natural deths of ' + category['category']] = 0
+            self.statistics['number of ' + category['category'] + ' killed by a predator'] = 0
+            for reserve_substance in category['list of reserve substances']:
+                self.statistics['total amount of ' + reserve_substance] = 0
+                self.statistics['average amount of ' + reserve_substance] = 0
+                self.statistics['total amount of ' + reserve_substance + ' in ' + category['category']] = 0
+                self.statistics['average amount of ' + reserve_substance + ' in ' + category['category']] = 0             
 
     def add_organism(self, organism):
         self.biotope.add_organism(organism)
@@ -257,12 +273,13 @@ def main():
 
     enable_graphics = False
     time_lapse = 1
+    Total_time = 40
     
     if enable_graphics:
         gui = GUI(ecosystem)
     # Loop
     time = 0
-    while (len(ecosystem.organisms_list) > 0) and (time < 10):
+    while (len(ecosystem.organisms_list) > 0) and (time < Total_time):
         if time % time_lapse == 0:
             print ("time =", time, "Num of organisms =",
                    len(ecosystem.organisms_list))

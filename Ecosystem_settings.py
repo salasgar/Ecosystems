@@ -55,7 +55,7 @@ ecosystem_settings = {
                         'function': 'gaussian',
                         'mean': 'average attack capacity',
                         'variance': {"/": ('average attack capacity', 2.0)}},
-            'defense capacity': 50,
+            'defense capacity': 11,
             'photosynthesis capacity': 0,
             'procreating frequency': 0.2,
             'energy reserve procreating threshold': 620,
