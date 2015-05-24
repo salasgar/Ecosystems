@@ -3,23 +3,23 @@
 ecosystem_settings = {
     'ecosystem name': "Strength vs photosyntesis capacity",
     'biotope': { 
-        'size': (40, 40),
+        'size': (100, 100),
         'featuremaps': None },
     'organisms': [
         {'category': 'Plants',
-        'number of organisms': 10,
+        'number of organisms': 100,
         'genes': { 
             'category': 'plant',
             'longevity': 30,
             'attack capacity': 0,
-            'defense capacity': 7,
+            'defense capacity': 2,
             'energy reserve procreating threshold': 1000,
             'energy reserve at birth': 100,
             'procreating frequency': 0.2,
             'photosynthesis capacity': { # SALAS: etc, etc....
                 'initial value': {
                     'function': 'uniform distribution',
-                    'interval': [300, 2000] },
+                    'interval': [300, 1000] },
                 'mutability': {
                     'absolute variation': {
                         'function': 'gaussian',
@@ -38,12 +38,12 @@ ecosystem_settings = {
             'age': 0,
             'energy reserve': 1000.0}  },
         {'category': 'Animals',
-        'number of organisms': 3,
+        'number of organisms': 50,
         'genes': {
             'category': 'animal',
             'longevity': 30,
             'average attack capacity': {
-                'initial value': 10,
+                'initial value': 5,
                 'mutability': {
                     'absolute variation': {
                         'function': 'gaussian',
@@ -55,17 +55,17 @@ ecosystem_settings = {
                         'function': 'gaussian',
                         'mean': 'average attack capacity',
                         'variance': {"/": ('average attack capacity', 2.0)}},
-            'defense capacity': 11,
+            'defense capacity': 40,
             'photosynthesis capacity': 0,
             'procreating frequency': 0.2,
             'energy reserve procreating threshold': 620,
-            'energy storage capacity':  15000,
+            'energy storage capacity':  5000,
             'energy reserve at birth': 300,
             'speed': 1.5
         },  
         'status': {
             'age': 0,
-            'energy reserve': 4000} }
+            'energy reserve': 5000} }
     ],
                     
     'outlays': {
@@ -76,28 +76,28 @@ ecosystem_settings = {
                 0.1)}},         
         'move': {'energy reserve': {
             '+': (
-                {'*': ('photosynthesis capacity', 25.0)}, 
+                {'*': ('photosynthesis capacity', 2.5)}, 
                 {'*': ('speed', 0.08)}, 
-                {'*': ('energy reserve', 0.5)},
+                {'*': ('energy reserve', 0.05)},
                 {'*': ('energy storage capacity', 0.002)}, 
                 0.1)}},
         'procreate': {'energy reserve': {
             '+': (
-                {'*': ('attack capacity', 0.8)}, 
+                {'*': ('attack capacity', 0.08)}, 
                 {'*': ('photosynthesis capacity', 0.3)}, 
-                {'*': ('speed', 0.3)}, 
+                {'*': ('speed', 0.03)}, 
                 0.05)}},
         'stay alive': {'energy reserve': {
             '+': (
                 {'*': ('attack capacity', 0.01)}, 
                 {'*': ('photosynthesis capacity', -0.01)},
                 {'*': ('energy storage capacity', 0.002)}, 
-                {'*': ('energy reserve', 0.5)},
-                {'*': ('speed', 2.0)}, 
+                {'*': ('energy reserve', 0.05)},
+                {'*': ('speed', 0.2)}, 
                 0.1)}}},
 
     'constraints': {
-        'procreating': {
+        'procreate?': {
             'and': (
                 {'<': (
                     {'function': 'uniform distribution', 'interval': [0, 1]}, 
@@ -106,12 +106,12 @@ ecosystem_settings = {
                     'energy reserve',
                     'energy reserve procreating threshold')} )},
                     
-        'hunting': {
+        'kill?': {
             '>': (
                 {'predator': 'attack capacity'},
                 {'prey': 'defense capacity'})},
             
-        'dying': {
+        'die?': {
             'or': (
                 {'<': (
                     'energy reserve', 

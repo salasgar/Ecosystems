@@ -5,6 +5,10 @@ from copy import *
 from Ecosystem_settings import *
 from types import FunctionType
 
+print_outlays = False
+print_deths = False
+print_births = False
+
 def is_number(x):
     try:
         x + 1
@@ -468,7 +472,18 @@ def merge_dictionaries(dictionary_to_be_completed, dictionary_to_complete_with):
         else:
             dictionary_to_be_completed[item] = dictionary_to_complete_with[item]
                 
-
+def deep_copy_of_a_dictionary(dictionary):
+    if isinstance(dictionary, dict):            
+        copy_to_return = {}
+        for item in dictionary:
+            copy_to_return[item] = deep_copy_of_a_dictionary(dictionary[item])
+    elif hasattr(dictionary, '__iter__'):
+        copy_to_return = []
+        for item in dictionary:
+            copy_to_return.append(deep_copy_of_a_dictionary(item))
+    else:
+        copy_to_return = copy(dictionary)
+    return copy_to_return
 
             
             

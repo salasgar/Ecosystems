@@ -16,6 +16,7 @@ things_to_see = {
 
 
 def make_mutability(mutability_settings, gene):    
+    #print 'make_mutability'
     if 'new value' in mutability_settings:
         calculate_new_value = make_function(mutability_settings['new value'], number_of_arguments = 1)
     elif 'absolute variation' in mutability_settings:
@@ -53,6 +54,7 @@ def make_mutability(mutability_settings, gene):
     return {'will mutate?': will_mutate, 'new value': new_value}
         
 def make_modifying_status(modifying_settings, status):    
+    #print 'make_modifying_status'
     if 'new value' in modifying_settings:
         calculate_new_value = make_function(modifying_settings['new value'], number_of_arguments = 1)
     elif 'absolute variation' in modifying_settings:
@@ -113,6 +115,7 @@ class Ecosystem(object):
         self.initialize_statistics()
         
     def load_settings(self, ecosystem_settings, default_settings):
+        print 'load_settings'
         merge_dictionaries(
             dictionary_to_be_completed = ecosystem_settings,
             dictionary_to_complete_with = default_settings['ecosystem'])
@@ -150,9 +153,11 @@ class Ecosystem(object):
         #print_dictionary( self.settings     )         
         
     def initialize_biotope(self):
+        print 'initialize_biotope'
         self.biotope = Biotope(settings = self.settings['biotope'], parent_ecosystem = self)
                 
     def initialize_outlays(self):
+        print 'initialize_outlays'
         self.outlays = {}
         for action in self.settings['outlays']:
             self.outlays[action] = {}
@@ -160,14 +165,16 @@ class Ecosystem(object):
                 self.outlays[action][reserve_substance] = make_function(self.settings['outlays'][action][reserve_substance], number_of_arguments = 1)
     
     def initialize_constraints(self):
+        print 'initialize_constraints'
         self.constraints = {}
         for action in self.settings['constraints']:
-            if action == 'hunting':
+            if action == 'kill?':
                 self.constraints[action] = make_function(self.settings['constraints'][action], number_of_arguments = 2)        
             else:
                 self.constraints[action] = make_function(self.settings['constraints'][action], number_of_arguments = 1)        
     
     def initialize_statistics(self):
+        print 'initialize_statistics'
         self.statistics = {
             'number of natural deths': 0,
             'number of killed by a predator': 0,
@@ -183,13 +190,15 @@ class Ecosystem(object):
                 self.statistics['average amount of ' + reserve_substance + ' in ' + category['category']] = 0             
 
     def add_organism(self, organism):
+        #print 'add organism'
         self.biotope.add_organism(organism)
         self.newborns.append(organism)  
         
     def delete_organism(self, organism):
+        #print 'delete organism'
         self.biotope.delete_organism(organism['location'])
         if organism in self.newborns:
-            self.newborns.delete(organism) 
+            del self.newborns[self.newborns.index(organism)]
         if organism in self.organisms_list:
             del self.organisms_list[self.organisms_list.index(organism)]
             # warning: list.index() can be very slow. We should use a double chain list            
@@ -202,6 +211,7 @@ class Ecosystem(object):
 
     
     def initialize_organisms(self):
+        print 'initialize_organisms'
         """ 
         PRE-CONDITIONS:
             This initialization must be called AFTER self.initialize_biotope, 
@@ -247,6 +257,7 @@ class Ecosystem(object):
         self.newborns = []
 
     def evolve(self):
+        #print 'evolve'
         # Biotope actions:
         self.biotope.evolve()
         # Organisms actions:
@@ -255,17 +266,23 @@ class Ecosystem(object):
             self.organisms_list[i].act()
             i += 1
             for dead_organism in self.new_deads:
-                if self.organisms_list.index(dead_organism) < i:
-                    #print 'dying', dead_organism.__str__(list_of_attributes = ('category', 'energy reserve'))
+                # the organism may be in self.organisms_list or in self.newborns:
+                if dead_organism in self.organisms_list and self.organisms_list.index(dead_organism) < i:
                     i -= 1
                 self.delete_organism(dead_organism) # this erases the organism from the biotope too
-                print "number of organisms", len(self.organisms_list)
+                #print "number of organisms", len(self.organisms_list)
             self.new_deads = []
         self.organisms_list += self.newborns
         self.newborns = []
         
         # print 'Num of organisms + newborns: %d' % len(self.organisms)
 
+    def count(self, item, value):
+        N = 0
+        for organism in self.organisms_list:
+            if item in organism and organism[item] == value:
+                N += 1
+        return N
 
 def main():
     print " *"*50, "\nWe start NOW!"
@@ -273,30 +290,45 @@ def main():
     ecosystem = Ecosystem(ecosystem_settings)
     # Add initial organisms to the ecosystem:
 
-    enable_graphics = False
-    time_lapse = 1
-    Total_time = 200
+    enable_graphics = True
+    time_lapse = 4
+    make_pauses = False
+    make_sleeps = False
+    Total_time = 2000
+    
+    print_outlays = False
+    print_deths = False
+    print_births = False
+    print_ages = False
+    print_organisms = False
     
     if enable_graphics:
         gui = GUI(ecosystem)
     # Loop
     time = 0
-    while (len(ecosystem.organisms_list) > 0) and (time < Total_time):
+    user_input = 'N'
+    while (len(ecosystem.organisms_list) > 0) and (time < Total_time) and (user_input != 'Y') and (user_input != 'y'):
         if time % time_lapse == 0:
             print ("time =", time, "Num of organisms =",
                    len(ecosystem.organisms_list))
-            print [organism['age'] for organism in ecosystem.organisms_list]
-            for organism in ecosystem.organisms_list:            
-                print organism.__str__(list_of_attributes = ('age', 'category', 'energy reserve'))
-                #if organism['age'] > 100:
-                #    print ecosystem.constraints['dying'](organism)
-                    
+            if print_ages:
+                print [organism['age'] for organism in ecosystem.organisms_list]
+            if print_organisms:
+                for organism in ecosystem.organisms_list:            
+                    print organism.__str__(list_of_attributes = ('age', 'category', 'energy reserve'))
+                    #if organism['age'] > 100:
+                    #    print ecosystem.constraints['die?'](organism)
+            print ecosystem.count('category', 'plant'), 'plants and', ecosystem.count('category', 'animal'), 'animals'
+            if make_pauses:
+                user_input = raw_input('exit? [Y/N]: ')                    
         # TODO: Define correct condition
-        ecosystem.evolve()
+        if (user_input != 'y') and (user_input != 'Y'):
+            ecosystem.evolve()
         if enable_graphics:
             gui.handle_events()
             gui.draw_ecosystem()
-        #sleep(0.5)  # To remove
+        if make_sleeps:
+            sleep(1.0)  # To remove
         time += 1
     if enable_graphics:
         gui.delete()
@@ -308,15 +340,15 @@ def main():
         if i < 10:
             del a[a.index(i)]
     
-    print ecosystem.constraints['dying']({'energy reserve': 11, 'age': 100, 'longevity': 30})
-    print ecosystem.constraints['dying']({'energy reserve': 10, 'age': 100, 'longevity': 30})
-    print ecosystem.constraints['dying']({'energy reserve': 9, 'age': 100, 'longevity': 30})
-    print ecosystem.constraints['dying']({'energy reserve': 11, 'age': 1, 'longevity': 30})
-    print ecosystem.constraints['dying']({'energy reserve': 10, 'age': 1, 'longevity': 30})
-    print ecosystem.constraints['dying']({'energy reserve': 9, 'age': 1, 'longevity': 30})
-    print ecosystem.constraints['dying']({'energy reserve': 110, 'age': 30, 'longevity': 30})
-    print ecosystem.constraints['dying']({'energy reserve': 100, 'age': 30, 'longevity': 30})
-    print ecosystem.constraints['dying']({'energy reserve': 190, 'age': 30, 'longevity': 30})
+    print ecosystem.constraints['die?']({'energy reserve': 11, 'age': 100, 'longevity': 30})
+    print ecosystem.constraints['die?']({'energy reserve': 10, 'age': 100, 'longevity': 30})
+    print ecosystem.constraints['die?']({'energy reserve': 9, 'age': 100, 'longevity': 30})
+    print ecosystem.constraints['die?']({'energy reserve': 11, 'age': 1, 'longevity': 30})
+    print ecosystem.constraints['die?']({'energy reserve': 10, 'age': 1, 'longevity': 30})
+    print ecosystem.constraints['die?']({'energy reserve': 9, 'age': 1, 'longevity': 30})
+    print ecosystem.constraints['die?']({'energy reserve': 110, 'age': 30, 'longevity': 30})
+    print ecosystem.constraints['die?']({'energy reserve': 100, 'age': 30, 'longevity': 30})
+    print ecosystem.constraints['die?']({'energy reserve': 190, 'age': 30, 'longevity': 30})
             
 if __name__ == '__main__':
     main()

@@ -26,31 +26,43 @@ class Organism(dict):
             return dictionary_to_string(self, indent_level)
         else:
             if isinstance(list_of_attributes, str):
-                return self[list_of_attributes].__str__()                
+                if is_number(self[list_of_attributes]):
+                    return (list_of_attributes, round(float(self[list_of_attributes]), 2)).__str__()                
+                else:
+                    return (list_of_attributes, self[list_of_attributes]).__str__()                
             elif len(list_of_attributes) == 1:
-                return self[list_of_attributes[0]].__str__()
+                if is_number(self[list_of_attributes[0]]):
+                    return (list_of_attributes[0], round(float(self[list_of_attributes[0]]), 2)).__str__()
+                else:
+                    return (list_of_attributes[0], self[list_of_attributes[0]]).__str__()
             else:
-                return " ".join((attribute, self[attribute]).__str__() for attribute in list_of_attributes if attribute in self)
+                return " ".join(((attribute, round(float(self[attribute]), 2)).__str__() if is_number(self[attribute]) else (attribute, self[attribute]).__str__()) for attribute in list_of_attributes if attribute in self)
             
     def act(self):
+        #print 'act'
         for action in self['actions list']:
             actions_dictionary[action](self)
-        if self.parent_ecosystem.constraints['dying'](self):
+        if self.parent_ecosystem.constraints['die?'](self):
             #print "dying alone", self.__str__(list_of_attributes = ('category', 'age', 'energy reserve'))
-            self.die()
+            self.die('natural cause')
                        
     def subtract_outlays(self, action, factor = 1):
+        #print 'subtract_outlays'
         if action in self.parent_ecosystem.outlays:
             for reserve_substance in self.parent_ecosystem.outlays[action]:                       
                 if reserve_substance in self:
-                    print " - " + self.__str__(0, ('category', 'age', 'energy reserve')), 
+                    if print_outlays:
+                        print action + " - " + self.__str__(0, ('category', 'age', 'energy reserve')), 
                     self[reserve_substance] = max(0, self[reserve_substance] - factor * self.parent_ecosystem.outlays[action][reserve_substance](self)  )                  
-                    print "--> " + self.__str__(0, 'energy reserve')
+                    if print_outlays:
+                        print "--> " + self.__str__(0, 'energy reserve')
 
     def interchange_substances_with_the_biotope(self):
+        #print 'interchange_substances_with_the_biotope'
         pass
 
     def interchange_substances_with_other_organisms(self):
+        #print 'interchange_substances_with_other_organisms'
         """ 
         Peacefull trade of substances:
             Each organism has a list of offers for other organisms that can 
@@ -68,6 +80,7 @@ class Organism(dict):
         pass
 
     def fertilize_other_organisms(self):
+        #print 'fertilize_other_organisms'
         """ To partially transmit its own genes to other organisms that
         accepts them in order to produce a new being that inherit genes from
         both parents
@@ -76,12 +89,14 @@ class Organism(dict):
     
     
     def stay_alive(self):
+        #print 'stay_alive'
         """ An organism has to spend energy and maybe other substances only to
         stay alive.
         """
         self.subtract_outlays('stay alive')            
 
     def move(self):
+        #print 'move'
         """
             Check if there is a new available location. If yes
             then: - Update biotope (organisms matrix)
@@ -144,6 +159,7 @@ class Organism(dict):
                     self.subtract_outlays('move', factor = self.parent_ecosystem.biotope.distance(old_location, new_location))
 
     def eat(self, prey):
+        #print 'eat'
         for reserve_substance in prey['list of reserve substances']:
             if reserve_substance in self:
                 #print 'eating', prey['category'], self[reserve_substance], "+", prey[reserve_substance], "=",                 
@@ -155,6 +171,7 @@ class Organism(dict):
         self.subtract_outlays('eat')
                 
     def hunt(self):
+        #print 'hunt'
         prey_location = None
         if 'seeking prey technique' in self:            
             prey_location = self['seeking prey technique'](self)
@@ -162,15 +179,16 @@ class Organism(dict):
             if 'attack capacity' in self:
                 prey_location = self.parent_ecosystem.biotope.seek_possible_prey_close_to(
                     center = self['location'],
-                    radius = 4.5) # the radius should be in the genes
+                    radius = 1.5) # the radius should be in the genes
         if prey_location != None:
             prey = self.parent_ecosystem.biotope.get_organism(prey_location)
-            if self.parent_ecosystem.constraints['hunting'](predator = self, prey = prey):
+            if self.parent_ecosystem.constraints['kill?'](predator = self, prey = prey):
                 self.eat(prey)
                 prey.die('killed by a predator')  
             self.subtract_outlays('hunt', factor = self.parent_ecosystem.biotope.distance(self['location'], prey_location))
 
     def do_photosynthesis(self):
+        #print 'do_photosynthesis'
         if ('photosynthesis capacity' in self) and ('energy reserve' in self):
             if isinstance(self['photosynthesis capacity'], FunctionType):               
                 self['energy reserve'] += self['photosynthesis capacity'](self)
@@ -183,11 +201,13 @@ class Organism(dict):
                     self['energy reserve'] = min(self['energy reserve'], self['energy storage capacity'])   
         
     def mutate(self):
+        #print 'mutate'
         for mutating_gene in self['mutating genes']:
             if self['mutating genes'][mutating_gene]['will mutate?'](self):
                 self[mutating_gene] = self['mutating genes'][mutating_gene]['new value'](self)
 
     def procreate_if_possible(self):
+        #print 'procreate'
         """
             Depending on the reproduction frequency and the energy,
             a baby can be created and added to:
@@ -197,7 +217,7 @@ class Organism(dict):
         """
         procreated = False
         # Check weather the organism can procreate:
-        if self.parent_ecosystem.constraints['procreating'](self):
+        if self.parent_ecosystem.constraints['procreate?'](self):
             # Get a new location for the new baby:
             if 'radius of procreation' in self:
                 radius_of_procreation = self['radius of procreation']
@@ -207,7 +227,18 @@ class Organism(dict):
                 seek_free_location_close_to(center = self['location'], radius = radius_of_procreation)
             if new_location != None: # if there is enough space:
                 # Create the baby:
+                #print 'making a deep copy'                
+                """              
+                #Esto genera un enorme cuello de botella, ralentizando mucho el programa:
                 newborn = deepcopy(self)
+                """
+                newborn = Organism(self.parent_ecosystem, deep_copy_of_a_dictionary(self))
+                #print 'deep copy made!'
+                if print_births:                
+                    print 'SELF:'
+                    print_dictionary(self)
+                    print "\nNEWBORN:"
+                    print_dictionary(newborn)
                 newborn['location'] = new_location
                 if 'age' in newborn:
                     newborn['age'] = 0
@@ -222,13 +253,22 @@ class Organism(dict):
                 self.parent_ecosystem.add_organism(newborn)
                 self.subtract_outlays('procreate', self.parent_ecosystem.biotope.distance(self['location'], new_location))
                 procreated = True
+                if print_births:                
+                    print 'SELF:'
+                    print_dictionary(self)
+                    print "\nNEWBORN:"
+                    print_dictionary(newborn)
+                    a = raw_input('press any key...')
         return procreated
 
     def age(self):
+        #print 'age'
         if 'age' in self:
             self['age'] += 1
     
     def die(self, cause = 'natural deth'):
+        #print 'die'
         # self.parent_ecosystem.delete_organism(self) # parent_ecosystem tells biotope to erase organism from it
-        print 'dying', self.__str__(list_of_attributes = ('category', 'age', 'energy reserve')), cause        
+        if print_deths:        
+            print 'dying', self.__str__(list_of_attributes = ('category', 'age', 'energy reserve')), cause        
         self.parent_ecosystem.new_deads.append(self)
