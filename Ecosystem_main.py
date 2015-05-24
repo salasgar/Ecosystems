@@ -109,6 +109,7 @@ class Ecosystem(object):
             'water reserve': 'water storage capacity'
             # to do: add more thigs
             }
+        self.new_deads = []
         
     def load_settings(self, ecosystem_settings, default_settings):
         merge_dictionaries(
@@ -121,6 +122,29 @@ class Ecosystem(object):
                 merge_dictionaries(
                     dictionary_to_be_completed = category,
                     dictionary_to_complete_with = default_settings['seeking prey'])
+            if not 'list of reserve substances' in category['genes']:
+                if 'energy reserve' in category['status']:
+                    category['genes']['list of reserve substances'] = ['energy reserve']
+            if not 'actions list' in category['genes']:
+                category['genes']['actions list'] = []
+                actions_list = category['genes']['actions list']
+                organisms_attributes_list = category['genes'].keys() + category['status'].keys()
+                if 'photosynthesis capacity' in organisms_attributes_list:
+                    actions_list.append('do photosynthesis')
+                if 'speed' in organisms_attributes_list:
+                    actions_list.append('move')                 
+                if 'attack capacity' in organisms_attributes_list:
+                    actions_list.append('hunt')                   
+                if 'list of reserve substances' in organisms_attributes_list:
+                    actions_list.append('interchange substances with the biotope')
+                    actions_list.append('interchange substances with other organisms')                    
+                if 'sex' in organisms_attributes_list:
+                    actions_list.append('fertilize other organisms')                 
+                if 1 + 1 == 2:
+                    actions_list.append('procreate if possible')
+                    actions_list.append('stay alive')   
+                if 'age' in organisms_attributes_list:
+                    actions_list.append('age')  
         self.settings = ecosystem_settings                
         
     def initialize_biotope(self):
@@ -129,7 +153,9 @@ class Ecosystem(object):
     def initialize_outlays(self):
         self.outlays = {}
         for action in self.settings['outlays']:
-            self.outlays[action] = make_function(self.settings['outlays'][action], number_of_arguments = 1)
+            self.outlays[action] = {}
+            for reserve_substance in self.settings['outlays'][action]:
+                self.outlays[action][reserve_substance] = make_function(self.settings['outlays'][action][reserve_substance], number_of_arguments = 1)
     
     def initialize_constraints(self):
         self.constraints = {}
@@ -181,7 +207,7 @@ class Ecosystem(object):
                         if 'mutability' in genes_settings[gene]:
                             organism['mutating genes'][gene] = make_mutability(genes_settings[gene]['mutability'], gene)       
                     else:
-                        if genes_settings[gene] in genes_settings:
+                        if isinstance(genes_settings[gene], str) and genes_settings[gene] in genes_settings:
                             organism[gene] = make_function(genes_settings[gene], number_of_arguments = 1)
                         else:
                             organism[gene] = genes_settings[gene]
@@ -207,8 +233,16 @@ class Ecosystem(object):
         # Biotope actions:
         self.biotope.evolve()
         # Organisms actions:
-        for organism in self.organisms_list:
-            organism.act()
+        i = 0        
+        while i < len(self.organisms_list):
+            self.organisms_list[i].act()
+            i += 1
+            for dead_organism in self.new_deads:
+                if self.organisms_list.index(dead_organism) < i:
+                    print 'dying', dead_organism.__str__(list_of_attributes = ('category', 'energy reserve'))
+                    i -= 1
+                    self.delete_organism(dead_organism) # this erases the organism from the biotope too
+            self.new_deads = []
         self.organisms_list += self.newborns
         self.newborns = []
         
@@ -226,7 +260,7 @@ def main():
         gui = GUI(ecosystem)
     # Loop
     time = 0
-    while (len(ecosystem.organisms_list) > 0) and (time < 40):
+    while (len(ecosystem.organisms_list) > 0) and (time < 10):
         # TODO: Define correct condition
         ecosystem.evolve()
         if enable_graphics:
@@ -238,9 +272,17 @@ def main():
             print ("time =", time, "Num of organisms =",
                    len(ecosystem.organisms_list))
             print [organism['age'] for organism in ecosystem.organisms_list]
-            
+            for organism in ecosystem.organisms_list:            
+                print organism.__str__(list_of_attributes = ('age', 'category', 'energy reserve'))
     if enable_graphics:
         gui.delete()
-
+        
+    a = range(20)
+    
+    for i in a:
+        print i, a
+        if i < 10:
+            del a[a.index(i)]
+    
 if __name__ == '__main__':
     main()

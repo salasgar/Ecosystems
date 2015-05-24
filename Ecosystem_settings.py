@@ -1,3 +1,126 @@
+   
+              
+ecosystem_settings = {
+    'ecosystem name': "Strength vs photosyntesis capacity",
+    'biotope': { 
+        'size': (10, 10),
+        'featuremaps': None },
+    'organisms': [
+        {'category': 'Plants',
+        'number of organisms': 3,
+        'genes': { 
+            'category': 'plant',
+            'longevity': 30,
+            'attack capacity': 0,
+            'defense capacity': 7,
+            'energy reserve procreating threshold': 50,
+            'procreating frequency': 0.2,
+            'photosynthesis capacity': { # SALAS: etc, etc....
+                'initial value': {
+                    'function': 'uniform distribution',
+                    'interval': [100, 300] },
+                'mutability': {
+                    'absolute variation': {
+                        'function': 'gaussian',
+                        'mean': 0.0, 
+                        'variance': 0.15},
+                    'mutation frequency': 0.001}  },
+            'energy storage capacity': {
+                'initial value': 10000.0,
+                'mutability': {
+                    'percentage variation': {
+                        'function': 'uniform distribution',
+                        'interval': [-5.0, 5.0]},
+                    'mutation frequency': 0.02}},
+            'speed': 0},
+        'status': {
+            'age': 0,
+            'energy reserve': 1000.0}  },
+        {'category': 'Animals',
+        'number of organisms': 3,
+        'genes': {
+            'category': 'animal',
+            'longevity': 30,
+            'average attack capacity': {
+                'initial value': 10,
+                'mutability': {
+                    'absolute variation': {
+                        'function': 'gaussian',
+                        'mean': 0.0, 
+                        'variance': 0.01},
+                    'mutation frequency': 0.05,
+                    'allowed interval': [0, 'infinity']}},
+            'attack capacity': { # This gene is function of the organism itself:
+                        'function': 'gaussian',
+                        'mean': 'average attack capacity',
+                        'variance': {"/": ('average attack capacity', 2.0)}},
+            'defense capacity': 50,
+            'photosynthesis capacity': 0,
+            'procreating frequency': 0.2,
+            'energy reserve procreating threshold': 80,
+            'energy storage capacity':  15000,
+            'speed': 1.5
+        },  
+        'status': {
+            'age': 0,
+            'energy reserve': 10000} }
+    ],
+                    
+    'outlays': {
+        'hunt': {'energy reserve': {
+            '+': (
+                {'*': (3.0, 'attack capacity')}, 
+                {'*': (0.2, 'speed')},
+                5.0)}},         
+        'move': {'energy reserve': {
+            '+': (
+                {'*': ('photosynthesis capacity', 25.0)}, 
+                {'*': ('speed', 0.5)}, 
+                {'*': ('energy storage capacity', 0.001)}, 
+                0.1)}},
+        'procreate': {'energy reserve': {
+            '+': (
+                {'*': ('strength', 3.0)}, 
+                {'*': ('photosynthesis capacity', 3.0)}, 
+                {'*': ('speed', 3.0)}, 
+                5.0)}},
+        'stay alive': {'energy reserve': {
+            '+': (
+                {'*': ('attack capacity', 0.01)}, 
+                {'*': ('photosynthesis capacity', -0.01)},
+                {'*': ('energy storage capacity', 0.002)}, 
+                {'*': ('speed', 2.0)}, 
+                0.1)}}},
+
+    'constraints': {
+        'procreating': {
+            'and': (
+                {'<': (
+                    {'function': 'uniform distribution', 'interval': [0, 1]}, 
+                    'procreating frequency')},
+                {'>': (
+                    'energy reserve',
+                    'energy reserve procreating threshold')} )},
+                    
+        'hunting': {
+            '>': (
+                {'predator': 'attack capacity'},
+                {'prey': 'defense capacity'})},
+            
+        'dying': {
+            'or': (
+                {'<': (
+                    'energy reserve', 
+                    10.0)},
+                {'>': (
+                    'age',
+                    {'function': 'gaussian',
+                         'mean': 'longevity',
+                         'variance': 5})})}}
+ }
+
+
+# Default ecosystem settings		(Estos son los valores por defecto)											
          
 DEFAULT_SETTINGS = {
     'ecosystem': {
@@ -46,123 +169,7 @@ DEFAULT_SETTINGS = {
             }
         }
     }
-    
-              
-ecosystem_settings = {
-    'ecosystem name': "Strength vs photosyntesis capacity",
-    'biotope': { 
-        'size': (4, 4),
-        'featuremaps': None },
-    'organisms': [
-        {'category': 'Plants',
-        'number of organisms': 2,
-        'genes': { 
-            'attack capacity': 0,
-            'defense capacity': 30,
-            'energy reserve procreating threshold': 50,
-            'procreating frequency': 0.1,
-            'photosynthesis capacity': { # SALAS: etc, etc....
-                'initial value': {
-                    'function': 'uniform distribution',
-                    'interval': [10, 30] },
-                'mutability': {
-                    'absolute variation': {
-                        'function': 'gaussian',
-                        'mean': 0.0, 
-                        'variance': 0.15},
-                    'mutation frequency': 0.001}  },
-            'energy storage capacity': {
-                'initial value': 1000.0,
-                'mutability': {
-                    'percentage variation': {
-                        'function': 'uniform distribution',
-                        'interval': [-5.0, 5.0]},
-                    'mutation frequency': 0.02}},
-            'speed': 0},
-        'status': {
-            'age': 0,
-            'energy reserve': 1000.0}  },
-        {'category': 'Animals',
-        'number of organisms': 3,
-        'genes': {
-            'average attack capacity': {
-                'initial value': 10,
-                'mutability': {
-                    'absolute variation': {
-                        'function': 'gaussian',
-                        'mean': 0.0, 
-                        'variance': 0.01},
-                    'mutation frequency': 0.05,
-                    'allowed interval': [0, 'infinity']}},
-            'attack capacity': { # This gene is function of the organism itself:
-                        'function': 'gaussian',
-                        'mean': 'average attack capacity',
-                        'variance': {"/": ('average attack capacity', 2.0)}},
-            'defense capacity': 50,
-            'procreating frequency': 0.1,
-            'energy reserve procreating threshold': 50,
-            'speed': 1.5
-        },  
-        'status': {
-            'age': 0,
-            'energy reserve': 1000} }
-    ],
-                    
-    'outlays': {
-        'hunting': {
-            '+': (
-                {'*': (3.0, 'strength')}, 
-                {'*': (0.2, 'speed')},
-                5.0)},         
-        'moving': {
-            '+': (
-                {'*': ('photosynthesis capacity', 25.0)}, 
-                {'*': ('speed', 5.0)}, 
-                {'*': ('energy storage capacity', 0.001)}, 
-                1.0)},
-        'procreating': {
-            '+': (
-                {'*': ('strength', 3.0)}, 
-                {'*': ('photosynthesis capacity', 3.0)}, 
-                {'*': ('speed', 3.0)}, 
-                5.0)},
-        'living': {
-            '+': (
-                {'*': ('strength', 1.0)}, 
-                {'*': ('photosynthesis capacity', -1.0)},
-                {'*': ('energy storage capacity', 0.002)}, 
-                {'*': ('speed', 2.0)}, 
-                5.0)}},
-
-    'constraints': {
-        'procreating': {
-            'and': (
-                {'<': (
-                    {'function': 'uniform distribution', 'interval': [0, 1]}, 
-                    'procreating frequency')},
-                {'>': (
-                    'energy reserve',
-                    'energy reserve procreating threshold')} )},
-                    
-        'hunting': {
-            '>': (
-                {'predator': 'attack capacity'},
-                {'prey': 'defense capacity'})},
-            
-        'dying': {
-            'or': (
-                {'<': (
-                    'energy reserve', 
-                    10.0)},
-                {'>': (
-                    'age',
-                    {'function': 'gaussian',
-                         'mean': 20,
-                         'variance': 2})})}}
- }
-
-
-# Default ecosystem settings		(Estos son los valores por defecto)											
+ 
 Default_ecosystem_settings = {
     'ecosystem name': "Ecosystem name",
     'biotope': {

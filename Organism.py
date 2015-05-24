@@ -2,6 +2,17 @@ from random import random
 from copy import deepcopy
 from Tools import *
 
+actions_dictionary = {
+    'do photosynthesis': lambda organism: organism.do_photosynthesis(),
+    'move': lambda organism: organism.move(),
+    'hunt': lambda organism: organism.hunt(),
+    'interchange substances with the biotope': lambda organism: organism.interchange_substances_with_the_biotope(),
+    'interchange substances with other organisms': lambda organism: organism.interchange_substances_with_other_organisms(),
+    'fertilize other organisms': lambda organism: organism.fertilize_other_organisms(),
+    'procreate if possible': lambda organism: organism.procreate_if_possible(),
+    'stay alive': lambda organism: organism.stay_alive(),
+    'age': lambda organism: organism.age()
+}
 
 class Organism(dict):
 
@@ -10,22 +21,25 @@ class Organism(dict):
         for key in organism_data:
             self[key] = organism_data[key]
     
-    def __str__(self, indent_level = 0):  # Just for debug
-        return dictionary_to_string(self, indent_level)
-        
-    def act(self):
-        self.do_photosynthesis()
-        self.move()
-        self.hunt()
-        self.interchange_substances_with_the_biotope()
-        self.interchange_substances_with_other_organisms()
-        self.fertilize_other_organisms()
-        self.procreate_if_possible()
-        self.stay_alive()
-        self.age()
-        if self.parent_ecosystem.constraints['dying'](self):
-            self.die()
+    def __str__(self, indent_level = 0, list_of_attributes = None):  # Just for debug
+        if list_of_attributes == None:
+            return dictionary_to_string(self, indent_level)
+        else:
+            return " ".join((attribute, self[attribute]).__str__() for attribute in list_of_attributes if attribute in self)
             
+    def act(self):
+        for action in self['actions list']:
+            actions_dictionary[action](self)
+        if self.parent_ecosystem.constraints['dying'](self):
+            print "dying alone", self.__str__(list_of_attributes = ('age', 'energy reserve'))
+            self.die()
+                       
+    def subtract_outlays(self, action, factor = 1):
+        if action in self.parent_ecosystem.outlays:
+            for substance_reserve in self.parent_ecosystem.outlays[action]:                       
+                if substance_reserve in self:
+                    self[substance_reserve] = max(0, self[substance_reserve] - factor * self.parent_ecosystem.outlays[action][substance_reserve](self)  )                  
+        
     def interchange_substances_with_the_biotope(self):
         pass
 
@@ -53,10 +67,12 @@ class Organism(dict):
         """
         pass
     
+    
     def stay_alive(self):
         """ An organism has to spend energy and maybe other substances only to
         stay alive.
         """
+        self.subtract_outlays('stay alive')            
 
     def move(self):
         """
@@ -77,13 +93,33 @@ class Organism(dict):
                     self['location'] = new_location
                     # 6. Update biotope (organisms matrix):
                     self.parent_ecosystem.biotope.move_organism(old_location, new_location)
+                    # 7. The outlays are proportional to the distance we have jump:                    
+                    self.subtract_outlays('move', factor = self.parent_ecosystem.biotope.distance(old_location, new_location))
 
-    def move2(self):
+                        
+    def move2(self): 
         """
             Check if there is a new available location. If yes
             then: - Update biotope (organisms matrix)
                   - Update location
         """
+        # No todos los organismos tienen por que usar la funcion "seek_free_location_close_to(center, radius)"    
+        # para buscar un sitio al que moverse. Algun organismo puede usar una 
+        # funcion mas inteligente, que dependa de la concentracion de determinada
+        # sustancia o del gradiente de densidad de poblacion de determinada especie.
+        # O tambien puede haber otros que decidan moverse siempre en linea recta
+        # hasta que se topen con algo. Hay infinidad de maneras de moverse.
+        
+        # Por eso podriamos usar este metodo en lugar del anterior. La dejo aqui por si lo usamos en un futuro.
+        # Esta es una forma alternativa de definir el movimiento. Lo considera
+        # un cambio de estado como otro cualquiera. Un organismo puede ser capaz
+        # de moverse de una determinada manera al igual que otro organismo puede
+        # ser capaz de cambiar cualquier otro status interno de alguna otra manera.
+
+        # Tenemos que decidir si usamos este metodo move o el anterior. La unica
+        # diferencia para el usuario seria la manera de definir el movimiento
+        # en ecosystem_settings
+        
         # 1. Check if this organism can move itself:
         if 'location' in self['modifying status']:
             # 2. Check if this organism decide to move:
@@ -97,15 +133,20 @@ class Organism(dict):
                     self['location'] = new_location
                     # 6. Update biotope (organisms matrix):
                     self.parent_ecosystem.biotope.move_organism(old_location, new_location)
+                    # 7. The outlays are proportional to the distance we have jump:                    
+                    self.subtract_outlays('move', factor = self.parent_ecosystem.biotope.distance(old_location, new_location))
 
     def eat(self, prey):
         for substance_reserve in prey['list of reserve substances']:
             if substance_reserve in self:
+                print 'eating', prey['category'], self['energy reserve'], prey['energy reserve'],                 
                 self[substance_reserve] += prey[substance_reserve]
                 storage_capacity = self.parent_ecosystem.storage_capacities_dictionary[substance_reserve] 
                 if storage_capacity in self:
                     self[substance_reserve] = min(self[substance_reserve], self[storage_capacity])
-    
+                print self['energy reserve']
+        self.subtract_outlays('eat')
+                
     def hunt(self):
         prey_location = None
         if 'seeking prey technique' in self:            
@@ -114,25 +155,27 @@ class Organism(dict):
             if 'attack capacity' in self:
                 prey_location = self.parent_ecosystem.biotope.seek_possible_prey_close_to(
                     center = self['location'],
-                    radius = 1.5)
+                    radius = 4.5) # the radius should be in the genes
         if prey_location != None:
             prey = self.parent_ecosystem.biotope.get_organism(prey_location)
             if self.parent_ecosystem.constraints['hunting'](predator = self, prey = prey):
                 self.eat(prey)
-                prey.die()            
+                print 'How is it possible?'
+                prey.die('killed by a predator')  
+            self.subtract_outlays('hunt', factor = self.parent_ecosystem.biotope.distance(self['location'], prey_location))
 
     def do_photosynthesis(self):
-        if ('photosynthesis_capacity' in self) and ('energy reserve' in self):
+        if ('photosynthesis capacity' in self) and ('energy reserve' in self):
             if isinstance(self['photosynthesis capacity'], FunctionType):               
-                self['energy reserve'] += self['photosynthesis_capacity'](self)
+                self['energy reserve'] += self['photosynthesis capacity'](self)
             else:
-                self['energy reserve'] += self['photosynthesis_capacity']
+                self['energy reserve'] += self['photosynthesis capacity']
             if ('energy storage capacity' in self):
                 if isinstance(self['energy storage capacity'], FunctionType):                   
                     self['energy reserve'] = min(self['energy reserve'], self['energy storage capacity'](self))   
                 else:
                     self['energy reserve'] = min(self['energy reserve'], self['energy storage capacity'])   
-
+        
     def mutate(self):
         for mutating_gene in self['mutating genes']:
             if self['mutating genes'][mutating_gene]['will mutate?'](self):
@@ -164,15 +207,23 @@ class Organism(dict):
                     newborn['age'] = 0
                 # Trigger mutations:
                 newborn.mutate()
+                # The parent and the child share reserves:
+                for reserve_substance in self['list of reserve substances']:
+                    newborn[reserve_substance] = 100.0 # the amount or proportion of substance that a parent transmit to its child should be in its genes
+                    self[reserve_substance] -= newborn[reserve_substance]
+                    pass
                 # Add the new organism to the ecosystem:
                 self.parent_ecosystem.add_organism(newborn)
+                self.subtract_outlays('procreate', self.parent_ecosystem.biotope.distance(self['location'], new_location))
                 procreated = True
         return procreated
 
     def age(self):
         if 'age' in self:
             self['age'] += 1
-            
-    def die(self):
-        self.parent_ecosystem.delete_organism(self) # parent_ecosystem tells biotope to erase organism from it
-        
+    
+    # esta funcion de momento no se si la vamos a usar. Creo que no:        
+    def die(self, cause = 'natural deth'):
+        # self.parent_ecosystem.delete_organism(self) # parent_ecosystem tells biotope to erase organism from it
+        print self.__str__(list_of_attributes = ('age', 'energy reserve')), 'is dying!!', cause        
+        self.parent_ecosystem.new_deads.append(self)

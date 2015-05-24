@@ -174,7 +174,7 @@ def make_function(function_settings, number_of_arguments):
         if is_number(function_settings):
             return lambda organism: function_settings
         elif isinstance(function_settings, str):
-            return lambda organism: organism[function_settings](organism) if isinstance(organism[function_settings], FunctionType) else organism[function_settings]
+            return lambda organism: (organism[function_settings](organism) if isinstance(organism[function_settings], FunctionType) else organism[function_settings]) if function_settings in organism else 0
         elif hasattr(function_settings, '__iter__') and not isinstance(function_settings, dict):
             return [make_function(item, number_of_arguments) for item in function_settings] # Yes, it's not a function, but a list of functions
         elif isinstance(function_settings, dict):
@@ -232,8 +232,8 @@ def make_function(function_settings, number_of_arguments):
             return lambda predator, prey: function_settings
         elif isinstance(function_settings, str):
             return lambda predator, prey: (
-                predator[function_settings](predator) if isinstance(predator[function_settings], FunctionType) else predator[function_settings], 
-                prey[function_settings](prey) if isinstance(prey[function_settings], FunctionType) else prey[function_settings])
+                (predator[function_settings](predator) if isinstance(predator[function_settings], FunctionType) else predator[function_settings]) if function_settings in predator else 0, 
+                (prey[function_settings](prey) if isinstance(prey[function_settings], FunctionType) else prey[function_settings]) if function_settings in prey else 0)
         elif hasattr(function_settings, '__iter__') and not isinstance(function_settings, dict):
             return [make_function(item, number_of_arguments) for item in function_settings] # Yes, it's not a function, but a list of functions
         elif isinstance(function_settings, dict):

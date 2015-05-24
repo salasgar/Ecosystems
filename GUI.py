@@ -10,7 +10,7 @@ class GUI(object):
         self.zoom = 4  # TODO: Redefine somewhere else
         self.parent_ecosystem = parent_ecosystem
         (biotope_size_x, biotope_size_y) = \
-            parent_ecosystem.biotope['dimensions']
+            parent_ecosystem.biotope['size']
         size_pixels_x = biotope_size_x * self.zoom
         size_pixels_y = biotope_size_y * self.zoom
         # Pygame initialization
@@ -23,7 +23,7 @@ class GUI(object):
     def draw_ecosystem(self):
         # Draw organisms
         self.windowSurface.fill((0, 0, 0))
-        for organism in self.parent_ecosystem.organisms:
+        for organism in self.parent_ecosystem.organisms_list:
             # Get organism information
             # TODO: access by organism.get_x() or similar
             o_x = organism['location'][0] * self.zoom
