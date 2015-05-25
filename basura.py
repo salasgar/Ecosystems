@@ -1,9 +1,9 @@
-"""
 
+from Ecosystem_settings import *
 from Tools import *
 from copy import *
 from Biotope import *
-
+"""
 size = (3, 2)
 B = Biotope({'size': size}, {})
 for i in range(10):
@@ -39,3 +39,13 @@ K = lambda x: (
 print K(f)
 
 print K('f')
+
+print ".".join(str(5) for i in range(3))
+
+color = make_function(ecosystem_settings['organisms'][0]['genes']['color'], 1)  
+
+print color
+
+print tuple(color[x]({'attack capacity': 5, 'photosynthesis capacity': 300, 'energy reserve': 100}) for x in range(3))
+
+

@@ -21,25 +21,32 @@ class Organism(dict):
         for key in organism_data:
             self[key] = organism_data[key]
     
+    def to_string(self, data):
+        if is_number(data):
+            return round(float(data), 2).__str__()
+        elif isinstance(data, dict):
+            return dictionary_to_string(data)
+        elif isinstance(data, FunctionType):
+            return self.to_string(data(self))
+        elif hasattr(data, '__iter__'):
+            return (self.to_string(item) for item in data)
+        else:
+            return data.__str__()
+        
     def __str__(self, indent_level = 0, list_of_attributes = None):  # Just for debug
         if (list_of_attributes == None) or len(list_of_attributes) == 0:
             return dictionary_to_string(self, indent_level)
         else:
             if isinstance(list_of_attributes, str):
-                if is_number(self[list_of_attributes]):
-                    return (list_of_attributes, round(float(self[list_of_attributes]), 2)).__str__()                
-                else:
-                    return (list_of_attributes, self[list_of_attributes]).__str__()                
+                return list_of_attributes, self.to_string(self[list_of_attributes])             
             elif len(list_of_attributes) == 1:
-                if is_number(self[list_of_attributes[0]]):
-                    return (list_of_attributes[0], round(float(self[list_of_attributes[0]]), 2)).__str__()
-                else:
-                    return (list_of_attributes[0], self[list_of_attributes[0]]).__str__()
+                return list_of_attributes[0], self.to_string(self[list_of_attributes[0]])
             else:
-                return " ".join(((attribute, round(float(self[attribute]), 2)).__str__() if is_number(self[attribute]) else (attribute, self[attribute]).__str__()) for attribute in list_of_attributes if attribute in self)
+                return " ".join((attribute, self.to_string(self[attribute])).__str__() for attribute in list_of_attributes if attribute in self)
             
     def act(self):
         #print 'act'
+        #print self['actions list']
         for action in self['actions list']:
             actions_dictionary[action](self)
         if self.parent_ecosystem.constraints['die?'](self):
@@ -47,7 +54,7 @@ class Organism(dict):
             self.die('natural cause')
                        
     def subtract_outlays(self, action, factor = 1):
-        #print 'subtract_outlays'
+        #print 'subtract_outlays', action
         if action in self.parent_ecosystem.outlays:
             for reserve_substance in self.parent_ecosystem.outlays[action]:                       
                 if reserve_substance in self:
@@ -93,7 +100,7 @@ class Organism(dict):
         """ An organism has to spend energy and maybe other substances only to
         stay alive.
         """
-        self.subtract_outlays('stay alive')            
+        self.subtract_outlays('stay alive', factor = 1)            
 
     def move(self):
         #print 'move'

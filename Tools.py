@@ -37,7 +37,16 @@ def float_range(start, stop = 0.0, step = 1.0): # equivalent to range( ) but wit
             x += step       
     return result
     
-  
+def sigmoid(x):
+    if x > 50:
+        return 1.0
+    elif x < -50:
+        return 0.0
+    else:
+        return exp(x)/(1+exp(x))    
+    
+    
+    
 """ 
 #unused function:
 
@@ -122,12 +131,14 @@ Unary_operators_dictionary = {
     'abs': abs,
     'sqrt': sqrt,
     'log': log,
+    'exp': exp,
+    'sigmoid': sigmoid,
     'sin': sin,
     'cos': cos,
     'tan': tan,
     'tg':  tan,
     'round': lambda x: round(x, 0),
-    'not': lambda x: not x }
+    'not': lambda x: not x}
 
 def make_function(function_settings, number_of_arguments):
     if number_of_arguments == 0:           
@@ -213,23 +224,49 @@ def make_function(function_settings, number_of_arguments):
                                     for pair in function_settings['values list']]
                     return lambda organism: choice_value(organism, values_list, random())
                 elif function_settings['function'] == 'chi-squared distribution':
-                    coefficient = make_function(function_settings['coefficient'], number_of_arguments)
+                    if 'coefficient' in function_settings:                    
+                        coefficient = make_function(function_settings['coefficient'], number_of_arguments)
+                    else:
+                        coeffidient = lambda organism: 1
                     k = make_function(function_settings['k'], number_of_arguments)
                     return lambda organism: coefficient(organism) * math.fsum(gauss(0, 1)**2 for i in range(k(organism)))                    
                 elif function_settings['function'] == 'seek free location':
                     return lambda organism: organism.parent_ecosystem.biotope.seek_free_location() 
                 elif function_settings['function'] == 'seek free location close to':
-                    center = make_function(function_settings['center'])
-                    radius = make_function(function_settings['radius'])
+                    if 'center' in function_settings:
+                        center = make_function(function_settings['center'], number_of_arguments)
+                    else:
+                        center = lambda organism: organism['location']
+                    radius = make_function(function_settings['radius'], number_of_arguments)
                     return lambda organism: organism.parent_ecosystem.biotope.seek_free_location_close_to(
                         center(organism),
                         radius(organism)) 
                 elif function_settings['function'] == 'seek random organism':
-                    center = make_function(function_settings['center'])
-                    radius = make_function(function_settings['radius'])
+                    if 'center' in function_settings:
+                        center = make_function(function_settings['center'], number_of_arguments)
+                    else:
+                        center = lambda organism: organism['location']
+                    radius = make_function(function_settings['radius'], number_of_arguments)
                     return lambda organism: organism.parent_ecosystem.biotope.seek_free_location_close_to(
                         center(organism),
-                        radius(organism))                                                 
+                        radius(organism))    
+                elif function_settings['function'] == 'basic sigmoid':
+                    return lambda x: exp(x)/(1 + exp(x))               
+                elif function_settings['function'] == 'sigmoid':
+                    if 'homothety' in function_settings:           
+                        homothety = make_function(function_settings['homothety'], number_of_arguments)
+                    else:
+                        homothety = lambda organism: 1
+                    if 'translation' in function_settings:           
+                        translation = make_function(function_settings['translation'], number_of_arguments)
+                    else:
+                        translation = lambda organism: 0
+                    if 'parameter' in function_settings:           
+                        parameter = make_function(function_settings['parameter'], number_of_arguments)
+                    else:
+                        parameter = lambda organism: random()                  
+                    return lambda organism: sigmoid(translation(organism) + parameter(organism) * homothety(organism))               
+                              
               
     elif number_of_arguments == 2:                
         if is_number(function_settings):

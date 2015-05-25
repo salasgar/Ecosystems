@@ -1,40 +1,45 @@
 
 from Tools import *
+from math import *
 
-print """\n\n TEST class Matrix """
+test1 = False # class Matrix
+test2 = False # prod, float_range
+test3 = False # make_function, merge_dictionaries
 
-matrix = Matrix(3, 5, "hello!")
-print matrix
+if test1:
+    print """\n\n TEST class Matrix """
 
-size = (3, 5)
+    matrix = Matrix(3, 5, "hello!")
+    print matrix
 
-matrix = Matrix(*size)
-print matrix
+    size = (3, 5)
 
-matrix = Matrix(*size, value = "bye!")  # Matrix(*size, "bye!") gives error. Only named arguments may follow *expression
-print matrix
+    matrix = Matrix(*size)
+    print matrix
 
-print """\n\n TEST prod(iterable) """
+    matrix = Matrix(*size, value = "bye!")  # Matrix(*size, "bye!") gives error. Only named arguments may follow *expression
+    print matrix
 
-print prod([3, 4, 5]) # gives de product of all numbers in an iterable object:  3 * 4 * 5 = 60
+if test2:
+    print """\n\n TEST prod(iterable) """
 
-print """\n\n TEST float_range(start, stop, step) """
-for x in float_range(12, 11, -0.11):
-    print x
+    print prod([3, 4, 5]) # gives de product of all numbers in an iterable object:  3 * 4 * 5 = 60
 
+    print """\n\n TEST float_range(start, stop, step) """
+    for x in float_range(12, 11, -0.11):
+        print x
 
-print """\n\n TEST make_function(function_settings) """
+if test3: 
+    print """\n\n TEST make_function(function_settings) """
 
-living_outlay_dict = {
-		'type': 'outlay function',
-		'subtype': 'n-linear function',
-		'terms': [
-			{'parameters': ['attack capacity', 'defense capacity'], 		'coefficient': 1.0}, 
-                  	{'parameters': ['photosynthesis capacity'], 				'coefficient': -1.0},
-			{'parameters': ['attack capacity', 'photosynthesis capacity'], 	'coefficient': 25.0}, 
-			{'parameters': [], 								'coefficient': 0.5}]} 
+    living_outlay_dict = {
+		'+': [
+			{'*': ['attack capacity', 'defense capacity', 1.0]}, 
+                  	{'*': ['photosynthesis capacity', -1.0]},
+			{'*': ['attack capacity', 'photosynthesis capacity', 25.0]}, 
+			0.5]} 
 
-organism = {'strength': 2.0, 
+    organism = {'strength': 2.0, 
             'speed': 3.0,
             'attack capacity': 5.0,
             'defense capacity': 2.0,
@@ -42,36 +47,31 @@ organism = {'strength': 2.0,
             'age': 120,
             'energy reserve': 15.0}    
             
-function1 = {
-    'type': 'random function',
-    'subtype': 'gaussian',
-    'mean': 'age',
-    'variance': {
-        'type': 'random function',
-        'subtype': 'uniform distribution',
-        'interval': ['photosynthesis capacity', 'energy reserve']
-    }}  
-#print [make_function(function1)(organism) for i in range(10)]    
-#print make_function(living_outlay_dict)(organism)   
+    function1 = {
+        'function': 'gaussian',
+        'mean': 'age',
+        'variance': {
+            'function': 'uniform distribution',
+            'interval': ['photosynthesis capacity', 'energy reserve']}}  
+    print [make_function(function1, number_of_arguments = 1)(organism) for i in range(10)]    
+    print make_function(living_outlay_dict, number_of_arguments = 1)(organism)   
    
-print """ TEST merge_dictionaries """
-A = {1: 'a',
+    print """ TEST merge_dictionaries """
+    A = {1: 'a',
      2: {
          1: 'a',
          2: {1: 'a',
              2: 'b'}
      }}
      
-B = {1: 'fail',
+    B = {1: 'fail',
      2: {
          1: {1: 'fail'},
          2: {2: 'fail',
              'ok': 'ok'}},
      3: 'ok'}
      
-merge_dictionaries(dictionary_to_be_completed = A, dictionary_to_complete_with = B)
-print_dictionary(A)    
-    
-    
-    
+    merge_dictionaries(dictionary_to_be_completed = A, dictionary_to_complete_with = B)
+    print_dictionary(A)    
+   
     

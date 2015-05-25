@@ -222,37 +222,47 @@ class Ecosystem(object):
         for organisms_category in organisms_settings:
             for _ in range(organisms_category['number of organisms']):
                 # Note: By the moment, location has random distribution
-                organism = Organism(self, {'mutating genes': {}, 'modifying status': {}, 'list of reserve substances': []})
+                new_organism = Organism(self, {'mutating genes': {}, 'modifying status': {}, 'list of reserve substances': []})
                 genes_settings = organisms_category['genes']
                 for gene in genes_settings.keys():
                     if isinstance(genes_settings[gene], dict):
                         if 'initial value' in genes_settings[gene]:
                             initial_value_generator = make_function(genes_settings[gene]['initial value'], number_of_arguments = 1)
-                            organism[gene] = initial_value_generator(organism)
+                            new_organism[gene] = initial_value_generator(new_organism)
                         else: # the gene is a function:
-                            organism[gene] = make_function(genes_settings[gene], number_of_arguments = 1)         
+                            new_organism[gene] = make_function(genes_settings[gene], number_of_arguments = 1)         
                         if 'mutability' in genes_settings[gene]:
-                            organism['mutating genes'][gene] = make_mutability(genes_settings[gene]['mutability'], gene)       
+                            new_organism['mutating genes'][gene] = make_mutability(genes_settings[gene]['mutability'], gene)       
                     else:
                         if isinstance(genes_settings[gene], str) and genes_settings[gene] in genes_settings:
-                            organism[gene] = make_function(genes_settings[gene], number_of_arguments = 1)
+                            new_organism[gene] = make_function(genes_settings[gene], number_of_arguments = 1)
                         else:
-                            organism[gene] = genes_settings[gene]
+                            new_organism[gene] = genes_settings[gene]
                 status_settings = organisms_category['status']
                 for status in status_settings:
                     if isinstance(status_settings[status], dict):
                         if 'initial value' in status_settings[status]:
                             initial_value_generator = make_function(status_settings[status]['initial value'], number_of_arguments = 1)
-                            organism[status] = initial_value_generator(organism)
+                            new_organism[status] = initial_value_generator(new_organism)
                         else:
-                            organism[status] = make_function(status_settings[status], number_of_arguments = 1)
+                            new_organism[status] = make_function(status_settings[status], number_of_arguments = 1)
                         if 'modifying' in status_settings[status]:
-                            organism['modifying status'][status] = make_modifying_status(status_settings[status]['modifying'], status)       
+                            new_organism['modifying status'][status] = make_modifying_status(status_settings[status]['modifying'], status)       
                     else:
-                        organism[status] = status_settings[status]                
-                if 'energy reserve' in organism and not 'energy reserve' in organism['list of reserve substances']:
-                    organism['list of reserve substances'].append('energy reserve')
-                self.add_organism(organism)
+                        new_organism[status] = status_settings[status]                
+                if 'energy reserve' in new_organism and not 'energy reserve' in new_organism['list of reserve substances']:
+                    new_organism['list of reserve substances'].append('energy reserve')
+                if 'color' in new_organism:
+                    red = make_function(new_organism['color'][0], number_of_arguments = 1)
+                    green = make_function(new_organism['color'][1], number_of_arguments = 1)
+                    blue = make_function(new_organism['color'][2], number_of_arguments = 1)
+                    
+                                        
+                                        
+                    
+                    
+                    new_organism['color'] = lambda organism: (int(red(organism)), int(green(organism)), int(blue(organism)))
+                self.add_organism(new_organism)
         self.organisms_list = self.newborns
         self.newborns = []
 
@@ -288,13 +298,12 @@ def main():
     print " *"*50, "\nWe start NOW!"
     # create Ecosystem
     ecosystem = Ecosystem(ecosystem_settings)
-    # Add initial organisms to the ecosystem:
-
+    
     enable_graphics = True
     time_lapse = 4
     make_pauses = False
     make_sleeps = False
-    Total_time = 2000
+    Total_time = 1000
     
     print_outlays = False
     print_deths = False
@@ -314,8 +323,9 @@ def main():
             if print_ages:
                 print [organism['age'] for organism in ecosystem.organisms_list]
             if print_organisms:
-                for organism in ecosystem.organisms_list:            
-                    print organism.__str__(list_of_attributes = ('age', 'category', 'energy reserve'))
+                for organism in ecosystem.organisms_list:  
+                    print organism['category'], round(organism['energy reserve'], 2), organism['color'](organism)
+                    #print organism.__str__(list_of_attributes = ('category', 'energy reserve', 'color'))
                     #if organism['age'] > 100:
                     #    print ecosystem.constraints['die?'](organism)
             print ecosystem.count('category', 'plant'), 'plants and', ecosystem.count('category', 'animal'), 'animals'
@@ -338,17 +348,8 @@ def main():
     for i in a:
         print i, a
         if i < 10:
-            del a[a.index(i)]
-    
-    print ecosystem.constraints['die?']({'energy reserve': 11, 'age': 100, 'longevity': 30})
-    print ecosystem.constraints['die?']({'energy reserve': 10, 'age': 100, 'longevity': 30})
-    print ecosystem.constraints['die?']({'energy reserve': 9, 'age': 100, 'longevity': 30})
-    print ecosystem.constraints['die?']({'energy reserve': 11, 'age': 1, 'longevity': 30})
-    print ecosystem.constraints['die?']({'energy reserve': 10, 'age': 1, 'longevity': 30})
-    print ecosystem.constraints['die?']({'energy reserve': 9, 'age': 1, 'longevity': 30})
-    print ecosystem.constraints['die?']({'energy reserve': 110, 'age': 30, 'longevity': 30})
-    print ecosystem.constraints['die?']({'energy reserve': 100, 'age': 30, 'longevity': 30})
-    print ecosystem.constraints['die?']({'energy reserve': 190, 'age': 30, 'longevity': 30})
+            del a[a.index(i)]   
+        
             
 if __name__ == '__main__':
     main()

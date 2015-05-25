@@ -3,17 +3,44 @@
 ecosystem_settings = {
     'ecosystem name': "Strength vs photosyntesis capacity",
     'biotope': { 
-        'size': (100, 100),
+        'size': (60, 60),
         'featuremaps': None },
     'organisms': [
         {'category': 'Plants',
-        'number of organisms': 100,
+        'number of organisms': 50,
         'genes': { 
             'category': 'plant',
+            'color': (
+                {'comment': 'RED component',
+                '*': (
+                    255,
+                    {'function': 'sigmoid',
+                        'parameter': 'attack capacity',
+                        'translation': -50.0,
+                        'homothety':  0.2
+                    })},
+
+                {'comment': 'GREEN component',
+                '*': (
+                    255,
+                    {'function': 'sigmoid',
+                        'parameter': 'photosynthesis capacity',
+                        'translation': -1.0,
+                        'homothety':  0.01
+                    })},
+
+                {'comment': 'BLUE component',
+                '*': (
+                    255,
+                    {'function': 'sigmoid',
+                        'parameter': 'energy reserve',
+                        'translation': -5.0,
+                        'homothety':  0.003
+                    })}),
             'longevity': 30,
             'attack capacity': 0,
             'defense capacity': 2,
-            'energy reserve procreating threshold': 1000,
+            'energy reserve procreating threshold': 600,
             'energy reserve at birth': 100,
             'procreating frequency': 0.2,
             'photosynthesis capacity': { # SALAS: etc, etc....
@@ -41,6 +68,33 @@ ecosystem_settings = {
         'number of organisms': 50,
         'genes': {
             'category': 'animal',
+            'color': (
+                {'comment': 'RED component',
+                '*': (
+                    255,
+                    {'function': 'sigmoid',
+                        'parameter': 'attack capacity',
+                        'translation': -5.0,
+                        'homothety':  2
+                    })},
+
+                {'comment': 'GREEN component',
+                '*': (
+                    255,
+                    {'function': 'sigmoid',
+                        'parameter': 'photosynthesis capacity',
+                        'translation': -1.0,
+                        'homothety':  0.01
+                    })},
+
+                {'comment': 'BLUE component',
+                '*': (
+                    255,
+                    {'function': 'sigmoid',
+                        'parameter': 'energy reserve',
+                        'translation': -5.0,
+                        'homothety':  0.003
+                    })}),
             'longevity': 30,
             'average attack capacity': {
                 'initial value': 5,
@@ -54,11 +108,11 @@ ecosystem_settings = {
             'attack capacity': { # This gene is function of the organism itself:
                         'function': 'gaussian',
                         'mean': 'average attack capacity',
-                        'variance': {"/": ('average attack capacity', 2.0)}},
+                        'variance': {"/": ('average attack capacity', 4.0)}},
             'defense capacity': 40,
             'photosynthesis capacity': 0,
             'procreating frequency': 0.2,
-            'energy reserve procreating threshold': 620,
+            'energy reserve procreating threshold': 1620,
             'energy storage capacity':  5000,
             'energy reserve at birth': 300,
             'speed': 1.5
@@ -76,20 +130,20 @@ ecosystem_settings = {
                 0.1)}},         
         'move': {'energy reserve': {
             '+': (
-                {'*': ('photosynthesis capacity', 2.5)}, 
+                {'*': ('photosynthesis capacity', 0.005)}, 
                 {'*': ('speed', 0.08)}, 
                 {'*': ('energy reserve', 0.05)},
                 {'*': ('energy storage capacity', 0.002)}, 
                 0.1)}},
         'procreate': {'energy reserve': {
             '+': (
-                {'*': ('attack capacity', 0.08)}, 
+                {'*': ('attack capacity', 0.8)}, 
                 {'*': ('photosynthesis capacity', 0.3)}, 
-                {'*': ('speed', 0.03)}, 
+                {'*': ('speed', 0.1)}, 
                 0.05)}},
         'stay alive': {'energy reserve': {
             '+': (
-                {'*': ('attack capacity', 0.01)}, 
+                {'*': ('attack capacity', 0.3)}, 
                 {'*': ('photosynthesis capacity', -0.01)},
                 {'*': ('energy storage capacity', 0.002)}, 
                 {'*': ('energy reserve', 0.05)},
