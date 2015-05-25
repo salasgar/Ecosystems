@@ -47,5 +47,3 @@ color = make_function(ecosystem_settings['organisms'][0]['genes']['color'], 1)
 print color
 
 print tuple(color[x]({'attack capacity': 5, 'photosynthesis capacity': 300, 'energy reserve': 100}) for x in range(3))
-
-

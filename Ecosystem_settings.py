@@ -1,5 +1,146 @@
    
               
+ecosystem_settings_stone_paper_scissors = {
+    'ecosystem name': "Strength vs photosyntesis capacity",
+    'biotope': { 
+        'size': (70, 70),
+        'featuremaps': None },
+    'organisms': 
+        {'number of organisms': 500,
+        'genes': { 
+            'weapon': {
+                'initial value': {            
+                    'function': 'discrete distribution',
+                    'values list': (
+                        {'value': 'stone', 'probability': 1.0/3},                            
+                        {'value': 'paper', 'probability': 1.0/3},                            
+                        {'value': 'scissors', 'probability': 1.0/3})}
+                    },
+            'color': {
+                'choice': 'weapon',
+                'stone': {'literal': (150, 20, 10)}, # brown
+                'paper': {'literal': (200, 200, 200)}, # dark white
+                'scissors': {'literal': (100, 100, 200)} }, # pale blue
+            'procreating frequency': 0.1,
+            'speed': 1.1,
+            'hunt radius' : 1.1,
+            'radius of procreation': 4.1,
+            'actions list': ('move', 'hunt', 'procreate')}},
+    'constraints': {
+        'procreate?': {'<': (
+                    {'function': 'uniform distribution', 'interval': [0, 1]}, 
+                    'procreating frequency')},  
+        'kill?': {'in': (
+            {'tuple': ({'predator': 'weapon'}, {'prey': 'weapon'})},
+            {'literal': (
+                ('stone', 'scissors'),
+                ('scissors', 'paper'),
+                ('paper', 'stone') )})},
+        'die?': {'function': 'random boolean', 'probability': 0.05}
+                }  }
+                
+"""
+                'mutability': {
+                    'will mutate?': {
+                        'choice': 'weapon',
+                        'stone': 'stone mutation probability',
+                        'paper': 'paper mutation probability',
+                        'scissors': 'scissors mutation probability'}}                          
+"""
+# Default ecosystem settings		(Estos son los valores por defecto)											
+         
+DEFAULT_SETTINGS = {
+    'ecosystem': {
+        'ecosystem name': 'DEFAULT ECOSYSTEM NAME',
+        'biotope': {'size': (100, 100)},
+        'organisms': {'number of organisms': 1,
+            'genes': {},
+            'status': {}
+                },
+        'outlays': {},
+        'constraints': {
+            'procreate?': True,
+            'kill?': True,
+            'die?': False} },
+            
+    'seeking prey': {
+        'hunt radius': 1.5,
+        'seeking prey technique': {
+            'function': 'seek random organism',
+            'center': 'location',
+            'radius': 'hunt radius'}                  
+        },
+        
+    'doing photosynthesis': {
+        'photosynthesis capacity': 10.0
+        },
+        
+    'procreating': {
+        'procreating frequency': 0.1  # 10%      
+        },
+         
+    'GRAPHICS': {
+        'zoom': 4,
+        'color function': {
+            'show biotope features': False,
+            'show organisms': True,
+            'organisms color function': {'function': 'default organisms color function'}
+            }
+        }
+    }
+ 
+OLD_DEFAULT_SETTINGS = {
+    'ecosystem': {
+        'ecosystem name': 'DEFAULT ECOSYSTEM NAME',
+        'biotope': {'size': (100, 100)},
+        'organisms': {'number of organisms': 1,
+            'genes': {
+                'speed': 0,
+                'moving frequency': 1.0},
+            'status': {
+                'location': {
+                    'initial value': {'function': 'seek free location'},
+                    'modifying': {
+                        'new value': {
+                            'function': 'seek free location close to',
+                            'center': 'location',
+                            'radius': 'speed'},            
+                        'changing frequency': 'moving frequency'}
+                    }
+                } },
+        'outlays': {},
+        'constraints': {
+            'procreate?': True,
+            'kill?': True,
+            'die?': False} },
+            
+    'seeking prey': {
+        'hunt radius': 1.5,
+        'seeking prey technique': {
+            'function': 'seek random organism',
+            'center': 'location',
+            'radius': 'hunt radius'}                  
+        },
+        
+    'doing photosynthesis': {
+        'photosynthesis capacity': 10.0
+        },
+        
+    'procreating': {
+        'procreating frequency': 0.1  # 10%      
+        },
+         
+    'GRAPHICS': {
+        'zoom': 4,
+        'color function': {
+            'show biotope features': False,
+            'show organisms': True,
+            'organisms color function': {'function': 'default organisms color function'}
+            }
+        }
+    }
+ 
+
 ecosystem_settings = {
     'ecosystem name': "Strength vs photosyntesis capacity",
     'biotope': { 
@@ -43,6 +184,7 @@ ecosystem_settings = {
             'energy reserve procreating threshold': 600,
             'energy reserve at birth': 100,
             'procreating frequency': 0.2,
+            'radius of procreation': 1.5,
             'photosynthesis capacity': { # SALAS: etc, etc....
                 'initial value': {
                     'function': 'uniform distribution',
@@ -109,9 +251,11 @@ ecosystem_settings = {
                         'function': 'gaussian',
                         'mean': 'average attack capacity',
                         'variance': {"/": ('average attack capacity', 4.0)}},
+            'hunt radius': 1.5,
             'defense capacity': 40,
             'photosynthesis capacity': 0,
             'procreating frequency': 0.2,
+            'radius of procreation': 1.5,
             'energy reserve procreating threshold': 1620,
             'energy storage capacity':  5000,
             'energy reserve at birth': 300,
@@ -178,85 +322,12 @@ ecosystem_settings = {
  }
 
 
-# Default ecosystem settings		(Estos son los valores por defecto)											
-         
-DEFAULT_SETTINGS = {
-    'ecosystem': {
-        'ecosystem name': 'DEFAULT ECOSYSTEM NAME',
-        'biotope': {'size': (100, 100)},
-        'organisms': {'number of organisms': 1,
-            'genes': {
-                'speed': 0,
-                'moving frequency': 1.0},
-            'status': {
-                'location': {
-                    'initial value': {'function': 'seek free location'},
-                    'modifying': {
-                        'new value': {
-                            'function': 'seek free location close to',
-                            'center': 'location',
-                            'radius': 'speed'},            
-                        'changing frequency': 'moving frequency'}
-                    }
-                } },
-        'outlays': {},
-        'constraints': {} },
-            
-    'seeking prey': {
-        'maximum attack distance': 1.5,
-        'seeking prey technique': {
-            'function': 'seek random organism',
-            'center': 'location',
-            'radius': 'maximum attack distance'}                  
-        },
-        
-    'doing photosynthesis': {
-        'photosynthesis capacity': 10.0
-        },
-        
-    'procreating': {
-        'procreating frequency': 0.1  # 10%      
-        },
-         
-    'GRAPHICS': {
-        'zoom': 4,
-        'color function': {
-            'show biotope features': False,
-            'show organisms': True,
-            'organisms color function': {'function': 'default organisms color function'}
-            }
-        }
-    }
- 
-Default_ecosystem_settings = {
-    'ecosystem name': "Ecosystem name",
-    'biotope': {
-	'size': (100, 200),
-	'featuremaps': None },
- 'organisms': [{'category': 'General category',
-       'number of organisms': 10,
-       'genes': {
-		'speed': 0.0,
-		'mutation frequency': 1.0
-		},
-    	'status': {
-  		'coordinates': {
-			'type': 'Biotope call',
-			'subtype': 'seek free position'}
-		} }],
-  'outlays': { },
-  'constraints': { },
-  'mutability': { }
-}
-
-
-
 ecosystem_settings_2	 = {
     'organisms': [
 	{'category': 'Mutants',
 		'genes': {
             		'strength': 'default',
-                   	'photosynthesis capacity': 20.0,
+                  'photosynthesis capacity': 20.0,
                  	'speed': {
 				'function': 'discrete distribution',
 				'value list': [
@@ -424,4 +495,96 @@ for E in (Default_ecosystem_settings, ecosystem_settings, ecosystem_settings_2, 
     
 
 """
+ecosystem_settings = {
+    'ecosystem name': "Strength vs photosyntesis capacity",
+    'biotope': { 
+        'size': (70, 70),
+        'featuremaps': None },
+    'organisms': 
+        {'number of organisms': 500,
+        'genes': { 
+            'weapon': {
+                'initial value': {            
+                    'function': 'discrete distribution',
+                    'values list': (
+                        {'value': 'stone', 'probability': 1.0/3},                            
+                        {'value': 'paper', 'probability': 1.0/3},                            
+                        {'value': 'scissors', 'probability': 1.0/3})},
+                'mutability': {
+                    'new value': {
+                        'choice': 'weapon',
+                        'stone': {
+                            'function': 'discrete distribution',
+                            'values list': (
+                                {'value': 'stone', 'probability': 'remain stone probability'},                            
+                                {'value': 'paper', 'probability': 'stone to paper probability'},                            
+                                {'value': 'scissors', 'probability': 'stone to scissors probability'})},
+                        'paper': {
+                            'function': 'discrete distribution',
+                            'values list': (
+                                {'value': 'stone', 'probability': 'paper to stone probability'},                            
+                                {'value': 'paper', 'probability': 'remain paper probability'},                            
+                                {'value': 'scissors', 'probability': 'paper to scissors probability'})},
+                        'scissors': {
+                            'function': 'discrete distribution',
+                            'values list': (
+                                {'value': 'stone', 'probability': 'scissors to stone probability'},                            
+                                {'value': 'paper', 'probability': 'scissors to paper probability'},                            
+                                {'value': 'scissors', 'probability': 'remain scissors probability'})} }}},                         
+            'stone to paper probability': {
+                'initial value': 0.1,
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+            'paper to scissors probability': {
+                'initial value': 0.1,
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+            'scissors to stone probability': {
+                'initial value': 0.1,
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+            'stone to scissors probability': {
+                'initial value': 0.1,
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+            'scissors to paper probability': {
+                'initial value': 0.1,
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+            'paper to stone probability': {
+                'initial value': 0.1,
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+            'remain stone probability': {
+                'initial value': 0.8,
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+            'remain paper probability': {
+                'initial value': 0.8,
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+            'remain scissors probability': {
+                'initial value': 0.8,
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+            'color': {
+                'choice': 'weapon',
+                'stone': {'literal': (150, 20, 10)}, # brown
+                'paper': {'literal': (200, 200, 200)}, # dark white
+                'scissors': {'literal': (100, 100, 200)} }, # pale blue
+            'procreating frequency': 0.1,
+            'speed': {
+                'initial value': 0.8,
+                'mutability': {
+                    'will mutate?': {'function': 'random boolean', 'probability': 0.1},
+                    'percentage variation': {'gauss': (0, 0.08)}
+                    }
+                },
+            'hunt radius' : 1.1,
+            'radius of procreation': 4.1,
+            'actions list': ('move', 'hunt', 'procreate')}},
+    'constraints': {
+        'procreate?': {'<': (
+                    {'function': 'uniform distribution', 'interval': [0, 1]}, 
+                    'procreating frequency')},  
+        'kill?': {'in': (
+            {'tuple': ({'predator': 'weapon'}, {'prey': 'weapon'})},
+            {'literal': (
+                ('stone', 'scissors'),
+                ('scissors', 'paper'),
+                ('paper', 'stone') )})},
+        'die?': {'function': 'random boolean', 'probability': 0.05}
+                }  }
+
 

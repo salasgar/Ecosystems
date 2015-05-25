@@ -9,7 +9,7 @@ actions_dictionary = {
     'interchange substances with the biotope': lambda organism: organism.interchange_substances_with_the_biotope(),
     'interchange substances with other organisms': lambda organism: organism.interchange_substances_with_other_organisms(),
     'fertilize other organisms': lambda organism: organism.fertilize_other_organisms(),
-    'procreate if possible': lambda organism: organism.procreate_if_possible(),
+    'procreate': lambda organism: organism.procreate(),
     'stay alive': lambda organism: organism.stay_alive(),
     'age': lambda organism: organism.age()
 }
@@ -183,10 +183,9 @@ class Organism(dict):
         if 'seeking prey technique' in self:            
             prey_location = self['seeking prey technique'](self)
         else:
-            if 'attack capacity' in self:
-                prey_location = self.parent_ecosystem.biotope.seek_possible_prey_close_to(
-                    center = self['location'],
-                    radius = 1.5) # the radius should be in the genes
+            prey_location = self.parent_ecosystem.biotope.seek_possible_prey_close_to(
+                center = self['location'],
+                radius = self['hunt radius']) # the radius should be in the genes
         if prey_location != None:
             prey = self.parent_ecosystem.biotope.get_organism(prey_location)
             if self.parent_ecosystem.constraints['kill?'](predator = self, prey = prey):
@@ -213,7 +212,7 @@ class Organism(dict):
             if self['mutating genes'][mutating_gene]['will mutate?'](self):
                 self[mutating_gene] = self['mutating genes'][mutating_gene]['new value'](self)
 
-    def procreate_if_possible(self):
+    def procreate(self): 
         #print 'procreate'
         """
             Depending on the reproduction frequency and the energy,

@@ -33,9 +33,11 @@ def make_mutability(mutability_settings, gene):
         calculate_new_value = lambda organism: organism[gene] # (no mutation) 
     if 'mutation frequency' in mutability_settings:
         mutation_frequency = make_function(mutability_settings['mutation frequency'], number_of_arguments = 1)
-    else:
-        mutation_frequency = lambda organism: 1
-    will_mutate = lambda organism: (random() < mutation_frequency(organism))
+        will_mutate = lambda organism: (random() < mutation_frequency(organism))
+    elif 'will mutate?' in mutability_settings:
+        will_mutate = make_function(mutability_settings['will mutate?'], number_of_arguments = 1)
+    else: 
+        will_mutate = lambda organism: True
     if 'allowed interval' in mutability_settings:
         interval = mutability_settings['allowed interval']
         if  (interval[0] in {'- infinity', '-infinity'}) and (interval[1] in {'+ infinity', '+infinity', 'infinity'}): # this means no constraints
@@ -71,9 +73,11 @@ def make_modifying_status(modifying_settings, status):
         calculate_new_value = lambda organism: organism[status] # (no change) 
     if 'changing frequency' in modifying_settings:
         changing_frequency = make_function(modifying_settings['changing frequency'], number_of_arguments = 1)
+        will_change = lambda organism: (random() < changing_frequency(organism))
+    elif 'will change?' in modifying_settings:
+        will_change = make_function(modifying_settings['will change?'], number_of_arguments = 1)
     else:
-        changing_frequency = lambda organism: 1
-    will_change = lambda organism: (random() < changing_frequency(organism))
+        will_change = lambda organism: True
     if 'allowed interval' in modifying_settings:
         interval = modifying_settings['allowed interval']
         if  (interval[0] in {'- infinity', '-infinity'}) and (interval[1] in {'+ infinity', '+infinity', 'infinity'}): # this means no constraints
@@ -122,6 +126,10 @@ class Ecosystem(object):
         if isinstance(ecosystem_settings['organisms'], dict):
             ecosystem_settings['organisms'] = [ecosystem_settings['organisms']]
         for category in ecosystem_settings['organisms']:
+            if not 'genes' in category:
+                category['genes'] = {}
+            if not 'status' in category:
+                category['status'] = {}
             if ('attack capacity' in category) or ('strength' in category):
                 merge_dictionaries(
                     dictionary_to_be_completed = category,
@@ -137,7 +145,7 @@ class Ecosystem(object):
                     actions_list.append('do photosynthesis')
                 if 'speed' in organisms_attributes_list:
                     actions_list.append('move')                 
-                if 'attack capacity' in organisms_attributes_list:
+                if ('attack capacity' in organisms_attributes_list) or ('hunt radius' in organisms_attributes_list):
                     actions_list.append('hunt')                   
                 if 'list of reserve substances' in organisms_attributes_list:
                     actions_list.append('interchange substances with the biotope')
@@ -145,10 +153,13 @@ class Ecosystem(object):
                 if 'sex' in organisms_attributes_list:
                     actions_list.append('fertilize other organisms')                 
                 if 1 + 1 == 2:
-                    actions_list.append('procreate if possible')
+                    actions_list.append('procreate')
                     actions_list.append('stay alive')   
                 if 'age' in organisms_attributes_list:
-                    actions_list.append('age')  
+                    actions_list.append('age')
+                category['genes']['action list'] = action_list
+            if 'hunt' in category['genes']['actions list'] and not 'hunt radius' in (category['genes'].keys() + category['status'].keys()):
+                category['genes']['hunt radius'] = 1.5
         self.settings = ecosystem_settings  
         #print_dictionary( self.settings     )         
         
@@ -180,15 +191,19 @@ class Ecosystem(object):
             'number of killed by a predator': 0,
             'number of births': 0}
         for category in self.settings['organisms']:
-            self.statistics['number of births of ' + category['category']] = 0
-            self.statistics['number of natural deths of ' + category['category']] = 0
-            self.statistics['number of ' + category['category'] + ' killed by a predator'] = 0
-            for reserve_substance in category['genes']['list of reserve substances']:
-                self.statistics['total amount of ' + reserve_substance] = 0
-                self.statistics['average amount of ' + reserve_substance] = 0
-                self.statistics['total amount of ' + reserve_substance + ' in ' + category['category']] = 0
-                self.statistics['average amount of ' + reserve_substance + ' in ' + category['category']] = 0             
-
+            if 'category' in category:
+                self.statistics['number of births of ' + category['category']] = 0
+                self.statistics['number of natural deths of ' + category['category']] = 0
+                self.statistics['number of ' + category['category'] + ' killed by a predator'] = 0
+            if 'list of reserve substances' in category['genes']:
+                for reserve_substance in category['genes']['list of reserve substances']:
+                    self.statistics['total amount of ' + reserve_substance] = 0
+                    self.statistics['average amount of ' + reserve_substance] = 0
+                    self.statistics['total amount of ' + reserve_substance + ' in ' + category['category']] = 0
+                    self.statistics['average amount of ' + reserve_substance + ' in ' + category['category']] = 0             
+            for gene_or_status in (category['genes'].keys() + category['status'].keys()):
+                self.statistics['average ' + gene_or_status] = 0
+                
     def add_organism(self, organism):
         #print 'add organism'
         self.biotope.add_organism(organism)
@@ -253,15 +268,11 @@ class Ecosystem(object):
                 if 'energy reserve' in new_organism and not 'energy reserve' in new_organism['list of reserve substances']:
                     new_organism['list of reserve substances'].append('energy reserve')
                 if 'color' in new_organism:
-                    red = make_function(new_organism['color'][0], number_of_arguments = 1)
-                    green = make_function(new_organism['color'][1], number_of_arguments = 1)
-                    blue = make_function(new_organism['color'][2], number_of_arguments = 1)
-                    
-                                        
-                                        
-                    
-                    
-                    new_organism['color'] = lambda organism: (int(red(organism)), int(green(organism)), int(blue(organism)))
+                    if hasattr(new_organism['color'], '__getitem__'):
+                        red = make_function(new_organism['color'][0], number_of_arguments = 1)
+                        green = make_function(new_organism['color'][1], number_of_arguments = 1)
+                        blue = make_function(new_organism['color'][2], number_of_arguments = 1)
+                        new_organism['color'] = lambda organism: (int(red(organism)), int(green(organism)), int(blue(organism)))
                 self.add_organism(new_organism)
         self.organisms_list = self.newborns
         self.newborns = []
@@ -299,9 +310,27 @@ def main():
     # create Ecosystem
     ecosystem = Ecosystem(ecosystem_settings)
     
+    """ test:
+    i = 0
+    while ecosystem.organisms_list[i]['weapon'] != 'stone':
+        i += 1
+    predator = ecosystem.organisms_list[i]
+
+    while ecosystem.organisms_list[i]['weapon'] != 'scissors':
+        i += 1
+    prey = ecosystem.organisms_list[i]
+
+    print ecosystem.constraints['kill?'](predator, prey)
+    
+    organism = ecosystem.organisms_list[0]
+    for i in range(100):
+        print ecosystem.constraints['die?'](organism),
+    return 0
+    """
+    
     enable_graphics = True
     time_lapse = 4
-    make_pauses = False
+    make_pauses = not enable_graphics
     make_sleeps = False
     Total_time = 1000
     
@@ -342,14 +371,6 @@ def main():
         time += 1
     if enable_graphics:
         gui.delete()
-        
-    a = range(20)
-    
-    for i in a:
-        print i, a
-        if i < 10:
-            del a[a.index(i)]   
-        
-            
+                    
 if __name__ == '__main__':
     main()

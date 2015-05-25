@@ -118,7 +118,10 @@ Binary_operators_dictionary = {
     '<=': lambda x, y: x <= y,
     '==': lambda x, y: x == y,
     '!=': lambda x, y: x != y,
-    'in': lambda x, y: x in y  
+    'in': lambda x, y: x in y,
+    'randint': randint, # random integer between x and y
+    'gauss': gauss,
+    'uniform': uniform
 }   
 for operator in {'and', 'AND', '&', '&&'}:  # Este bucle for es por ahorrarme escribir lineas repetitivas. Lo dejamos asi o lo cambiamos?
     Binary_operators_dictionary[operator] = lambda x, y: x and y
@@ -159,10 +162,31 @@ def make_function(function_settings, number_of_arguments):
                 if operator in function_settings:
                     argument = make_function(function_settings[operator], number_of_arguments)
                     return lambda: Unary_operators_dictionary[operator](argument())
+            if 'choice' in function_settings:
+                dictionary = {}
+                for item in function_settings:
+                    dictionary[item] = make_function(function_settings[item], number_of_arguments)
+                parameter = dictionary['choice']
+                return lambda: dictionary[parameter()]()               
+            if 'tuple' in function_settings:
+                tuple_to_return = tuple(make_function(item, number_of_arguments) for item in function_settings['tuple'] )
+                return lambda: tuple(item() for item in tuple_to_return)
             if 'function' in function_settings:
+                if function_settings['function'] == 'random boolean':
+                    if 'probability' in function_settings:
+                        probability = make_functions(functions_settings['probability'], number_of_arguments)
+                    else:
+                        probability = lambda: 0.5
+                    return lambda: (probability() > random())
                 if function_settings['function'] == 'gaussian':
-                    mean = make_function(function_settings['mean'], number_of_arguments)
-                    variance = make_function(function_settings['variance'], number_of_arguments)
+                    if 'mean' in function_settings['function']:                        
+                        mean = make_function(function_settings['mean'], number_of_arguments)
+                    else:
+                        mean = lambda: 0
+                    if 'variance' in function_settings['function']:                        
+                        variance = make_function(function_settings['variance'], number_of_arguments)
+                    else:
+                        variance = lambda: 1
                     return lambda: gauss(mean(), variance())
                 elif function_settings['function'] == 'uniform distribution':
                     a = make_function(function_settings['interval'][0], number_of_arguments)
@@ -189,7 +213,7 @@ def make_function(function_settings, number_of_arguments):
         if is_number(function_settings):
             return lambda organism: function_settings
         elif isinstance(function_settings, str):
-            return lambda organism: (organism[function_settings](organism) if isinstance(organism[function_settings], FunctionType) else organism[function_settings]) if function_settings in organism else 0
+            return lambda organism: (organism[function_settings](organism) if isinstance(organism[function_settings], FunctionType) else organism[function_settings]) if function_settings in organism else function_settings
         elif hasattr(function_settings, '__iter__') and not isinstance(function_settings, dict):
             return [make_function(item, number_of_arguments) for item in function_settings] # Yes, it's not a function, but a list of functions
         elif isinstance(function_settings, dict):
@@ -203,7 +227,22 @@ def make_function(function_settings, number_of_arguments):
                 if operator in function_settings:
                     argument = make_function(function_settings[operator], number_of_arguments)
                     return lambda organism: Unary_operators_dictionary[operator](argument(organism))
+            if 'choice' in function_settings:
+                dictionary = {}
+                for item in function_settings:
+                    dictionary[item] = make_function(function_settings[item], number_of_arguments)
+                parameter = dictionary['choice']
+                return lambda organism: dictionary[parameter(organism)](organism)               
+            if 'tuple' in function_settings:
+                tuple_to_return = tuple(make_function(item, number_of_arguments) for item in function_settings['tuple'] )
+                return lambda organism: tuple(item(organism) for item in tuple_to_return)
             if 'function' in function_settings:
+                if function_settings['function'] == 'random boolean':
+                    if 'probability' in function_settings:
+                        probability = make_function(function_settings['probability'], number_of_arguments)
+                    else:
+                        probability = lambda organism: 0.5
+                    return lambda organism: (probability(organism) > random())
                 if function_settings['function'] == 'gaussian':
                     mean = make_function(function_settings['mean'], number_of_arguments)
                     variance = make_function(function_settings['variance'], number_of_arguments)
@@ -273,8 +312,8 @@ def make_function(function_settings, number_of_arguments):
             return lambda predator, prey: function_settings
         elif isinstance(function_settings, str):
             return lambda predator, prey: (
-                (predator[function_settings](predator) if isinstance(predator[function_settings], FunctionType) else predator[function_settings]) if function_settings in predator else 0, 
-                (prey[function_settings](prey) if isinstance(prey[function_settings], FunctionType) else prey[function_settings]) if function_settings in prey else 0)
+                (predator[function_settings](predator) if isinstance(predator[function_settings], FunctionType) else predator[function_settings]) if function_settings in predator else function_settings, 
+                (prey[function_settings](prey) if isinstance(prey[function_settings], FunctionType) else prey[function_settings]) if function_settings in prey else function_settings)
         elif hasattr(function_settings, '__iter__') and not isinstance(function_settings, dict):
             return [make_function(item, number_of_arguments) for item in function_settings] # Yes, it's not a function, but a list of functions
         elif isinstance(function_settings, dict):
@@ -292,7 +331,22 @@ def make_function(function_settings, number_of_arguments):
                 if operator in function_settings:
                     argument = make_function(function_settings[operator], number_of_arguments)
                     return lambda predator, prey: Unary_operators_dictionary[operator](argument(predator, prey))
+            if 'choice' in function_settings:
+                dictionary = {}
+                for item in function_settings:
+                    dictionary[item] = make_function(function_settings[item], number_of_arguments)
+                parameter = dictionary['choice']
+                return lambda predator, prey: dictionary[parameter(predator, prey)](predator, prey)                
+            if 'tuple' in function_settings:
+                tuple_to_return = tuple(make_function(item, number_of_arguments) for item in function_settings['tuple'] )
+                return lambda predator, prey: tuple(item(predator, prey) for item in tuple_to_return)
             if 'function' in function_settings:
+                if function_settings['function'] == 'random boolean':
+                    if 'probability' in function_settings:
+                        probability = make_functions(functions_settings['probability'], number_of_arguments)
+                    else:
+                        probability = lambda predator, prey: 0.5
+                    return lambda predator, prey: (probability(predator, prey) > random())
                 if function_settings['function'] == 'gaussian':
                     mean = make_function(function_settings['mean'], number_of_arguments)
                     variance = make_function(function_settings['variance'], number_of_arguments)
@@ -322,162 +376,6 @@ def make_function(function_settings, number_of_arguments):
     return lambda organism: 'Error: unknown function'
 
 
-""" old version:         
-def make_function(function_settings):
-    if is_number(function_settings):
-        return lambda organism: function_settings
-    elif isinstance(function_settings, str):
-        return lambda organism: organism[function_settings]
-    elif isinstance(function_settings, dict):
-        if 'type' in function_settings.keys():
-
-            # RANDOM FUNCTIONS:
-            if function_settings['type'] == 'random function':
-                if function_settings['subtype'] == 'gaussian':
-                    mean = make_function(function_settings['mean'])
-                    variance = make_function(function_settings['variance'])
-                    return lambda organism: gauss(mean(organism), variance(organism))
-                elif function_settings['subtype'] == 'uniform distribution':
-                    a = make_function(function_settings['interval'][0])
-                    b = make_function(function_settings['interval'][1])
-                    return lambda organism: uniform(a(organism), b(organism))
-                elif function_settings['subtype'] == 'discrete distribution':
-                    def choice_value(values, r):
-                        i = 0
-                        while r > values[i]['probability']:
-                            i += 1
-                        return values[i]['value']
-                    values = deepcopy(function_settings['values'])
-                    total = 0
-                    for pair in values:
-                        total += pair['probability']
-                        pair['probability'] = total
-                    return lambda organism: choice_value(values, random())
-                elif function_settings['subtype'] == 'chi-squared distribution':
-                    coefficient = make_function(function_settings['coefficient'])
-                    k = make_function(function_settings['k'])
-                    return lambda organism: coefficient(organism) * math.fsum(gauss(0, 1)**2 for i in range(k(organism)))
-                else:
-                    return lambda organism: random()
-
-            # ITERATION: 
-            elif function_settings['type'] == 'iteration':
-                operator = make_operator(function_settings['operator'])
-                terms = [make_function(term) for term in function_settings['terms']]
-                return lambda organism: reduce(operator, [term(organism) for term in terms[1:]], terms[0](organism))    
-                   
-            # BOOLEAN FUNCTIONS:
-            elif function_settings['type'] == 'bolean function':
-                left_term = make_function(function_settings['left_term'])
-                right_term = make_function(function_settings['right term'])
-                operator = make_operator(function_settings['operator'])
-                return lambda organism: operator(left_term(organism), right_term(organism))
-                    
-            # COMPARISON FUNCTIONS:
-            elif function_settings['type'] == 'comparison function':
-                left_term = make_function(function_settings['left_term'])
-                right_term = make_function(function_settings['right term'])
-                compare = make_comparison_operator(function_settings['operator'])
-                return lambda organism: compare(left_term(organism), right_term(organism))
-             
-            # OUTAY FUNCTIONS:
-            elif function_settings['type'] == 'outlay function':
-                if function_settings['subtype'] == 'linear function':
-                    independent_term = 0
-                    dependent_terms = []
-                    for term in function_settings['terms']:
-                        if term['parameter'] == None:
-                            independent_term = make_function(term['coefficient'])
-                        else:
-                            dependent_terms.append((term['parameter'], make_function(term['coefficient'])))
-                    return lambda organism: sum([(organism[parameter] * coefficient(organism)) for (parameter, coefficient) in dependent_terms], independent_term(organism))
-                elif function_settings['subtype'] == 'n-linear function':
-                    terms = [(term['parameters'], make_function(term['coefficient'])) for term in function_settings['terms']]
-                    return lambda organism: sum([(prod([organism[parameter] for parameter in parameters])*coeficient(organism)) for (parameters, coeficient) in terms])
-                return lambda organism: 0
-                
-            # CONSTRAINT FUNCTIONS:
-            if function_settings['type'] == 'constraint function':
-                if function_settings['subtype'] == 'threshold':
-                    parameter = make_function(function_settings['parameter'])
-                    threshold = make_function(function_settings['threshold'])
-                    compare = make_operator(function_settings['operator'])
-                    return lambda organism: compare(parameter(organism), threshold(organism))
-                elif function_settings['subtype'] == 'multiple thresholds':
-                    if len(function_settings['terms']) == 0:
-                        return 'Error in constraint function from input data'
-                    if function_settings['operator'] == 'and':
-                        bool_operator = lambda x, y: (x and y)
-                    elif function_settings['operator'] == 'or':
-                        bool_operator = lambda x, y: (x or y)
-                    else:
-                        bool_operator = lambda x, y: logical_xor(x, y)
-                    terms = [make_function(term) for term in function_settings['terms']]
-                    return lambda organism: reduce(bool_operator, [term(organism) for term in terms[1:]], terms[0](organism))    
-                elif function_settings['subtype'] == 'hunting':
-                    predator_value = make_function(function_settings['predator value'])
-                    prey_value = make_function(function_settings['prey value'])
-                    comparison = make_comparison_operator(function_settings['operator'])
-                    return lambda predator, prey: comparison(predator_value(predator), prey_value(prey))
-                                
-            # BUILT-IN FUNCTIONS:
-            if function_settings['type'] == 'built-in function':
-                if function_settings['name'] == 'seek free location':
-                    return lambda organism: organism.parent_ecosystem.biotope.seek_free_location() 
-                if function_settings['name'] == 'seek free location close to':
-                    center = make_function(function_settings['center'])
-                    radius = make_function(function_settings['radius'])
-                    return lambda organism: organism.parent_ecosystem.biotope.seek_free_location_close_to(
-                        center(organism),
-                        radius(organism)) 
-                if function_settings['name'] == 'seek random organism':
-                    center = make_function(function_settings['center'])
-                    radius = make_function(function_settings['radius'])
-                    return lambda organism: organism.parent_ecosystem.biotope.seek_free_location_close_to(
-                        center(organism),
-                        radius(organism)) 
-        
-        # if 'type' is not in function_settings:
-        if 'operator' in function_settings:        
-            # MATH OPERATIONS:
-            elif function_settings['operator'] == '+':
-                left_term = make_function(function_settings['left term'])
-                right_term = make_function(function_settings['right term'])
-                return lambda organism: lef_term(organism) + right_term(organism)
-            elif function_settings['operator'] == '-':
-                left_term = make_function(function_settings['left term'])
-                right_term = make_function(function_settings['right term'])
-                return lambda organism: lef_term(organism) - right_term(organism)
-            elif function_settings['operator'] == '*':
-                left_term = make_function(function_settings['left term'])
-                right_term = make_function(function_settings['right term'])
-                return lambda organism: lef_term(organism) * right_term(organism)
-            elif function_settings['operator'] == '/':
-                left_term = make_function(function_settings['left term'])
-                right_term = make_function(function_settings['right term'])
-                return lambda organism: lef_term(organism) / right_term(organism)
-            elif function_settings['operator'] == '**':
-                left_term = make_function(function_settings['left term'])
-                right_term = make_function(function_settings['right term'])
-                return lambda organism: lef_term(organism) ** right_term(organism)
-            elif function_settings['operator'] in {'sin', 'sinus'}:
-                argument = make_function(function_settings['argument'])
-                return lambda organism: math.sin(argument(organism))
-            elif function_settings['operator'] in {'cos', 'cosinus'}:
-                argument = make_function(function_settings['argument'])
-                return lambda organism: math.cos(argument(organism))
-            elif function_settings['operator'] in {'tan', 'tangent'}:
-                argument = make_function(function_settings['argument'])
-                return lambda organism: math.tan(argument(organism))
-                        
-    elif hasattr(function_settings, '__iter__'):
-        function_list = [make_function(item) for item in function_settings]
-        return lambda organism: [item(organism) for item in function_list]
-
-    print "Hey, dude! We shouldn't be here!"
-    print_dictionary( function_settings )
-    return lambda organism: 'Error: unknown function'
-"""
 
 def dictionary_to_string(dictionary, indent_level = 0):
     dict_string = ""
