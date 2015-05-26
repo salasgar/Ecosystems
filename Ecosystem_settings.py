@@ -532,43 +532,53 @@ ecosystem_settings = {
                                 {'value': 'paper', 'probability': 'scissors to paper probability'},                            
                                 {'value': 'scissors', 'probability': 'remain scissors probability'})} }}},                         
             'stone to paper probability': {
-                'initial value': 0.1,
-                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+                'initial value': {'uniform': [0, 1]},
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}, 'allowed interval': [0, 1]}},
             'paper to scissors probability': {
-                'initial value': 0.1,
-                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+                'initial value': {'uniform': [0, 1]},
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}, 'allowed interval': [0, 1]}},
             'scissors to stone probability': {
-                'initial value': 0.1,
-                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+                'initial value': {'uniform': [0, 1]},
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}, 'allowed interval': [0, 1]}},
             'stone to scissors probability': {
-                'initial value': 0.1,
-                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+                'initial value': {'uniform': [0, 1]},
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}, 'allowed interval': [0, 1]}},
             'scissors to paper probability': {
-                'initial value': 0.1,
-                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+                'initial value': {'uniform': [0, 1]},
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}, 'allowed interval': [0, 1]}},
             'paper to stone probability': {
-                'initial value': 0.1,
-                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+                'initial value': {'uniform': [0, 1]},
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}, 'allowed interval': [0, 1]}},
             'remain stone probability': {
-                'initial value': 0.8,
-                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+                'initial value': {'uniform': [0, 1]},
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}, 'allowed interval': [0, 1]}},
             'remain paper probability': {
-                'initial value': 0.8,
-                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+                'initial value': {'uniform': [0, 1]},
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}, 'allowed interval': [0, 1]}},
             'remain scissors probability': {
-                'initial value': 0.8,
-                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}},
+                'initial value': {'uniform': [0, 1]},
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}, 'allowed interval': [0, 1]}},
             'color': {
                 'choice': 'weapon',
-                'stone': {'literal': (150, 20, 10)}, # brown
-                'paper': {'literal': (200, 200, 200)}, # dark white
-                'scissors': {'literal': (100, 100, 200)} }, # pale blue
+                'stone': {'tuple': (
+                    {'+': (20, {'*': (200, 'stone to paper probability')})}, 
+                    {'+': (20, {'*': (200, 'stone to scissors probability')})}, 
+                    {'+': (20, {'*': (200, 'remain stone probability')})})}, 
+                'paper': {'tuple': (
+                    {'+': (20, {'*': (200, 'paper to scissors probability')})}, 
+                    {'+': (20, {'*': (200, 'paper to stone probability')})}, 
+                    {'+': (20, {'*': (200, 'remain paper probability')})})}, 
+                'scissors': {'tuple': (
+                    {'+': (20, {'*': (200, 'scissors to stone probability')})}, 
+                    {'+': (20, {'*': (200, 'scissors to paper probability')})}, 
+                    {'+': (20, {'*': (200, 'remain scissors probability')})})}},
             'procreating frequency': 0.1,
             'speed': {
-                'initial value': 0.8,
+                'initial value': {'uniform': [0, 10]},
                 'mutability': {
                     'will mutate?': {'function': 'random boolean', 'probability': 0.1},
-                    'percentage variation': {'gauss': (0, 0.08)}
+                    'percentage variation': {'gauss': (0, 0.08)},
+                    'allowed interval': [0, 10]
                     }
                 },
             'hunt radius' : 1.1,

@@ -332,7 +332,7 @@ def main():
     time_lapse = 4
     make_pauses = not enable_graphics
     make_sleeps = False
-    Total_time = 1000
+    Total_time = 2000
     
     print_outlays = False
     print_deths = False
