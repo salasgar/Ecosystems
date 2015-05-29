@@ -1,8 +1,8 @@
 
-from Ecosystem_settings import *
-from Tools import *
+#from Ecosystem_settings import *
+#from Tools import *
 from copy import *
-from Biotope import *
+#from Biotope import *
 """
 size = (3, 2)
 B = Biotope({'size': size}, {})
@@ -23,27 +23,100 @@ for i in range(10):
     print B.add_organism({}, location = loc)
     print B.organisms_matrix
 
+
+
+
+D = {('A', 'B'): 231.3}
+
+print D['A', 'B']
+
+print hasattr("hello", '__getitem__')
+print hasattr("hello", '__iter__')
+
 """
 
-f = lambda:"ey!"
+texto = ""
+texto = ""
+texto = ""
+texto = ""
+texto = ""
+texto = ""
+texto = ""
+texto = ""
+texto = ""
+texto = ""
+texto = ""
+texto = ""
+texto = ""
+texto = ""
+texto = ""
+texto = "                function_to_return = lambda organism: sigmoid(translation(organism) + parameter(organism) * homothety(organism))               "
 
-print isinstance(f, FunctionType)
-
-print hasattr(f, '__call__')
 
 
-K = lambda x: (
-    x() if isinstance(x, FunctionType) else x,
-    1)
 
-print K(f)
 
-print K('f')
 
-print ".".join(str(5) for i in range(3))
 
-color = make_function(ecosystem_settings['organisms'][0]['genes']['color'], 1)  
+print """
+                    if number_of_organisms == 0:   
+                    elif number_of_organisms == 1:   
+                    elif number_of_organisms == 2:   
+"""
 
-print color
 
-print tuple(color[x]({'attack capacity': 5, 'photosynthesis capacity': 300, 'energy reserve': 100}) for x in range(3))
+print "\n"*5
+print "if number_of_organisms == 0:"
+print (texto.replace('organism', '')).replace('lambda :', 'lambda:')
+print "elif number_of_organisms == 1:"
+print texto
+print "elif number_of_organisms == 2:"
+print texto.replace('organism', 'predator, prey')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

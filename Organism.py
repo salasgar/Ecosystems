@@ -10,9 +10,70 @@ actions_dictionary = {
     'interchange substances with other organisms': lambda organism: organism.interchange_substances_with_other_organisms(),
     'fertilize other organisms': lambda organism: organism.fertilize_other_organisms(),
     'procreate': lambda organism: organism.procreate(),
+    'do internal changes': lambda organism: organism.do_internal_changes(),
     'stay alive': lambda organism: organism.stay_alive(),
     'age': lambda organism: organism.age()
 }
+
+def make_mutability(gene, mutability_settings):    
+    #print 'make_mutability'
+    if 'new value' in mutability_settings:
+        calculate_new_value = make_function(mutability_settings['new value'], number_of_organisms = 1)
+    elif 'absolute variation' in mutability_settings:
+        absolute_variation = make_function(mutability_settings['absolute variation'], number_of_organisms = 1)
+        if 'percentage variation' in mutability_settings:
+            percentage_variation = make_function(mutability_settings['percentage variation'], number_of_organisms = 1)
+            calculate_new_value = lambda organism: organism[gene] * (1 + percentage_variation(organism)) + absolute_variation(organism)
+        else:
+            calculate_new_value = lambda organism: organism[gene] + absolute_variation(organism)
+    elif 'percentage variation' in mutability_settings:
+        percentage_variation = make_function(mutability_settings['percentage variation'], number_of_organisms = 1)
+        calculate_new_value = lambda organism: organism[gene] * (1 + percentage_variation(organism))
+    else:
+        calculate_new_value = lambda organism: organism[gene] # (no mutation) 
+    if 'mutation frequency' in mutability_settings:
+        mutation_frequency = make_function(mutability_settings['mutation frequency'], number_of_organisms = 1)
+        will_mutate = lambda organism: (random() < mutation_frequency(organism))
+    elif 'will mutate?' in mutability_settings:
+        will_mutate = make_function(mutability_settings['will mutate?'], number_of_organisms = 1)
+    else: 
+        will_mutate = lambda organism: True
+    if 'allowed interval' in mutability_settings:
+        interval = mutability_settings['allowed interval']
+        new_value = lambda organism: bounded_value(calculate_new_value(organism), *interval)
+    else:
+        new_value = calculate_new_value
+    return {'will mutate?': will_mutate, 'new value': new_value}
+        
+def make_modifying_status(status, modifying_settings):    
+    #print 'make_modifying_status'
+    if 'new value' in modifying_settings:
+        calculate_new_value = make_function(modifying_settings['new value'], number_of_organisms = 1)
+    elif 'absolute variation' in modifying_settings:
+        absolute_variation = make_function(modifying_settings['absolute variation'], number_of_organisms = 1)
+        if 'percentage variation' in modifying_settings:
+            percentage_variation = make_function(modifying_settings['percentage variation'], number_of_organisms = 1)
+            calculate_new_value = lambda organism: organism[status] * (1 + percentage_variation(organism)) + absolute_variation(organism)
+        else:
+            calculate_new_value = lambda organism: organism[status] + absolute_variation(organism)
+    elif 'percentage variation' in modifying_settings:
+        percentage_variation = make_function(modifying_settings['percentage variation'], number_of_organisms = 1)
+        calculate_new_value = lambda organism: organism[status] * (1 + percentage_variation(organism))
+    else:
+        calculate_new_value = lambda organism: organism[status] # (no change) 
+    if 'changing frequency' in modifying_settings:
+        changing_frequency = make_function(modifying_settings['changing frequency'], number_of_organisms = 1)
+        will_change = lambda organism: (random() < changing_frequency(organism))
+    elif 'will change?' in modifying_settings:
+        will_change = make_function(modifying_settings['will change?'], number_of_organisms = 1)
+    else:
+        will_change = lambda organism: True
+    if 'allowed interval' in modifying_settings:
+        interval = modifying_settings['allowed interval']
+        new_value = lambda organism: bounded_value(calculate_new_value(organism), *interval)
+    else:
+        new_value = calculate_new_value
+    return {'will change?': will_change, 'new value': new_value}
 
 class Organism(dict):
 
@@ -43,11 +104,42 @@ class Organism(dict):
                 return list_of_attributes[0], self.to_string(self[list_of_attributes[0]])
             else:
                 return " ".join((attribute, self.to_string(self[attribute])).__str__() for attribute in list_of_attributes if attribute in self)
-            
+   
+    def add_gene(self, gene, gene_settings, all_genes):
+        if isinstance(gene_settings, dict):
+            if 'initial value' in gene_settings:
+                initial_value_generator = make_function(gene_settings['initial value'], number_of_organisms = 1)
+                self[gene] = initial_value_generator(self)
+            else: # the gene is a function:
+                self[gene] = make_function(gene_settings, number_of_organisms = 1)         
+            if 'mutability' in gene_settings:
+                self['mutating genes'][gene] = make_mutability(gene, gene_settings['mutability'])       
+        else:
+            if isinstance(gene_settings, str) and gene_settings in all_genes:
+                self[gene] = make_function(gene_settings, number_of_organisms = 1)
+            else:
+                self[gene] = gene_settings
+
+    def add_status(self, status, status_settings, all_status):
+        if isinstance(status_settings, dict):
+            if 'initial value' in status_settings:
+                initial_value_statusrator = make_function(status_settings['initial value'], number_of_organisms = 1)
+                self[status] = initial_value_statusrator(self)
+            else: # the status is a function:
+                self[status] = make_function(status_settings, number_of_organisms = 1)         
+            if 'modifying' in status_settings:
+                self['modifying status'][status] = make_modifying_status(status, status_settings['mutability'])       
+        else:
+            if isinstance(status_settings, str) and status_settings in all_status:
+                self[status] = make_function(status_settings, number_of_organisms = 1)
+            else:
+                self[status] = status_settings
+
+        
     def act(self):
         #print 'act'
         #print self['actions list']
-        for action in self['actions list']:
+        for action in self['actions sequence']:
             actions_dictionary[action](self)
         if self.parent_ecosystem.constraints['die?'](self):
             #print "dying alone", self.__str__(list_of_attributes = ('category', 'age', 'energy reserve'))
@@ -179,26 +271,97 @@ class Organism(dict):
                 
     def hunt(self):
         #print 'hunt'
-        prey_location = None
-        if 'seeking prey technique' in self:            
-            prey_location = self['seeking prey technique'](self)
-        else:
-            prey_location = self.parent_ecosystem.biotope.seek_possible_prey_close_to(
-                center = self['location'],
-                radius = self['hunt radius']) # the radius should be in the genes
-        if prey_location != None:
-            prey = self.parent_ecosystem.biotope.get_organism(prey_location)
-            if self.parent_ecosystem.constraints['kill?'](predator = self, prey = prey):
-                self.eat(prey)
-                prey.die('killed by a predator')  
-            self.subtract_outlays('hunt', factor = self.parent_ecosystem.biotope.distance(self['location'], prey_location))
+        if (('hunt?' in self) and self['hunt?']()) or not 'hunt?' in self:
+            prey_location = None
+            if 'seeking prey technique' in self:            
+                prey_location = self['seeking prey technique'](self)
+            else:
+                prey_location = self.parent_ecosystem.biotope.seek_possible_prey_close_to(
+                    center = self['location'],
+                    radius = self['hunt radius']) # the radius should be in the genes
+            if prey_location != None:
+                prey = self.parent_ecosystem.biotope.get_organism(prey_location)
+                if self.parent_ecosystem.constraints['kill?'](predator = self, prey = prey):
+                    self.eat(prey)
+                    prey.die('killed by a predator')  
+                self.subtract_outlays('hunt', factor = self.parent_ecosystem.biotope.distance(self['location'], prey_location))
 
     def do_photosynthesis(self):
+        """ This method is completely unnecessary, because we can define it in ecosystem_settings:
+        
+        'organisms': {
+            'category': 'Little pretty plants',
+            'energy reserve': {
+                'initial value': 10000,
+                'modifying': {'new value': {'+': ('energy reserve', 'photosynthesis capacity')}}},
+            'attack capacity': ....
+            ...
+            
+            }
+            
+        Furthermore, the user can define it in many different ways. For example:
+        
+        'organisms': {
+            'category': 'Little pretty plants',
+            'energy reserve': {
+                'initial value': 10000,
+                'modifying': {
+                    'new value': {'+': (
+                        'energy reserve', 
+                        {'gauss': ('photosynthesis capacity', 20.0)})},
+                    'allowed interval': [0, 'infinity']}},
+            'attack capacity': ....
+            ...
+            
+            
+        'organisms': {
+            'category': 'Little pretty plants',
+            'energy reserve': {
+                'initial value': 10000,
+                'modifying': {'new value': {'+': (
+                    'energy reserve', 
+                    {'*': (
+                        'photosynthesis capacity',
+                        {'amount of substance': 'sunlight',
+                        'location': 'location'})}
+                    )}}},
+            'attack capacity': ....
+            ...
+
+
+        'organisms': {
+            'category': 'Little pretty plants',
+            'energy reserve': {
+                'initial value': 10000,
+                'modifying': {
+                    'new value': {'+': (
+                        'energy reserve', 
+                        {'sqrt': 'photosynthesis capacity'})},
+                    'allowed interval': [0, 'infinity']}},
+            'attack capacity': ....
+            ...
+            
+        The user can also define it in the constraints:
+        
+        'stay alive': {'energy reserve': {
+            '+': (
+                {'*': ('photosynthesis capacity', -1)}, 
+                {'*': ('attack capacity', 0.3)}, 
+                {'*': ('photosynthesis capacity', 'photosynthesis capacity', 0.0008)},
+                {'*': ('energy storage capacity', 0.002)}, 
+                {'*': ('energy reserve', 0.05)},
+                {'*': ('speed', 0.2)}, 
+                0.1)}}} 
+        
+        
+        Shall I remove it?
+        """ 
         #print 'do_photosynthesis'
         if ('photosynthesis capacity' in self) and ('energy reserve' in self):
             if isinstance(self['photosynthesis capacity'], FunctionType):               
                 self['energy reserve'] += self['photosynthesis capacity'](self)
             else:
+                #print "photo!", self['photosynthesis capacity']
                 self['energy reserve'] += self['photosynthesis capacity']
             if ('energy storage capacity' in self):
                 if isinstance(self['energy storage capacity'], FunctionType):                   
@@ -212,6 +375,12 @@ class Organism(dict):
             if self['mutating genes'][mutating_gene]['will mutate?'](self):
                 self[mutating_gene] = self['mutating genes'][mutating_gene]['new value'](self)
 
+    def do_internal_changes(self):
+        #print 'do_internal_changes'
+        for modifying_status in self['modifying status']:
+            if self['modifying status'][modifying_status]['will change?'](self):
+                self[modifying_status] = self['modifying status'][modifying_status]['new value'](self)
+
     def procreate(self): 
         #print 'procreate'
         """
@@ -223,7 +392,7 @@ class Organism(dict):
         """
         procreated = False
         # Check weather the organism can procreate:
-        if self.parent_ecosystem.constraints['procreate?'](self):
+        if ('procreate?' in self.parent_ecosystem.constraints and self.parent_ecosystem.constraints['procreate?'](self)) or ('procreate?' in self and self['procreate?'](self)):
             # Get a new location for the new baby:
             if 'radius of procreation' in self:
                 radius_of_procreation = self['radius of procreation']
@@ -251,8 +420,9 @@ class Organism(dict):
                 # Trigger mutations:
                 newborn.mutate()
                 # The parent and the child share reserves:
+                newborn['energy reserve'] = newborn['energy reserve at birth'] 
                 for reserve_substance in self['list of reserve substances']:
-                    newborn[reserve_substance] = newborn['energy reserve at birth'] 
+                    #print reserve_substance, newborn[reserve_substance]                    
                     self[reserve_substance] -= newborn[reserve_substance]
                     pass
                 # Add the new organism to the ecosystem:
@@ -260,15 +430,30 @@ class Organism(dict):
                 self.subtract_outlays('procreate', self.parent_ecosystem.biotope.distance(self['location'], new_location))
                 procreated = True
                 if print_births:                
-                    print 'SELF:'
-                    print_dictionary(self)
-                    print "\nNEWBORN:"
-                    print_dictionary(newborn)
-                    a = raw_input('press any key...')
+                    #print 'SELF:'
+                    #print_dictionary(self)
+                    #print "\nNEWBORN:"
+                    #print_dictionary(newborn)
+                    #a = raw_input('press any key...')
+                    print "newborn!"
         return procreated
 
     def age(self):
         #print 'age'
+        """ This method is completely unnecessary, because we can define it in ecosystem_settings:
+        
+        'organisms': {
+            'category': 'Little pretty pets',
+            'age': {
+                'initial value': 0,
+                'modifying': {'new value': {'+': ('age', 1)}}},
+            'attack capacity': ....
+            ...
+            
+            }
+            
+        Shall I remove it?
+        """ 
         if 'age' in self:
             self['age'] += 1
     
@@ -277,4 +462,6 @@ class Organism(dict):
         # self.parent_ecosystem.delete_organism(self) # parent_ecosystem tells biotope to erase organism from it
         if print_deths:        
             print 'dying', self.__str__(list_of_attributes = ('category', 'age', 'energy reserve')), cause        
+        elif print_killed and cause == 'killed by a predator':
+            print 'dying', self.__str__(list_of_attributes = ('category', 'age', 'energy reserve')), cause                    
         self.parent_ecosystem.new_deads.append(self)

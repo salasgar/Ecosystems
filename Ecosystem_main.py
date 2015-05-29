@@ -1,8 +1,8 @@
 from GUI import GUI
 from Tools import *
 from Biotope import Biotope
-from Ecosystem_settings import DEFAULT_SETTINGS, ecosystem_settings
-from Organism import Organism
+from Ecosystem_settings import ecosystem_settings
+from Organism import *
 from time import *
 
 # from time import sleep  # To remove
@@ -14,87 +14,29 @@ things_to_see = {
     ""
 }
 
+DEFAULT_SETTINGS = {}
 
-def make_mutability(mutability_settings, gene):    
-    #print 'make_mutability'
-    if 'new value' in mutability_settings:
-        calculate_new_value = make_function(mutability_settings['new value'], number_of_arguments = 1)
-    elif 'absolute variation' in mutability_settings:
-        absolute_variation = make_function(mutability_settings['absolute variation'], number_of_arguments = 1)
-        if 'percentage variation' in mutability_settings:
-            percentage_variation = make_function(mutability_settings['percentage variation'], number_of_arguments = 1)
-            calculate_new_value = lambda organism: organism[gene] * (1 + percentage_variation(organism)) + absolute_variation(organism)
-        else:
-            calculate_new_value = lambda organism: organism[gene] + absolute_variation(organism)
-    elif 'percentage variation' in mutability_settings:
-        percentage_variation = make_function(mutability_settings['percentage variation'], number_of_arguments = 1)
-        calculate_new_value = lambda organism: organism[gene] * (1 + percentage_variation(organism))
-    else:
-        calculate_new_value = lambda organism: organism[gene] # (no mutation) 
-    if 'mutation frequency' in mutability_settings:
-        mutation_frequency = make_function(mutability_settings['mutation frequency'], number_of_arguments = 1)
-        will_mutate = lambda organism: (random() < mutation_frequency(organism))
-    elif 'will mutate?' in mutability_settings:
-        will_mutate = make_function(mutability_settings['will mutate?'], number_of_arguments = 1)
-    else: 
-        will_mutate = lambda organism: True
-    if 'allowed interval' in mutability_settings:
-        interval = mutability_settings['allowed interval']
-        if  (interval[0] in {'- infinity', '-infinity'}) and (interval[1] in {'+ infinity', '+infinity', 'infinity'}): # this means no constraints
-            new_value = calculate_new_value
-        elif interval[0] in {'- infinity', '-infinity'}:
-            upper_constraint_function = lambda value, default_value, constraint: value if value < constraint else default_value
-            new_value = lambda organism: upper_constraint_function(calculate_new_value(organism), organism[gene], interval[1])
-        elif interval[1] in {'+ infinity', '+infinity', 'infinity'}:
-            lower_constraint_function = lambda value, default_value, constraint: value if value > constraint else default_value
-            new_value = lambda organism: lower_constraint_function(calculate_new_value(organism), organism[gene], interval[0])
-        else:
-            lower_and_upper_constraint_function = lambda value, default_value, lower_constraint, upper_constraint: value if (value > lower_constraint) and (value <= upper_constraint) else default_value
-            new_value = lambda organism: lower_and_upper_constraint_function(calculate_new_value(organism), organism[gene], *interval)         
-    else:
-        new_value = calculate_new_value
-    return {'will mutate?': will_mutate, 'new value': new_value}
-        
-def make_modifying_status(modifying_settings, status):    
-    #print 'make_modifying_status'
-    if 'new value' in modifying_settings:
-        calculate_new_value = make_function(modifying_settings['new value'], number_of_arguments = 1)
-    elif 'absolute variation' in modifying_settings:
-        absolute_variation = make_function(modifying_settings['absolute variation'], number_of_arguments = 1)
-        if 'percentage variation' in modifying_settings:
-            percentage_variation = make_function(modifying_settings['percentage variation'], number_of_arguments = 1)
-            calculate_new_value = lambda organism: organism[status] * (1 + percentage_variation(organism)) + absolute_variation(organism)
-        else:
-            calculate_new_value = lambda organism: organism[status] + absolute_variation(organism)
-    elif 'percentage variation' in modifying_settings:
-        percentage_variation = make_function(modifying_settings['percentage variation'], number_of_arguments = 1)
-        calculate_new_value = lambda organism: organism[status] * (1 + percentage_variation(organism))
-    else:
-        calculate_new_value = lambda organism: organism[status] # (no change) 
-    if 'changing frequency' in modifying_settings:
-        changing_frequency = make_function(modifying_settings['changing frequency'], number_of_arguments = 1)
-        will_change = lambda organism: (random() < changing_frequency(organism))
-    elif 'will change?' in modifying_settings:
-        will_change = make_function(modifying_settings['will change?'], number_of_arguments = 1)
-    else:
-        will_change = lambda organism: True
-    if 'allowed interval' in modifying_settings:
-        interval = modifying_settings['allowed interval']
-        if  (interval[0] in {'- infinity', '-infinity'}) and (interval[1] in {'+ infinity', '+infinity', 'infinity'}): # this means no constraints
-            new_value = calculate_new_value
-        elif interval[0] in {'- infinity', '-infinity'}:
-            upper_constraint_function = lambda value, default_value, constraint: value if value < constraint else default_value
-            new_value = lambda organism: upper_constraint_function(calculate_new_value(organism), organism[status], interval[1])
-        elif interval[1] in {'+ infinity', '+infinity', 'infinity'}:
-            lower_constraint_function = lambda value, default_value, constraint: value if value > constraint else default_value
-            new_value = lambda organism: lower_constraint_function(calculate_new_value(organism), organism[status], interval[0])
-        else:
-            lower_and_upper_constraint_function = lambda value, default_value, lower_constraint, upper_constraint: value if (value > lower_constraint) and (value <= upper_constraint) else default_value
-            new_value = lambda organism: lower_and_upper_constraint_function(calculate_new_value(organism), organism[status], *interval)         
-    else:
-        new_value = calculate_new_value
-    return {'will change?': will_change, 'new value': new_value}
-        
+def extract_genes_and_status_names(category_settings):
+    def extract(settings):
+        result_list = []
+        for item in settings:
+            if isinstance(item, str):
+                result_list.append(item)
+            elif hasattr(item, '__iter__'):
+                for sub_item in item:
+                    if isinstance(sub_item, str):
+                        result_list.append(sub_item)
+        return result_list        
+    final_list = []
+    for x in ('genes', 'status', 'mutabilities', 'initial values'):
+        if x in category_settings:
+            final_list += extract(category_settings[x])
+    return final_list
+                    
+                    
+            
+    return result_list
+    
 class Ecosystem(object):
     """ Attributes:
     self.biotope
@@ -120,9 +62,10 @@ class Ecosystem(object):
         
     def load_settings(self, ecosystem_settings, default_settings):
         print 'load_settings'
-        merge_dictionaries(
-            dictionary_to_be_completed = ecosystem_settings,
-            dictionary_to_complete_with = default_settings['ecosystem'])
+        if 'ecosystem' in default_settings:            
+            merge_dictionaries(
+                dictionary_to_be_completed = ecosystem_settings,
+                dictionary_to_complete_with = default_settings['ecosystem'])
         if isinstance(ecosystem_settings['organisms'], dict):
             ecosystem_settings['organisms'] = [ecosystem_settings['organisms']]
         for category in ecosystem_settings['organisms']:
@@ -130,7 +73,7 @@ class Ecosystem(object):
                 category['genes'] = {}
             if not 'status' in category:
                 category['status'] = {}
-            if ('attack capacity' in category) or ('strength' in category):
+            if ('seeking prey' in default_settings) and (('attack capacity' in category) or ('strength' in category)):
                 merge_dictionaries(
                     dictionary_to_be_completed = category,
                     dictionary_to_complete_with = default_settings['seeking prey'])
@@ -157,7 +100,7 @@ class Ecosystem(object):
                     actions_list.append('stay alive')   
                 if 'age' in organisms_attributes_list:
                     actions_list.append('age')
-                category['genes']['action list'] = action_list
+                category['genes']['actions list'] = actions_list
             if 'hunt' in category['genes']['actions list'] and not 'hunt radius' in (category['genes'].keys() + category['status'].keys()):
                 category['genes']['hunt radius'] = 1.5
         self.settings = ecosystem_settings  
@@ -173,16 +116,16 @@ class Ecosystem(object):
         for action in self.settings['outlays']:
             self.outlays[action] = {}
             for reserve_substance in self.settings['outlays'][action]:
-                self.outlays[action][reserve_substance] = make_function(self.settings['outlays'][action][reserve_substance], number_of_arguments = 1)
+                self.outlays[action][reserve_substance] = make_function(self.settings['outlays'][action][reserve_substance], number_of_organisms = 1)
     
     def initialize_constraints(self):
         print 'initialize_constraints'
         self.constraints = {}
         for action in self.settings['constraints']:
             if action == 'kill?':
-                self.constraints[action] = make_function(self.settings['constraints'][action], number_of_arguments = 2)        
+                self.constraints[action] = make_function(self.settings['constraints'][action], number_of_organisms = 2)        
             else:
-                self.constraints[action] = make_function(self.settings['constraints'][action], number_of_arguments = 1)        
+                self.constraints[action] = make_function(self.settings['constraints'][action], number_of_organisms = 1)        
     
     def initialize_statistics(self):
         print 'initialize_statistics'
@@ -235,43 +178,65 @@ class Ecosystem(object):
         self.newborns = []
         organisms_settings = self.settings['organisms']
         for organisms_category in organisms_settings:
+            all_genes_and_status = extract_genes_and_status_names(organisms_category)               
+            genes_settings = organisms_category['genes'] if 'genes' in organisms_category else {}
+            status_settings = organisms_category['status'] if 'status' in organisms_category else {}
             for _ in range(organisms_category['number of organisms']):
                 # Note: By the moment, location has random distribution
                 new_organism = Organism(self, {'mutating genes': {}, 'modifying status': {}, 'list of reserve substances': []})
-                genes_settings = organisms_category['genes']
-                for gene in genes_settings.keys():
-                    if isinstance(genes_settings[gene], dict):
-                        if 'initial value' in genes_settings[gene]:
-                            initial_value_generator = make_function(genes_settings[gene]['initial value'], number_of_arguments = 1)
-                            new_organism[gene] = initial_value_generator(new_organism)
-                        else: # the gene is a function:
-                            new_organism[gene] = make_function(genes_settings[gene], number_of_arguments = 1)         
-                        if 'mutability' in genes_settings[gene]:
-                            new_organism['mutating genes'][gene] = make_mutability(genes_settings[gene]['mutability'], gene)       
-                    else:
-                        if isinstance(genes_settings[gene], str) and genes_settings[gene] in genes_settings:
-                            new_organism[gene] = make_function(genes_settings[gene], number_of_arguments = 1)
-                        else:
-                            new_organism[gene] = genes_settings[gene]
-                status_settings = organisms_category['status']
-                for status in status_settings:
-                    if isinstance(status_settings[status], dict):
-                        if 'initial value' in status_settings[status]:
-                            initial_value_generator = make_function(status_settings[status]['initial value'], number_of_arguments = 1)
-                            new_organism[status] = initial_value_generator(new_organism)
-                        else:
-                            new_organism[status] = make_function(status_settings[status], number_of_arguments = 1)
-                        if 'modifying' in status_settings[status]:
-                            new_organism['modifying status'][status] = make_modifying_status(status_settings[status]['modifying'], status)       
-                    else:
-                        new_organism[status] = status_settings[status]                
+                
+                # READING GENES:
+                for genes_list in genes_settings:
+                    current_genes_settings = genes_settings[genes_list]
+                    if not hasattr(genes_list, '__iter__'):
+                        genes_list = [genes_list]
+                    for gene in genes_list:
+                        new_organism.add_gene(gene, current_genes_settings, all_genes_and_status)
+                                       
+                # READING STATUS:
+                for status_list in status_settings:
+                    current_status_settings = status_settings[status_list]
+                    if not hasattr(status_list, '__iter__'):
+                        status_list = [status_list]
+                    for status in status_list:
+                        new_organism.add_status(status, current_status_settings, all_status_and_status)
+                
+                # READING MUTABILITIES:
+                mutabilities_settings = organisms_category['mutabilities'] if 'mutabilities' in organisms_category else {}
+                for genes_list in mutabilities_settings:
+                    mutability = mutabilities_settings[genes_list]
+                    if not hasattr(genes_list, '__iter__'):
+                        genes_list = [genes_list]
+                    for gene in genes_list:
+                        new_organism['mutating genes'][gene] = make_mutability(gene, mutability)
+                
+                # READING MODIFYING STATUS:
+                modifying_status_settings = organisms_category['modifying'] if 'modifying' in organisms_category else {}
+                for status_list in modifying_status_settings:
+                    modifying = modifying_status_settings[status_list]
+                    if not hasattr(status_list, '__iter__'):
+                        status_list = [status_list]
+                    for status in status_list:
+                        new_organism['modifying status'][status] = make_modifying_status(status, modifying)
+                
+                # READING INITIAL VALUES:
+                initial_values_settings = organisms_category['initial values'] if 'initial values' in organisms_category else []
+                for attributes_list in initial_values_settings:
+                    settings = initial_values_settings[attributes_list]
+                    if not hasattr(attributes_list, '__iter__'):
+                        attributes_list = [attributes_list]
+                    initial_value_generator = make_function(settings, number_of_organisms = 1)
+                    for attribute in attributes_list:
+                        new_organism[attribute] = initial_value_generator(new_organism)
+                                
+                # CONFIGURING new_organism:                
                 if 'energy reserve' in new_organism and not 'energy reserve' in new_organism['list of reserve substances']:
                     new_organism['list of reserve substances'].append('energy reserve')
                 if 'color' in new_organism:
                     if hasattr(new_organism['color'], '__getitem__'):
-                        red = make_function(new_organism['color'][0], number_of_arguments = 1)
-                        green = make_function(new_organism['color'][1], number_of_arguments = 1)
-                        blue = make_function(new_organism['color'][2], number_of_arguments = 1)
+                        red = make_function(new_organism['color'][0], number_of_organisms = 1)
+                        green = make_function(new_organism['color'][1], number_of_organisms = 1)
+                        blue = make_function(new_organism['color'][2], number_of_organisms = 1)
                         new_organism['color'] = lambda organism: (int(red(organism)), int(green(organism)), int(blue(organism)))
                 self.add_organism(new_organism)
         self.organisms_list = self.newborns
@@ -306,7 +271,7 @@ class Ecosystem(object):
         return N
 
 def main():
-    print " *"*50, "\nWe start NOW!"
+    print " *"*30, "\nWe start NOW!"
     # create Ecosystem
     ecosystem = Ecosystem(ecosystem_settings)
     
@@ -328,15 +293,13 @@ def main():
     return 0
     """
     
-    enable_graphics = True
+    return 0
+    enable_graphics = False
     time_lapse = 4
-    make_pauses = not enable_graphics
+    make_pauses = False #not enable_graphics
     make_sleeps = False
-    Total_time = 2000
+    Total_time = 200
     
-    print_outlays = False
-    print_deths = False
-    print_births = False
     print_ages = False
     print_organisms = False
     
@@ -357,7 +320,7 @@ def main():
                     #print organism.__str__(list_of_attributes = ('category', 'energy reserve', 'color'))
                     #if organism['age'] > 100:
                     #    print ecosystem.constraints['die?'](organism)
-            print ecosystem.count('category', 'plant'), 'plants and', ecosystem.count('category', 'animal'), 'animals'
+            #print ecosystem.count('category', 'plant'), 'plants and', ecosystem.count('category', 'animal'), 'animals'
             if make_pauses:
                 user_input = raw_input('exit? [Y/N]: ')                    
         # TODO: Define correct condition
