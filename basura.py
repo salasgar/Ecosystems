@@ -73,7 +73,12 @@ print texto
 print "elif number_of_organisms == 2:"
 print texto.replace('organism', 'predator, prey')
 
+D = {1, 9, 2, 10}
+E = {1, 5, 3, 10, 1}
 
+F = D.union(E)
+
+print D, E, F
 
 
 

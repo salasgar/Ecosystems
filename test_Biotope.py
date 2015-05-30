@@ -68,18 +68,12 @@ biotope_settings['size'] = size
 B = Biotope(biotope_settings, fake_ecosystem)
 center = (choice(range(size[0])), choice(range(size[1])))
 matrix = Matrix(*size)
-for x in range(size[0]):
-    for y in range(size[1]):
-        matrix[x, y] = round(B.distance((x, y), center, mode = 'circle'))/10
-print "\n"*3, matrix
-for x in range(size[0]):
-    for y in range(size[1]):
-        matrix[x, y] = round(B.distance((x, y), center, mode = 'square'))/10
-print "\n"*3, matrix
-for x in range(size[0]):
-    for y in range(size[1]):
-        matrix[x, y] = round(B.distance((x, y), center, mode = 'tilted square'))/10
-print "\n"*3, matrix
+for distance_function_name in ['euclidean distance', 'chess distance', 'taxicab distance']:    
+    B.set_distance(distance_function_name)
+    for x in range(size[0]):
+        for y in range(size[1]):
+            matrix[x, y] = round(B.distance((x, y), center))/10
+    print "\n"*3, matrix
 
 """"""
 
@@ -92,15 +86,16 @@ B.add_organism(fake_organism, center)
 for i in range(10):
     B.add_organism(deepcopy(fake_organism))
 print B.organisms_matrix
-"""
-for radius in float_range(0, 5, 0.1):
+
+for radius in float_range(0, 5, 0.9):
     new_baby_location = B.seek_free_location_close_to(center, radius)
     if new_baby_location != None:
-        B.add_organism(fake_organism, new_baby_location)
+        B.add_organism({}, new_baby_location)
         print new_baby_location, B.organisms_matrix[new_baby_location]
     else:
         print "No baby"
-"""
+print B.organisms_matrix
+
 for radius in float_range(0, 2, 0.1):
     prey_location = B.seek_possible_prey_close_to(center, radius)        
     if prey_location != None:

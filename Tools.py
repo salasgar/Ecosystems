@@ -5,6 +5,8 @@ from copy import *
 #from Ecosystem_settings import *
 from types import FunctionType
 
+
+# THIS IS ONLY FOR TESTING:
 test_organism = {'strength': 2.0, 
             'speed': 3.0,
             'procreating frequency': 0.3,
@@ -16,12 +18,17 @@ test_organism = {'strength': 2.0,
             'energy reserve': 15.0,
             'energy storage capacity': 1000,
             'test': 0} 
-
-            
+          
 print_outlays = False
 print_deths = False
-print_killed = True
+print_killed = False
 print_births = False
+print_ages = False
+print_organisms = False
+
+
+
+# NUMERIC FUNCTIONS:
 
 def is_number(x):
     try:
@@ -30,6 +37,15 @@ def is_number(x):
     except TypeError:
         return False
 
+def is_function(x):
+    return isinstance(x, FunctionType)
+
+def is_dictionary(x):
+    return isinstance(x, dict)
+    
+def is_iterable(x):
+    return hasattr(x, '__iter__')
+    
 def prod(iterable): # Calculates the product of all the elements in the iterable
     return reduce((lambda x, y: x * y), iterable, 1)
 
@@ -72,12 +88,86 @@ def sigmoid(x):
     t = bounded_value(x, -50, 50)
     return exp(t)/(1+exp(t))    
     
-""" 
-#unused function:
+# GENE FUNCTIONS:
+    
+def extract_genes_names(genes_settings):
+    if isinstance(genes_settings, str):
+        return set([genes_settings])
+    elif hasattr(genes_settings, '__iter__'):
+        result_set = set([])
+        for item in genes_settings:
+            result_set = result_set.union(extract_genes_names(item))
+        return result_set   
+    else:
+        return set([])
 
-def create_empty_list_of_lists(size_x, size_y):
-    return [[None] * size_y for i in range(size_x)]
-"""
+def unpack_genes(genes_settings):
+    """
+    For convenience reason, the user can define some genes all together, like this:
+    
+        ('moving frequency', 
+        'hunting frequency', 
+        'procreating frequency'): {
+            'initial value': {'uniform': [0, 1]},
+            'mutability': {
+                'absolute variation': {'gauss': (0, 0.001)},
+                'allowed interval': [0, 1],
+                'mutation frequency': 0.01
+                }}
+        
+    
+    Then, we have to unpack them, producing the following settings:
+    
+        'moving frequency': {
+            'initial value': {'uniform': [0, 1]},
+            'mutability': {
+                'absolute variation': {'gauss': (0, 0.001)},
+                'allowed interval': [0, 1],
+                'mutation frequency': 0.01
+                }},
+        'hunting frequency': {
+            'initial value': {'uniform': [0, 1]},
+            'mutability': {
+                'absolute variation': {'gauss': (0, 0.001)},
+                'allowed interval': [0, 1],
+                'mutation frequency': 0.01
+                }}, 
+        'procreating frequency': {
+            'initial value': {'uniform': [0, 1]},
+            'mutability': {
+                'absolute variation': {'gauss': (0, 0.001)},
+                'allowed interval': [0, 1],
+                'mutation frequency': 0.01
+                }}
+   """             
+    def merge_gene_settings(A, B):
+        if is_dictionary(A):
+            dict_A = deep_copy_of_a_dictionary(A)
+        else:
+            dict_A = deep_copy_of_a_dictionary({'initial value': A})
+        if is_dictionary(B):
+            dict_B = deep_copy_of_a_dictionary(B)
+        else:
+            dict_B = deep_copy_of_a_dictionary({'initial value': B})
+        for item in dict_B:
+            dict_A[item] = dict_B[item]
+        return dict_A
+            
+    settings_to_return = {}
+    for item in genes_settings:
+        if hasattr(item, '__iter__'):
+            for gene in item:
+                if gene in settings_to_return:
+                    settings_to_return[gene] = merge_gene_settings(settings_to_return[gene], genes_settings[item])
+                else:
+                    settings_to_return[gene] = deep_copy_of_a_dictionary(genes_settings[item])
+        else:
+            if item in settings_to_return:
+                settings_to_return[item] = merge_gene_settings(settings_to_return[item], genes_settings[item])
+            else:
+                settings_to_return[item] = deep_copy_of_a_dictionary(genes_settings[item])
+    return settings_to_return
+    
 
 class Matrix(object):
     def __init__(self, size_x, size_y, value=None):
@@ -173,14 +263,18 @@ Unary_operators_dictionary = {
     'tan': tan,
     'tg':  tan,
     'round': lambda x: round(x, 0),
+    'int': lambda x: int(x),
+    'roundint': lambda x: int(round(x, 0)),
     'randbool': lambda probability_of_True: (probability_of_True > random()),
     'chi-squared': lambda k: math.fsum(gauss(0, 1)**2 for i in range(k)),
     'shuffle': shuffle_function,
     'not': lambda x: not x}
 
-def make_function(function_settings, number_of_organisms, arguments = []):
+def make_function(function_settings, number_of_organisms = 1, arguments = []):
     #test_organism['test'] += 1
-    function_to_return = None     
+    function_to_return = None  
+    if hasattr(function_settings, '__iter__') and 'number of organisms' in function_settings:
+        number_of_organisms = function_settings['number of organisms']
     if is_number(function_settings):
         if number_of_organisms == 0:   
             return lambda: function_settings
@@ -192,18 +286,30 @@ def make_function(function_settings, number_of_organisms, arguments = []):
         if number_of_organisms == 0:
             return lambda: function_settings
         elif number_of_organisms == 1:
-            return lambda organism: (organism[function_settings](organism) if isinstance(organism[function_settings], FunctionType) else organism[function_settings]) if function_settings in organism else function_settings            
+            return lambda organism: (organism[function_settings](organism) if is_function(organism[function_settings]) else organism[function_settings]) if function_settings in organism else function_settings            
         elif number_of_organisms == 2:
             return lambda predator, prey: (
-                (predator[function_settings](predator) if isinstance(predator[function_settings], FunctionType) else predator[function_settings]) if function_settings in predator else function_settings, 
-                (prey[function_settings](prey) if isinstance(prey[function_settings], FunctionType) else prey[function_settings]) if function_settings in prey else function_settings)
-    elif hasattr(function_settings, '__iter__') and not isinstance(function_settings, dict):
-        return [make_function(item, number_of_organisms) for item in function_settings]  # Yes, it's not a function, but a list of functions
-    elif isinstance(function_settings, dict):
-        if ('predator' in function_settings) and (number_of_organisms == 2):
-                function_to_return = lambda predator, prey: predator[function_settings['predator']](predator) if isinstance(predator[function_settings['predator']], FunctionType) else predator[function_settings['predator']]
-        elif ('prey' in function_settings) and (number_of_organisms == 2):
-                function_to_return = lambda predator, prey: prey[function_settings['prey']](prey) if isinstance(prey[function_settings['prey']], FunctionType) else prey[function_settings['prey']]
+                (predator[function_settings](predator) if is_function(predator[function_settings]) else predator[function_settings]) if function_settings in predator else function_settings, 
+                (prey[function_settings](prey) if is_function(prey[function_settings]) else prey[function_settings]) if function_settings in prey else function_settings)
+    elif hasattr(function_settings, '__iter__') and not is_dictionary(function_settings):
+        terms = [make_function(item, number_of_organisms) for item in function_settings]
+        if number_of_organisms == 0:   
+            return lambda: [item() for item in terms]
+        elif number_of_organisms == 1:   
+            return lambda organism: [item(organism) for item in terms]
+        elif number_of_organisms == 2:   
+            return lambda predator, prey: [item(predator, prey) for item in terms]
+    elif is_dictionary(function_settings):
+        if 'predator' in function_settings:
+            if number_of_organisms == 2:
+                function_to_return = lambda predator, prey: predator[function_settings['predator']](predator) if is_function(predator[function_settings['predator']]) else predator[function_settings['predator']]
+            else:
+                print "Error in number of organisms", 1/0
+        elif 'prey' in function_settings:
+            if number_of_organisms == 2:
+                function_to_return = lambda predator, prey: prey[function_settings['prey']](prey) if is_function(prey[function_settings['prey']]) else prey[function_settings['prey']]
+            else:
+                print "Error in number of organisms", 1/0
         elif 'literal' in function_settings:
             if number_of_organisms == 0:
                 function_to_return = lambda: function_settings['literal']
@@ -211,9 +317,11 @@ def make_function(function_settings, number_of_organisms, arguments = []):
                 function_to_return = lambda organism: function_settings['literal']  
             elif number_of_organisms == 2: 
                 function_to_return = lambda predator, prey: function_settings['literal']
+        elif 'value, not function' in function_settings:
+            return function_settings['value, not function']
         for operator in Binary_operators_dictionary:
             if operator in function_settings:
-                terms = make_function(function_settings[operator], number_of_organisms)
+                terms = [make_function(item, number_of_organisms) for item in function_settings[operator]]
                 main_operation = Binary_operators_dictionary[operator]
                 if number_of_organisms == 0:
                     function_to_return = lambda: reduce(main_operation, [term() for term in terms[1:]], terms[0]())        
@@ -252,6 +360,20 @@ def make_function(function_settings, number_of_organisms, arguments = []):
                 function_to_return = lambda organism: tuple(item(organism) for item in tuple_to_return)
             elif number_of_organisms == 2:  
                 function_to_return = lambda predator, prey: tuple(item(predator, prey) for item in tuple_to_return)
+        elif 'outlay' in function_settings:
+            if number_of_organisms == 1:
+                action = function_settings['outlay']
+                if 'substance' in function_settings:
+                    substance = function_settings['substance']
+                else:
+                    substance = 'energy reserve'
+                function_to_return = lambda organism: organism.parent_ecosystem.outlays[action][substance](organism)
+        elif 'constraint' in function_settings:
+            action = function_settings['constraint']
+            if number_of_organisms == 1:
+                function_to_return = lambda organism: organism.parent_ecosystem.constraints[action](organism)
+            if number_of_organisms == 2:
+                function_to_return = lambda predator, prey: predator.parent_ecosystem.constraints[action](predator, prey)
         elif 'function' in function_settings:
             if function_settings['function'] == 'sigmoid':
                 if 'homothety' in function_settings:           
@@ -306,9 +428,7 @@ def make_function(function_settings, number_of_organisms, arguments = []):
                         i += 1
                         r -= values_list[i][0](predator, prey)
                     return values_list[i][1](predator, prey)
-                values_list = [(make_function(pair['probability'], number_of_organisms),
-                                make_function(pair['value'], number_of_organisms))
-                                for pair in function_settings['values list']]
+                values_list = [(make_function(pair['probability'], number_of_organisms), make_function(pair['value'], number_of_organisms)) for pair in function_settings['values list']]
                 if number_of_organisms == 0:   
                     function_to_return = lambda: choice_value_0(values_list, random())
                 elif number_of_organisms == 1:   
@@ -340,9 +460,9 @@ def make_function(function_settings, number_of_organisms, arguments = []):
         error_maker = 1/0
         return lambda organism: 'Error: unknown function'
     
-    if isinstance(function_settings, dict) and 'allowed interval' in function_settings:
+    if is_dictionary(function_settings) and 'allowed interval' in function_settings:
         interval_settings = function_settings['interval']
-        if hasattr(interval_settings, '__iter__') and not isinstance(interval_settings, dict):
+        if hasattr(interval_settings, '__iter__') and not is_dictionary(interval_settings):
             lower_bound = make_function(interval_settings[0], number_of_organisms)
             upper_bound = make_function(interval_settings[1], number_of_organisms)
         else:
@@ -443,7 +563,7 @@ def make_function(function_settings, number_of_organisms):
         if is_number(function_settings):
             return lambda organism: function_settings
         elif isinstance(function_settings, str):
-            return lambda organism: (organism[function_settings](organism) if isinstance(organism[function_settings], FunctionType) else organism[function_settings]) if function_settings in organism else function_settings
+            return lambda organism: (organism[function_settings](organism) if isinstance(organism[function_settings]) else organism[function_settings]) if function_settings in organism else function_settings
         elif hasattr(function_settings, '__iter__') and not isinstance(function_settings, dict):
             return [make_function(item, number_of_organisms) for item in function_settings] # Yes, it's not a function, but a list of functions
         elif isinstance(function_settings, dict):
@@ -557,15 +677,15 @@ def make_function(function_settings, number_of_organisms):
             return lambda predator, prey: function_settings
         elif isinstance(function_settings, str):
             return lambda predator, prey: (
-                (predator[function_settings](predator) if isinstance(predator[function_settings], FunctionType) else predator[function_settings]) if function_settings in predator else function_settings, 
-                (prey[function_settings](prey) if isinstance(prey[function_settings], FunctionType) else prey[function_settings]) if function_settings in prey else function_settings)
+                (predator[function_settings](predator) if isinstance(predator[function_settings]) else predator[function_settings]) if function_settings in predator else function_settings, 
+                (prey[function_settings](prey) if isinstance(prey[function_settings]) else prey[function_settings]) if function_settings in prey else function_settings)
         elif hasattr(function_settings, '__iter__') and not isinstance(function_settings, dict):
             return [make_function(item, number_of_organisms) for item in function_settings] # Yes, it's not a function, but a list of functions
         elif isinstance(function_settings, dict):
             if 'predator' in function_settings:
-                function_to_return = lambda predator, prey: predator[function_settings['predator']](predator) if isinstance(predator[function_settings['predator']], FunctionType) else predator[function_settings['predator']]
+                function_to_return = lambda predator, prey: predator[function_settings['predator']](predator) if isinstance(predator[function_settings['predator']]) else predator[function_settings['predator']]
             elif 'prey' in function_settings:
-                function_to_return = lambda predator, prey: prey[function_settings['prey']](prey) if isinstance(prey[function_settings['prey']], FunctionType) else prey[function_settings['prey']]
+                function_to_return = lambda predator, prey: prey[function_settings['prey']](prey) if isinstance(prey[function_settings['prey']]) else prey[function_settings['prey']]
             elif 'literal' in function_settings:
                 function_to_return = lambda predator, prey: function_settings['literal']
             for operator in Binary_operators_dictionary:
@@ -676,10 +796,14 @@ def make_function(function_settings, number_of_organisms):
 
 """
 
+
+
+# DICTIONARIES:
+
 def dictionary_to_string(dictionary, indent_level = 0):
     dict_string = ""
     tabulator = " "*4
-    if isinstance(dictionary, dict):
+    if is_dictionary(dictionary):
         dict_string += tabulator*indent_level + '{\n' # This line could be removed
         for key in dictionary.keys():
             if hasattr(dictionary[key], '__iter__'):
@@ -701,14 +825,14 @@ def print_dictionary(dictionary):
 def merge_dictionaries(dictionary_to_be_completed, dictionary_to_complete_with):
     for item in dictionary_to_complete_with:
         if item in dictionary_to_be_completed:
-            if isinstance(dictionary_to_be_completed[item], dict) and isinstance(dictionary_to_complete_with[item], dict):
+            if is_dictionary(dictionary_to_be_completed[item]) and is_dictionary(dictionary_to_complete_with[item]):
                 merge_dictionaries(dictionary_to_be_completed[item], dictionary_to_complete_with[item])
         else:
-            if isinstance(dictionary_to_be_completed, dict):
+            if is_dictionary(dictionary_to_be_completed):
                 dictionary_to_be_completed[item] = dictionary_to_complete_with[item]
                 
 def deep_copy_of_a_dictionary(dictionary):
-    if isinstance(dictionary, dict):            
+    if is_dictionary(dictionary):            
         copy_to_return = {}
         for item in dictionary:
             copy_to_return[item] = deep_copy_of_a_dictionary(dictionary[item])

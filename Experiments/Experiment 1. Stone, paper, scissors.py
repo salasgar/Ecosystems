@@ -186,7 +186,7 @@ ecosystem_settings_3 = {
 
 # Ecosystem 4:
 # Goal: A simple color variation of the previous ecosystem to improve the observations
-ecosystem_settings_3 = {
+ecosystem_settings_4 = {
     'ecosystem name': "Strength vs photosyntesis capacity",
     'biotope': { 
         'size': (70, 70),

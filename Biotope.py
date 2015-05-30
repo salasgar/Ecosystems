@@ -1,8 +1,7 @@
 from random import *
 from math import *
-import Tools
+from Tools import *
 import Organism
-from copy import *
 
 
 class Biotope(object):
@@ -14,8 +13,6 @@ class Biotope(object):
         def reset(self):
             size = self.parent_biotope['size']
             self.list = [(x, y) for x in range(size[0]) for y in range(size[1])]
-            #print "Ey, list!", self.list  
-            #print [c for c in self.list if self.parent_biotope.organisms_matrix[c] == None]
             shuffle(self.list)
             self.last_location_index = len(self.list) - 1           
         def get_new_free_location(self):
@@ -33,16 +30,16 @@ class Biotope(object):
     def __init__(self, settings, parent_ecosystem):
         self.settings = settings
         self.parent_ecosystem = parent_ecosystem
-        self.organisms_matrix = Tools.Matrix(*self.settings['size'])
+        self.organisms_matrix = Matrix(*self.settings['size'])
         self.featuremaps_dict = {}        
         self.random_free_locations = self.random_free_locations_list(self)
         # The 'distance' between two points A and B is subjective. Depends on
         # the topology of the biotope (currently it's a flat torus) and the
         # metric we use (euclidean, chess, taxicab,...). So, we define:      
         if 'distance' in self.settings:
-            self.distance = lambda A, B: self.calculate_distance(A, B, self.settings['distance'])
+            self.set_distance(self.settings['distance'])
         else:
-            self.distance = lambda A, B: self.calculate_distance(A, B)
+            self.set_distance('euclidean distance')
         
     def __getitem__(self, keys):
         return self.settings[keys]
@@ -50,7 +47,7 @@ class Biotope(object):
     def __setitem__(self, keys, value):
         self.settings[keys] = value
 
-    def __str__(self):  # Just sfor debug
+    def __str__(self):
         return str(self.organisms_matrix)
     
     def size_x(self):
@@ -119,7 +116,7 @@ class Biotope(object):
         up = int(round(yc - radius))
         down = int(round(yc + radius)) + 1  # we write + 1 because range(a, b+1) = [a, a+1, a+1, ..., b] = [a, ..., b]
         return [(x, y) for x in range(left, right) for y in range(up, down) if condition(self.organisms_matrix[x, y]) and (self.distance(center, (x, y)) <= radius)]
-        
+                
     def seek_free_location_close_to(self, center, radius):
         """ 
             This method return a random free position close to a center within
@@ -160,12 +157,17 @@ class Biotope(object):
                 return max(dif_x, dif_y)
             elif distance in {'circle', 'euclidean', 'euclidean distance'}:
                 return sqrt(dif_x**2 + dif_y**2)
-            elif distance in {'tilted square', 'taxicab', 'taxist', 'taxist distance'}:
+            elif distance in {'tilted square', 'taxicab', 'taxist', 'taxist distance', 'taxicab distance'}:
                 return dif_x + dif_y
         else:
             return None
 
-
+    def set_distance(self, distance):
+        if is_function(distance):
+            self.distance = distance
+        elif isinstance(distance, str):            
+            self.distance = lambda A, B: self.calculate_distance(A, B, distance)
+        
     def get_featuremap(self, featuremap_code):
         return self.featuremaps[featuremap_code]
 

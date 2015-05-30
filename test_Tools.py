@@ -4,10 +4,11 @@ from math import *
 
 test1 = False # class Matrix
 test2 = False # prod, float_range
-test3 = True # make_function, merge_dictionaries
+test3 = False # make_function, merge_dictionaries
 test4 = False
 test5 = False
 test6 = False
+test7 = True
 
 
 if test1:
@@ -25,7 +26,24 @@ if test1:
     print matrix
 
 if test2:
-    pass
+    organism = {'strength': 2.0, 
+            'speed': 3.0,
+            'procreating frequency': 0.3,
+            'attack capacity': 5.0,
+            'defense capacity': 4.0,
+            'photosynthesis capacity': 10.0,
+            'age': 120,
+            'procreate?': {'randbool': 0.8},
+            'energy reserve': 15.0}   
+    function_settings = {'number of organisms': 2, 'predator': 'speed'}
+    f = make_function(function_settings)    
+    print f(organism, organism)
+    function_settings = {'number of organisms': 2,
+                '>': (
+                    {'*': ({'predator': 'attack capacity'}, {'gauss': (0, 1)})},
+                     {'*': ({'prey': 'defense capacity'}, {'gauss': (0, 1)})} )}        
+    f = make_function(function_settings)    
+    print f(organism, organism)
 
 if test3: 
     print """\n\n TEST make_function(function_settings) """
@@ -49,7 +67,7 @@ if test3:
 
     function0_settings = organism['procreate?']   
     
-    function0 = make_function({'randbool': 0.8}, number_of_organisms = 1)
+    function0 = make_function({'randbool': 0.8})
     #function0 = lambda probability_of_True: (probability_of_True > random())
     print function0(organism)
     
@@ -58,8 +76,8 @@ if test3:
         {'uniform': [
             'photosynthesis capacity', 
             'energy reserve']})}  
-    print [make_function(function1, number_of_organisms = 1)(organism) for i in range(10)]    
-    print make_function(living_outlay_dict, number_of_organisms = 1)(organism)   
+    print [make_function(function1)(organism) for i in range(10)]    
+    print make_function(living_outlay_dict)(organism)   
    
     print " TEST merge_dictionaries "
     A = {1: 'a',
@@ -171,7 +189,7 @@ if test6:
     for item in organism_settings:
         if isinstance(organism_settings[item], dict) and 'initial value' in organism_settings[item]:
             ivg = make_function(organism_settings[item]['initial value'], 1)
-            if isinstance(ivg, FunctionType):            
+            if is_function(ivg):            
                 organism[item] = ivg(organism)
             elif hasattr(ivg, '__iter__'):   
                 organism[item] = [sub_item(organism) for sub_item in ivg]
@@ -187,5 +205,25 @@ if test6:
     print "mutability['will mutate?'] =", mutability['will mutate?'](organism)
     print "mutability['new value'] =", mutability['new value'](organism)
 
+if test7:
+    from Organism import *
+    
+    organism_settings = {
+            'speed': 3.0,
+            'attack capacity': 5.0,
+            'defense capacity': 2.0,
+            'photosynthesis capacity': 10.0,
+            'age': 120,    
+            'color': ['speed', 7, {'+': ('speed', 100)}]
+    }
+    
+    all_genes = extract_genes_names(organism_settings)
+    organism = Organism({}, {})
+    for gene in organism_settings:
+        organism.add_gene(gene, organism_settings[gene], all_genes)
+    
+    print_dictionary( organism)
                     
-
+    color = make_function(organism_settings['color'])
+    print color(organism)
+    print organism['color'](organism)
