@@ -219,7 +219,7 @@ def main():
     
     enable_graphics = True
     time_lapse = 1
-    make_pauses = True #not enable_graphics
+    make_pauses = False #not enable_graphics
     make_sleeps = False
     Total_time = 200
     
