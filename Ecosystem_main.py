@@ -1,7 +1,7 @@
 from GUI import GUI
 from Tools import *
 from Biotope import Biotope
-from Settings import ecosystem_settings
+from Settings import *
 from Organism import *
 from time import *
 
@@ -198,7 +198,7 @@ class Ecosystem(object):
 def main():
     print " *"*30, "\nWe start NOW!"
     # create Ecosystem
-    ecosystem = Ecosystem(ecosystem_settings)
+    ecosystem = Ecosystem(ecosystem_settings2)
     
     """
     f = make_function({'and': (
@@ -221,7 +221,7 @@ def main():
     time_lapse = 1
     make_pauses = False #not enable_graphics
     make_sleeps = False
-    Total_time = 200
+    Total_time = 2000000
     
     """
     for i in range(Total_time):
