@@ -1,9 +1,19 @@
+
+"""      EXPERIMENT 2      """
+"""
+
+    En este experimento se dejara "rienda suelta" a la seleccion natural para que ella misma
+configure las caracteristicas de las distintas especies del ecosistema, que derivaran todas ellas
+de una sola. El propio Experiment debera ir variando los 'outlays' hasta encontrar unos valores 
+para los cuales se genere un ecosistema estable que sustente una abundante biodiversidad. 
+"""
+
                
 ecosystem_settings = {
-    'biotope': {'size': (100, 100)},
+    'biotope': {'size': (170, 170)},
                 
     'organisms': {
-        'number of organisms': 200,
+        'number of organisms': 500,
         'genes': {
             'age': {
                 'initial value': 0,
@@ -114,7 +124,7 @@ ecosystem_settings = {
                     {'prey': 'defense capacity'} )},         
         'die?': {'or': (
                 {'<': ('energy reserve', 100.0)},
-                {'randbool': 0.01} )},
+                {'randbool': 0.0005} )},
         'procreate?': {'>': (
                 'energy reserve',
                 {'+': (
@@ -238,10 +248,4 @@ ecosystem_settings3[('speed',
                         {'prey': 'family mark'})},
                     'consanguinity threshold')}
                     
-"""
-
-
-"""
-from Tools import *              
-print_dictionary(ecosystem_settings)
 """

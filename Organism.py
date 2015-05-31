@@ -192,10 +192,13 @@ class Organism(dict):
         """ An organism has to spend energy and maybe other substances only to
         stay alive.
         """
-        energy_reserve = self['energy reserve']
-        self.subtract_outlays('stay alive', factor = 1)  
-        return 'energy reserve: {0} - {1} = {2}'.format(energy_reserve, energy_reserve - self['energy reserve'], self['energy reserve'])          
-
+        if 'energy reserve' in self:
+            energy_reserve = self['energy reserve']
+            self.subtract_outlays('stay alive', factor = 1)  
+            return 'energy reserve: {0} - {1} = {2}'.format(energy_reserve, energy_reserve - self['energy reserve'], self['energy reserve'])          
+        else:
+            self.subtract_outlays('stay alive', factor = 1)          
+        
     def move(self):
         if print_methods_names:
             print 'move'
@@ -435,7 +438,8 @@ class Organism(dict):
             # Trigger mutations:
             newborn.mutate()
             # The parent and the child share reserves:
-            newborn['energy reserve'] = newborn['energy reserve at birth'] 
+            if 'energy reserve' in self:
+                newborn['energy reserve'] = newborn['energy reserve at birth'] 
             for reserve_substance in self['list of reserve substances']:
                 self[reserve_substance] -= newborn[reserve_substance]
             # Add the new organism to the ecosystem:

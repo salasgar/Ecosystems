@@ -8,11 +8,12 @@ de una sola. El propio Experiment deberá ir variando los 'outlays' hasta encont
 para los cuales se genere un ecosistema estable que sustente una abundante biodiversidad. 
 """
 
+               
 ecosystem_settings = {
     'biotope': {'size': (100, 100)},
                 
     'organisms': {
-        'number of organisms': 500,
+        'number of organisms': 200,
         'genes': {
             'age': {
                 'initial value': 0,
@@ -69,7 +70,7 @@ ecosystem_settings = {
                     'percentage variation': {'uniform': [-0.05, 0.05]},
                     'allowed interval': [0, 'infinity'] }},            
             
-            'color': (
+            'color': [
                 {'comment': 'RED component',
                 '+': (
                     20, {
@@ -104,7 +105,7 @@ ecosystem_settings = {
                               'parameter': 'mutation frequency',
                               'translation': -3.0,
                               'homothety':  3
-                    })}})})},
+                    })}})}]},
 
         'decisions': {
             'procreate?': {'and': (
@@ -165,18 +166,86 @@ ecosystem_settings = {
 }
 
 
-
+""" A VARIATION OF THE PREVIOUS EXAMPLE: """
+from Tools import *
 ecosystem_settings2 = deep_copy_of_a_dictionary(ecosystem_settings)
 ecosystem_settings2['constraints']['die?'] = {'or': (
                 {'<': ('energy reserve', 100.0)},
-                {'randbool': 0.1} )}
+                {'randbool': 0.03} )}
 ecosystem_settings2['outlays']['procreate'] = {'energy reserve': {
             '+': (
                 'energy reserve at birth',
-                {'*': ('attack capacity', 'defense capacity', 8.0)}, 
-                {'*': ('photosynthesis capacity', 1.2)}, 
+                {'*': ('attack capacity', 'defense capacity', 9.0)}, 
+                {'*': ('photosynthesis capacity', 1.0)}, 
                 {'*': ('speed', 0.1)}, 
                 200)}}
+ecosystem_settings2['organisms']['genes']['color'][2] = {'comment': 'BLUE component',
+                '+': (
+                    20, {
+                    'roundint': {
+                        '*': (
+                             200,
+                             {'function': 'sigmoid',
+                              'parameter': 'defense capacity',
+                              'translation': -5.0,
+                              'homothety':  0.5
+                    })}})}
+ecosystem_settings2[('speed',
+            'hunt radius',
+            'radius of procreation',
+            'moving frequency',
+            'attack capacity',
+            'aggressiveness',
+            'defense capacity', 
+            'photosynthesis capacity',
+            'energy storage capacity',
+            'energy reserve procreating threshold',
+            'energy reserve at birth',
+            'mutation frequency',
+            'indicator gene A',
+            'indicator gene B')] = {
+                'mutability': {
+                    'will change?': {'randbool': 'mutation frequency'},
+                    'percentage variation': {'uniform': [-0.07, 0.07]},
+                    'absolute variation': {'uniform': [-0.3, 0.3]},
+                    'allowed interval': [0, 'infinity'] }}
+ecosystem_settings2['biotope']['size'] = (200, 200)
+""" este ecosistema, cuando madura, se hace estable y biodiverso """
+
+
+ecosystem_settings3 = deep_copy_of_a_dictionary(ecosystem_settings2)
+
+ecosystem_settings3[('speed',
+            'hunt radius',
+            'radius of procreation',
+            'moving frequency',
+            'attack capacity',
+            'aggressiveness',
+            'defense capacity', 
+            'photosynthesis capacity',
+            'energy storage capacity',
+            'energy reserve procreating threshold',
+            'energy reserve at birth',
+            'mutation frequency',
+            'indicator gene A',
+            'indicator gene B')] = {
+                'mutability': {
+                    'will change?': {'randbool': 'mutation frequency'},
+                    'percentage variation': {'gauss': [0, 0.07]},
+                    'absolute variation': {'gauss': [0, 0.3]},
+                    'allowed interval': [0, 'infinity'] }}
 
 
 
+
+"""            
+            
+            ,
+            'attack?': {'number of organisms': 2,
+                '>': (
+                    {'distance': (
+                        {'predator': 'family mark'},
+                        {'prey': 'family mark'})},
+                    'consanguinity threshold')}
+                    
+"""

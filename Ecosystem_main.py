@@ -91,16 +91,18 @@ class Ecosystem(object):
     def initialize_outlays(self):
         print 'initialize_outlays'
         self.outlays = {}
-        for action in self.settings['outlays']:
-            self.outlays[action] = {}
-            for reserve_substance in self.settings['outlays'][action]:
-                self.outlays[action][reserve_substance] = make_function(self.settings['outlays'][action][reserve_substance])
+        if 'outlays' in self.settings:
+            for action in self.settings['outlays']:
+                self.outlays[action] = {}
+                for reserve_substance in self.settings['outlays'][action]:
+                    self.outlays[action][reserve_substance] = make_function(self.settings['outlays'][action][reserve_substance])
     
     def initialize_constraints(self):
         print 'initialize_constraints'
         self.constraints = {}
-        for action in self.settings['constraints']:
-            self.constraints[action] = make_function(self.settings['constraints'][action])        
+        if 'constraints' in self.settings:        
+            for action in self.settings['constraints']:
+                self.constraints[action] = make_function(self.settings['constraints'][action])        
     
     def initialize_statistics(self):
         print 'initialize_statistics'
@@ -198,7 +200,7 @@ class Ecosystem(object):
 def main():
     print " *"*30, "\nWe start NOW!"
     # create Ecosystem
-    ecosystem = Ecosystem(ecosystem_settings2)
+    ecosystem = Ecosystem(ecosystem_settings)
     
     """
     f = make_function({'and': (
@@ -219,7 +221,7 @@ def main():
     
     enable_graphics = True
     time_lapse = 1
-    make_pauses = False #not enable_graphics
+    make_pauses = not enable_graphics
     make_sleeps = False
     Total_time = 2000000
     

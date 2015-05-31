@@ -304,6 +304,7 @@ def make_function(function_settings, number_of_organisms = 1, arguments = []):
             if number_of_organisms == 2:
                 function_to_return = lambda predator, prey: predator[function_settings['predator']](predator) if is_function(predator[function_settings['predator']]) else predator[function_settings['predator']]
             else:
+                print function_settings
                 print "Error in number of organisms", 1/0
         elif 'prey' in function_settings:
             if number_of_organisms == 2:

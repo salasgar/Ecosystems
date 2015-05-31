@@ -31,15 +31,17 @@ ecosystem_settings_1 = {
             'actions list': ('move', 'hunt', 'procreate')}},
     'constraints': {
         'procreate?': {'<': (
-                    {'function': 'uniform distribution', 'interval': [0, 1]}, 
+                    {'uniform': [0, 1]}, 
                     'procreating frequency')},  
-        'kill?': {'in': (
-            {'tuple': ({'predator': 'weapon'}, {'prey': 'weapon'})},
-            {'literal': (
-                ('stone', 'scissors'),
-                ('scissors', 'paper'),
-                ('paper', 'stone') )})},
-        'die?': {'function': 'random boolean', 'probability': 0.05}
+        'can kill?': {
+            'number of organisms': 2,
+            'in': (
+                {'tuple': ({'predator': 'weapon'}, {'prey': 'weapon'})},
+                {'literal': (
+                    ('stone', 'scissors'),
+                    ('scissors', 'paper'),
+                    ('paper', 'stone') )})},
+        'die?': {'randbool': 0.05}
                 }  }
 
 # Ecosystem 2:
@@ -81,12 +83,14 @@ ecosystem_settings_2 = {
         'procreate?': {'<': (
                     {'function': 'uniform distribution', 'interval': [0, 1]}, 
                     'procreating frequency')},  
-        'kill?': {'in': (
-            {'tuple': ({'predator': 'weapon'}, {'prey': 'weapon'})},
-            {'literal': (
-                ('stone', 'scissors'),
-                ('scissors', 'paper'),
-                ('paper', 'stone') )})},
+        'can kill?': {
+            'number of organisms': 2,
+            'in': (
+                {'tuple': ({'predator': 'weapon'}, {'prey': 'weapon'})},
+                {'literal': (
+                    ('stone', 'scissors'),
+                    ('scissors', 'paper'),
+                    ('paper', 'stone') )})},
         'die?': {'function': 'random boolean', 'probability': 0.05}
                 }  }
 
@@ -175,12 +179,14 @@ ecosystem_settings_3 = {
         'procreate?': {'<': (
                     {'function': 'uniform distribution', 'interval': [0, 1]}, 
                     'procreating frequency')},  
-        'kill?': {'in': (
-            {'tuple': ({'predator': 'weapon'}, {'prey': 'weapon'})},
-            {'literal': (
-                ('stone', 'scissors'),
-                ('scissors', 'paper'),
-                ('paper', 'stone') )})},
+        'can kill?': {
+            'number of organisms': 2,
+            'in': (
+                {'tuple': ({'predator': 'weapon'}, {'prey': 'weapon'})},
+                {'literal': (
+                    ('stone', 'scissors'),
+                    ('scissors', 'paper'),
+                    ('paper', 'stone') )})},
         'die?': {'function': 'random boolean', 'probability': 0.05}
                 }  }
 
@@ -279,12 +285,14 @@ ecosystem_settings_4 = {
         'procreate?': {'<': (
                     {'function': 'uniform distribution', 'interval': [0, 1]}, 
                     'procreating frequency')},  
-        'kill?': {'in': (
-            {'tuple': ({'predator': 'weapon'}, {'prey': 'weapon'})},
-            {'literal': (
-                ('stone', 'scissors'),
-                ('scissors', 'paper'),
-                ('paper', 'stone') )})},
+        'can kill?': {
+            'number of organisms': 2,
+            'in': (
+                {'tuple': ({'predator': 'weapon'}, {'prey': 'weapon'})},
+                {'literal': (
+                    ('stone', 'scissors'),
+                    ('scissors', 'paper'),
+                    ('paper', 'stone') )})},
         'die?': {'function': 'random boolean', 'probability': 0.05}
                 }  }
 
