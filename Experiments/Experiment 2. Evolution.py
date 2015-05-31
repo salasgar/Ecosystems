@@ -136,7 +136,7 @@ ecosystem_settings = {
     'outlays': {
         'hunt': {'energy reserve': {
             '+': (
-                {'*': (0.3, 'attack capacity', 'defense capacity')}, 
+                {'*': (0.2, 'attack capacity', 'defense capacity', 'hunt radius')}, 
                 {'*': (0.2, 'speed')},
                 0.1)}},         
         'move': {'energy reserve': {
@@ -151,7 +151,7 @@ ecosystem_settings = {
                 'energy reserve at birth',
                 {'*': ('attack capacity', 'defense capacity', 8.0)}, 
                 {'*': ('photosynthesis capacity', 0.8)}, 
-                {'*': ('speed', 0.1)}, 
+                {'*': ('speed', 'radius of procreation', 10.0)}, 
                 200)}},
         'stay alive': {'energy reserve': {
             '+': (

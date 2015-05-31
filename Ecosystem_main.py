@@ -200,7 +200,7 @@ class Ecosystem(object):
 def main():
     print " *"*30, "\nWe start NOW!"
     # create Ecosystem
-    ecosystem = Ecosystem(ecosystem_settings_1)
+    ecosystem = Ecosystem(ecosystem_settings_4)
     
     """
     f = make_function({'and': (
@@ -221,7 +221,7 @@ def main():
     
     enable_graphics = True
     time_lapse = 1
-    make_pauses = not enable_graphics
+    make_pauses = True #not enable_graphics
     make_sleeps = False
     Total_time = 2000000
     

@@ -131,7 +131,7 @@ ecosystem_settings_4 = {
                             'values list': (
                                 {'value': 'stone', 'probability': 'scissors to stone probability'},                            
                                 {'value': 'paper', 'probability': 'scissors to paper probability'},                            
-                                {'value': 'scissors', 'probability': 'remain scissors probability'})} }}},                         
+                                {'value': 'scissors', 'probability': 'remain scissors probability'})} }}} }}}                        
 ecosystem_settings_4['organisms']['genes'][
             ('stone to paper probability',
             'paper to scissors probability',

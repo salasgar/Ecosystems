@@ -96,42 +96,6 @@ ecosystem_settings_3['organisms']['genes'][
 # Ecosystem 4:
 # Goal: A simple color variation of the previous ecosystem to improve the observations
 ecosystem_settings_4 = deep_copy_of_a_dictionary(ecosystem_settings_3)
-ecosystem_settings_4 = {
-    'ecosystem name': "Strength vs photosyntesis capacity",
-    'biotope': { 
-        'size': (70, 70),
-        'featuremaps': None },
-    'organisms': 
-        {'number of organisms': 500,
-        'genes': { 
-            'weapon': {
-                'initial value': {            
-                    'function': 'discrete distribution',
-                    'values list': (
-                        {'value': 'stone', 'probability': 1.0/3},                            
-                        {'value': 'paper', 'probability': 1.0/3},                            
-                        {'value': 'scissors', 'probability': 1.0/3})},
-                'mutability': {
-                    'new value': {
-                        'choice': 'weapon',
-                        'stone': {
-                            'function': 'discrete distribution',
-                            'values list': (
-                                {'value': 'stone', 'probability': 'remain stone probability'},                            
-                                {'value': 'paper', 'probability': 'stone to paper probability'},                            
-                                {'value': 'scissors', 'probability': 'stone to scissors probability'})},
-                        'paper': {
-                            'function': 'discrete distribution',
-                            'values list': (
-                                {'value': 'stone', 'probability': 'paper to stone probability'},                            
-                                {'value': 'paper', 'probability': 'remain paper probability'},                            
-                                {'value': 'scissors', 'probability': 'paper to scissors probability'})},
-                        'scissors': {
-                            'function': 'discrete distribution',
-                            'values list': (
-                                {'value': 'stone', 'probability': 'scissors to stone probability'},                            
-                                {'value': 'paper', 'probability': 'scissors to paper probability'},                            
-                                {'value': 'scissors', 'probability': 'remain scissors probability'})} }}},                         
 ecosystem_settings_4['organisms']['genes'][
             ('stone to paper probability',
             'paper to scissors probability',
