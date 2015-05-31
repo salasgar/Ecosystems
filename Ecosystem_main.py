@@ -200,7 +200,7 @@ class Ecosystem(object):
 def main():
     print " *"*30, "\nWe start NOW!"
     # create Ecosystem
-    ecosystem = Ecosystem(ecosystem_settings)
+    ecosystem = Ecosystem(ecosystem_settings_1)
     
     """
     f = make_function({'and': (

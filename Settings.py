@@ -1,251 +1,183 @@
+# EXPERIMENT 1. STONE, PAPER, SCISSORS
 
-"""      EXPERIMENT 2      """
-"""
+# Ecosystem 1:
+# Goal: Adjust 'speed', 'hunt radius' and 'radius of procreation'
+#       to get a stable ecosystem, in which the 3 species survive
+ecosystem_settings_1 = {
+    'ecosystem name': "Stone, scissors, paper",
+    'biotope': { 
+        'size': (70, 70),
+        'featuremaps': None },
+    'organisms': 
+        {'number of organisms': 500,
+        'genes': { 
+            'weapon': {
+                'initial value': {            
+                    'function': 'discrete distribution',
+                    'values list': (
+                        {'value': 'stone', 'probability': 1.0/3},                            
+                        {'value': 'paper', 'probability': 1.0/3},                            
+                        {'value': 'scissors', 'probability': 1.0/3})}
+                    },
+            'color': {
+                'choice': 'weapon',
+                'stone': {'literal': (150, 20, 10)}, # brown
+                'paper': {'literal': (200, 200, 200)}, # dark white
+                'scissors': {'literal': (100, 100, 200)} }, # pale blue
+            'procreating frequency': 0.1,
+            'speed': 1.1,
+            'hunt radius' : 1.1,
+            'radius of procreation': 4.1,
+            'actions sequence': ('move', 'hunt', 'procreate')}},
+    'constraints': {
+        'procreate?': {'randbool': 'procreating frequency'},  
+        'can kill?': {
+            'number of organisms': 2,
+            'in': (
+                {'tuple': ({'predator': 'weapon'}, {'prey': 'weapon'})},
+                {'literal': (
+                    ('stone', 'scissors'),
+                    ('scissors', 'paper'),
+                    ('paper', 'stone') )})},
+        'die?': {'randbool': 0.05}
+                }  }
 
-    En este experimento se dejara "rienda suelta" a la seleccion natural para que ella misma
-configure las caracteristicas de las distintas especies del ecosistema, que derivaran todas ellas
-de una sola. El propio Experiment debera ir variando los 'outlays' hasta encontrar unos valores 
-para los cuales se genere un ecosistema estable que sustente una abundante biodiversidad. 
-"""
-
-               
-ecosystem_settings = {
-    'biotope': {'size': (170, 170)},
-                
-    'organisms': {
-        'number of organisms': 500,
-        'genes': {
-            'age': {
-                'initial value': 0,
-                'variability': {'new value': {'+': ('age', 1)}},
-                'mutability': {'new value': 0} },
-            'photosynthesis capacity': {'initial value': {'uniform': [0, 3000]}},
-            'energy storage capacity': {'initial value': {'uniform': [0, 20000]}},
-            'energy reserve procreating threshold': {'initial value': {'uniform': [0, 3000]}},
-            'energy reserve at birth': {'initial value': {'uniform': [0, 1000]}},
-            'speed': {'initial value': {'uniform': [0, 4]}},
-            'hunt radius': 1.1,
-            'radius of procreation': 1.5,
-            'attack capacity': {'initial value': {'uniform': [0, 20]}},
-            'defense capacity': {'initial value': {'uniform': [0, 20]}},
-            'aggressiveness': {'initial value': {'uniform': [0, 1]}},
-            'indicator gene A': 1.0,
-            'indicator gene B': 1.0,
-            'energy reserve': {
-                'initial value': 10000.0,
-                'variability': {
-                    'new value': {'+': ('energy reserve', 'photosynthesis capacity')},
-                    'allowed interval': [0, 'energy storage capacity']
-                    }},
-            'mutation frequency': {'initial value': {'uniform': [0, 1]}},
-            'moving frequency': {'initial value': {'uniform': [0, 1]}},
-            'procreating frequency': {'initial value': {'uniform': [0, 1]}},
-            'actions sequence': {
-                'initial value': [
-                    'move',
-                    'hunt',
-                    'do internal changes',
-                    'stay alive',
-                    'procreate'],
+# Ecosystem 2:
+# Goal: Evaluate the optimal speed for a species to survive in this ecosystem.
+#       The optimal speed (if it exist) will be determined by natural selection
+from Tools import deep_copy_of_a_dictionary
+ecosystem_settings_2 = deep_copy_of_a_dictionary(ecosystem_settings_1)
+ecosystem_settings_2['organisms']['genes']['speed'] ={
+                'initial value': 0.8,
                 'mutability': {
-                    'will change?': {'randbool': 'mutate frequency'},
-                    'new value': {'shuffle': 'actions sequence'}                
-                    }},
-            ('speed',
-            'hunt radius',
-            'radius of procreation',
-            'moving frequency',
-            'attack capacity',
-            'aggressiveness',
-            'defense capacity', 
-            'photosynthesis capacity',
-            'energy storage capacity',
-            'energy reserve procreating threshold',
-            'energy reserve at birth',
-            'mutation frequency',
-            'indicator gene A',
-            'indicator gene B'): {
+                    'will change?': {'randbool': 0.1},
+                    'percentage variation': {'gauss': (0, 0.08)} }}
+
+# Ecosystem 3:
+# Goal: Determine by natural selection weather mutating is good for survival or not. 
+ecosystem_settings_3 = deep_copy_of_a_dictionary(ecosystem_settings_2)
+ecosystem_settings_3['organisms']['genes']['weapon']['mutability'] = {
+                    'new value': {
+                        'choice': 'weapon',
+                        'stone': {
+                            'function': 'discrete distribution',
+                            'values list': (
+                                {'value': 'stone', 'probability': 'remain stone probability'},                            
+                                {'value': 'paper', 'probability': 'stone to paper probability'},                            
+                                {'value': 'scissors', 'probability': 'stone to scissors probability'})},
+                        'paper': {
+                            'function': 'discrete distribution',
+                            'values list': (
+                                {'value': 'stone', 'probability': 'paper to stone probability'},                            
+                                {'value': 'paper', 'probability': 'remain paper probability'},                            
+                                {'value': 'scissors', 'probability': 'paper to scissors probability'})},
+                        'scissors': {
+                            'function': 'discrete distribution',
+                            'values list': (
+                                {'value': 'stone', 'probability': 'scissors to stone probability'},                            
+                                {'value': 'paper', 'probability': 'scissors to paper probability'},                            
+                                {'value': 'scissors', 'probability': 'remain scissors probability'})} }}                       
+ecosystem_settings_3['organisms']['genes'][
+            ('stone to paper probability',
+            'paper to scissors probability',
+            'scissors to stone probability',
+            'stone to scissors probability',
+            'scissors to paper probability',
+            'paper to stone probability')] = {
+                'initial value': 0.01,
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}}
+ecosystem_settings_3['organisms']['genes'][                
+            ('remain stone probability',
+            'remain paper probability',
+            'remain scissors probability')] = {
+                'initial value': 0.98,
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}}}
+
+# Ecosystem 4:
+# Goal: A simple color variation of the previous ecosystem to improve the observations
+ecosystem_settings_4 = deep_copy_of_a_dictionary(ecosystem_settings_3)
+ecosystem_settings_4 = {
+    'ecosystem name': "Strength vs photosyntesis capacity",
+    'biotope': { 
+        'size': (70, 70),
+        'featuremaps': None },
+    'organisms': 
+        {'number of organisms': 500,
+        'genes': { 
+            'weapon': {
+                'initial value': {            
+                    'function': 'discrete distribution',
+                    'values list': (
+                        {'value': 'stone', 'probability': 1.0/3},                            
+                        {'value': 'paper', 'probability': 1.0/3},                            
+                        {'value': 'scissors', 'probability': 1.0/3})},
                 'mutability': {
-                    'will change?': {'randbool': 'mutation frequency'},
-                    'percentage variation': {'uniform': [-0.05, 0.05]},
-                    'allowed interval': [0, 'infinity'] }},            
-            
-            'color': [
-                {'comment': 'RED component',
-                '+': (
-                    20, {
-                    'roundint': {
-                        '*': (
-                            200,
-                            {'function': 'sigmoid',
-                             'parameter': 'attack capacity',
-                             'translation': -5.0,
-                             'homothety':  0.5
-                    })}})},
-
-                {'comment': 'GREEN component',
-                '+': (
-                    20, {
-                    'roundint': {
-                         '*': (
-                             200,
-                             {'function': 'sigmoid',
-                              'parameter': 'photosynthesis capacity',
-                              'translation': -5.0,
-                              'homothety':  0.005
-                    })}})},
-
-                {'comment': 'BLUE component',
-                '+': (
-                    20, {
-                    'roundint': {
-                        '*': (
-                             200,
-                             {'function': 'sigmoid',
-                              'parameter': 'mutation frequency',
-                              'translation': -3.0,
-                              'homothety':  3
-                    })}})}]},
-
-        'decisions': {
-            'procreate?': {'and': (
-                    {'>': ('energy reserve', 'energy reserve procreating threshold')}, 
-                    {'randbool': 'procreating frequency'})},
-            'move?': {'randbool': 'moving frequency'},
-            'hunt?': {'randbool': 'aggressiveness'}
-            
-                
-            }},
-
-     'constraints': {
-        'can kill?': {'number of organisms': 2,
-                '>': (
-                    {'predator': 'attack capacity'}, 
-                    {'prey': 'defense capacity'} )},         
-        'die?': {'or': (
-                {'<': ('energy reserve', 100.0)},
-                {'randbool': 0.0005} )},
-        'procreate?': {'>': (
-                'energy reserve',
-                {'+': (
-                    'energy reserve at birth',
-                    {'outlay': 'procreate'},
-                    {'outlay': 'stay alive'}                    
-                    )})}},
-            
-    'outlays': {
-        'hunt': {'energy reserve': {
-            '+': (
-                {'*': (0.3, 'attack capacity', 'defense capacity')}, 
-                {'*': (0.2, 'speed')},
-                0.1)}},         
-        'move': {'energy reserve': {
-            '+': (
-                {'*': ('photosynthesis capacity', 'defense capacity', 0.005)}, 
-                {'*': ('speed', 0.8)}, 
-                {'*': ('energy reserve', 0.005)},
-                {'*': ('energy storage capacity', 0.002)}, 
-                0.1)}},
-        'procreate': {'energy reserve': {
-            '+': (
-                'energy reserve at birth',
-                {'*': ('attack capacity', 'defense capacity', 8.0)}, 
-                {'*': ('photosynthesis capacity', 0.8)}, 
-                {'*': ('speed', 0.1)}, 
-                200)}},
-        'stay alive': {'energy reserve': {
-            '+': (
-                {'*': ('attack capacity', 0.1)}, 
-                {'*': ('attack capacity', 'photosynthesis capacity', 0.003)}, 
-                {'*': ('defense capacity', 'photosynthesis capacity', 0.03)}, 
-                {'*': ('photosynthesis capacity', 'photosynthesis capacity', 0.0004)},
-                {'*': ('energy storage capacity', 0.005)}, 
-                {'*': ('energy reserve', 0.05)},
-                {'*': ('speed', 0.2)}, 
-                100)}}}       
-}
-
-
-""" A VARIATION OF THE PREVIOUS EXAMPLE: """
-from Tools import *
-ecosystem_settings2 = deep_copy_of_a_dictionary(ecosystem_settings)
-ecosystem_settings2['constraints']['die?'] = {'or': (
-                {'<': ('energy reserve', 100.0)},
-                {'randbool': 0.03} )}
-ecosystem_settings2['outlays']['procreate'] = {'energy reserve': {
-            '+': (
-                'energy reserve at birth',
-                {'*': ('attack capacity', 'defense capacity', 9.0)}, 
-                {'*': ('photosynthesis capacity', 1.0)}, 
-                {'*': ('speed', 0.1)}, 
-                200)}}
-ecosystem_settings2['organisms']['genes']['color'][2] = {'comment': 'BLUE component',
-                '+': (
-                    20, {
-                    'roundint': {
-                        '*': (
-                             200,
-                             {'function': 'sigmoid',
-                              'parameter': 'defense capacity',
-                              'translation': -5.0,
-                              'homothety':  0.5
-                    })}})}
-ecosystem_settings2[('speed',
-            'hunt radius',
-            'radius of procreation',
-            'moving frequency',
-            'attack capacity',
-            'aggressiveness',
-            'defense capacity', 
-            'photosynthesis capacity',
-            'energy storage capacity',
-            'energy reserve procreating threshold',
-            'energy reserve at birth',
-            'mutation frequency',
-            'indicator gene A',
-            'indicator gene B')] = {
+                    'new value': {
+                        'choice': 'weapon',
+                        'stone': {
+                            'function': 'discrete distribution',
+                            'values list': (
+                                {'value': 'stone', 'probability': 'remain stone probability'},                            
+                                {'value': 'paper', 'probability': 'stone to paper probability'},                            
+                                {'value': 'scissors', 'probability': 'stone to scissors probability'})},
+                        'paper': {
+                            'function': 'discrete distribution',
+                            'values list': (
+                                {'value': 'stone', 'probability': 'paper to stone probability'},                            
+                                {'value': 'paper', 'probability': 'remain paper probability'},                            
+                                {'value': 'scissors', 'probability': 'paper to scissors probability'})},
+                        'scissors': {
+                            'function': 'discrete distribution',
+                            'values list': (
+                                {'value': 'stone', 'probability': 'scissors to stone probability'},                            
+                                {'value': 'paper', 'probability': 'scissors to paper probability'},                            
+                                {'value': 'scissors', 'probability': 'remain scissors probability'})} }}},                         
+ecosystem_settings_4['organisms']['genes'][
+            ('stone to paper probability',
+            'paper to scissors probability',
+            'scissors to stone probability',
+            'stone to scissors probability',
+            'scissors to paper probability',
+            'paper to stone probability')] = {
+                'initial value': {'uniform': [0, 1]},
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}, 'allowed interval': [0, 1]}}
+ecosystem_settings_4['organisms']['genes'][                
+            ('remain stone probability',
+            'remain paper probability',
+            'remain scissors probability')] = {
+                'initial value': {'uniform': [0, 1]},
+                'mutability': {'percentage variation': {'gauss': (0, 0.08)}, 'allowed interval': [0, 1]}}
+ecosystem_settings_4['organisms']['genes']['color'] = {
+                'choice': 'weapon',
+                'stone': {'tuple': (
+                    {'+': (20, {'*': (200, 'stone to paper probability')})}, 
+                    {'+': (20, {'*': (200, 'stone to scissors probability')})}, 
+                    {'+': (20, {'*': (200, 'remain stone probability')})})}, 
+                'paper': {'tuple': (
+                    {'+': (20, {'*': (200, 'paper to scissors probability')})}, 
+                    {'+': (20, {'*': (200, 'paper to stone probability')})}, 
+                    {'+': (20, {'*': (200, 'remain paper probability')})})}, 
+                'scissors': {'tuple': (
+                    {'+': (20, {'*': (200, 'scissors to stone probability')})}, 
+                    {'+': (20, {'*': (200, 'scissors to paper probability')})}, 
+                    {'+': (20, {'*': (200, 'remain scissors probability')})})}}
+ecosystem_settings_4['organisms']['genes']['speed'] = {
+                'initial value': {'uniform': [0, 10]},
                 'mutability': {
-                    'will change?': {'randbool': 'mutation frequency'},
-                    'percentage variation': {'uniform': [-0.07, 0.07]},
-                    'absolute variation': {'uniform': [-0.3, 0.3]},
-                    'allowed interval': [0, 'infinity'] }}
-ecosystem_settings2['biotope']['size'] = (200, 200)
-""" este ecosistema, cuando madura, se hace estable y biodiverso """
-
-
-ecosystem_settings3 = deep_copy_of_a_dictionary(ecosystem_settings2)
-
-ecosystem_settings3[('speed',
-            'hunt radius',
-            'radius of procreation',
-            'moving frequency',
-            'attack capacity',
-            'aggressiveness',
-            'defense capacity', 
-            'photosynthesis capacity',
-            'energy storage capacity',
-            'energy reserve procreating threshold',
-            'energy reserve at birth',
-            'mutation frequency',
-            'indicator gene A',
-            'indicator gene B')] = {
-                'mutability': {
-                    'will change?': {'randbool': 'mutation frequency'},
-                    'percentage variation': {'gauss': [0, 0.07]},
-                    'absolute variation': {'gauss': [0, 0.3]},
-                    'allowed interval': [0, 'infinity'] }}
+                    'will change?': {'randbool': 0.1},
+                    'percentage variation': {'gauss': (0, 0.08)},
+                    'allowed interval': [0, 10]}}
 
 
 
 
-"""            
-            
-            ,
-            'attack?': {'number of organisms': 2,
-                '>': (
-                    {'distance': (
-                        {'predator': 'family mark'},
-                        {'prey': 'family mark'})},
-                    'consanguinity threshold')}
-                    
-"""
+
+
+
+
+
+
+
+
+
+

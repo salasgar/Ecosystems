@@ -124,7 +124,7 @@ ecosystem_settings = {
                     {'prey': 'defense capacity'} )},         
         'die?': {'or': (
                 {'<': ('energy reserve', 100.0)},
-                {'randbool': 0.01} )},
+                {'randbool': 0.0005} )},
         'procreate?': {'>': (
                 'energy reserve',
                 {'+': (
