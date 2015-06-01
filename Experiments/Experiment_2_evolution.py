@@ -9,6 +9,41 @@ para los cuales se genere un ecosistema estable que sustente una abundante biodi
 """
 
                
+
+
+COMENTARIO PARA EMILIO:
+
+Sólo una cosa más para cuando leas este ecosystem_settings:
+
+Con el programa tal y como lo tenemos ahora, un usuario podría poner, por ejemplo, 
+lo siguiente (aunque no sería muy recomendable):
+    ('gen A', 'gen B'): {'initial value': 8},
+    ('gen B', 'gen C'): {'mutability': {'new value': 0}},
+    'gen C': 14
+y significaría que les ha dado un valor inicial a 'gen A' y 'gen B',
+ha definido una mutabilidad para 'gen B' y 'gen C' y un valor inicial para gen C.
+Es decir, que un mismo gen puede aparecer varias veces en la definición y se
+van agregando cosas a su definición. Hacerlo así es una guarrada. Pero eso DEPENDE 
+DEL USUARIO, que sea un guarro o no. Es decir, en este ejemplo lo mejor que podría 
+haber hecho el usuario es definirlo así, que también lo entendería nuestro programa 
+ahora mismo:
+    'gen A': 8,
+    'gen B': {
+        'initial value': 8,
+        'mutability': {'new value': 0}
+        },
+    'gen C': {
+        'initial value': 14,
+        'mutability': {'new value': 0} 
+        }
+Lo de agrupar genes para definirlos todos a la vez solo es para evitar redundancias.
+Si al usuario no le gusta hacer eso, pues que no lo haga. Siempre puede hacer "copy-paste"
+y repetir un montón de veces la misma mutabilidad para un montón de genes.
+
+Intenta crear un ecosystem_settigs que haga exactamente lo mismo que el siguiente
+pero que tenga una sintaxis que consideres más clara:
+
+
 ecosystem_settings = {
     'biotope': {'size': (100, 100)},
                 
@@ -18,13 +53,15 @@ ecosystem_settings = {
             'age': {
                 'initial value': 0,
                 'variability': {'new value': {'+': ('age', 1)}},
-                'mutability': {'new value': 0} },
+                'mutability': {
+                    '&will mutate?': {'>': ('age', 1000)},
+                    'new value': 0} },
             'photosynthesis capacity': {'initial value': {'uniform': [0, 3000]}},
             'energy storage capacity': {'initial value': {'uniform': [0, 20000]}},
             'energy reserve procreating threshold': {'initial value': {'uniform': [0, 3000]}},
             'energy reserve at birth': {'initial value': {'uniform': [0, 1000]}},
             'speed': {'initial value': {'uniform': [0, 4]}},
-            'hunt radius': 1.1,
+            'hunt radius': {'new value': 1.1},
             'radius of procreation': 1.5,
             'attack capacity': {'initial value': {'uniform': [0, 20]}},
             'defense capacity': {'initial value': {'uniform': [0, 20]}},
@@ -34,13 +71,14 @@ ecosystem_settings = {
             'energy reserve': {
                 'initial value': 10000.0,
                 'variability': {
-                    'new value': {'+': ('energy reserve', 'photosynthesis capacity')},
+                    'new value': {'+': ('energy reserve',
+                                        'photosynthesis capacity')},
                     'allowed interval': [0, 'energy storage capacity']
                     }},
             'mutation frequency': {'initial value': {'uniform': [0, 1]}},
             'moving frequency': {'initial value': {'uniform': [0, 1]}},
             'procreating frequency': {'initial value': {'uniform': [0, 1]}},
-            'actions sequence': {
+            '&actions sequence': {
                 'initial value': [
                     'move',
                     'hunt',
@@ -49,7 +87,7 @@ ecosystem_settings = {
                     'procreate'],
                 'mutability': {
                     'will change?': {'randbool': 'mutate frequency'},
-                    'new value': {'shuffle': 'actions sequence'}                
+                    'new value': {'shuffle': 'actions sequence'}               
                     }},
             ('speed',
             'hunt radius',
