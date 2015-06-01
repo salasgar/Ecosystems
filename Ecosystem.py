@@ -4,32 +4,22 @@ from Biotope import Biotope
 from Settings import *
 from Organism import *
 from time import *
+import logging
 
-# from time import sleep  # To remove
-# import Biotope
-# import Organism
-
-things_to_see = {
-    "https://www.coursera.org/course/ml",
-    ""
-}
 
 DEFAULT_SETTINGS = {}
 
-    
-class Ecosystem(object):
-    """ Attributes:
-    self.biotope
-    self.organisms_list
-    self.newborns    
-    self.outlays
-    self.constraints
-    """
+logger = logging.getLogger('ecosystems')
 
-    def __init__(self, ecosystem_settings, default_settings = DEFAULT_SETTINGS):
+class Ecosystem(object):
+
+    def __init__(self,
+                 ecosystem_settings,
+                 default_settings = DEFAULT_SETTINGS):
+        # Parse experiment settings
         self.load_settings(ecosystem_settings, default_settings)
         self.initialize_biotope()
-        self.initialize_outlays()
+        self.initialize_costs()
         self.initialize_constraints()
         self.newborns = []
         self.new_deads = []
@@ -44,10 +34,9 @@ class Ecosystem(object):
     def load_settings(self, ecosystem_settings, default_settings):
         print 'load_settings'
         if 'ecosystem' in default_settings:            
-            merge_dictionaries(
-                dictionary_to_be_completed = ecosystem_settings,
-                dictionary_to_complete_with = default_settings['ecosystem'])
-        if is_dictionary(ecosystem_settings['organisms']):
+            ecosystem_settings = merge_dicts(ecosystem_settings,
+                                             default_settings['ecosystem'])
+        if is_dict(ecosystem_settings['organisms']):
             ecosystem_settings['organisms'] = [ecosystem_settings['organisms']]
         for category in ecosystem_settings['organisms']:
             if not 'number of organisms' in category:
@@ -82,20 +71,21 @@ class Ecosystem(object):
             if ('hunt' in category['genes']['actions sequence']) and not ('hunt radius' in extract_genes_names(category['genes'])):
                 category['genes']['hunt radius'] = 1.5
         self.settings = ecosystem_settings  
-        #print_dictionary( self.settings     )         
+        print_dictionary( self.settings     )         
 
     def initialize_biotope(self):
         print 'initialize_biotope'
-        self.biotope = Biotope(settings = self.settings['biotope'], parent_ecosystem = self)
+        self.biotope = Biotope(settings = self.settings['biotope'],
+                               parent_ecosystem = self)
                 
-    def initialize_outlays(self):
-        print 'initialize_outlays'
-        self.outlays = {}
-        if 'outlays' in self.settings:
-            for action in self.settings['outlays']:
-                self.outlays[action] = {}
-                for reserve_substance in self.settings['outlays'][action]:
-                    self.outlays[action][reserve_substance] = make_function(self.settings['outlays'][action][reserve_substance])
+    def initialize_costs(self):
+        print 'initialize_costs'
+        self.costs = {}
+        if 'costs' in self.settings:
+            for action in self.settings['costs']:
+                self.costs[action] = {}
+                for reserve_substance in self.settings['costs'][action]:
+                    self.costs[action][reserve_substance] = make_function(self.settings['costs'][action][reserve_substance])
     
     def initialize_constraints(self):
         print 'initialize_constraints'
@@ -196,101 +186,3 @@ class Ecosystem(object):
             if item in organism and organism[item] == value:
                 N += 1
         return N
-
-def main():
-    print " *"*30, "\nWe start NOW!"
-    # create Ecosystem
-    ecosystem = Ecosystem(ecosystem_settings_4)
-    
-    """
-    f = make_function({'and': (
-                    {'>': ('energy reserve', 'energy reserve procreating threshold')}, 
-                    {'randbool': 'procreating frequency'})})
-    for organism in ecosystem.organisms_list:
-        p = organism['procreate?'](organism)
-        if p:
-            print organism['energy reserve']
-            print organism['energy reserve procreating threshold']
-            print f(organism)
-            print organism['procreate?'](organism)
-            print p
-        
-    #return 0
-    
-    """
-    
-    enable_graphics = True
-    time_lapse = 1
-    make_pauses = True #not enable_graphics
-    make_sleeps = False
-    Total_time = 2000000
-    
-    """
-    for i in range(Total_time):
-        for organism in ecosystem.organisms_list:
-            print "*"*10
-            print "age {0}, energy reserve {1}, location {2}".format(organism['age'], organism['energy reserve'], organism['location'])
-            for action in organism['actions sequence']:
-                decision = action + '?'
-                if decision in organism:
-                    print decision, 
-                    if organism[decision](organism):
-                        print True, actions_dictionary[action](organism)
-                    else:
-                        print False
-                else:
-                    print action, actions_dictionary[action](organism)
-            if ecosystem.constraints['die?'](organism):
-                print 'die'
-                print 'energy reserve', organism['energy reserve']
-            else:
-                print "doesn't die", organism['energy reserve']
-            if raw_input('Exit? ').upper() == 'Y':
-                break
-        ecosystem.organisms_list += ecosystem.newborns
-        ecosystem.newborns = []
-        for organism in ecosystem.organisms_list:
-            print organism['age'],
-        print "\nnumber of organisms: {0}, newborns: {1}, new_deads: {2}".format(len(ecosystem.organisms_list), len(ecosystem.newborns), len(ecosystem.new_deads))
-        if raw_input('Exit? ').upper() == 'Y':
-            break
-        
-        
-    return 0
-    
-    """
-    
-    
-    if enable_graphics:
-        gui = GUI(ecosystem)
-    # Loop
-    time = 0
-    user_input = 'N'
-    while (len(ecosystem.organisms_list) > 0) and (time < Total_time) and (user_input != 'Y') and (user_input != 'y'):
-        if time % time_lapse == 0:
-            print ("time =", time, "Num of organisms =",
-                   len(ecosystem.organisms_list))
-            if print_ages:
-                print [organism['age'] for organism in ecosystem.organisms_list]
-            if print_organisms:
-                for organism in ecosystem.organisms_list:  
-                    #print organism['age'], round(organism['energy reserve'], 2), organism['color'](organism)
-                    print organism.__str__(list_of_attributes = ('age', 'energy reserve', 'color'))
-                    #if organism['age'] > 100:
-                    #    print ecosystem.constraints['die?'](organism)
-            #print ecosystem.count('category', 'plant'), 'plants and', ecosystem.count('category', 'animal'), 'animals'
-            if make_pauses:
-                user_input = raw_input('exit? [Y/N]: ')                    
-        if (user_input != 'y') and (user_input != 'Y'):
-            ecosystem.evolve()
-        if enable_graphics:
-            gui.handle_events()
-            gui.draw_ecosystem()
-        if make_sleeps:
-            sleep(1.0)  # To remove
-        time += 1
-    if enable_graphics:
-        gui.delete()
-                    
-if __name__ == '__main__':
-    main()

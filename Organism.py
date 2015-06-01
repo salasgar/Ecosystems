@@ -140,16 +140,16 @@ class Organism(dict):
             #print "dying alone", self.__str__(list_of_attributes = ('category', 'age', 'energy reserve'))
             self.die('natural cause')
                        
-    def subtract_outlays(self, action, factor = 1):
+    def subtract_costs(self, action, factor = 1):
         if print_methods_names:
-            print 'subtract_outlays', action
-        if action in self.parent_ecosystem.outlays:
-            for reserve_substance in self.parent_ecosystem.outlays[action]:                       
+            print 'subtract_costs', action
+        if action in self.parent_ecosystem.costs:
+            for reserve_substance in self.parent_ecosystem.costs[action]:                       
                 if reserve_substance in self:
-                    if print_outlays:
+                    if print_costs:
                         print action + " - " + self.__str__(0, ('category', 'age', 'energy reserve')), 
-                    self[reserve_substance] = max(0, self[reserve_substance] - factor * self.parent_ecosystem.outlays[action][reserve_substance](self)  )                  
-                    if print_outlays:
+                    self[reserve_substance] = max(0, self[reserve_substance] - factor * self.parent_ecosystem.costs[action][reserve_substance](self)  )                  
+                    if print_costs:
                         print "--> " + self.__str__(0, 'energy reserve')
 
     def interchange_substances_with_the_biotope(self):
@@ -194,10 +194,10 @@ class Organism(dict):
         """
         if 'energy reserve' in self:
             energy_reserve = self['energy reserve']
-            self.subtract_outlays('stay alive', factor = 1)  
+            self.subtract_costs('stay alive', factor = 1)  
             return 'energy reserve: {0} - {1} = {2}'.format(energy_reserve, energy_reserve - self['energy reserve'], self['energy reserve'])          
         else:
-            self.subtract_outlays('stay alive', factor = 1)          
+            self.subtract_costs('stay alive', factor = 1)          
         
     def move(self):
         if print_methods_names:
@@ -216,8 +216,8 @@ class Organism(dict):
             self['location'] = new_location
             # 4. Update biotope (organisms matrix):
             self.parent_ecosystem.biotope.move_organism(old_location, new_location)
-            # 5. The outlays are proportional to the distance we have jump:                    
-            self.subtract_outlays('move', factor = self.parent_ecosystem.biotope.distance(old_location, new_location))
+            # 5. The costs are proportional to the distance we have jump:                    
+            self.subtract_costs('move', factor = self.parent_ecosystem.biotope.distance(old_location, new_location))
             return 'moved to', new_location
         return "It didn't move"
                         
@@ -257,8 +257,8 @@ class Organism(dict):
                     self['location'] = new_location
                     # 6. Update biotope (organisms matrix):
                     self.parent_ecosystem.biotope.move_organism(old_location, new_location)
-                    # 7. The outlays are proportional to the distance we have jump:                    
-                    self.subtract_outlays('move', factor = self.parent_ecosystem.biotope.distance(old_location, new_location))
+                    # 7. The costs are proportional to the distance we have jump:                    
+                    self.subtract_costs('move', factor = self.parent_ecosystem.biotope.distance(old_location, new_location))
 
     def eat(self, prey):
         if print_methods_names:
@@ -271,7 +271,7 @@ class Organism(dict):
                 if storage_capacity in self:
                     self[reserve_substance] = min(self[reserve_substance], self[storage_capacity])
                 #print self['energy reserve']
-        self.subtract_outlays('eat')
+        self.subtract_costs('eat')
                 
     def hunt(self):
         if print_methods_names:
@@ -300,7 +300,7 @@ class Organism(dict):
                 self.eat(prey)
                 prey.die('killed by a predator')  
                 result = 'successful hunt'
-            self.subtract_outlays('hunt', factor = self.parent_ecosystem.biotope.distance(self['location'], prey_location))        
+            self.subtract_costs('hunt', factor = self.parent_ecosystem.biotope.distance(self['location'], prey_location))        
         return result
             
     def do_photosynthesis(self):
@@ -444,7 +444,7 @@ class Organism(dict):
                 self[reserve_substance] -= newborn[reserve_substance]
             # Add the new organism to the ecosystem:
             self.parent_ecosystem.add_organism(newborn)
-            self.subtract_outlays('procreate', self.parent_ecosystem.biotope.distance(self['location'], new_location))
+            self.subtract_costs('procreate', self.parent_ecosystem.biotope.distance(self['location'], new_location))
             procreated = True
             if print_births:                
                 #print 'SELF:'
