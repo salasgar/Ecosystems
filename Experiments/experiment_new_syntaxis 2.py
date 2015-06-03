@@ -2,11 +2,11 @@ biotope = {
     # Mandatory atributes
     'help': 
         """
-            The "location" of an organism is a word of at most 10 letters. The 'distance'
+            The "location" of an organism is a word of 10 letters. The 'distance'
             between two organisms (or, more precisely, the inverse of the distance) is the
             maximum length of a common substring. For example, de distance (can we call it 
             "closeness"?) between 'abcd_ABCD7' and 'bcw5cd_Ab0' is 4 because both strings
-            have de substring 'cd_A', that has 4 caracters.
+            have the substring 'cd_A', that has 4 caracters.
             Two organisms can't have the same "location".
         """
     'space': {'words of length': 10,
