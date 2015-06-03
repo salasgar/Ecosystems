@@ -35,7 +35,9 @@ gene_age_category_a = {
             # Condition:
             {'>': ('age', 1000)},
             # Then:
-            0)  
+            0,
+            # Else:
+            'age')  
     },
     'allowed interval': [0, 'inf']
 }
@@ -44,6 +46,19 @@ organisms_category_a = {
     # Define initial number of organisms:
     'initial number of organisms': 200,
     'genes': {
+        'species': {
+            'initial value': {'random integer': [0, 9999]},
+            'value after mutation': {
+                'if': (
+                    # Condition:
+                    {'random true': 0.00001},
+                    # Value if condition == True:
+                    {'random integer': [0, 9999]},
+                    # Value if condition == False:
+                    'species'
+                    )
+            }
+        }
         'age': gene_age_category_a,
         'photosynthesis capacity': {
             'help':
@@ -193,6 +208,9 @@ decisions = {
     }
     'decide hunt': {
         'random true': 'aggressiveness'
+    }
+    'decide attack': {
+        '!=': ({'predator': 'species'}, {'prey': 'species'})
     }
 }
 
