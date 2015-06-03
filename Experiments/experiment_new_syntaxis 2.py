@@ -9,9 +9,11 @@ biotope = {
             have the substring 'cd_A', that has 4 caracters.
             Two organisms can't have the same "location".
         """
-    'space': {'words of length': 10,
-              'alphabet': 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_',
-              'closeness': maximum_length_of_a_common_substring}
+    'space': {
+        'location type': 'strings[10]',
+        'length of strings': 10,
+        'alphabet': 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_',
+        'closeness': maximum_length_of_a_common_substring }
 
 }
 
