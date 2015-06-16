@@ -349,8 +349,8 @@ def make_function(function_settings, number_of_organisms=1, arguments=[]):
                     'literal']
         elif 'value, not function' in function_settings:
             return function_settings['value, not function']
-        for operator in Binary_operators_dictionary:
-            if operator in function_settings:
+        for operator in function_settings:
+            if operator in Binary_operators_dictionary:
                 terms = [make_function(item, number_of_organisms)
                          for item in function_settings[operator]]
                 main_operation = Binary_operators_dictionary[operator]
@@ -364,8 +364,7 @@ def make_function(function_settings, number_of_organisms=1, arguments=[]):
                     function_to_return = lambda predator, prey: reduce(
                         main_operation, [term(predator, prey) for term in terms[1:]], terms[0](predator, prey))
                 break  # please, don't remove this line. It's vital!!!
-        for operator in Unary_operators_dictionary:
-            if operator in function_settings:
+            if operator in Unary_operators_dictionary:
                 argument = make_function(
                     function_settings[operator], number_of_organisms)
                 main_operation = Unary_operators_dictionary[operator]
