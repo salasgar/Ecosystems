@@ -7,12 +7,18 @@ from matplotlib.figure import Figure
 
 class SubWindow:
 
-    def minimize_window_size(self, new_x, new_y):
-        self.frame.place_configure(x=new_x, y=new_y, width=100, height=25)
+    def minimize_window_size(self):
+        minimized_width = 100
+        minimized_height = 25
+        self.frame.place_configure(x=self.minimized_x,
+                                   y=self.minimized_y,
+                                   width=self.minimized_width,
+                                   height=self.minimized_height)
         self.is_minimized = True
 
     def restore_window_size(self):
-        self.frame.place_configure(x=self.x, y=self.y, width=self.width, height=self.height)
+        self.frame.place_configure(x=self.x, y=self.y,
+                                   width=self.width, height=self.height)
         self.is_minimized = False
 
     def cursor_is_in_border(self, x_root, y_root):
@@ -130,6 +136,11 @@ class SubWindow:
         self.widgets.append(self.label)
         self.widgets.append(self.canvas.get_tk_widget())
 
+        self.minimized_x = -1  # To be assigned by root
+        self.minimized_y = -1
+        self.minimized_width = -1
+        self.minimized_height = -1
+
         self.flag_moving = False
         self.flag_resizing = ''
         self.has_focus = True
@@ -138,6 +149,18 @@ class SubWindow:
 
 
 class MainWindow:
+
+    def update_minimized_positions(self):
+        minimized_width = 100
+        minimized_height = 25
+        starting_x = 25
+        x_gap = 150
+        starting_y = self.root.winfo_height() - minimized_height
+        for i, subwindow in enumerate(self.subwindows):
+            subwindow.minimized_y = starting_y
+            subwindow.minimized_x = starting_x + i * x_gap
+            subwindow.minimized_width = minimized_width
+            subwindow.minimized_height = minimized_height
 
     def focus(self, subwindow_to_be_focused):
         for subwindow in self.subwindows:
@@ -153,24 +176,27 @@ class MainWindow:
         for subwindow in self.subwindows:
             if event.widget is subwindow.label:
                 if subwindow.is_minimized:
+                    self.focus(subwindow)
                     subwindow.restore_window_size()
                 else:
-                    subwindow.minimize_window_size(
-                        10, self.root.winfo_height() - 30)
+                    self.focus(subwindow)
+                    subwindow.minimize_window_size()
 
     def callback_mouse_pressed_button(self, event):
         for subwindow in self.subwindows:
-            # If click in any widget of a subwindow get focus
-            if event.widget in subwindow.widgets:
-                self.focus(subwindow)
-            # If click in the label of a subwindow, start moving
-            if event.widget is subwindow.label:
-                subwindow.start_moving(event.x_root, event.y_root)
-            if subwindow.has_focus:
-                cursor_is_in_border = subwindow.cursor_is_in_border(
-                    event.x_root, event.y_root)
-                if cursor_is_in_border != "":
-                    subwindow.start_resizing(event.x_root, event.y_root)
+            if not subwindow.is_minimized:
+                # If click in any widget of a subwindow get focus
+                if event.widget in subwindow.widgets:
+                    self.focus(subwindow)
+                # If click in the label of a subwindow, start moving
+                if event.widget is subwindow.label:
+                    subwindow.start_moving(event.x_root, event.y_root)
+                if subwindow.has_focus:
+                    cursor_is_in_border = subwindow.cursor_is_in_border(
+                        event.x_root, event.y_root)
+                    if cursor_is_in_border != "":
+                        subwindow.start_resizing(event.x_root,
+                                                 event.y_root)
 
     def callback_mouse_released_button(self, event):
         for subwindow in self.subwindows:
@@ -204,14 +230,19 @@ class MainWindow:
             self.root.winfo_screenwidth(),
             self.root.winfo_screenheight() - 50))
         self.root.title("...")
-        self.root.bind('<Motion>', self.callback_motion)
-        self.root.bind('<Button>', self.callback_mouse_pressed_button)
-        self.root.bind('<Double-Button>', self.callback_mouse_double_button)
-        self.root.bind('<ButtonRelease>', self.callback_mouse_released_button)
+        self.root.bind('<Motion>',
+                       self.callback_motion)
+        self.root.bind('<Button>',
+                       self.callback_mouse_pressed_button)
+        self.root.bind('<Double-Button>',
+                       self.callback_mouse_double_button)
+        self.root.bind('<ButtonRelease>',
+                       self.callback_mouse_released_button)
         self.subwindows = []
 
 if __name__ == "__main__":
     main_window = MainWindow()
     main_window.add_subwindow("Window1", 10, 10, 200, 200)
     main_window.add_subwindow("Window2", 100, 100, 200, 200)
+    main_window.update_minimized_positions()
     main_window.get_root().mainloop()
