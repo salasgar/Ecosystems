@@ -270,6 +270,34 @@ class MainWindow:
     def get_root(self):
         return self.root
 
+    def menu_command(self, option):
+        for subwindow in self.subwindows:
+            subwindow.button1.config(text=option)
+
+    def init_menu(self):
+        self.menubar = tk.Menu(self.root)
+        self.root.config(menu=self.menubar)
+        self.fileMenu = tk.Menu(self.menubar)
+        self.submenu = tk.Menu(self.fileMenu)
+        self.submenu.add_command(
+            label="Opcion 1",
+            command=lambda: self.menu_command(option='Option1'))
+        self.submenu.add_command(
+            label="Opcion 2",
+            command=lambda: self.menu_command(option='Option2'))
+        self.submenu.add_command(
+            label="Opcion 3",
+            command=lambda: self.menu_command(option='Option3'))
+        self.fileMenu.add_cascade(
+            label='Import', menu=self.submenu,
+            underline=0)
+        self.fileMenu.add_separator()
+        self.fileMenu.add_command(
+            label="Exit", underline=0,
+            command=lambda: self.menu_command(option='Exit'))
+        self.menubar.add_cascade(label="File", underline=0,
+                                 menu=self.fileMenu)
+
     def __init__(self):
         self.root = tk.Tk()
         self.root.resizable(0, 0)
@@ -284,6 +312,7 @@ class MainWindow:
         self.root.bind('<ButtonRelease>',
                        self.callback_mouse_released_button)
         self.subwindows = []
+        self.init_menu()
 
 if __name__ == "__main__":
     main_window = MainWindow()
