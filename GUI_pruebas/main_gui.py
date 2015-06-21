@@ -7,6 +7,9 @@ from matplotlib.figure import Figure
 
 class SubWindow:
 
+    def scale1_has_been_moved(self, value):
+        self.main_window.scale1_has_been_moved(self, value)
+
     def minimize_window_size(self):
         self.frame.place_configure(x=self.minimized_x,
                                    y=self.minimized_y,
@@ -118,15 +121,15 @@ class SubWindow:
         self.matplotlib_axes.tick_params(labelsize=10)
         # Buttons position
         self.button_close.place(x=1, y=1,
-                                width = 30, height = 18)
+                                width=30, height=18)
         self.button_minmaximize.place(x=32, y=1,
-                                width = 30, height = 18)
+                                      width=30, height=18)
         # Buttons
-        self.button1.place(x=self.width - 120, y = 50, width=100, height = 25)
+        self.button1.place(x=self.width - 120, y=50, width=100, height=25)
         # Combobox
-        self.combo1.place(x= self.width - 120, y = 80, width = 100, height = 25)
+        self.combo1.place(x=self.width - 120, y=80, width=100, height=25)
         # Scale
-        self.scale1.place(x = 10, y = self.height - 50, width = 300, height = 40)
+        self.scale1.place(x=10, y=self.height - 50, width=300, height=40)
 
     def __init__(self, main_window, title, x, y, width, height):
         self.all = []
@@ -153,7 +156,7 @@ class SubWindow:
         self.matplotlib_axes = self.matplotlib_fig.add_subplot(
             111, aspect='auto')
         self.matplotlib_fig.set_tight_layout(True)
-        #plt, = self.matplotlib_axes.plot([], [])
+        # plt, = self.matplotlib_axes.plot([], [])
 
         self.canvas = FigureCanvasTkAgg(self.matplotlib_fig,
                                         master=self.frame)
@@ -161,15 +164,20 @@ class SubWindow:
         self.canvas.show()
 
         # Creates a button
-        self.button1 = tk.Button(self.frame, text="Hola") 
+        self.button1 = tk.Button(self.frame, text="Hola")
         # Creates two combobox
         self.combo1 = ttk.Combobox(self.frame, values=('value1', 'value2'))
-        self.scale1 = tk.Scale(self.frame, from_=0, to=100, orient=tk.HORIZONTAL)
+        self.scale1 = tk.Scale(
+            self.frame, from_=0, to=10000,
+            orient=tk.HORIZONTAL, command=self.scale1_has_been_moved)
 
         self.update_widgets_positions()
         self.widgets.append(self.frame)
         self.widgets.append(self.label)
         self.widgets.append(self.canvas.get_tk_widget())
+        self.widgets.append(self.button1)
+        self.widgets.append(self.scale1)
+        self.widgets.append(self.combo1)
 
         self.minimized_x = -1  # To be assigned by root
         self.minimized_y = -1
@@ -184,6 +192,10 @@ class SubWindow:
 
 
 class MainWindow:
+
+    def scale1_has_been_moved(self, parent_subwindow, value):
+        for subwindow in self.subwindows:
+            subwindow.scale1.set(value)
 
     def update_minimized_positions(self):
         minimized_width = 200
