@@ -121,6 +121,12 @@ class SubWindow:
                                 width = 30, height = 18)
         self.button_minmaximize.place(x=32, y=1,
                                 width = 30, height = 18)
+        # Buttons
+        self.button1.place(x=self.width - 120, y = 50, width=100, height = 25)
+        # Combobox
+        self.combo1.place(x= self.width - 120, y = 80, width = 100, height = 25)
+        # Scale
+        self.scale1.place(x = 10, y = self.height - 50, width = 300, height = 40)
 
     def __init__(self, main_window, title, x, y, width, height):
         self.all = []
@@ -148,14 +154,17 @@ class SubWindow:
             111, aspect='auto')
         self.matplotlib_fig.set_tight_layout(True)
         #plt, = self.matplotlib_axes.plot([], [])
-        #plt.tight_layout()
+
         self.canvas = FigureCanvasTkAgg(self.matplotlib_fig,
                                         master=self.frame)
+        self.canvas._tkcanvas.config(highlightthickness=0)
         self.canvas.show()
 
         # Creates a button
         self.button1 = tk.Button(self.frame, text="Hola") 
         # Creates two combobox
+        self.combo1 = ttk.Combobox(self.frame, values=('value1', 'value2'))
+        self.scale1 = tk.Scale(self.frame, from_=0, to=100, orient=tk.HORIZONTAL)
 
         self.update_widgets_positions()
         self.widgets.append(self.frame)
