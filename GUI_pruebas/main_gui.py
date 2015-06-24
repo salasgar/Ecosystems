@@ -5,14 +5,9 @@ from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 
 
-class Observer:
+class GenericObserver(object):
 
     def __init__(self, subject, title, x, y, width, height):
-        """
-            Initialize a observer, which consists of a frame, a label
-            with close and minimize buttons, and a set of widgets
-        """
-        # Initialize some data
         self.widgets = []
         self.subject = subject
         self.root = subject.get_root()
@@ -25,7 +20,6 @@ class Observer:
         self.minimized_y = -1
         self.minimized_width = -1
         self.minimized_height = -1
-
         self.flag_moving = False
         self.direction_resizing = ''
         self.has_focus = True
@@ -40,62 +34,19 @@ class Observer:
         self.button_close = tk.Button(self.frame, text="X", justify=tk.CENTER)
         self.button_minmaximize = tk.Button(self.frame, text="-")
 
-        # Creates a matplotlib
-        self.matplotlib_fig = Figure()
-        self.matplotlib_axes = self.matplotlib_fig.add_subplot(
-            111, aspect='auto')
-        self.matplotlib_fig.set_tight_layout(True)
-        # plt, = self.matplotlib_axes.plot([], [])
-        self.canvas = FigureCanvasTkAgg(self.matplotlib_fig,
-                                        master=self.frame)
-        self.canvas._tkcanvas.config(highlightthickness=0)
-        self.canvas.show()
-
-        # SET OF WIDGETS:
-        # Creates a button
-        self.button1 = tk.Button(self.frame, text="Hola")
-        # Creates two combobox
-        self.combo1 = ttk.Combobox(self.frame, values=('value1', 'value2'))
-        self.scale1 = tk.Scale(
-            self.frame, from_=0, to=10000,
-            orient=tk.HORIZONTAL, command=self.callback_scale1)
-
-        # Update widgets_positions
-        self.update_widgets_positions()
-
-        # Add widgets to the list of widgets
         self.widgets.append(self.frame)
         self.widgets.append(self.label)
-        self.widgets.append(self.canvas.get_tk_widget())
-        self.widgets.append(self.button1)
-        self.widgets.append(self.scale1)
-        self.widgets.append(self.combo1)
-
-        # Focus current observer
-        self.subject.focus(observer_to_be_focused=self)
+        self.widgets.append(self.button_close)
+        self.widgets.append(self.button_minmaximize)
 
     def update_widgets_positions(self):
-        """
-            Update all widgets positions according to new width and height
-        """
         # Label position
         self.label.place(x=0, y=0, width=self.width, height=20)
-        # Matplotlib position
-        self.canvas.get_tk_widget().place(
-            x=3, y=25,
-            width=self.width * 0.66, height=self.height * 0.66)
-        self.matplotlib_axes.tick_params(labelsize=10)
         # Buttons position
         self.button_close.place(x=1, y=1,
                                 width=30, height=18)
         self.button_minmaximize.place(x=32, y=1,
                                       width=30, height=18)
-        # Buttons
-        self.button1.place(x=self.width - 120, y=50, width=100, height=25)
-        # Combobox
-        self.combo1.place(x=self.width - 120, y=80, width=100, height=25)
-        # Scale
-        self.scale1.place(x=10, y=self.height - 50, width=300, height=40)
 
     def minimize_window(self):
         """
@@ -232,6 +183,66 @@ class Observer:
         self.y = min(max(self.y + dy, limits_y[0]), limits_y[1])
         self.frame.place_configure(x=self.x, y=self.y)
 
+
+class HistogramObserver(GenericObserver):
+
+    def __init__(self, subject, title, x, y, width, height):
+        """
+            Initialize a histogram observer
+        """
+        super(HistogramObserver, self).__init__(
+            subject, title, x, y, width, height)
+
+        # Creates a matplotlib
+        self.matplotlib_fig = Figure()
+        self.matplotlib_axes = self.matplotlib_fig.add_subplot(
+            111, aspect='auto')
+        self.matplotlib_fig.set_tight_layout(True)
+        # plt, = self.matplotlib_axes.plot([], [])
+        self.canvas = FigureCanvasTkAgg(self.matplotlib_fig,
+                                        master=self.frame)
+        self.canvas._tkcanvas.config(highlightthickness=0)
+        self.canvas.show()
+
+        # SET OF WIDGETS:
+        # Creates a button
+        self.button1 = tk.Button(self.frame, text="Hola")
+        # Creates two combobox
+        self.combo1 = ttk.Combobox(self.frame, values=('value1', 'value2'))
+        self.scale1 = tk.Scale(
+            self.frame, from_=0, to=10000,
+            orient=tk.HORIZONTAL, command=self.callback_scale1)
+
+        # Add widgets to the list of widgets
+        self.widgets.append(self.canvas.get_tk_widget())
+        self.widgets.append(self.button1)
+        self.widgets.append(self.scale1)
+        self.widgets.append(self.combo1)
+
+        # Update widgets_positions
+        self.update_widgets_positions()
+
+        # Focus current observer
+        self.subject.focus(observer_to_be_focused=self)
+
+    def update_widgets_positions(self):
+        """
+            Update all widgets positions according to new width and height
+        """
+        super(HistogramObserver, self).update_widgets_positions()
+
+        # Matplotlib position
+        self.canvas.get_tk_widget().place(
+            x=3, y=25,
+            width=self.width * 0.66, height=self.height * 0.66)
+        self.matplotlib_axes.tick_params(labelsize=10)
+        # Buttons
+        self.button1.place(x=self.width - 120, y=50, width=100, height=25)
+        # Combobox
+        self.combo1.place(x=self.width - 120, y=80, width=100, height=25)
+        # Scale
+        self.scale1.place(x=10, y=self.height - 50, width=300, height=40)
+
     # LOCAL CALLBACKS:
 
     def callback_scale1(self, value):
@@ -322,7 +333,7 @@ class Subject:
         """
             Add a observer to the main window
         """
-        aux_observer = Observer(self, title, x, y, width, height)
+        aux_observer = HistogramObserver(self, title, x, y, width, height)
         self.observers.append(aux_observer)
         self.update_minimized_positions()
 
@@ -365,7 +376,7 @@ class Subject:
                     event.x_root, event.y_root)
                 if cursor_is_in_border != "":
                     observer.start_resizing(event.x_root,
-                                             event.y_root)
+                                            event.y_root)
             if event.widget is observer.button_close:
                 observer.frame.destroy()
                 self.observers.remove(observer)
