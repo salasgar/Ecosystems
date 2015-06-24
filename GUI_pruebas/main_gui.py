@@ -5,17 +5,17 @@ from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 
 
-class SubWindow:
+class Observer:
 
-    def __init__(self, main_window, title, x, y, width, height):
+    def __init__(self, subject, title, x, y, width, height):
         """
-            Initialize a subwindow, which consists of a frame, a label
+            Initialize a observer, which consists of a frame, a label
             with close and minimize buttons, and a set of widgets
         """
         # Initialize some data
         self.widgets = []
-        self.main_window = main_window
-        self.root = main_window.get_root()
+        self.subject = subject
+        self.root = subject.get_root()
         self.width = width
         self.height = height
         self.x = x
@@ -30,7 +30,7 @@ class SubWindow:
         self.direction_resizing = ''
         self.has_focus = True
         self.is_minimized = False
-        # Creates the subwindow (self.frame)
+        # Creates the observer (self.frame)
         self.frame = tk.Frame(self.root, bd=1, relief=tk.RAISED)
         self.frame.place(x=x, y=y, width=self.width, height=self.height)
 
@@ -71,8 +71,8 @@ class SubWindow:
         self.widgets.append(self.scale1)
         self.widgets.append(self.combo1)
 
-        # Focus current subwindow
-        self.main_window.focus(subwindow_to_be_focused=self)
+        # Focus current observer
+        self.subject.focus(observer_to_be_focused=self)
 
     def update_widgets_positions(self):
         """
@@ -122,7 +122,7 @@ class SubWindow:
     def cursor_is_in_border(self, x_root, y_root):
         """
             Return direction of resizing if cursor is in border of
-            the subwindow. Otherwise, returns ''
+            the observer. Otherwise, returns ''
         """
         border_tol = 3  # Border tolerance
         frame_xleft = self.frame.winfo_rootx()
@@ -180,7 +180,7 @@ class SubWindow:
 
     def resize_window(self, x_root, y_root):
         """
-            Resize subwindow (called while moving mouse)
+            Resize observer (called while moving mouse)
         """
         self.root.update_idletasks()
         dx = x_root - self.move_lastx
@@ -199,7 +199,7 @@ class SubWindow:
 
     def start_moving(self, x_root, y_root):
         """
-            Start moving subwindow mode
+            Start moving observer mode
         """
         self.flag_moving = True
         self.move_lastx = x_root
@@ -207,19 +207,19 @@ class SubWindow:
 
     def stop_moving(self):
         """
-            Stops moving subwindow mode
+            Stops moving observer mode
         """
         self.flag_moving = False
 
     def is_moving(self):
         """
-            True if in moving subwindow mode
+            True if in moving observer mode
         """
         return self.flag_moving
 
     def move_window(self, x_root, y_root):
         """
-            Move subwindow (called while moving mouse)
+            Move observer (called while moving mouse)
         """
         self.root.update_idletasks()
         dx = x_root - self.move_lastx
@@ -235,10 +235,10 @@ class SubWindow:
     # LOCAL CALLBACKS:
 
     def callback_scale1(self, value):
-        self.main_window.callback_scale1(self, value)
+        self.subject.callback_scale1(self, value)
 
 
-class MainWindow:
+class Subject:
 
     def __init__(self):
         """
@@ -251,7 +251,7 @@ class MainWindow:
             self.root.winfo_screenwidth(),
             self.root.winfo_screenheight() - 50))
         self.root.title("Ecosystems")
-        self.subwindows = []
+        self.observers = []
         # Bind motion, mouse_pressed and mouse_released generic events
         self.root.bind('<Motion>',
                        self.callback_motion)
@@ -299,31 +299,31 @@ class MainWindow:
         starting_x = 25
         x_gap = 250
         starting_y = self.root.winfo_height() - minimized_height
-        for i, subwindow in enumerate(self.subwindows):
-            subwindow.minimized_y = starting_y
-            subwindow.minimized_x = starting_x + i * x_gap
-            subwindow.minimized_width = minimized_width
-            subwindow.minimized_height = minimized_height
+        for i, observer in enumerate(self.observers):
+            observer.minimized_y = starting_y
+            observer.minimized_x = starting_x + i * x_gap
+            observer.minimized_width = minimized_width
+            observer.minimized_height = minimized_height
 
-    def focus(self, subwindow_to_be_focused):
+    def focus(self, observer_to_be_focused):
         """
-            Focus subwindow_to_be_focused
+            Focus observer_to_be_focused
         """
-        for subwindow in self.subwindows:
-            if subwindow_to_be_focused is subwindow:
-                subwindow.frame.tkraise()
-                subwindow.label.configure(bg="#08246b", fg="white")
-                subwindow.has_focus = True
+        for observer in self.observers:
+            if observer_to_be_focused is observer:
+                observer.frame.tkraise()
+                observer.label.configure(bg="#08246b", fg="white")
+                observer.has_focus = True
             else:
-                subwindow.label.configure(bg="#d9d9d9", fg="black")
-                subwindow.has_focus = False
+                observer.label.configure(bg="#d9d9d9", fg="black")
+                observer.has_focus = False
 
-    def add_subwindow(self, title, x, y, width, height):
+    def add_observer(self, title, x, y, width, height):
         """
-            Add a subwindow to the main window
+            Add a observer to the main window
         """
-        aux_subwindow = SubWindow(self, title, x, y, width, height)
-        self.subwindows.append(aux_subwindow)
+        aux_observer = Observer(self, title, x, y, width, height)
+        self.observers.append(aux_observer)
         self.update_minimized_positions()
 
     def get_root(self):
@@ -338,75 +338,75 @@ class MainWindow:
         """
             Callback to manage menu options
         """
-        for subwindow in self.subwindows:
-            subwindow.button1.config(text=option)
+        for observer in self.observers:
+            observer.button1.config(text=option)
 
-    def callback_scale1(self, parent_subwindow, value):
+    def callback_scale1(self, parent_observer, value):
         """
             Callback to manage scale1 movement
         """
-        for subwindow in self.subwindows:
-            subwindow.scale1.set(value)
+        for observer in self.observers:
+            observer.scale1.set(value)
 
     def callback_mouse_pressed_button(self, event):
         """
             Generic callback for mouse pressed event
         """
 
-        for subwindow in self.subwindows:
-            # If click in any widget of a subwindow get focus
-            if event.widget in subwindow.widgets:
-                self.focus(subwindow)
-            # If click in the label of a subwindow, start moving
-            if event.widget is subwindow.label:
-                subwindow.start_moving(event.x_root, event.y_root)
-            if subwindow.has_focus:
-                cursor_is_in_border = subwindow.cursor_is_in_border(
+        for observer in self.observers:
+            # If click in any widget of a observer get focus
+            if event.widget in observer.widgets:
+                self.focus(observer)
+            # If click in the label of a observer, start moving
+            if event.widget is observer.label:
+                observer.start_moving(event.x_root, event.y_root)
+            if observer.has_focus:
+                cursor_is_in_border = observer.cursor_is_in_border(
                     event.x_root, event.y_root)
                 if cursor_is_in_border != "":
-                    subwindow.start_resizing(event.x_root,
+                    observer.start_resizing(event.x_root,
                                              event.y_root)
-            if event.widget is subwindow.button_close:
-                subwindow.frame.destroy()
-                self.subwindows.remove(subwindow)
-            if event.widget is subwindow.button_minmaximize:
-                if subwindow.is_minimized:
-                    self.focus(subwindow)
-                    subwindow.restore_window_size()
+            if event.widget is observer.button_close:
+                observer.frame.destroy()
+                self.observers.remove(observer)
+            if event.widget is observer.button_minmaximize:
+                if observer.is_minimized:
+                    self.focus(observer)
+                    observer.restore_window_size()
                 else:
-                    self.focus(subwindow)
-                    subwindow.minimize_window()
+                    self.focus(observer)
+                    observer.minimize_window()
 
     def callback_mouse_released_button(self, event):
         """
             Generic callback for mouse relased event
         """
 
-        for subwindow in self.subwindows:
-            subwindow.stop_moving()
-            subwindow.stop_resizing()
+        for observer in self.observers:
+            observer.stop_moving()
+            observer.stop_resizing()
 
     def callback_motion(self, event):
         """
             Generic callback for mouse motion event
         """
 
-        for subwindow in self.subwindows:
-            # If a subwindow is moving, move it
-            if not subwindow.is_minimized:
-                if subwindow.is_moving():
-                    subwindow.move_window(event.x_root, event.y_root)
-                elif subwindow.is_resizing():
-                    subwindow.resize_window(event.x_root, event.y_root)
-                elif subwindow.has_focus:
-                    cursor_is_in_border = subwindow.cursor_is_in_border(
+        for observer in self.observers:
+            # If a observer is moving, move it
+            if not observer.is_minimized:
+                if observer.is_moving():
+                    observer.move_window(event.x_root, event.y_root)
+                elif observer.is_resizing():
+                    observer.resize_window(event.x_root, event.y_root)
+                elif observer.has_focus:
+                    cursor_is_in_border = observer.cursor_is_in_border(
                         event.x_root, event.y_root)
                     self.root.config(cursor=cursor_is_in_border)
                     self.root.update()
 
 
 if __name__ == "__main__":
-    main_window = MainWindow()
-    main_window.add_subwindow("Window1", 10, 10, 400, 300)
-    main_window.add_subwindow("Window2", 100, 100, 400, 300)
-    main_window.get_root().mainloop()
+    subject = Subject()
+    subject.add_observer("Observer1", 10, 10, 400, 300)
+    subject.add_observer("Observer2", 100, 100, 400, 300)
+    subject.get_root().mainloop()
