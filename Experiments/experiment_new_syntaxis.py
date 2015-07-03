@@ -1,3 +1,12 @@
+LIST_OF_ALLOWED_TERMS = {
+    'biotope': ['help', 'size'],
+    'organisms category': ['help', 'initial number of organisms', 'genes', 'decisions'],
+    'organisms': ['help', 'initial number of organisms', 'genes', 'decisions'],
+    'costs': ['help'],
+    'constraints': ['help']
+}
+
+
 biotope = {
     # Mandatory atributes
     'size': (100, 100)
@@ -21,7 +30,52 @@ def _default_value_after_mutation(gene):
     return value_after_mutation
 
 # genes
-gene_age_category_a = {
+
+# metabolism types:
+
+_metabolic_speed = {
+    'help': 
+        """
+            Indicates de average number of times the organism acts each time it's its turn
+        """,
+    'initial value': {
+        'uniform': [0, 2]
+    },
+    'value_after_mutation': _default_value_after_mutation('metabolic speed')
+}
+
+_metabolic_time_category_a = {
+    'help':
+        """
+            Indicates the amount of subjective time since the last time the organism did 
+            something. An organism can act again only if its metabolic time is greater than 0.
+            Each time the organism acts, its metabolic time decreases in one unit. And in 
+            each cycle, its metabolic time increases as much as indicates its metabolic speed.
+        """
+    'initial value': 0,
+    'value after time cycle': {
+        '+': ('metabolic time', 'metabolic speed')
+    }
+}
+
+_metabolic_time_category_b = {
+    'help':
+        """
+            Indicates the amount of subjective time since the last time the organism did 
+            something. An organism can act again only if its metabolic time is greater than 0.
+            Each time the organism acts, its metabolic time decreases in one unit. And in 
+            each cycle, its metabolic time increases as much as indicates its metabolic speed.
+        """
+    'initial value': 0,
+    'value after time cycle': {
+        '+': (
+            'metabolic time', 
+            {'uniform': [0, 'metabolic speed']}
+        )
+    }
+}
+
+_gene_age_category_a = {
     'help': 
         """ 
             Age of organism (increase +1 every time cycle)
@@ -59,7 +113,7 @@ organisms_category_a = {
                     )
             }
         }
-        'age': gene_age_category_a,
+        'age': _gene_age_category_a,
         'photosynthesis capacity': {
             'help':
             """
