@@ -1,9 +1,15 @@
+common_allowed_terms = ['help', 'comment', 'label']
+
 LIST_OF_ALLOWED_TERMS = {
-    'biotope': ['help', 'size'],
-    'organisms category': ['help', 'initial number of organisms', 'genes', 'decisions'],
-    'organisms': ['help', 'initial number of organisms', 'genes', 'decisions'],
-    'costs': ['help'],
-    'constraints': ['help']
+    'settings': ['biotope', 'organisms', 'costs', 'constraints'] + common_allowed_terms,
+    'biotope': ['size'] + common_allowed_terms,
+    'organisms': ['category name', 'initial number of organisms', 'genes', 'decisions'] + common_allowed_terms,
+    'costs': [{'<action name>': '<cost>'}] + common_allowed_terms,
+    '<cost>': [{'<substance name>' + ' reserve': '<function>'}]
+    'constraints': ['help'] + common_allowed_terms
+        },
+    'organisms category': ['help', 'initial number of organisms', 'genes', 'decisions'] + common_allowed_terms,
+
 }
 
 
@@ -197,15 +203,15 @@ organisms_category_a = {
             'initial value': 1.0,
             'value after mutation': \
             _default_value_after_mutation('indicator gene A')
-        }
+        },
         'indicator gene B': {
             'initial value': 1.0,
             'value after mutation': \
             _default_value_after_mutation('indicator gene B')
-        }
+        },
         'energy reserve at birth': {
             'initial value': 10000.0
-        }
+        },
         'energy reserve': {
             'initial value': 'energy reserve at birth',
             'value in next cycle': {
@@ -213,7 +219,7 @@ organisms_category_a = {
                       'photosynthesis capacity')
             },
             'allowed interval': [0, 'energy storage capacity']
-        }
+        },
         'mutation frequency': {
             'initial value': {
                 'uniform': [0, 1]
@@ -256,24 +262,24 @@ decisions = {
             },
             {'random true': 'procreating frequency'}
         )
-    }
+    },
     'decide move': {
         'random true': 'moving frequency'
-    }
+    },
     'decide hunt': {
         'random true': 'aggressiveness'
-    }
+    },
     'decide attack': {
         '!=': ({'predator': 'species'}, {'prey': 'species'})
     }
 }
 
 constraints = {
-    'can kill': {
+    'can kill #prey': {
         '>': (
             {''}
         ) 
-    }
+    },
     'can procreate': {
         '>': (
             'energy reserve',
@@ -283,7 +289,7 @@ constraints = {
                 {'cost': 'stay alive'}
             )}
         )
-    }
+    },
     'die': {
         'or': (
             {'<': ('energy reserve', 100.0)},
