@@ -44,11 +44,11 @@ def main():
     logger.debug('DEBUG')
     print " *"*30, "\nWe start NOW!"
     # create Ecosystem
-    ecosystem = Ecosystem(ecosystem_settings_3)
+    ecosystem = Ecosystem(ecosystem_settings_1)
     enable_graphics = True
     make_sleeps = False
     time_lapse = 1
-    Total_time = 2000000
+    Total_time = 200000
     if enable_graphics:
         gui = GUI(ecosystem)
     # Loop

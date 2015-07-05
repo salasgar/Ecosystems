@@ -8,11 +8,16 @@ def _default_value_after_mutation(gene):
         Since this module is common to many genes,
         we define it as an independent function 
     """
-    def value_after_mutation(organism):
-        if random_true(organism['mutation frequency']):
-            return organism[gene] * uniform(-0.05, 0.05)
-        else:
-            return organism[gene]
+    relative_variation = {
+        'uniform': [-0.05, 0.05]
+    }
+    total_variation = {
+        '*': (gene, relative_variation)
+    }
+    new_value = {'+': (gene, total_variation)}
+    value_after_mutation = {
+        'if': ({'random true': 'mutation frequency'},
+               new_value)}
     return value_after_mutation
 
 # genes
@@ -22,8 +27,18 @@ gene_age_category_a = {
             Age of organism (increase +1 every time cycle)
         """, 
     'initial value': 0,
-    'value after time cycle': lambda organism: organism['age'] + 1,
-    'value after mutation': lambda organism: 0,
+    'value after time cycle': {
+        '+': ('age', 1)
+    },
+    'value after mutation': {
+        'if': (
+            # Condition:
+            {'>': ('age', 1000)},
+            # Then:
+            0,
+            # Else:
+            'age')  
+    },
     'allowed interval': [0, 'inf']
 }
 
@@ -187,15 +202,13 @@ decisions = {
             },
             {'random true': 'procreating frequency'}
         )
-    },
+    }
     'decide move': {
         'random true': 'moving frequency'
-    'decide where to move': {
-        'built-in function': 'seek random free location'
-    },
+    }
     'decide hunt': {
         'random true': 'aggressiveness'
-    },
+    }
     'decide attack': {
         '!=': ({'predator': 'species'}, {'prey': 'species'})
     }

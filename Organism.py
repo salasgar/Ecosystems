@@ -189,6 +189,7 @@ class Organism(dict):
     def stay_alive(self):
         #if print_methods_names:
         #   print 'stay_alive'
+        #print self['energy reserve'], self['photosynthesis capacity'], "*****", self['actions sequence'](self)
         """ An organism has to spend energy and maybe other substances only to
         stay alive.
         """
@@ -401,6 +402,7 @@ class Organism(dict):
         for gene in self['variable genes']:
             if self['variable genes'][gene]['will change?'](self):
                 self[gene] = self['variable genes'][gene]['new value'](self)
+        #print 'energy reserve: {0} + {1} = {2}'.format(energy_reserve, self['energy reserve'] - energy_reserve, self['energy reserve']) 
         return 'energy reserve: {0} + {1} = {2}'.format(energy_reserve, self['energy reserve'] - energy_reserve, self['energy reserve'])          
 
     def procreate(self): 
