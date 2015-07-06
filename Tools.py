@@ -270,11 +270,10 @@ def make_function(function_settings, number_of_organisms=1, arguments=[]):
         elif 'constraint' in function_settings:
             action = function_settings['constraint']
             if number_of_organisms == 1:
-                function_to_return = lambda organism: organism.parent_ecosystem.constraints[
-                    action](organism)
+                function_to_return = lambda organism: organism.parent_ecosystem.constraints[action]
             if number_of_organisms == 2:
                 function_to_return = lambda predator, prey: predator.parent_ecosystem.constraints[
-                    action](predator, prey)
+                    action]
         elif 'function' in function_settings:
             if function_settings['function'] == 'sigmoid':
                 if 'homothety' in function_settings:

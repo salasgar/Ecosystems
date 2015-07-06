@@ -214,6 +214,7 @@ Operators = [
 
     # UNARY OPERATORS:
     'abs',
+    'minus',
     'sqrt',
     'log',
     'exp',
@@ -234,6 +235,32 @@ Operators = [
     'chi-squared', # random value, chi-squared distribution with given degree of freedom k
     'shuffle' # randomly shuffles a list
 ]
+
+Expressions = [
+    '<numeric value>',
+    '<string value>',
+    '<gene name>',
+    {'<unary operator>': '<expression>'},
+    {'<binary operator>': ('<expression>', '<expression>', '<expression>', '<etc...>')},
+    {'choice': '<key expression>',
+        '<value 1>': '<expression 1>',
+        '<value 2>': '<expression 2>',
+        '<value 3>': '<expression 3>',
+        '<etc...>':  '<etc...>'
+    },
+    {'tuple', ('item', 'item', 'etc...')},
+    {'cost': '<action name>', 'substance': '<substance name>'},
+    {'cost': '<action name>'},
+    {'constraint': '<action name>'},
+    {'function': 'discrete distribution',
+        'values list': [
+            {'value': '<expression>', 'probability': '<expression>'},
+            {'value': '<expression>', 'probability': '<expression>'},
+            {'etc..': '<expression>', 'probability': '<expression>'}]
+    }
+]
+
+
 
 def make_variation(gene, relative_variation = 0, absolute_variation = 0, probability_of_change = 1):
     if relative_variation == 0:
@@ -345,9 +372,7 @@ def _default_value_after_mutation_B(gene):
             return gene_value * (1 + uniform(-0.05, 0.05)**3)
         else:
             return gene_value
-    return {'call function #gene_value #mutation_frequency': _value,
-                '#gene_value': gene,
-                '#mutation_frequency': 'mutation_frequency'}
+    return {'function': (_value, gene, 'mutation_frequency')}
 
 # genes
 _gene_age_category_a = {

@@ -52,6 +52,18 @@ def is_dict(x):
 def is_iterable(x):
     return hasattr(x, '__iter__')
 
+def is_list(x):
+    return isinstance(x, list)
+
+def is_tuple(x):
+    return isinstance(x, tuple)
+
+def is_tuple_or_list(x):
+    return isinstance(x, list) or isinstance(x, tuple)
+
+
+
+
 
 # MATH FUNCTIONS:
 
@@ -216,7 +228,7 @@ def make_random_variation(gene, max_relative_variation = 0, max_absolute_variati
 
 
 
-
+#print 'abc'.index('b')
 
 
 
