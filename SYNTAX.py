@@ -1,15 +1,15 @@
 
+No_effect_attributes = ['help', 'comment', 'label']
+
 ecosystem_settings_syntaxis = {
 
     '$ ALLOWED ATTRIBUTES': ['biotope', 'organisms', 'constraints', 'costs', 'help', 'comment', 'label'],
     '$ MANDATORY ATTRIBUTES': ['biotope', 'organisms'],
-    '$ UNEVALUATED ATTRIBUTES': ['help', 'comment', 'label'],
 
     'biotope': { 
 
         '$ ALLOWED ATTRIBUTES': ['size', 'help', 'comment', 'label'],
         '$ MANDATORY ATTRIBUTES': ['size'],
-        '$ UNEVALUATED ATTRIBUTES': ['help', 'comment', 'label'],
 
         'size': '<expression>'
     },
@@ -17,26 +17,22 @@ ecosystem_settings_syntaxis = {
     'organisms': {
 
         # all strings can be the name of a category
-        '$ UNEVALUATED ATTRIBUTES': ['help', 'comment', 'label'],
 
         '<category name>': { 
 
             '$ ALLOWED ATTRIBUTES': ['initial number of organisms', 'genes', 'decisions', 'help', 'comment', 'label'],
             '$ MANDATORY ATTRIBUTES': ['initial number of organisms', 'genes'],
-            '$ UNEVALUATED ATTRIBUTES': ['help', 'comment', 'label'],
 
             'initial number of organisms': '<expression>',
 
             'genes': {
 
                 '$ MANDATORY ATTRIBUTES': ['actions sequence'],
-                '$ UNEVALUATED ATTRIBUTES': ['help', 'comment', 'label'],
 
                 '<gene name>': { 
 
                     '$ ALLOWED ATTRIBUTES': ['initial value', 'value after cycle', 'value after mutation', 'allowed interval', 'help', 'comment', 'label'],
                     '$ MANDATORY ATTRIBUTES': ['initial value'],
-                    '$ UNEVALUATED ATTRIBUTES': ['help', 'comment', 'label'],
 
                     'initial value': '<expression>',
                     'value after cycle': '<expression>',
@@ -47,16 +43,12 @@ ecosystem_settings_syntaxis = {
 
             'decisions': { 
 
-                '$ UNEVALUATED ATTRIBUTES': ['help', 'comment', 'label'],
-
                 'decide <action name>': '<boolean expression>'
             }
         }
     },
 
     'constraints': { 
-
-        '$ UNEVALUATED ATTRIBUTES': ['help', 'comment', 'label'],
 
         'can <action name> #<tag> #<tag> ...': '<boolean expression>',
         # if an organism 'can' do an action, it may do it or it may not. It's up to it.
@@ -65,8 +57,6 @@ ecosystem_settings_syntaxis = {
     },
 
     'costs': {
-
-        '$ UNEVALUATED ATTRIBUTES': ['help', 'comment', 'label'],
 
         '<action name> #<tag> #<tag> ...': {
             '<substance name> reserve': '<expression>'
@@ -149,7 +139,6 @@ Actions_that_can_appear_in_actions_sequence = [
     'interchange substances with the biotope', # TODO
     'interchange substances with the other organisms', # TODO
     # 'age', mutate', attack', 'defend', 'eat' and 'die' are "secundary actions", called by other actions
-
 ]
 
 Actions_that_have_to_appear_in_actions_sequence = [
@@ -167,7 +156,8 @@ Actions_that_can_appear_in_a_boolean_decision = [
     'interchange substances with the other organisms',
     'hunt', 
     'attack',
-    'eat']
+    'eat'
+]
 
 Other_decisions = {
     'move decisions': [
@@ -187,7 +177,7 @@ Other_decisions = {
 
 # EXPRESSIONS:
 
-Operators = [
+All_operators = [
 
     # BINARY / N-ARY OPERATORS:
     '+',
@@ -236,6 +226,175 @@ Operators = [
     'shuffle' # randomly shuffles a list
 ]
 
+Unary_operators = [
+    # Boolean:
+    'not', # logical operator 'not'
+
+    # Numeric:
+    'abs',
+    'minus',
+    'sqrt',
+    'log',
+    'exp',
+    'sigmoid',  #   e^x / (1 + e^x)
+    'sin',
+    'cos',
+    'tan',
+    'tg',
+    'round',
+    'int',
+    'roundint',
+
+    # Random:
+    'random boolean', 'randbool', 'random true', # returns True with a given probability, otherwise, False
+    'chi-squared'
+]
+
+Binary_operators = [
+    # NUMERIC OPERATORS:
+    '+',
+    '-',
+    '*',
+    '/',
+    '**',
+    '//',
+    '%',
+    'mod',
+
+    # BOOLEAN OPERATORS:
+    '>',
+    '<',
+    '>=',
+    '<=',
+    '==',
+    '!=',
+    'in',
+    'and', 'AND', '&', '&&', # logical operator 'and'
+    'or', 'OR', '|', '||', # logical operator 'or'
+    'xor', 'XOR' # logical operator 'exclusive or'
+
+    # RANDOM OPERATORS:
+    'random integer', 'randint',  # random integer between given boundaries a and b
+    'random boolean', 'randbool', 'random true', # returns True with a given probability, otherwise, False
+    'uniform' # random value, uniform distribution in given interval [a, b]
+    'gauss' # random value, normal distribution with given mean and variance
+]
+
+Associative_operators = [
+    '+',
+    '*',
+    'and', 'AND', '&', '&&', # logical operator 'and'
+    'or', 'OR', '|', '||', # logical operator 'or'
+    'xor', 'XOR' # logical operator 'exclusive or'
+]
+
+Operators_with_boolean_result = [
+    'random boolean', 'randbool', 'random true', # returns True with a given probability, otherwise, False
+    '>',
+    '<',
+    '>=',
+    '<=',
+    '==',
+    '!=',
+    'in',
+    'and', 'AND', '&', '&&', # logical operator 'and'
+    'or', 'OR', '|', '||', # logical operator 'or'
+    'xor', 'XOR' # logical operator 'exclusive or'
+    'not', # logical operator 'not'
+]
+
+Operators_with_numeric_result = [
+    # BINARY / N-ARY OPERATORS:
+    '+',
+    '-',
+    '*',
+    '/',
+    '**',
+    '//',
+    '%',
+    'mod',
+
+    # UNARY OPERATORS:
+    'abs',
+    'minus',
+    'sqrt',
+    'log',
+    'exp',
+    'sigmoid',  #   e^x / (1 + e^x)
+    'sin',
+    'cos',
+    'tan',
+    'tg',
+    'round',
+    'int',
+    'roundint',
+
+    # RANDOM OPERATORS:
+    'random integer', 'randint',  # random integer between given boundaries a and b
+    'uniform' # random value, uniform distribution in given interval [a, b]
+    'gauss', # random value, normal distribution with given mean and variance
+    'chi-squared', # random value, chi-squared distribution with given degree of freedom k
+]
+
+Operators_with_numeric_input = [
+    # Unary:
+    'abs',
+    'minus',
+    'sqrt',
+    'log',
+    'exp',
+    'sigmoid',
+    'sin',
+    'cos',
+    'tan',
+    'tg',
+    'round',
+    'int',
+    'roundint',
+    'random boolean', 'randbool', 'random true',
+    'chi-squared', # random value, chi-squared distribution with given degree of freedom k
+
+    # Binary:
+    '+',
+    '-',
+    '*',
+    '/',
+    '**',
+    '//',
+    '%',
+    'mod',
+    '>',
+    '<',
+    '>=',
+    '<=',
+    '==',
+    '!=',
+    'in',
+    'and', 'AND', '&', '&&', # logical operator 'and'
+    'or', 'OR', '|', '||', # logical operator 'or'
+    'xor', 'XOR' # logical operator 'exclusive or'
+    'random integer', 'randint',  # random integer between given boundaries a and b
+    'uniform' # random value, uniform distribution in given interval [a, b]
+    'gauss', # random value, normal distribution with given mean and variance
+]
+
+Operators_with_boolean_inputs = [
+    'and', 'AND', '&', '&&', # logical operator 'and'
+    'or', 'OR', '|', '||', # logical operator 'or'
+    'xor', 'XOR' # logical operator 'exclusive or'
+    'not', # logical operator 'not'
+]
+
+Operators_with_list_inputs = [
+    'shuffle'
+] + Associative_operators
+
+Operators_with_inputs_of_many_types = [
+    '!=',
+    'in'
+]
+
+
 Expressions = [
     '<numeric value>',
     '<string value>',
@@ -248,17 +407,175 @@ Expressions = [
         '<value 3>': '<expression 3>',
         '<etc...>':  '<etc...>'
     },
+    {'if': ('<boolean expression>', '<expression>', '<expression>', '<expression>')},
     {'tuple', ('item', 'item', 'etc...')},
     {'cost': '<action name>', 'substance': '<substance name>'},
     {'cost': '<action name>'},
     {'constraint': '<action name>'},
-    {'function': 'discrete distribution',
-        'values list': [
+    {'function': ('<function>', '<expression>', '<expression>', '<etc...>')},
+    {'discrete distribution':[
             {'value': '<expression>', 'probability': '<expression>'},
             {'value': '<expression>', 'probability': '<expression>'},
             {'etc..': '<expression>', 'probability': '<expression>'}]
     }
 ]
+
+def default_error_messenger(error_text):
+    print error_text
+
+def check_operator_number_of_inputs(operator, expression, error_messenger = default_error_messenger):
+    if not operator in All_operators:
+        error_messenger("Unknown operator " + operator + " in " + str(expression))
+        return False
+    elif operator in Unary_operators:
+        if is_iterable(expression[operator]):
+            error_messenger("Syntax error. Error in number of arguments " + operator + " in " + str(expression))
+            return False
+        else:
+            return True
+    elif operator in Binary_operators and not operator in Associative_operators:
+        if is_iterable(expression[operator]) and len(expression[operator]) == 2:
+            return True
+        else:
+            error_messenger("Syntax error. Error in number of arguments " + operator + " in " + str(expression))
+            return False
+    elif operator in Associative_operators:
+        if is_iterable(expression[operator]) and len(expression[operator]) > 1:
+            return True
+        else:
+            error_messenger("Syntax error. Error in number of arguments " + operator + " in " + str(expression))
+            return False
+    return True
+
+def is_boolean_expression(expression, error_messenger = default_error_messenger):
+    if is_boolean(expression):
+        return True
+    elif is_string(expression):
+        return True # If it's a string, it could be the name of a boolean gene
+    elif is_dictionary(expression):
+        (n_of_boolean, n_of_no_effect, n_of_unknown) = count_elements(expression, Operators_with_boolean_inputs, No_effect_attributes)
+        if n_of_boolean != 1 or n_of_unknown > 0:
+            error_messenger('Syntax error in ' + str(expression))
+            return False
+        for operator in expression:
+            if operator in Operators_with_boolean_inputs
+        return True                
+    else:
+        error_messenger('Not a boolean expression: ' + str(expression))
+        False
+
+def is_expression(expression, error_messenger = default_error_messenger):
+    if is_number(expression):
+        return True
+    elif is_string(expression):
+        return True
+    elif is_dictionary(expression):
+        if 'choice' in expression:
+            for item in expression:
+                if not is_expression(expression[item]):
+                    error_messenger("'" + str(item) + "': <expression> expected in " + str(expression))
+                    return False
+            return True
+        for instruction in expression:
+            if instruction in All_operators:
+                return evaluate_operator_expression(instruction, expression, error_messenger)
+            elif instruction == 'if':
+                param_list = expression[instruction]
+                if (is_tuple_or_list(param_list) 
+                    and len(param_list) == 3
+                    and is_boolean_expression(param_list[0])
+                    and is_expression(param_list[1])
+                    and is_expression(param_list[2])):
+                    return True
+                else:
+                    error_messenger('Syntax error in ' + str(expression))
+                    return False
+            elif instruction in ['cost', 'substance']:
+                for item in expression:
+                    if not item in ['cost', 'substance']:
+                        error_messenger(str(item) + ' unexpected in ' + str(expression))
+                        return False
+                    if not is_string(expression[iten]):
+                        error_messenger('<action name> or <substance name> expected in ' + str(expression) )
+                        return False
+                return True
+            elif instruction == 'constraint':
+                if is_string(expression[instruction]):
+                    return True
+                else:
+                    error_messenger('<action name> expected in ' + str(expression))
+                    return False
+            elif instruction == 'function':
+                if is_function(expression[instruction]):
+                    return True
+                elif is_tuple_or_list(expression[instruction]):
+                    if (len(expression[instruction]) > 0) and 
+                        is_function(expression[instruction][0]):
+                        for item in expression[instruction][1:]:
+                            if not is_expression(item):
+                                return False
+                        return True
+                error_messenger(str(expression[instruction][0]) + ' Function expected in ' + str(expression) )
+                return False
+            elif instruction == 'discrete distribution':
+                pairs_list = expression[instruction]
+                if is_tuple_or_list(pairs_list):
+                    for pair in pairs_list:
+                        if not (
+                            is_dictionary(pair)
+                            and 'value' in pair
+                            and is_expression(pair['value'])
+                            and 'probability' in pair
+                            and is_expression(pair['probability'])):
+                            error_messenger('Syntax error in ' + str(expression))
+                            return False
+                    return True
+                else:
+                    error_messenger('Syntax error in ' + str(expression))
+                    return False
+            elif not instruction in No_effect_attributes:
+                error_messenger('Unknown command ' + str(instruction) + ' in ' + str(expression))
+                return False
+    else:
+        error_messenger('Syntax error in ' + str(expression))
+        return False
+
+def check_syntax(settings, syntax):
+
+    if '$ ALLOWED ATTRIBUTES' in syntax:
+        allowed = syntax['$ ALLOWED ATTRIBUTES']
+    else:
+        allowed = []
+        
+    if '$ MANDATORY ATTRIBUTES' in syntax:
+        mandatory = syntax['$ MANDATORY ATTRIBUTES']
+    else:
+        mandatory = []
+        
+    if '$ NO-EFFECT ATTRIBUTES' in syntax:
+        no_effect = syntax['$ NO-EFFECT ATTRIBUTES'] + No_effect_attributes
+    else:
+        no_effect = No_effect_attributes
+        
+    for item in mandatory:
+        if not item in settings:
+            return item + ' attribute missing'
+
+    for item in settings:
+        if not (allowed == []) and \
+            not (item in allowed) and \
+            not (item in mandatory) and \
+            not (item in no_effect):
+            return 'unknown attribute ' + item
+
+    for item in settings:
+        if item in syntax:
+            result = check_syntax(settings[item], syntax[item])
+            if result != 'OK':
+                return result
+
+    return 'OK'
+
 
 
 

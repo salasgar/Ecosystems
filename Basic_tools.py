@@ -44,10 +44,8 @@ def is_string(x):
 def is_function(x):
     return isinstance(x, FunctionType)
 
-
 def is_dict(x):
     return isinstance(x, dict)
-
 
 def is_iterable(x):
     return hasattr(x, '__iter__')
@@ -61,9 +59,21 @@ def is_tuple(x):
 def is_tuple_or_list(x):
     return isinstance(x, list) or isinstance(x, tuple)
 
+def is_boolean(x):
+    return isinstance(x, bool)
 
-
-
+def count_elements(expression, *sets_list):
+    results_list = [{'set': set_, 'result': 0} for set_ in sets_list]
+    number_of_unknown_elements = 0
+    for element in expression:
+        unknown_element = True
+        for pair in results_list:
+            if element in pair['set']:
+                pair['result'] += 1
+                unknown_element = False
+        if unknown_element:
+            number_of_unknown_elements += 1
+    return [pair['result'] for pair in results_list] + [number_of_unknown_elements]
 
 # MATH FUNCTIONS:
 
