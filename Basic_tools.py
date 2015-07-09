@@ -127,6 +127,15 @@ def sigmoid(x):
     t = bounded_value(x, -50, 50)
     return exp(t)/(1+exp(t))
 
+def shuffle_function(list_object):
+    shuffle(list_object)
+    return list_object
+
+def choice_operator(inputs):
+    for pair in inputs[1:]:
+        if inputs[0] == pair[0]:
+            return pair[1]
+
 
 # DICTIONARIES:
 

@@ -3,9 +3,6 @@ from Basic_tools import *
 from Settings import *
 
 
-def shuffle_function(list_object):
-    shuffle(list_object)
-    return list_object
 
 Binary_operators_dictionary = {
     'op': lambda x, y: 'op(' + x + ', ' + y + ')', #formal operator for debugging purpose
@@ -116,42 +113,32 @@ def evaluate_built_function(function_settings, tags_list):
     elif is_function(function_and_parameters):
         return lambda *arguments: function_and_parameters() # Call without arguments
 
-def evaluate_dict(function_settings, tags_list):
+def apply_associative_operator(main_operation, inputs):
+    return reduce(main_operation, inputs[1:], inputs[0])
 
-    # Unary operators:            
-    for operator in Unary_operators_dictionary:
-        if operator in function_settings:
-            parameter = make_function(
-                function_settings[operator], tags_list)
-            main_operation = Unary_operators_dictionary[operator]
-            return lambda *arguments: main_operation(parameter(*arguments))
-    # This unary operators can't be evaluated the same way than the other unary operators:
-    if 'literal' in function_settings:
-        return lambda *arguments: function_settings['literal'] 
+def evaluate_dict(function_settings, tags_list, error_messenger):
 
-    # Binary operators:
-    for operator in Binary_operators_dictionary:
-        if operator in function_settings:
-            terms = [make_function(item, tags_list)
-                for item in function_settings[operator]]
-            main_operation = Binary_operators_dictionary[operator]
-            return lambda *arguments: reduce(
-                main_operation, [term(*arguments) for term in terms[1:]], terms[0](*arguments))
+    command = main_command(function_settings, error_messenger)
+    inputs = function_settings[command]
 
-    # Other functions:
-    if 'if' in function_settings:
+    if command == 'literal':
+        return lambda *arguments: inputs # 'literal' operator returns its input without evaluate it
+    elif command in All_operators:
+        inputs_function = make_function(inputs, tags_list, error_messenger)
+        main_operation = Operator_definition[command]['output function']
+        if command in Associative_operators:          
+            return lambda *arguments: apply_associative_operator(main_operation, inputs_function(*arguments))
+        else:
+            return lambda *arguments: main_operation(inputs_function(*arguments))
+    
+    elif command == 'if':
         (condition, value_if_true, value_if_false) = \
-            [make_function(item, tags_list) for item in function_settings['if']]
+            [make_function(item, tags_list, error_messenger) for item in function_settings['if']]
         return lambda *arguments: \
             value_if_true(*arguments) \
             if condition(*arguments) \
             else value_if_false(*arguments)
-    if 'choice' in function_settings:
-        data_dictionary = {}
-        for item in function_settings:
-            data_dictionary[item] = make_function(function_settings[item], tags_list)
-        parameter = dictionary['choice']
-        return lambda *arguments: dictionary[parameter(*arguments)](*arguments)
+    
     elif 'function' in function_settings:
         return evaluate_built_function(function_settings, tags_list)
     elif 'discrete distribution' in function_settings:
@@ -191,14 +178,10 @@ def make_function(function_settings, tags_list):
         return lambda *arguments: function_settings
     elif is_string(function_settings):
         return evaluate_string(function_settings, tags_list)
-    elif is_list(function_settings):
+    elif is_tuple_or_list(function_settings):
         terms = [make_function(item, tags_list)
                  for item in function_settings]
         return lambda *arguments: [item(*arguments) for item in terms] # This is necessary for 'shuffle' operator
-    elif is_tuple(function_settings):
-        terms = [make_function(item, tags_list)
-                 for item in function_settings]
-        return lambda *arguments: tuple(item(*arguments) for item in terms) 
     elif is_dict(function_settings):
         function_to_return = evaluate_dict(function_settings, tags_list)
         if 'allowed interval' in function_settings:
@@ -233,43 +216,8 @@ def remove_tags(function_name):
             hash_position -= 1
         return function_name[:hash_position]
 
-def check_syntax(settings, syntax):
-
-    if '$ ALLOWED ATTRIBUTES' in syntax:
-        allowed = syntax['$ ALLOWED ATTRIBUTES']
-    else:
-        allowed = []
-        
-    if '$ MANDATORY ATTRIBUTES' in syntax:
-        mandatory = syntax['$ MANDATORY ATTRIBUTES']
-    else:
-        mandatory = []
-        
-    if '$ NO-EFFECT ATTRIBUTES' in syntax:
-        no_effect = syntax['$ NO-EFFECT ATTRIBUTES']
-    else:
-        no_effect = []
-        
-    for item in mandatory:
-        if not item in settings:
-            return item + ' attribute missing'
-
-    for item in settings:
-        if not (allowed == []) and \
-            not (item in allowed) and \
-            not (item in mandatory) and \
-            not (item in no_effect):
-            return 'unknown attribute ' + item
-
-    for item in settings:
-        if item in syntax:
-            result = check_syntax(settings[item], syntax[item])
-            if result != 'OK':
-                return result
-
-    return 'OK'
-
-
+def read_function_settings(function_name, function_settings):
+    return make_function(function_settings, get_tags_list(function_name))
 
 
 
