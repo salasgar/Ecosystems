@@ -201,7 +201,8 @@ class MapObserver(GenericObserver):
         self.matplotlib_fig.set_tight_layout(True)
         self.image = self.matplotlib_axes.imshow(np.zeros((1, 1)),
                                                  interpolation='None',
-                                                 aspect='auto')
+                                                 aspect='auto',
+                                                 extent=[0, .5, 0, .5])
         # plt, = self.matplotlib_axes.plot([], [])
         self.canvas = FigureCanvasTkAgg(self.matplotlib_fig,
                                         master=self.frame)
@@ -239,6 +240,7 @@ class MapObserver(GenericObserver):
     def update_map(self):
         matrix = np.random.rand(100, 100)
         self.image.set_data(np.dstack((matrix, matrix, matrix)))
+        self.image.set_extent([0, 100, 0, 100])
         self.image.autoscale()
         self.canvas.draw()
 
