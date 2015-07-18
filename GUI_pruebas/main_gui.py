@@ -334,6 +334,10 @@ class Subject:
         # Initialize menu
         self.create_menu()
 
+        # Start timer
+        time_interval = 100  # TODO: Set as input parameter
+        self.timer_update_data(time_interval)
+
     def create_menu(self):
         """
             Creates the menu of the application
@@ -403,6 +407,10 @@ class Subject:
             Get root reference
         """
         return self.root
+
+    # TIMER FUNCTIONS
+    def timer_update_data(self, time_interval):
+        self.root.after(time_interval, self.timer_update_data, time_interval)
 
     # CALLBACKS
 
