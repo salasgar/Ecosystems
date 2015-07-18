@@ -1,4 +1,5 @@
 import Tkinter as tk
+import numpy as np
 import ttk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
@@ -184,6 +185,64 @@ class GenericObserver(object):
         self.frame.place_configure(x=self.x, y=self.y)
 
 
+class MapObserver(GenericObserver):
+
+    def __init__(self, subject, title, x, y, width, height):
+        """
+            Initialize a histogram observer
+        """
+        super(MapObserver, self).__init__(
+            subject, title, x, y, width, height)
+
+        # Creates a matplotlib
+        self.matplotlib_fig = Figure()
+        self.matplotlib_axes = self.matplotlib_fig.add_subplot(
+            111, aspect='auto')
+        self.matplotlib_fig.set_tight_layout(True)
+        self.image = self.matplotlib_axes.imshow(np.zeros((1, 1)),
+                                                 interpolation='None',
+                                                 aspect='auto')
+        # plt, = self.matplotlib_axes.plot([], [])
+        self.canvas = FigureCanvasTkAgg(self.matplotlib_fig,
+                                        master=self.frame)
+        self.canvas._tkcanvas.config(highlightthickness=0)
+        self.canvas.show()
+
+        # Creates a button
+        self.button1 = tk.Button(self.frame, text="Hola",
+                                 command=self.update_map)
+
+        # Add widgets to the list of widgets
+        self.widgets.append(self.canvas.get_tk_widget())
+        self.widgets.append(self.button1)
+
+        # Update widgets_positions
+        self.update_widgets_positions()
+
+        # Focus current observer
+        self.subject.focus(observer_to_be_focused=self)
+
+    def update_widgets_positions(self):
+        """
+            Update all widgets positions according to new width and height
+        """
+        super(MapObserver, self).update_widgets_positions()
+
+        # Matplotlib position
+        self.canvas.get_tk_widget().place(
+            x=3, y=25,
+            width=self.width * 0.66, height=self.height * 0.66)
+        self.matplotlib_axes.tick_params(labelsize=10)
+        # Buttons
+        self.button1.place(x=self.width - 120, y=50, width=100, height=25)
+
+    def update_map(self):
+        matrix = np.random.rand(100, 100)
+        self.image.set_data(np.dstack((matrix, matrix, matrix)))
+        self.image.autoscale()
+        self.canvas.draw()
+
+
 class HistogramObserver(GenericObserver):
 
     def __init__(self, subject, title, x, y, width, height):
@@ -333,7 +392,7 @@ class Subject:
         """
             Add a observer to the main window
         """
-        aux_observer = HistogramObserver(self, title, x, y, width, height)
+        aux_observer = MapObserver(self, title, x, y, width, height)
         self.observers.append(aux_observer)
         self.update_minimized_positions()
 
