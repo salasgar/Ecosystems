@@ -6,8 +6,12 @@ from Organism import *
 from time import sleep
 from Ecosystem import Ecosystem
 import logging
+import numpy
+import pickle
+import flufl.lock
 
 logger = logging.getLogger('ecosystems')
+lock = flufl.lock.Lock('./GUI_pruebas/map.lock')
 
 
 def setup_logger():
@@ -39,13 +43,42 @@ def print_ecosystem_status(ecosystem, time):
                                     'color'))
 
 
+def export_organisms_map(ecosystem):
+    size_x = ecosystem.size_x()
+    size_y = ecosystem.size_y()
+    R = numpy.zeros((size_x, size_y))
+    G = numpy.zeros((size_x, size_y))
+    B = numpy.zeros((size_x, size_y))
+    for organism in ecosystem.organisms_list:
+        # Get organism information
+        # TODO: access by organism.get_x() or similar
+        o_x = organism['location'][0]
+        o_y = organism['location'][1]
+        # Draw organism
+        # TODO: Define proper color
+        if 'color' in organism:
+            o_color = organism['color'](organism)
+            # print o_color
+        elif organism['speed'] == 0.0:
+            o_color = (0, 150, 0)
+        else:
+            o_color = (200, 200, 200)
+        R[o_x, o_y] = o_color[0]/256.0
+        G[o_x, o_y] = o_color[1]/256.0
+        B[o_x, o_y] = o_color[2]/256.0
+    RGB_matrix = numpy.dstack((R, G, B))
+    lock.lock()
+    pickle.dump(RGB_matrix, open('./GUI_pruebas/map.p', 'wb'))
+    lock.unlock()
+
+
 def main():
     setup_logger()
     logger.debug('DEBUG')
     print " *"*30, "\nWe start NOW!"
     # create Ecosystem
     ecosystem = Ecosystem(ecosystem_settings_3)
-    enable_graphics = True
+    enable_graphics = False
     make_sleeps = False
     time_lapse = 1
     Total_time = 2000000
@@ -67,6 +100,7 @@ def main():
         if make_sleeps:
             sleep(1.0)  # To remove
         time += 1
+        export_organisms_map(ecosystem)
 
     if enable_graphics:
         gui.delete()

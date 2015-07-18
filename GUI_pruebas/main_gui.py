@@ -1,10 +1,13 @@
 import Tkinter as tk
 import numpy as np
 import ttk
+import pickle
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
+import flufl.lock
 
+lock = flufl.lock.Lock('./map.lock')
 
 class GenericObserver(object):
 
@@ -238,8 +241,10 @@ class MapObserver(GenericObserver):
         self.button1.place(x=self.width - 120, y=50, width=100, height=25)
 
     def update_map(self):
-        matrix = np.random.rand(100, 100)
-        self.image.set_data(np.dstack((matrix, matrix, matrix)))
+        lock.lock()
+        RGB_matrix = pickle.load( open( "map.p", "rb" ) )
+        lock.unlock()
+        self.image.set_data(RGB_matrix)
         self.image.set_extent([0, 100, 0, 100])
         self.image.autoscale()
         self.canvas.draw()
@@ -410,6 +415,8 @@ class Subject:
 
     # TIMER FUNCTIONS
     def timer_update_data(self, time_interval):
+        for observer in self.observers:
+            observer.update_map()
         self.root.after(time_interval, self.timer_update_data, time_interval)
 
     # CALLBACKS
