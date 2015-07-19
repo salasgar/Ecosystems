@@ -207,7 +207,8 @@ class MapObserver(GenericObserver):
         self.image = self.matplotlib_axes.imshow(np.zeros((1, 1)),
                                                  interpolation='None',
                                                  aspect='auto',
-                                                 extent=[0, .5, 0, .5])
+                                                 extent=[0, 1, 0, 1],
+                                                 origin='lower')
         # plt, = self.matplotlib_axes.plot([], [])
         self.canvas = FigureCanvasTkAgg(self.matplotlib_fig,
                                         master=self.frame)
@@ -220,6 +221,7 @@ class MapObserver(GenericObserver):
                                 self.callback_end_selection)
         self.is_selecting = False
         self.selection_rect = None
+        self.zoom_observer = None
         self.canvas.show()
 
         # Creates a button
@@ -255,35 +257,135 @@ class MapObserver(GenericObserver):
         RGB_matrix = pickle.load(open("map.p", "rb"))
         lock.unlock()
         self.image.set_data(RGB_matrix)
-        self.image.set_extent([0, 100, 0, 100])
+        self.image.set_extent([0, RGB_matrix.shape[0],
+                               0, RGB_matrix.shape[1]])
         self.image.autoscale()
         self.canvas.draw()
+        if self.zoom_observer is not None:
+            self.zoom_observer.update_map(RGB_matrix)
+
+    def erase_selection(self):
+        if type(self.selection_rect) == Rectangle:
+            self.selection_rect.remove()
+            self.selection_rect = None
 
     def callback_start_selection(self, e):
+        if e.xdata is None or e.ydata is None:
+            # Discard if mouse is outside axes
+            return
         if e.button == 1:
             self.is_selecting = True
-            if type(self.selection_rect) == Rectangle:
-                self.selection_rect.remove()
+            self.erase_selection()
             self.selection_rect = Rectangle((e.xdata, e.ydata), 0, 0,
                                             linewidth=2, fill=None,
                                             ec='white')
             self.matplotlib_axes.add_patch(self.selection_rect)
             self.selection_x0 = e.xdata
             self.selection_y0 = e.ydata
-        pass
+            self.selection_width = 0
+            self.selection_height = 0
 
     def callback_resize_selection(self, e):
+        if e.xdata is None or e.ydata is None:
+            # Discard if mouse is outside axes
+            return
         if self.is_selecting:
-            new_width = e.xdata - self.selection_x0
-            new_height = e.ydata - self.selection_y0
-            self.selection_rect.set_width(new_width)
-            self.selection_rect.set_height(new_height)
-        pass
+            self.selection_width = e.xdata - self.selection_x0
+            self.selection_height = e.ydata - self.selection_y0
+            self.selection_rect.set_width(self.selection_width)
+            self.selection_rect.set_height(self.selection_height)
 
     def callback_end_selection(self, e):
         if self.is_selecting:
             self.is_selecting = False
-        pass
+            if self.zoom_observer is None:
+                self.zoom_observer = self.subject.add_zoom_observer(
+                    title='Zoom' + self.title,
+                    x=self.x + 200,  # TODO: Think about a better position
+                    width=self.width,
+                    y=self.y + 200,
+                    height=self.height,
+                    parent_mapobserver=self)
+
+
+class ZoomMapObserver(GenericObserver):
+
+    def __init__(self, subject, title, x, y, width, height,
+                 parent_mapobserver):
+        """
+            Initialize a histogram observer
+        """
+        self.parent_mapobserver = parent_mapobserver
+        super(ZoomMapObserver, self).__init__(
+            subject, title, x, y, width, height)
+
+        # Creates a matplotlib
+        self.matplotlib_fig = Figure()
+        self.matplotlib_axes = self.matplotlib_fig.add_subplot(
+            111, aspect='auto')
+        # self.matplotlib_axes.axis('off')
+        self.matplotlib_fig.subplots_adjust(left=0.1,
+                                            bottom=0.1,
+                                            right=0.9,
+                                            top=0.9)
+        self.image = self.matplotlib_axes.imshow(np.zeros((1, 1)),
+                                                 interpolation='None',
+                                                 aspect='auto',
+                                                 extent=[0, .5, 0, .5],
+                                                 origin='lower')
+        # plt, = self.matplotlib_axes.plot([], [])
+        self.canvas = FigureCanvasTkAgg(self.matplotlib_fig,
+                                        master=self.frame)
+        self.canvas._tkcanvas.config(highlightthickness=0)
+        self.canvas.show()
+
+        # Add widgets to the list of widgets
+        self.widgets.append(self.canvas.get_tk_widget())
+
+        # Update widgets_positions
+        self.update_widgets_positions()
+
+        # Focus current observer
+        self.subject.focus(observer_to_be_focused=self)
+
+    def update_widgets_positions(self):
+        """
+            Update all widgets positions according to new width and height
+        """
+        super(ZoomMapObserver, self).update_widgets_positions()
+        label_height = 20  # TODO: Get from actual label
+        # Matplotlib position
+        self.canvas.get_tk_widget().place(
+            x=3, y=3 + label_height,
+            width=self.width - 6, height=self.height - label_height - 6)
+        # self.matplotlib_axes.tick_params(labelsize=10)
+
+    def update_map(self, RGB_matrix):
+        zoom_x0 = self.parent_mapobserver.selection_x0
+        zoom_y0 = self.parent_mapobserver.selection_y0
+        zoom_width = self.parent_mapobserver.selection_width
+        zoom_height = self.parent_mapobserver.selection_height
+        start_x = round(min(zoom_x0, zoom_x0 + zoom_width))
+        end_x = round(max(zoom_x0, zoom_x0 + zoom_width))
+        start_y = round(min(zoom_y0, zoom_y0 + zoom_height))
+        end_y = round(max(zoom_y0, zoom_y0 + zoom_height))
+        if (end_x > start_x + 1) and (end_y > start_y + 1):
+            zoom_RGB_matrix = RGB_matrix[start_y:end_y,
+                                         start_x:end_x,
+                                         :]
+            # zoom_RGB_matrix is organized in row-columns, which
+            # correspond to y-x axis.
+            self.image.set_data(zoom_RGB_matrix)
+            self.image.set_extent([start_x, end_x,
+                                   start_y, end_y])
+        else:
+            zoom_RGB_matrix = np.zeros((1, 1))
+            self.image.set_data(zoom_RGB_matrix)
+            self.image.set_extent([0, 1,
+                                   0, 1])
+
+        self.image.autoscale()
+        self.canvas.draw()
 
 
 class HistogramObserver(GenericObserver):
@@ -435,6 +537,14 @@ class Subject:
                 observer.label.configure(bg="#d9d9d9", fg="black")
                 observer.has_focus = False
 
+    def add_zoom_observer(self, title, x, y, width, height,
+                          parent_mapobserver):
+        zoom_observer = ZoomMapObserver(self, title, x, y,
+                                        width, height, parent_mapobserver)
+        self.observers.append(zoom_observer)
+        self.update_minimized_positions()
+        return zoom_observer
+
     def add_observer(self, title, x, y, width, height):
         """
             Add a observer to the main window
@@ -452,7 +562,8 @@ class Subject:
     # TIMER FUNCTIONS
     def timer_update_data(self, time_interval):
         for observer in self.observers:
-            observer.update_map()
+            if type(observer) == MapObserver:
+                observer.update_map()
         self.root.after(time_interval, self.timer_update_data, time_interval)
 
     # CALLBACKS
@@ -490,6 +601,17 @@ class Subject:
                     observer.start_resizing(event.x_root,
                                             event.y_root)
             if event.widget is observer.button_close:
+                if type(observer) == ZoomMapObserver:
+                    # If a ZoomMapObserver is closed,
+                    # deselect zoom region from parent.
+                    observer.parent_mapobserver.erase_selection()
+                    observer.parent_mapobserver.zoom_observer = None
+                if type(observer) == MapObserver:
+                    # If a MapObserver is closed and it has a ZoomMapObserver,
+                    # close it as well.
+                    if observer.zoom_observer is not None:
+                        observer.zoom_observer.frame.destroy()
+                        self.observers.remove(observer.zoom_observer)
                 observer.frame.destroy()
                 self.observers.remove(observer)
             if event.widget is observer.button_minmaximize:
