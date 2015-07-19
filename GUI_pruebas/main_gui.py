@@ -3,11 +3,13 @@ import numpy as np
 import ttk
 import pickle
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
+from matplotlib.patches import Rectangle
+# from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 import flufl.lock
 
 lock = flufl.lock.Lock('./map.lock')
+
 
 class GenericObserver(object):
 
@@ -181,8 +183,8 @@ class GenericObserver(object):
         dy = y_root - self.move_lasty
         self.move_lastx = x_root
         self.move_lasty = y_root
-        limits_x = [0, self.root.winfo_width()-self.width]
-        limits_y = [0, self.root.winfo_height()-self.height]
+        limits_x = [0, self.root.winfo_width() - self.width]
+        limits_y = [0, self.root.winfo_height() - self.height]
         self.x = min(max(self.x + dx, limits_x[0]), limits_x[1])
         self.y = min(max(self.y + dy, limits_y[0]), limits_y[1])
         self.frame.place_configure(x=self.x, y=self.y)
@@ -210,6 +212,14 @@ class MapObserver(GenericObserver):
         self.canvas = FigureCanvasTkAgg(self.matplotlib_fig,
                                         master=self.frame)
         self.canvas._tkcanvas.config(highlightthickness=0)
+        self.canvas.mpl_connect('button_press_event',
+                                self.callback_start_selection)
+        self.canvas.mpl_connect('motion_notify_event',
+                                self.callback_resize_selection)
+        self.canvas.mpl_connect('button_release_event',
+                                self.callback_end_selection)
+        self.is_selecting = False
+        self.selection_rect = None
         self.canvas.show()
 
         # Creates a button
@@ -242,12 +252,38 @@ class MapObserver(GenericObserver):
 
     def update_map(self):
         lock.lock()
-        RGB_matrix = pickle.load( open( "map.p", "rb" ) )
+        RGB_matrix = pickle.load(open("map.p", "rb"))
         lock.unlock()
         self.image.set_data(RGB_matrix)
         self.image.set_extent([0, 100, 0, 100])
         self.image.autoscale()
         self.canvas.draw()
+
+    def callback_start_selection(self, e):
+        if e.button == 1:
+            self.is_selecting = True
+            if type(self.selection_rect) == Rectangle:
+                self.selection_rect.remove()
+            self.selection_rect = Rectangle((e.xdata, e.ydata), 0, 0,
+                                            linewidth=2, fill=None,
+                                            ec='white')
+            self.matplotlib_axes.add_patch(self.selection_rect)
+            self.selection_x0 = e.xdata
+            self.selection_y0 = e.ydata
+        pass
+
+    def callback_resize_selection(self, e):
+        if self.is_selecting:
+            new_width = e.xdata - self.selection_x0
+            new_height = e.ydata - self.selection_y0
+            self.selection_rect.set_width(new_width)
+            self.selection_rect.set_height(new_height)
+        pass
+
+    def callback_end_selection(self, e):
+        if self.is_selecting:
+            self.is_selecting = False
+        pass
 
 
 class HistogramObserver(GenericObserver):
