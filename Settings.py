@@ -6,8 +6,43 @@ from Basic_tools import *
 """                                                         """
 """ ******************************************************* """
 
+
+
+_sunlight = {
+    'matrix size': (25, 25),
+    'get new value #x #y #time': {
+        '+': (
+            2,
+            {'*': (
+                -1, 
+                {'cos': {'*': (2, pi, '#y')}}
+            )},
+            {'sin': {'*': (0.2, '#time')}}
+        )}
+} 
+
+_temperature = {
+    'matrix size': (20, 20),
+    'get new value #x #y #time': {
+        '*': (
+            0.9,
+            {'+': (
+                {'temperature': ('#x', '#y')},
+                {'sunlight': ('#x', '#y')}
+            )}
+        )}
+}
+"""
 _biotope = {
-    'size': (100, 100)
+    'size': (100, 100),
+    'feature maps': {
+        'sunlight': _sunlight,
+        'temperature': _temperature
+    }
+}
+"""
+_biotope = {
+    'size': (100, 100),
 }
 
 def _default_value_after_mutation_A(gene):
@@ -28,10 +63,12 @@ def _default_value_after_mutation_B(gene):
     """
     def _value(gene_value, mutation_frequency):
         if random_true(mutation_frequency):
-            return gene_value * (1 + uniform(-0.05, 0.05)**3)
+            return gene_value * (1 + uniform(-0.5, 0.5)**3)
         else:
             return gene_value
-    return {'function': (_value, gene, 'mutation_frequency')}
+    return {'function': (_value, gene, 'mutation frequency')}
+
+default_value_after_mutation = _default_value_after_mutation_B
 
 # genes
 _gene_age_category_a = {
@@ -40,7 +77,7 @@ _gene_age_category_a = {
             Age of organism (increase +1 every time cycle)
         """, 
     'initial value': 0,
-    'value after time cycle': {
+    'value in next cycle': {
         '+': ('age', 1)
     },
     'value after mutation': 0,
@@ -119,7 +156,7 @@ _organisms_category_a = {
             make_variation(
                 gene = 'speed',
                 absolute_variation = {'uniform': [-0.2, 0.2]},
-                probability_of_change = 'mutation_frequency'
+                probability_of_change = 'mutation frequency'
                 )
         },
         'hunt radius': {
@@ -150,12 +187,18 @@ _organisms_category_a = {
             'value after mutation': \
             _default_value_after_mutation_A('defense capacity')
         },
-        'aggressiveness': {
+        'mean aggressiveness': {
             'initial value': {
                 'uniform': [0, 1]
             },
             'value after mutation': \
             _default_value_after_mutation_A('aggressiveness')
+        },        
+        'aggressiveness': {
+            'initial value': 0,
+            'value in next cycle': {
+                'gauss': ('mean aggressiveness', 0.1)
+            }
         },
         'indicator gene A': {
             'initial value': 1.0,
@@ -171,9 +214,10 @@ _organisms_category_a = {
             'initial value': 10000.0
         },
         'energy reserve': {
-            'initial value': 'energy reserve at birth',
+            'initial value': 10000.0,
             'value in next cycle': {
                 '+': ('energy reserve',
+                      #{'feature': 'sunlight'} 
                       'photosynthesis capacity')
             },
             'allowed interval': [0, 'energy storage capacity']
@@ -198,14 +242,17 @@ _organisms_category_a = {
             }
         },
         'actions sequence': {
-            'initial value': ['move',
-                              'hunt',
-                              'do internal changes',
-                              'stay alive',
-                              'procreate'],
+            'initial value': {
+                'literal': [
+                    'move',
+                    'hunt',
+                    'do internal changes',
+                    'stay alive',
+                    'procreate']},
             'value after mutation': {
                 'if': ({'true with probability': 'mutation frequency'},
-                       {'shuffle': 'actions sequence'})
+                       {'shuffle': 'actions sequence'},
+                       'actions sequence')
             }
         }
 
@@ -216,9 +263,9 @@ _decisions = {
     'decide procreate': {
         'and': ({'>': (
             'energy reserve',
-            'minimum energy for procreating')
+            'minimum energy reserve for procreating')
             },
-            {'random true': 'procreating frequency'}
+            {'random true': 'procreation frequency'}
         )
     },
     'decide move': {
@@ -227,8 +274,8 @@ _decisions = {
     'decide hunt': {
         'random true': 'aggressiveness'
     },
-    'decide attack': {
-        '!=': ({'predator': 'species'}, {'prey': 'species'})
+    'decide attack #predator #prey': {
+        '!=': ('#predator species', '#prey species')
     },
 }
 
@@ -255,6 +302,7 @@ _constraints = {
         'or': (
             {'<': ('energy reserve', 100.0)},
             {'random true': 0.0005}
+
         )
     }
 }
@@ -274,7 +322,9 @@ _cost_move = {
 }
 
 _costs = {
-    'move': _cost_move
+    'move': _cost_move,
+    'procreate': {'energy reserve': 'energy reserve at birth'},
+    'stay alive': {'energy reserve': 100.0}
 }
 
 from Basic_tools import *

@@ -8,14 +8,14 @@ No_effect_commands = ['help', 'comment', 'label']
     'label': ''' This text is for debuging purpose '''
 """
 
-ecosystem_settings_syntaxis = {
+ecosystem_settings_syntax = {
 
     '$ ALLOWED COMMANDS': ['biotope', 'organisms', 'constraints', 'costs', 'help', 'comment', 'label'],
     '$ MANDATORY COMMANDS': ['biotope', 'organisms'],
 
     'biotope': { 
 
-        '$ ALLOWED COMMANDS': ['size', 'help', 'comment', 'label'],
+        '$ ALLOWED COMMANDS': ['size', 'feature maps', 'help', 'comment', 'label'],
         '$ MANDATORY COMMANDS': ['size'],
 
         'size': '<expression>'
@@ -39,11 +39,11 @@ ecosystem_settings_syntaxis = {
 
                 '<gene name>': { 
 
-                    '$ ALLOWED COMMANDS': ['initial value', 'value after cycle', 'value after mutation', 'allowed interval', 'help', 'comment', 'label'],
+                    '$ ALLOWED COMMANDS': ['initial value', 'value in next cycle', 'value after mutation', 'allowed interval', 'help', 'comment', 'label'],
                     '$ MANDATORY COMMANDS': ['initial value'],
 
                     'initial value': '<expression>',
-                    'value after cycle': '<expression>',
+                    'value in next cycle': '<expression>',
                     'value after mutation': '<expression>',
                     'allowed interval': '<expression>'
                 }
@@ -72,6 +72,34 @@ ecosystem_settings_syntaxis = {
     }
 }
 
+def output_function_of_choice(inputs):
+    key_value = inputs[0]
+    for pair in inputs[1:]:
+        if pair[0] == key_value:
+            return pair[1]
+    return None
+
+def check_inputs_of_discrete_distribution(inputs):
+    if not is_tuple_or_list(inputs):
+        return False
+    total = 0
+    for pair in inputs:
+        if is_tuple_or_list(pair) and len(pair) == 2 and is_number(pair[1]):
+            total += pair[1]
+        else: 
+            return False
+    if total == 1:
+        return True
+    else:
+        return False
+
+def output_function_of_discrete_distribution(inputs):
+    r = random()
+    for (value, probability) in inputs:
+        if r <= probability:
+            return value
+        else:
+            r -= probability
 
 # EXPRESSIONS:
 
@@ -386,21 +414,28 @@ Operator_definition = {
         'check number of inputs': lambda inputs: not is_tuple_or_list(inputs),
         'type of inputs': 'Number',
         'type of output': 'Boolean',
-        'output function': random_boolean
+        'output function': random_true
     },
 
     'randbool': {
         'check number of inputs': lambda inputs: not is_tuple_or_list(inputs),
         'type of inputs': 'Number',
         'type of output': 'Boolean',
-        'output function': random_boolean
+        'output function': random_true
     },
 
     'random true': {
         'check number of inputs': lambda inputs: not is_tuple_or_list(inputs),
         'type of inputs': 'Number',
         'type of output': 'Boolean',
-        'output function': random_boolean
+        'output function': random_true
+    },
+
+    'true with probability': {
+        'check number of inputs': lambda inputs: not is_tuple_or_list(inputs),
+        'type of inputs': 'Number',
+        'type of output': 'Boolean',
+        'output function': random_true
     },
 
     'uniform': {
@@ -433,18 +468,47 @@ Operator_definition = {
 
     # OTHER OPERATORS:
 
-    'literal': {
-        'check number of inputs': lambda inputs: True,
-        'type of inputs': 'Any type',
-        'type of output': 'Any type',
-        'output function': lambda x: x
-    },
+    #'literal': {      # This can't be an operator, because in this case inputs musn't be evaluated
+    #    'check number of inputs': lambda inputs: True,
+    #    'type of inputs': 'Any type',
+    #    'type of output': 'Any type',
+    #    'output function': lambda x: x
+    #},
 
     'choice': {
         'check number of inputs': lambda inputs: is_tuple_or_list(inputs) and len(inputs) > 1,
         'type of inputs': 'Any type',
         'type of output': 'Any type',
-        'output function': choice_function
+        'output function': output_function_of_choice
+    },
+
+    'if': {
+        'check inputs': lambda inputs: is_tuple_or_list(inputs) and len(inputs) == 3,
+        'type of output': 'Any type',
+        'output function': lambda condition, value_if_true, value_if_false: value_if_true if condition else value_if_false
+    },
+
+    'tuple': {
+        'check inputs': lambda inputs, error_messenger: True,
+        'type of output': 'Tuple',
+        'output function': lambda inputs: tuple(inputs)
+    },
+
+    'function': {
+        'check inputs': lambda inputs: 
+            is_function(inputs) or (
+                is_tuple_or_list(inputs) and 
+                (len(inputs) > 1) and
+                is_function(inputs[0])
+            ),
+        'type of output': 'Any type',
+        'output function': lambda *inputs: inputs[0](*(inputs[1:]))
+    },
+
+    'discrete distribution': {
+        'check inputs': check_inputs_of_discrete_distribution,
+        'type of output': 'Any type',
+        'output function': output_function_of_discrete_distribution
     }
 
 }
@@ -492,7 +556,7 @@ All_operators = [
 
     # RANDOM OPERATORS:
     'random integer', 'randint',  # random integer between given boundaries a and b
-    'random boolean', 'randbool', 'random true', # returns True with a given probability, otherwise, False
+    'random boolean', 'randbool', 'random true', 'true with probability', # returns True with a given probability, otherwise, False
     'uniform', # random value, uniform distribution in given interval [a, b]
     'gauss', # random value, normal distribution with given mean and variance
     'chi-squared', # random value, chi-squared distribution with given degree of freedom k
@@ -501,29 +565,25 @@ All_operators = [
     # LITERAL:
     'literal', # Literal operator returns its input without evaluate it
 
-    # CHOICE:
-    'choice',
-]
-
-All_function_names = [
+    # OTHER OPERATORS:
     'choice',
     'if',
     'tuple',
-    'cost',
-    'constraint',
     'function',
     'discrete distribution'
 ]
 
 Auxiliar_commands = ['allowed interval', 'substance'] 
- # 'allowed interval' can be used in operators expressions
+ # 'allowed interval' can be used in all numeric operators expressions
  # 'substance' can be used in 'cost' expressions
+
 
 All_allowed_commands_in_expression = (
     All_operators 
-    + All_function_names 
     + No_effect_commands 
-    + Auxiliar_commands)
+    + Auxiliar_commands + ['cost', 'constraint', 'literal', 'infinity'])
+
+All_allowed_commands = extract_from_dict('$ ALLOWED COMMANDS', ecosystem_settings_syntax) + All_allowed_commands_in_expression
 
 Unary_operators = [
     # Boolean:
@@ -545,8 +605,11 @@ Unary_operators = [
     'roundint',
 
     # Random:
-    'random boolean', 'randbool', 'random true', # returns True with a given probability, otherwise, False
-    'chi-squared'
+    'random boolean', 'randbool', 'random true', 'true with probability', # returns True with a given probability, otherwise, False
+    'chi-squared',
+
+    # Others:
+    'constraint',
 ]
 
 Binary_operators = [
@@ -574,9 +637,12 @@ Binary_operators = [
 
     # RANDOM OPERATORS:
     'random integer', 'randint',  # random integer between given boundaries a and b
-    'random boolean', 'randbool', 'random true', # returns True with a given probability, otherwise, False
     'uniform', # random value, uniform distribution in given interval [a, b]
     'gauss' # random value, normal distribution with given mean and variance
+]
+
+Ternary_operators = [
+    'if'
 ]
 
 Associative_operators = [
@@ -588,7 +654,7 @@ Associative_operators = [
 ]
 
 Operators_with_boolean_output = [
-    'random boolean', 'randbool', 'random true', # returns True with a given probability, otherwise, False
+    'random boolean', 'randbool', 'random true', 'true with probability', # returns True with a given probability, otherwise, False
     '>',
     '<',
     '>=',
@@ -659,7 +725,7 @@ Operators_with_numeric_inputs = [
     'round',
     'int',
     'roundint',
-    'random boolean', 'randbool', 'random true',
+    'random boolean', 'randbool', 'random true', 'true with probability',
     'chi-squared', # random value, chi-squared distribution with given degree of freedom k
 
     # Binary:
@@ -713,6 +779,9 @@ Commands_with_string_output = [ # Commands that COULD have a string output
     'discrete distribution'
 ]
 
+All_main_command_names = All_operators + ['cost', 'constraint', 'literal']
+
+
 Expressions = [
     '<numeric value>',
     '<string value>',
@@ -753,7 +822,7 @@ Gene_names = [
     '<action name>ing frequency'
 ]
 
-All_actions = [
+All_action_names = [
     'move',
         #  If the decision 'decide move' returns True: 
         #       Look for a place to go (there are many different ways of doing this)
@@ -851,4 +920,400 @@ Other_decisions = {
     'decide grow': '' # The organism can decide spend energy and other substances in order to 
                       # improve its capacities
 }
+
+
+# *********************************************************************************
+#                                   CHECK SYNTAX:
+# *********************************************************************************
+
+def default_error_messenger(*error_messages):
+    for message in error_messages:
+        print message
+
+def check_settings_syntax(settings, syntax, all_gene_names, error_messenger = default_error_messenger):
+
+    if '$ ALLOWED COMMANDS' in syntax:
+        allowed = syntax['$ ALLOWED COMMANDS']
+    else:
+        allowed = []
+        
+    if '$ MANDATORY COMMANDS' in syntax:
+        mandatory = syntax['$ MANDATORY COMMANDS']
+    else:
+        mandatory = []
+        
+    if '$ NO-EFFECT COMMANDS' in syntax:
+        no_effect = syntax['$ NO-EFFECT COMMANDS'] + No_effect_commands
+    else:
+        no_effect = No_effect_commands
+        
+    for item in mandatory:
+        if not item in settings:
+            error_messenger("Syntax error. ", item, ' attribute missing')
+            return False
+
+    for item in settings:
+        if not (allowed == []) and \
+            not (item in allowed) and \
+            not (item in mandatory) and \
+            not (item in no_effect):
+            error_messenger('Syntax error. Unknown attribute', item)
+            return False
+        elif is_dict(syntax) and item in syntax:
+            if syntax[item] == '<expression>' and not check_expression(settings[item], all_gene_names, error_messenger):
+                error_messenger('Error in expression', settings[item])
+                return False
+            elif syntax[item] == '<boolean expression>' and not (
+                        check_expression(settings[item], all_gene_names, error_messenger) and
+                        check_type_of_expression('boolean', settings[item], all_gene_names, error_messenger)
+                    ):
+                error_messenger('Error in boolean expression', settings[item])
+                return False
+            elif is_dict(syntax[item]) and not check_settings_syntax(settings[item], syntax[item], all_gene_names):
+                error_messenger('Syntax error in', settings)
+                return False
+
+    for syntax_item in syntax:
+        if syntax_item[0] == "<" and syntax_item[-1] == ">":
+            for settings_item in settings:
+                if not settings_item in allowed + mandatory + no_effect and \
+                    not check_settings_syntax(settings[settings_item], syntax[syntax_item], all_gene_names):
+                    return False
+    
+    if not check_gene_names(settings, all_gene_names, error_messenger):
+        return False
+    else:
+        return True
+
+
+def main_command(expression, error_messenger):
+    if is_dict(expression):
+        for command in expression:
+            if command in All_main_command_names: # not all commands can be the main command. For example 'allowed interval' of 'help' can't be main commands
+                return command
+    error_messenger('Syntax error. Command not found in', expression)
+    return None
+
+def check_type_of_expression(type_to_check, expression, all_gene_names, error_messenger):
+    if type_to_check == 'Any type':
+        return True
+    elif (
+        (type_to_check == 'Number' and is_number(expression)) or
+        (type_to_check == 'Boolean' and is_boolean(expression)) or
+        (type_to_check == 'List' and is_tuple_or_list(expression)) or
+        (type_to_check == 'Function' and is_function(expression)) or  # 'Function', but not 'String'
+        (type_to_check == 'String' and is_string(expression)) or
+        (is_string(expression) and expression in all_gene_names)): # A string could be the name of a gene of any type
+        return True
+    elif is_string(expression) and not (
+        expression in all_gene_names or
+        expression in All_action_names or
+        expression in All_allowed_commands
+        ):
+        error_messenger(expression, 'is not a fucking gene name')
+        return False
+    elif is_dict(expression):
+        if not check_expression(expression, all_gene_names, error_messenger):
+            return False
+        command = main_command(expression, error_messenger)
+        if (
+            (type_to_check == "Number" and command in Operators_with_numeric_output) or
+            (type_to_check == "Boolean" and command in Operators_with_boolean_output) or
+            (type_to_check == "List" and command in Operators_with_list_output) or
+            (type_to_check == "String" and command in Operators_with_string_output)): # 'String', but not 'Function'
+            return True
+    error_messenger("Syntax error. ", command, "doesn't return a", type_to_check)
+    return False
+
+def check_operator_input_types(operator, expression, all_gene_names, error_messenger):
+    inputs = expression[operator]
+    if 'check inputs' in Operator_definition[operator]:
+        if not Operator_definition[operator]['check inputs'](inputs):
+            error_messenger("Syntax error in operator", operator, "Inputs:", inputs)
+            return False
+        else:
+            return True
+    elif 'type of inputs' in Operator_definition[operator]:        
+        input_type = Operator_definition[operator]['type of inputs']
+    else:
+        error_messenger("Error in operator definition:", operator, Operator_definition[operator])
+        error_maker = 1/0
+    if operator == 'in':
+        return (
+            is_tuple_or_list(inputs) and 
+            (len(inputs) == 2) and 
+            check_type_of_expression('List', inputs[1], all_gene_names, error_messenger))
+    elif input_type == 'Any type':
+        return True
+    elif is_tuple_or_list(inputs):
+        for item in inputs:
+            if not check_type_of_expression(input_type, item, all_gene_names, error_messenger):
+                error_messenger('Type error in', expression)
+                error_messenger(input_type, 'expected')
+                return False
+    else:   
+        if not check_type_of_expression(input_type, inputs, all_gene_names, error_messenger):
+            error_messenger('Type error in', expression)
+            error_messenger(input_type, 'expected')
+            return False
+    return True
+
+
+def check_operator_expression(operator, expression, all_gene_names, error_messenger):
+    inputs = expression[operator]
+    if 'check inputs' in Operator_definition[operator]:
+        if not Operator_definition[operator]['check inputs'](inputs):
+            error_messenger("Syntax error in operator", operator, "Inputs:", inputs)
+            return False
+    if 'check number of inputs' in Operator_definition[operator]:
+        if not Operator_definition[operator]['check number of inputs'](inputs):
+            error_messenger("Syntax error in operator", operator, "Incorrect number of inputs in:", inputs)
+            return False
+    if not check_operator_input_types(operator, expression, all_gene_names, error_messenger):
+        error_messenger("Syntax error in operator", operator, "Incorrect type of inputs in:", inputs)
+        return False
+    if 'allowed interval' in expression:
+        interval = expression['allowed interval']
+        if not (
+            is_tuple_or_list(interval) and 
+            (len(interval) == 2) and
+            check_type_of_expression('Number', interval[0], all_gene_names, error_messenger) and
+            check_type_of_expression('Number', interval[1], all_gene_names, error_messenger)):
+            error_messenger('Error in interval', interval, 'defined in', expression)
+            return False
+    if operator == 'choice':
+        if not ( # Conditions that "inputs" has to match:
+            is_tuple_or_list(inputs) and 
+            len(inputs) >= 3 and 
+            check_expression(inputs, all_gene_names, error_messenger)
+        ):
+            error_messenger('Syntax error in', expression)
+            return False
+        input_type = get_type_of_expression(inputs[0], error_messenger)
+        for item in inputs[1:]:
+            if not ( # Conditions that "item" has to match:
+                is_tuple_or_list(item) and 
+                len(item) == 2 and
+                check_type_of_expression(input_type, item, all_gene_names, error_messenger)
+            ):
+                error_messenger('Syntax error in', item)
+                error_messenger('Syntax error in', expression)
+                return False
+    for instruction in expression:
+        if not instruction in [operator, 'allowed interval'] + No_effect_commands:
+            error_messenger('Syntax error. Unexpected command', instruction, 'in', expression)
+            return False
+    return True
+
+def check_commands_in_expression(expression, error_messenger):
+    count = count_elements(
+        expression, 
+        No_effect_commands, 
+        Auxiliar_commands, 
+        All_allowed_commands_in_expression)
+    
+    (n_No_effect_commands, n_Auxiliar_commands, n_All_allowed_commands, n_Unknown_commands) = count
+
+    if n_Unknown_commands > 0:
+        error_messenger('Syntax error. Unexpected command in', expression)
+        return False
+    elif n_All_allowed_commands - n_Auxiliar_commands - n_No_effect_commands != 1:
+        error_messenger('Error in number of commands in', expression)
+        return False
+    elif n_Auxiliar_commands > 1:
+        error_messenger('Error in number of commands in', expression)
+        return False
+    else:
+        return True
+
+def get_type_of_expression(expression, error_messenger):
+    if not check_expression(expression, error_messenger):
+        return 'Error in expression'
+    elif is_number(expression):
+        return 'Number'
+    elif is_boolean(expression):
+        return 'Boolean'
+    elif is_tuple_or_list(expression):
+        return 'List'
+    elif is_string(expression):
+        return 'Any type' # It could be the name of a gene of any type
+    elif is_function(expression):
+        return 'Function'
+    elif is_dict(expression):
+        command = main_command(expression)
+        if command in Commands_with_numeric_output:
+            return 'Number'
+        elif command in Commands_with_boolean_output:
+            return 'Boolean'
+        elif command in Commands_with_list_output:
+            return 'List'
+        else:
+            return 'Any type'
+
+def check_function_expression(command, expression, all_gene_names, error_messenger):
+    inputs = expression[command]
+    if not check_expression(inputs, all_gene_names, error_messenger):
+        error_messenger('Syntax error in', expression)
+        return False
+
+    elif command == 'if':
+        if (is_tuple_or_list(inputs) 
+            and len(inputs) == 3
+            and check_type_of_expression('Boolean', inputs[0], error_messenger)
+            and check_expression(inputs[1], all_gene_names, error_messenger)
+            and check_expression(inputs[2], all_gene_names, error_messenger)):
+            return True
+        else:
+            error_messenger('Syntax error in', expression)
+            return False
+
+    elif command in ['cost', 'constraint']:
+        if not check_type_of_expression('String', inputs, all_gene_names, error_messenger):
+            error_messenger('Action name expected in', inputs)
+            error_messenger('Syntax error in', expression)
+            return False
+        if 'substance' in expression and not check_type_of_expression('String', expression['substance'], all_gene_names, error_messenger):
+            error_messenger('Substance name expected in', expression['substance'])
+            error_messenger('Syntax error in', expression)
+            return False
+
+    elif command == 'function':
+        if is_function(inputs):
+                    return True
+        elif (check_expression(inputs, all_gene_names, error_messenger) and 
+            is_tuple_or_list(inputs) and
+            (len(inputs) > 0) and 
+            is_function(inputs[0])):
+                return True
+        else:
+            error_messenger('Syntax error. Function expected in', expression)
+            return False
+
+    elif command == 'discrete distribution':
+        if not (
+            is_tuple_or_list(inputs) and 
+            check_expression(inputs, all_gene_names, error_messenger)
+        ):
+            error_messenger('Syntax error in', expression)
+            return False
+        for pair in inputs:
+            if not (
+                is_dict(pair)
+                and 'value' in pair
+                and check_expression(pair['value'], all_gene_names, error_messenger)
+                and 'probability' in pair
+                and check_type_of_expression('Number', pair['probability'], all_gene_names, error_messenger)
+            ):
+                error_messenger('Syntax error in', expression)
+                return False
+        return True
+
+    else:
+        error_messenger('Syntax error. Unknown command', command, 'in', expression)
+
+def check_gene_names(expression, all_gene_names, error_messenger):
+    if is_string(expression):
+        if len(expression) > 0 and expression[0] == '#': # Example: '#predator attack capacity'
+            position = expression.index(' ') + 1
+            return check_gene_names(expression[position:], all_gene_names, error_messenger)
+        else:
+            name = expression
+        name = remove_tags(expression)
+        if (
+            name in all_gene_names or 
+            name in All_action_names or
+            name in All_allowed_commands
+            ):
+            return True
+        else:
+            error_messenger(expression, 'is not a gene name nor a shit', name)
+            return False
+    elif is_dict(expression):
+        for item in expression:
+            if (
+                not item in No_effect_commands
+                and not check_gene_names(expression[item], all_gene_names, error_messenger)
+                ):
+                return False
+        return True
+    if is_iterable(expression): # Do not use "elif" here in steed of "if" !!!
+        for item in expression:
+            if not check_gene_names(item, all_gene_names, error_messenger):
+                return False
+        return True
+    else:
+        return True
+
+
+def check_expression(expression, all_gene_names, error_messenger = default_error_messenger):
+    if not check_gene_names(expression, all_gene_names, error_messenger):
+        return False
+    elif is_number(expression) or is_boolean(expression):
+        return True
+    elif is_string(expression):
+        if not expression in all_gene_names and expression != 'infinity':
+            error_messenger('Warning. Not a gene name:', expression) # It could be a string value or a misspelled gene name
+        return True
+    elif is_tuple_or_list(expression):
+        for item in expression:
+            if not check_expression(item, all_gene_names, error_messenger):
+                error_messenger('Syntax error in', expression)
+                return False
+        return True
+    elif is_dict(expression):
+        if not check_commands_in_expression(expression, error_messenger):
+            return False
+        command = main_command(expression, error_messenger)
+        if command in All_operators:
+            return check_operator_expression(command, expression, all_gene_names, error_messenger)
+        else:
+            return check_function_expression(command, expression, all_gene_names, error_messenger)
+    else:
+        error_messenger('Syntax error in', expression)
+        return False
+
+
+"""
+expression = {
+    'mod': [4]
+}
+print check_operator_expression('mod', expression)
+
+
+"""
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

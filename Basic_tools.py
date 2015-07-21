@@ -5,6 +5,13 @@ from copy import *
 #from Ecosystem_settings import *
 from types import FunctionType
 
+# Variables for debuggin:
+print_ages = False
+print_organisms = False
+print_deths = False
+print_killed = False
+print_costs = False
+print_births = False
 
 class Matrix(object):
 
@@ -84,11 +91,11 @@ def prod(iterable):
 def signed_random():
     return 2*random() - 1
 
-def random_boolean(probability_of_True):
-    return (probability_of_True > random()),
+def random_true(probability_of_True):
+    return probability_of_True > random()
 
 def chi_squared(k): 
-	return math.fsum(gauss(0, 1)**2 for i in range(k)) # random value, chi-squared distribution with given degree of freedom k
+    return math.fsum(gauss(0, 1)**2 for i in range(k)) # random value, chi-squared distribution with given degree of freedom k
 
 # equivalent to range( ) but with float parameters
 def float_range(start, stop=0.0, step=1.0):
@@ -127,9 +134,13 @@ def sigmoid(x):
     t = bounded_value(x, -50, 50)
     return exp(t)/(1+exp(t))
 
-def shuffle_function(list_object):
-    shuffle(list_object)
-    return list_object
+def shuffle_function(*list_object):
+    if len(list_object) == 1 and is_tuple_or_list(list_object[0]):
+        result_list = list(copy(list_object[0]))
+    else:
+        result_list = list(copy(list_object))
+    shuffle(result_list)
+    return result_list
 
 def choice_operator(inputs):
     for pair in inputs[1:]:
@@ -166,6 +177,18 @@ def dictionary_to_string(dictionary, indent_level=0):
 def print_dictionary(dictionary):
     print dictionary_to_string(dictionary)
 
+def print_organism(organism, *lists_of_genes):
+    for one_list in lists_of_genes:
+        if is_string(one_list):
+            if one_list in organism:
+                print one_list + ": " + str(organism[one_list]),
+            else:
+                print "\n", one_list, 'NOT FOUND.'
+        elif is_tuple_or_list(one_list):
+            print_organism(organism, *one_list)
+        else:
+            print one_list, 'NOT A GENE NOR GENES LIST'
+    print "\n"
 
 def merge_dicts(x, y):
     '''Given two dicts, merge them into a new dict as a shallow copy.'''
@@ -173,7 +196,7 @@ def merge_dicts(x, y):
     z.update(y)
 
     """
-    	Es necesario encontrar la version original de esta funcion, porque esta no funciona.
+        Es necesario encontrar la version original de esta funcion, porque esta no funciona.
 
     """
 
@@ -246,8 +269,59 @@ def make_random_variation(gene, max_relative_variation = 0, max_absolute_variati
         probability_of_change = probability_of_change)
 
 
+def extract_all_gene_names(ecosystem_settings):
+    categories = ecosystem_settings['organisms']
+    result_set = set([])
+    for category_name in categories:
+        result_set = result_set.union(set(categories[category_name]['genes'].keys()))
+    return result_set
 
-#print 'abc'.index('b')
+def extract_all_strings(settings, exceptions):
+    result_set = set([])
+    if is_string(settings):
+        result_set = set([settings])
+    if is_iterable(settings):
+        for item in settings:
+            result_set = result_set.union(extract_all_strings(item, exceptions))
+    if is_dict(settings):
+        for item in settings:
+            if not item in exceptions:
+                result_set = result_set.union(extract_all_strings(settings[item], exceptions))
+    return set([item for item in result_set if not item in exceptions])
 
+def extract_from_dict(keyword, dictionary):
+    result = []
+    if keyword in dictionary:
+        if is_tuple_or_list(dictionary[keyword]):
+            result = list(dictionary[keyword])
+    for item in dictionary:
+        if is_dict(dictionary[item]):
+            result += extract_from_dict(keyword, dictionary[item])
+    return result
 
+def get_tags_list(function_name):
+    tags_list = []
+    end_position = 0
+    keep_looping = True
+    while keep_looping:
+        hash_position = function_name.find('#', end_position)
+        if hash_position > -1:
+            end_position = function_name.find(' ', hash_position)
+            if end_position > -1:
+                tags_list.append(function_name[hash_position: end_position])
+            else:
+                tags_list.append(function_name[hash_position:])                
+        else:
+            keep_looping = False
+    return tags_list
 
+def remove_tags(function_name):
+    hash_position = function_name.find('#')
+    if hash_position < 0:
+        return function_name
+    else:
+        while (hash_position > 0) and (function_name[hash_position - 1] == ' '):
+            hash_position -= 1
+        return function_name[:hash_position]
+
+  

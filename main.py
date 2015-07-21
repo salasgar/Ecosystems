@@ -1,5 +1,5 @@
 from GUI import GUI
-from Tools import *
+from Basic_tools import *
 from Biotope import Biotope
 from Settings import *
 from Organism import *
@@ -8,7 +8,6 @@ from Ecosystem import Ecosystem
 import logging
 
 logger = logging.getLogger('ecosystems')
-
 
 def setup_logger():
     logger.setLevel(logging.DEBUG)
@@ -38,17 +37,22 @@ def print_ecosystem_status(ecosystem, time):
                                     'energy reserve',
                                     'color'))
 
-
 def main():
     setup_logger()
     logger.debug('DEBUG')
     print " *"*30, "\nWe start NOW!"
-    # create Ecosystem
-    ecosystem = Ecosystem(ecosystem_settings_1)
+    #all_gene_names = extract_all_gene_names(my_example_of_ecosystem_settings)
+    #all_strings = extract_all_strings(my_example_of_ecosystem_settings, exceptions = No_effect_commands + All_action_names)
+    #print 'ALL GENES:', all_gene_names
+    #print 'ALL STRINGS:', all_strings
+    #print 'DIFFERENCE:', [item for item in all_strings if not item in all_gene_names and not item in All_allowed_commands_in_expression]
     enable_graphics = True
     make_sleeps = False
     time_lapse = 1
-    Total_time = 200000
+    Total_time = 200
+
+    ecosystem = Ecosystem(my_example_of_ecosystem_settings)
+
     if enable_graphics:
         gui = GUI(ecosystem)
     # Loop
@@ -56,10 +60,12 @@ def main():
 
     while ((len(ecosystem.organisms_list) > 0) and
            (time < Total_time)):
-        # Print ecosystem status
+        # Print ecosystem status:
         if time % time_lapse == 0:
             print_ecosystem_status(ecosystem, time)
-        # Evolve
+            #organism1, organism2 = ecosystem.get_random_organisms(number_of_random_organisms = 2)
+            #print_organism(organism1, 'energy reserve')
+        # Evolve:
         ecosystem.evolve()
         if enable_graphics:
             gui.handle_events()
@@ -67,6 +73,8 @@ def main():
         if make_sleeps:
             sleep(1.0)  # To remove
         time += 1
+
+    print "Time:", time, "Number of organisms:", len(ecosystem.organisms_list)
 
     if enable_graphics:
         gui.delete()

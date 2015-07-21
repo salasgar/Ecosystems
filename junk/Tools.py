@@ -81,11 +81,11 @@ def unpack_genes(genes_settings):
                 }}
    """
     def merge_gene_settings(A, B):
-        if is_dictionary(A):
+        if is_dict(A):
             dict_A = deep_copy_of_a_dictionary(A)
         else:
             dict_A = deep_copy_of_a_dictionary({'initial value': A})
-        if is_dictionary(B):
+        if is_dict(B):
             dict_B = deep_copy_of_a_dictionary(B)
         else:
             dict_B = deep_copy_of_a_dictionary({'initial value': B})
@@ -380,7 +380,7 @@ def make_function(function_settings, number_of_organisms=1, arguments=[]):
 
     if is_dict(function_settings) and 'allowed interval' in function_settings:
         interval_settings = function_settings['interval']
-        if hasattr(interval_settings, '__iter__') and not is_dictionary(interval_settings):
+        if hasattr(interval_settings, '__iter__') and not is_dict(interval_settings):
             lower_bound = make_function(
                 interval_settings[0], number_of_organisms)
             upper_bound = make_function(
