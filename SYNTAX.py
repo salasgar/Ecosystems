@@ -19,7 +19,39 @@ ecosystem_settings_syntax = {
         '$ MANDATORY COMMANDS': ['size'],
 
         'size': '<expression>'
+
+        'biotope features': {
+
+            '<feature name>': {
+
+                '$ ALLOWED COMMANDS': ['matrix size', 'initial value #x #y', 'get new value #x #y #time', 'update once every', 'help', 'comment', 'label'],
+                '$ MANDATORY COMMANDS': ['matrix size', 'initial value'],
+
+                'matrix size': '<expression>'
+
+                'initial value #x y#': '<expression>',
+
+                'value after updating #x #y #time': '<expression>',
+
+                'update once every': '<expression>'
+            }
+        }
     },
+
+    'ecosystem features': {
+
+            '<feature name>': {
+
+                '$ ALLOWED COMMANDS': ['initial value #x #y', 'get new value #x #y #time', 'update once every', 'help', 'comment', 'label'],
+                '$ MANDATORY COMMANDS': ['initial value'],
+
+                'initial value #x y#': '<expression>',
+
+                'value after updating #x #y #time': '<expression>',
+
+                'update once every': '<expression>'
+            }
+        }
 
     'organisms': {
 
