@@ -18,6 +18,7 @@ class Ecosystem(object):
     def __init__(self, ecosystem_settings):
         # Parse experiment settings
         self.load_settings(ecosystem_settings)
+        self.time = 0
         self.initialize_biotope()
         self.initialize_costs()
         self.initialize_constraints()
@@ -34,7 +35,8 @@ class Ecosystem(object):
     def load_settings(self, ecosystem_settings):
         self.settings = ecosystem_settings  
         #print_dictionary(self.settings)   
-        self.all_gene_names = extract_all_gene_names(self.settings)    
+        self.all_gene_names = extract_all_gene_names(self.settings)
+        self.all_feature_names = extract_all_feature_names(self.settings)    
         if not check_settings_syntax(ecosystem_settings, ecosystem_settings_syntax, self.all_gene_names):
             error_maker = 1/0  
 
@@ -158,6 +160,7 @@ class Ecosystem(object):
             self.new_deads = []
         self.organisms_list += self.newborns
         self.newborns = []
+        self.time += 1
         
         # print 'Num of organisms + newborns: %d' % len(self.organisms)
 

@@ -1,66 +1,6 @@
 from SYNTAX import *
 from Basic_tools import *
 
-"""
-
-Binary_operators_dictionary = {
-    'op': lambda x, y: 'op(' + x + ', ' + y + ')', #formal operator for debugging purpose
-    'op_': lambda x, y: '(' + x + ' op ' + y + ')', #formal operator for debugging purpose
-    '+': lambda x, y: x + y,
-    '-': lambda x, y: x - y,
-    '*': lambda x, y: x * y,
-    '/': lambda x, y: x / y,
-    '**': lambda x, y: x ** y,
-    '//': lambda x, y: x // y,
-    '%': lambda x, y: x % y,
-    'mod': lambda x, y: x % y,
-    '>': lambda x, y: x > y,
-    '<': lambda x, y: x < y,
-    '>=': lambda x, y: x >= y,
-    '<=': lambda x, y: x <= y,
-    '==': lambda x, y: x == y,
-    '!=': lambda x, y: x != y,
-    'in': lambda x, y: x in y,
-    'random integer': randint,  # random integer between x and y
-    'randint': randint,  # random integer between x and y
-    'gauss': gauss, # random value, normal distribution with mean x and variance y
-    'uniform': uniform, # random value, uniform distribution in [x, y]
-    
-    # Logic operators:
-    'and': lambda x, y: x and y,
-    'AND': lambda x, y: x and y,
-    '&': lambda x, y: x and y,
-    '&&': lambda x, y: x and y,
-    'or': lambda x, y: x or y,
-    'OR': lambda x, y: x or y,
-    '|': lambda x, y: x or y,
-    '||': lambda x, y: x or y,
-    'xor': lambda x, y: (x and not y) or (y and not x),
-    'XOR': lambda x, y: (x and not y) or (y and not x)}
-
-Unary_operators_dictionary = {
-    'abs': abs,
-    'minus': lambda x: -x,
-    'sqrt': sqrt,
-    'log': log,
-    'exp': exp,
-    'sigmoid': sigmoid,
-    'sin': sin,
-    'cos': cos,
-    'tan': tan,
-    'tg':  tan,
-    'round': lambda x: round(x, 0),
-    'int': lambda x: int(x),
-    'roundint': lambda x: int(round(x, 0)),
-    'random boolean': random_true,
-    'randbool': random_true,
-    'random true': random_true,
-    'chi-squared': chi_squared, # random value, chi-squared distribution with given degree of freedom k
-    'shuffle': shuffle_function,
-    'not': lambda x: not x}
-
-"""
-
 def get_gene_value(organism, gene):
     if is_function(organism[gene]):
         return organism[gene](organism)
@@ -213,8 +153,8 @@ def make_function(function_settings, all_gene_names, tags_list = [], error_messe
             return function_to_return
 
 
-def read_function_settings(function_name, function_settings, error_messenger = default_error_messenger):
-    return make_function(function_settings, get_tags_list(function_name), error_messenger)
+def read_function_settings(function_name, all_gene_names, function_settings, error_messenger = default_error_messenger):
+    return make_function(function_settings, all_gene_names, get_tags_list(function_name), error_messenger)
 
 
 

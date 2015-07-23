@@ -25,8 +25,8 @@ def setup_logger():
     logger.addHandler(handler)
 
 
-def print_ecosystem_status(ecosystem, time):
-    print ("time =", time, "Num of organisms =",
+def print_ecosystem_status(ecosystem):
+    print ("time =", ecosystem.time, "Num of organisms =",
            len(ecosystem.organisms_list))
     if print_ages:
         print [organism['age'] for organism in ecosystem.organisms_list]
@@ -56,13 +56,12 @@ def main():
     if enable_graphics:
         gui = GUI(ecosystem)
     # Loop
-    time = 0
 
     while ((len(ecosystem.organisms_list) > 0) and
-           (time < Total_time)):
+           (ecosystem.time < Total_time)):
         # Print ecosystem status:
-        if time % time_lapse == 0:
-            print_ecosystem_status(ecosystem, time)
+        if ecosystem.time % time_lapse == 0:
+            print_ecosystem_status(ecosystem)
             #organism1, organism2 = ecosystem.get_random_organisms(number_of_random_organisms = 2)
             #print_organism(organism1, 'energy reserve')
         # Evolve:
@@ -72,9 +71,8 @@ def main():
             gui.draw_ecosystem()
         if make_sleeps:
             sleep(1.0)  # To remove
-        time += 1
 
-    print "Time:", time, "Number of organisms:", len(ecosystem.organisms_list)
+    print "Time:", ecosystem.time, "Number of organisms:", len(ecosystem.organisms_list)
 
     if enable_graphics:
         gui.delete()

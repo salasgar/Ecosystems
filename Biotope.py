@@ -1,8 +1,90 @@
 from random import *
 from math import *
-from Tools import *
+#from Basic_tools import *
 import Organism
 
+class Feature(object):
+    def __init__(self, feature_settings, parent_ecosystem):
+        self.parent_ecosystem = parent_ecosystem
+        initial_value_generator = make_function(feature_settings['initial value'], [])
+        self.current_value = initial_value_generator(self.parent_ecosystem)
+        if 'value after updating' in feature_settings:
+            self.calculate_value_after_update = \
+                make_function(feature_settings['value after updating'], [])
+            if 'update once every' in feature_settings:
+                self.update_once_every = feature_settings['update once every']
+            else:
+                self.update_once_every = 1
+            self.time_of_next_update = self.parent_ecosystem.time + self.update_once_every
+
+    def update(self): # or   def evolve(self):
+        if hasattr(self, 'time_of_next_update') and self.parent_ecosystem.time > self.time_of_next_update:
+            self.current_value = self.calculate_value_after_update(self.parent_ecosystem)
+            self.time_of_next_update += self.update_once_every
+
+    def get_value(self):
+        return self.current_value
+
+    def set_value(self, new_value):
+        self.current_value = new_value
+        return new_value
+
+    def modify_proportionally(self, proportion):
+        value = self.get_value()
+        increment = proportion * value
+        self.set_value(value + increment)
+        return increment
+
+    def modify(self, increment):
+        value = self.get_value() + increment
+        self.set_value(value)
+        return increment
+
+class Feature_map(object):
+    def __init__(self, feature_settings, parent_ecosystem):
+        self.parent_ecosystem = parent_ecosystem
+        (self.size_x, self.size_y) = feature_settings['matrix size']
+        (size_x, size_y) = (self.size_x, self.size_y)
+        initial_value_generator = make_function(feature_settings['initial value #x #y'], [], tags_list = ['#x', '#y'])
+        self.current_value = Matrix(size_x, size_y)
+        for i in range(size_x):
+            for j in range(size_y):
+                self.current_value[i, j] = \
+                    initial_value_generator(self.parent_ecosystem, i/size_x, j/size_y)
+        if 'value after updating #x #y' in feature_settings:
+            self.calculate_value_after_update = \
+                make_function(feature_settings['value after updating #x #y'], [], tags_list = ['#x', '#y'])
+            if 'update once every' in feature_settings:
+                self.update_once_every= feature_settings['update once every']
+            else:
+                self.update_once_every = 1
+            self.time_of_next_update = self.parent_ecosystem.time + self.update_once_every
+    
+    def update(self): # or   def evolve(self):
+        if hasattr(self, 'time_of_next_update') and self.parent_ecosystem.time > self.time_of_next_update:
+            for i in range(size_x):
+                for j in range(size_y):
+                    self.current_value[i, j] = \
+                        self.calculate_value_after_update(self.parent_ecosystem, i/size_x, j/size_y)
+            self.time_of_next_update += self.update_once_every
+
+    def get_value(self, x, y):
+        return self.current_value[round(x * self.size_x), round(y * self.size_y)]
+
+    def set_value(self, x, y, new_value):
+        self.current_value[round(x * self.size_x), round(y * self.size_y)] = new_value
+        return new_value
+
+    def modify_proportionally(self, x, y, proportion):
+        value = self.get_value(x, y)
+        increment = proportion * value
+        self.set_value(x, y, value + increment)
+        return increment
+
+    def modify(self, x, y, increment):
+        value = self.get_value(x, y) + increment
+        self.set_value(x, y, value)
+        return increment
 
 class Biotope(object):
     
@@ -31,7 +113,7 @@ class Biotope(object):
         self.settings = settings
         self.parent_ecosystem = parent_ecosystem
         self.organisms_matrix = Matrix(*self.settings['size'])
-        self.featuremaps_dict = {}        
+        self.initialize_feature_maps()
         self.random_free_locations = self.random_free_locations_list(self)
         # The 'distance' between two points A and B is subjective. Depends on
         # the topology of the biotope (currently it's a flat torus) and the
@@ -60,8 +142,19 @@ class Biotope(object):
         for y in range(self.size_y()):
             print [0 if self.organisms_matrix[x, y] == None else 1 for x in range(self.size_x())]
    
-    def add_featuremap(featuremap):
-        self.featuremaps_dict[featuremap.code] = featuremap
+    def add_feature(self, feature_name, feature_settings):
+        self.features[feature_name] = Feature(feature_settings, self.parent_ecosystem)
+
+    def add_feature_map(self, feature_name, feature_settings):
+        self.features[feature_name] = Feature_map(feature_settings, self.parent_ecosystem)
+
+    def initialize_feature_maps(self):
+        if 'biotope features' in self.settings:
+            for feature in self.settings['biotope features']:
+                if 'matrix size' in self.settings['biotope features'][feature]:
+                    self.add_feature_map(feature, self.settings['biotope features'][feature])
+                else:
+                    self.add_feature(feature, self.settings['biotope features'][feature])
 
     def set_parent_ecosystem(self, parent_ecosystem):
         """
