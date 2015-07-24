@@ -15,19 +15,34 @@ ecosystem_settings_syntax = {
 
     'biotope': { 
 
-        '$ ALLOWED COMMANDS': ['size', 'feature maps', 'help', 'comment', 'label'],
+        '$ ALLOWED COMMANDS': ['size', 'biotope features', 'help', 'comment', 'label'],
         '$ MANDATORY COMMANDS': ['size'],
 
-        'size': '<expression>'
+        'size': '<expression>',
 
         'biotope features': {
 
-            '<feature name>': {
+            '<feature name or feature map name>': {
 
-                '$ ALLOWED COMMANDS': ['matrix size', 'initial value #x #y', 'get new value #x #y #time', 'update once every', 'help', 'comment', 'label'],
-                '$ MANDATORY COMMANDS': ['matrix size', 'initial value'],
+                '$ ALLOWED COMMANDS': [
+                    'matrix size', 
+                    'initial value #x #y', 
+                    'initial value', 
+                    'value after updating #x #y #time', 
+                    'value after updating #time', 
+                    'update once every', 
+                    'help'
+                ],
 
-                'matrix size': '<expression>'
+                # for a simple feature:
+                'initial value': '<expression>',
+
+                'value after updating #time': '<expression>',
+
+                'update once every': '<expression>',
+
+                # for a feature map:
+                'matrix size': '<expression>',
 
                 'initial value #x y#': '<expression>',
 
@@ -42,16 +57,16 @@ ecosystem_settings_syntax = {
 
             '<feature name>': {
 
-                '$ ALLOWED COMMANDS': ['initial value #x #y', 'get new value #x #y #time', 'update once every', 'help', 'comment', 'label'],
+                '$ ALLOWED COMMANDS': ['initial value', 'get new value #time', 'update once every', 'help', 'comment', 'label'],
                 '$ MANDATORY COMMANDS': ['initial value'],
 
-                'initial value #x y#': '<expression>',
+                'initial value': '<expression>',
 
-                'value after updating #x #y #time': '<expression>',
+                'value after updating #time': '<expression>',
 
                 'update once every': '<expression>'
             }
-        }
+        },
 
     'organisms': {
 
@@ -609,6 +624,16 @@ Auxiliar_commands = ['allowed interval', 'substance']
  # 'allowed interval' can be used in all numeric operators expressions
  # 'substance' can be used in 'cost' expressions
 
+Commands_that_comunicate_an_organism_with_the_environment = [
+    'cost',
+    'constraint',
+    'feature value',
+    'extract feature (percentage)',
+    'extract feature',
+    'normalized location x',
+    'normalized location y',
+    ]
+
 
 All_allowed_commands_in_expression = (
     All_operators 
@@ -962,7 +987,7 @@ def default_error_messenger(*error_messages):
     for message in error_messages:
         print message
 
-def check_settings_syntax(settings, syntax, all_gene_names, error_messenger = default_error_messenger):
+def check_settings_syntax(settings, syntax, all_gene_names, all_feature_names, error_messenger = default_error_messenger):
 
     if '$ ALLOWED COMMANDS' in syntax:
         allowed = syntax['$ ALLOWED COMMANDS']
@@ -981,7 +1006,7 @@ def check_settings_syntax(settings, syntax, all_gene_names, error_messenger = de
         
     for item in mandatory:
         if not item in settings:
-            error_messenger("Syntax error. ", item, ' attribute missing')
+            error_messenger("Syntax error. Attribute missing:", item)
             return False
 
     for item in settings:
@@ -992,16 +1017,16 @@ def check_settings_syntax(settings, syntax, all_gene_names, error_messenger = de
             error_messenger('Syntax error. Unknown attribute', item)
             return False
         elif is_dict(syntax) and item in syntax:
-            if syntax[item] == '<expression>' and not check_expression(settings[item], all_gene_names, error_messenger):
+            if syntax[item] == '<expression>' and not check_expression(settings[item], all_gene_names, all_feature_names, error_messenger):
                 error_messenger('Error in expression', settings[item])
                 return False
             elif syntax[item] == '<boolean expression>' and not (
-                        check_expression(settings[item], all_gene_names, error_messenger) and
-                        check_type_of_expression('boolean', settings[item], all_gene_names, error_messenger)
+                        check_expression(settings[item], all_gene_names, all_feature_names, error_messenger) and
+                        check_type_of_expression('boolean', settings[item], all_gene_names, all_feature_names, error_messenger)
                     ):
                 error_messenger('Error in boolean expression', settings[item])
                 return False
-            elif is_dict(syntax[item]) and not check_settings_syntax(settings[item], syntax[item], all_gene_names):
+            elif is_dict(syntax[item]) and not check_settings_syntax(settings[item], syntax[item], all_gene_names, all_feature_names):
                 error_messenger('Syntax error in', settings)
                 return False
 
@@ -1009,10 +1034,10 @@ def check_settings_syntax(settings, syntax, all_gene_names, error_messenger = de
         if syntax_item[0] == "<" and syntax_item[-1] == ">":
             for settings_item in settings:
                 if not settings_item in allowed + mandatory + no_effect and \
-                    not check_settings_syntax(settings[settings_item], syntax[syntax_item], all_gene_names):
+                    not check_settings_syntax(settings[settings_item], syntax[syntax_item], all_gene_names, all_feature_names):
                     return False
     
-    if not check_gene_names(settings, all_gene_names, error_messenger):
+    if not check_gene_names(settings, all_gene_names, all_feature_names, error_messenger):
         return False
     else:
         return True
@@ -1026,7 +1051,7 @@ def main_command(expression, error_messenger):
     error_messenger('Syntax error. Command not found in', expression)
     return None
 
-def check_type_of_expression(type_to_check, expression, all_gene_names, error_messenger):
+def check_type_of_expression(type_to_check, expression, all_gene_names, all_feature_names, error_messenger):
     if type_to_check == 'Any type':
         return True
     elif (
@@ -1035,17 +1060,20 @@ def check_type_of_expression(type_to_check, expression, all_gene_names, error_me
         (type_to_check == 'List' and is_tuple_or_list(expression)) or
         (type_to_check == 'Function' and is_function(expression)) or  # 'Function', but not 'String'
         (type_to_check == 'String' and is_string(expression)) or
-        (is_string(expression) and expression in all_gene_names)): # A string could be the name of a gene of any type
+        (is_string(expression) and expression in all_gene_names) or # A string could be the name of a gene of any type
+        (is_string(expression) and expression in all_feature_names) # A string could be the name of a feature
+        ): 
         return True
     elif is_string(expression) and not (
         expression in all_gene_names or
+        expression in all_feature_names or
         expression in All_action_names or
         expression in All_allowed_commands
         ):
         error_messenger(expression, 'is not a fucking gene name')
         return False
     elif is_dict(expression):
-        if not check_expression(expression, all_gene_names, error_messenger):
+        if not check_expression(expression, all_gene_names, all_feature_names, error_messenger):
             return False
         command = main_command(expression, error_messenger)
         if (
@@ -1057,7 +1085,7 @@ def check_type_of_expression(type_to_check, expression, all_gene_names, error_me
     error_messenger("Syntax error. ", command, "doesn't return a", type_to_check)
     return False
 
-def check_operator_input_types(operator, expression, all_gene_names, error_messenger):
+def check_operator_input_types(operator, expression, all_gene_names, all_feature_names, error_messenger):
     inputs = expression[operator]
     if 'check inputs' in Operator_definition[operator]:
         if not Operator_definition[operator]['check inputs'](inputs):
@@ -1074,24 +1102,24 @@ def check_operator_input_types(operator, expression, all_gene_names, error_messe
         return (
             is_tuple_or_list(inputs) and 
             (len(inputs) == 2) and 
-            check_type_of_expression('List', inputs[1], all_gene_names, error_messenger))
+            check_type_of_expression('List', inputs[1], all_gene_names, all_feature_names, error_messenger))
     elif input_type == 'Any type':
         return True
     elif is_tuple_or_list(inputs):
         for item in inputs:
-            if not check_type_of_expression(input_type, item, all_gene_names, error_messenger):
+            if not check_type_of_expression(input_type, item, all_gene_names, all_feature_names, error_messenger):
                 error_messenger('Type error in', expression)
                 error_messenger(input_type, 'expected')
                 return False
     else:   
-        if not check_type_of_expression(input_type, inputs, all_gene_names, error_messenger):
+        if not check_type_of_expression(input_type, inputs, all_gene_names, all_feature_names, error_messenger):
             error_messenger('Type error in', expression)
             error_messenger(input_type, 'expected')
             return False
     return True
 
 
-def check_operator_expression(operator, expression, all_gene_names, error_messenger):
+def check_operator_expression(operator, expression, all_gene_names, all_feature_names, error_messenger):
     inputs = expression[operator]
     if 'check inputs' in Operator_definition[operator]:
         if not Operator_definition[operator]['check inputs'](inputs):
@@ -1101,7 +1129,7 @@ def check_operator_expression(operator, expression, all_gene_names, error_messen
         if not Operator_definition[operator]['check number of inputs'](inputs):
             error_messenger("Syntax error in operator", operator, "Incorrect number of inputs in:", inputs)
             return False
-    if not check_operator_input_types(operator, expression, all_gene_names, error_messenger):
+    if not check_operator_input_types(operator, expression, all_gene_names, all_feature_names, error_messenger):
         error_messenger("Syntax error in operator", operator, "Incorrect type of inputs in:", inputs)
         return False
     if 'allowed interval' in expression:
@@ -1109,15 +1137,15 @@ def check_operator_expression(operator, expression, all_gene_names, error_messen
         if not (
             is_tuple_or_list(interval) and 
             (len(interval) == 2) and
-            check_type_of_expression('Number', interval[0], all_gene_names, error_messenger) and
-            check_type_of_expression('Number', interval[1], all_gene_names, error_messenger)):
+            check_type_of_expression('Number', interval[0], all_gene_names, all_feature_names, error_messenger) and
+            check_type_of_expression('Number', interval[1], all_gene_names, all_feature_names, error_messenger)):
             error_messenger('Error in interval', interval, 'defined in', expression)
             return False
     if operator == 'choice':
         if not ( # Conditions that "inputs" has to match:
             is_tuple_or_list(inputs) and 
             len(inputs) >= 3 and 
-            check_expression(inputs, all_gene_names, error_messenger)
+            check_expression(inputs, all_gene_names, all_feature_names, error_messenger)
         ):
             error_messenger('Syntax error in', expression)
             return False
@@ -1126,7 +1154,7 @@ def check_operator_expression(operator, expression, all_gene_names, error_messen
             if not ( # Conditions that "item" has to match:
                 is_tuple_or_list(item) and 
                 len(item) == 2 and
-                check_type_of_expression(input_type, item, all_gene_names, error_messenger)
+                check_type_of_expression(input_type, item, all_gene_names, all_feature_names, error_messenger)
             ):
                 error_messenger('Syntax error in', item)
                 error_messenger('Syntax error in', expression)
@@ -1182,9 +1210,9 @@ def get_type_of_expression(expression, error_messenger):
         else:
             return 'Any type'
 
-def check_function_expression(command, expression, all_gene_names, error_messenger):
+def check_function_expression(command, expression, all_gene_names, all_feature_names, error_messenger):
     inputs = expression[command]
-    if not check_expression(inputs, all_gene_names, error_messenger):
+    if not check_expression(inputs, all_gene_names, all_feature_names, error_messenger):
         error_messenger('Syntax error in', expression)
         return False
 
@@ -1192,19 +1220,19 @@ def check_function_expression(command, expression, all_gene_names, error_messeng
         if (is_tuple_or_list(inputs) 
             and len(inputs) == 3
             and check_type_of_expression('Boolean', inputs[0], error_messenger)
-            and check_expression(inputs[1], all_gene_names, error_messenger)
-            and check_expression(inputs[2], all_gene_names, error_messenger)):
+            and check_expression(inputs[1], all_gene_names, all_feature_names, error_messenger)
+            and check_expression(inputs[2], all_gene_names, all_feature_names, error_messenger)):
             return True
         else:
             error_messenger('Syntax error in', expression)
             return False
 
     elif command in ['cost', 'constraint']:
-        if not check_type_of_expression('String', inputs, all_gene_names, error_messenger):
+        if not check_type_of_expression('String', inputs, all_gene_names, all_feature_names, error_messenger):
             error_messenger('Action name expected in', inputs)
             error_messenger('Syntax error in', expression)
             return False
-        if 'substance' in expression and not check_type_of_expression('String', expression['substance'], all_gene_names, error_messenger):
+        if 'substance' in expression and not check_type_of_expression('String', expression['substance'], all_gene_names, all_feature_names, error_messenger):
             error_messenger('Substance name expected in', expression['substance'])
             error_messenger('Syntax error in', expression)
             return False
@@ -1212,7 +1240,7 @@ def check_function_expression(command, expression, all_gene_names, error_messeng
     elif command == 'function':
         if is_function(inputs):
                     return True
-        elif (check_expression(inputs, all_gene_names, error_messenger) and 
+        elif (check_expression(inputs, all_gene_names, all_feature_names, error_messenger) and 
             is_tuple_or_list(inputs) and
             (len(inputs) > 0) and 
             is_function(inputs[0])):
@@ -1224,7 +1252,7 @@ def check_function_expression(command, expression, all_gene_names, error_messeng
     elif command == 'discrete distribution':
         if not (
             is_tuple_or_list(inputs) and 
-            check_expression(inputs, all_gene_names, error_messenger)
+            check_expression(inputs, all_gene_names, all_feature_names, error_messenger)
         ):
             error_messenger('Syntax error in', expression)
             return False
@@ -1232,9 +1260,9 @@ def check_function_expression(command, expression, all_gene_names, error_messeng
             if not (
                 is_dict(pair)
                 and 'value' in pair
-                and check_expression(pair['value'], all_gene_names, error_messenger)
+                and check_expression(pair['value'], all_gene_names, all_feature_names, error_messenger)
                 and 'probability' in pair
-                and check_type_of_expression('Number', pair['probability'], all_gene_names, error_messenger)
+                and check_type_of_expression('Number', pair['probability'], all_gene_names, all_feature_names, error_messenger)
             ):
                 error_messenger('Syntax error in', expression)
                 return False
@@ -1243,16 +1271,14 @@ def check_function_expression(command, expression, all_gene_names, error_messeng
     else:
         error_messenger('Syntax error. Unknown command', command, 'in', expression)
 
-def check_gene_names(expression, all_gene_names, error_messenger):
+def check_names(expression, all_gene_names, all_feature_names, error_messenger):
     if is_string(expression):
         if len(expression) > 0 and expression[0] == '#': # Example: '#predator attack capacity'
-            position = expression.index(' ') + 1
-            return check_gene_names(expression[position:], all_gene_names, error_messenger)
-        else:
-            name = expression
+            return True
         name = remove_tags(expression)
         if (
             name in all_gene_names or 
+            name in all_feature_names or
             name in All_action_names or
             name in All_allowed_commands
             ):
@@ -1264,21 +1290,21 @@ def check_gene_names(expression, all_gene_names, error_messenger):
         for item in expression:
             if (
                 not item in No_effect_commands
-                and not check_gene_names(expression[item], all_gene_names, error_messenger)
+                and not check_names(expression[item], all_gene_names, all_feature_names, error_messenger)
                 ):
                 return False
         return True
     if is_iterable(expression): # Do not use "elif" here in steed of "if" !!!
         for item in expression:
-            if not check_gene_names(item, all_gene_names, error_messenger):
+            if not check_names(item, all_gene_names, all_feature_names, error_messenger):
                 return False
         return True
     else:
         return True
 
 
-def check_expression(expression, all_gene_names, error_messenger = default_error_messenger):
-    if not check_gene_names(expression, all_gene_names, error_messenger):
+def check_expression(expression, all_gene_names, all_feature_names, error_messenger = default_error_messenger):
+    if not check_names(expression, all_gene_names, all_feature_names, error_messenger):
         return False
     elif is_number(expression) or is_boolean(expression):
         return True
@@ -1288,7 +1314,7 @@ def check_expression(expression, all_gene_names, error_messenger = default_error
         return True
     elif is_tuple_or_list(expression):
         for item in expression:
-            if not check_expression(item, all_gene_names, error_messenger):
+            if not check_expression(item, all_gene_names, all_feature_names, error_messenger):
                 error_messenger('Syntax error in', expression)
                 return False
         return True
@@ -1297,9 +1323,9 @@ def check_expression(expression, all_gene_names, error_messenger = default_error
             return False
         command = main_command(expression, error_messenger)
         if command in All_operators:
-            return check_operator_expression(command, expression, all_gene_names, error_messenger)
+            return check_operator_expression(command, expression, all_gene_names, all_feature_names, error_messenger)
         else:
-            return check_function_expression(command, expression, all_gene_names, error_messenger)
+            return check_function_expression(command, expression, all_gene_names, all_feature_names, error_messenger)
     else:
         error_messenger('Syntax error in', expression)
         return False

@@ -20,6 +20,7 @@ class Ecosystem(object):
         self.load_settings(ecosystem_settings)
         self.time = 0
         self.initialize_biotope()
+        self.initialize_ecosystem_features()
         self.initialize_costs()
         self.initialize_constraints()
         self.newborns = []
@@ -37,7 +38,7 @@ class Ecosystem(object):
         #print_dictionary(self.settings)   
         self.all_gene_names = extract_all_gene_names(self.settings)
         self.all_feature_names = extract_all_feature_names(self.settings)    
-        if not check_settings_syntax(ecosystem_settings, ecosystem_settings_syntax, self.all_gene_names):
+        if not check_settings_syntax(ecosystem_settings, ecosystem_settings_syntax, self.all_gene_names, self.all_feature_names):
             error_maker = 1/0  
 
     def initialize_biotope(self):
@@ -45,6 +46,14 @@ class Ecosystem(object):
         self.biotope = Biotope(settings = self.settings['biotope'],
                                parent_ecosystem = self)
                 
+    def add_feature(self, feature_name, feature_settings):
+        self.ecosystem_features[feature_name] = Feature(feature_settings, self)
+
+    def initialize_ecosystem_features(self):
+        if 'ecosystem features' in self.settings:
+            for feature in self.settings['ecosystem features']:
+                self.add_feature(feature, self.settings['biotope features'][feature])
+
     def initialize_costs(self):
         print 'initialize_costs'
         self.costs = {}
@@ -111,7 +120,6 @@ class Ecosystem(object):
 
     def size_y(self):
         return self.biotope['size'][1]
-
     
     def initialize_organisms(self):
         print 'initialize_organisms'
@@ -160,6 +168,8 @@ class Ecosystem(object):
             self.new_deads = []
         self.organisms_list += self.newborns
         self.newborns = []
+        for feature in self.ecosystem_features:
+            feature.update()        
         self.time += 1
         
         # print 'Num of organisms + newborns: %d' % len(self.organisms)

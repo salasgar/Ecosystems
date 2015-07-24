@@ -242,84 +242,7 @@ class Organism(dict):
         else:
             result = 'hunt failed, prey not found'
         return result
-            
-    def do_photosynthesis(self):
-        """ This method is completely unnecessary, because we can define it in ecosystem_settings:
-        
-        'organisms': {
-            'category': 'Little pretty plants',
-            'energy reserve': {
-                'initial value': 10000,
-                'variability': {'new value': {'+': ('energy reserve', 'photosynthesis capacity')}}},
-            'attack capacity': ....
-            ...
-            
-            }
-            
-        Furthermore, the user can define it in many different ways. For example:
-        
-        'organisms': {
-            'category': 'Little pretty plants',
-            'energy reserve': {
-                'initial value': 10000,
-                'variability': {
-                    'new value': {'+': (
-                        'energy reserve', 
-                        {'gauss': ('photosynthesis capacity', 20.0)})},
-                    'allowed interval': [0, 'infinity']}},
-            'attack capacity': ....
-            ...
-            
-            
-        'organisms': {
-            'category': 'Little pretty plants',
-            'energy reserve': {
-                'initial value': 10000,
-                'variability': {'new value': {'+': (
-                    'energy reserve', 
-                    {'*': (
-                        'photosynthesis capacity',
-                        {'amount of substance': 'sunlight',
-                        'location': 'location'})}
-                    )}}},
-            'attack capacity': ....
-            ...
-
-
-        'organisms': {
-            'category': 'Little pretty plants',
-            'energy reserve': {
-                'initial value': 10000,
-                'variability': {
-                    'new value': {'+': (
-                        'energy reserve', 
-                        {'sqrt': 'photosynthesis capacity'})},
-                    'allowed interval': [0, 'infinity']}},
-            'attack capacity': ....
-            ...
-            
-        The user can also define it in the constraints:
-        
-        'stay alive': {'energy reserve': {
-            '+': (
-                {'*': ('photosynthesis capacity', -1)}, 
-                {'*': ('attack capacity', 0.3)}, 
-                {'*': ('photosynthesis capacity', 'photosynthesis capacity', 0.0008)},
-                {'*': ('energy storage capacity', 0.002)}, 
-                {'*': ('energy reserve', 0.05)},
-                {'*': ('speed', 0.2)}, 
-                0.1)}}} 
-        
-        
-        Shall I remove it?
-        """ 
-        if print_methods_names:
-            print 'do_photosynthesis'
-        if ('photosynthesis capacity' in self) and ('energy reserve' in self):
-            self['energy reserve'] += self['photosynthesis capacity']
-            if ('energy storage capacity' in self):
-                self['energy reserve'] = min(self['energy reserve'], self['energy storage capacity'])   
-        
+                    
     def mutate(self):
         if print_methods_names:
             print 'mutate'
@@ -398,26 +321,6 @@ class Organism(dict):
             #print "Not enough space"
         return procreated
 
-    def age(self):
-        if print_methods_names:
-            print 'age'
-        """ This method is completely unnecessary, because we can define it in ecosystem_settings:
-        
-        'organisms': {
-            'category': 'Little pretty pets',
-            'age': {
-                'initial value': 0,
-                'variability': {'new value': {'+': ('age', 1)}}},
-            'attack capacity': ....
-            ...
-            
-            }
-            
-        Shall I remove it?
-        """ 
-        if 'age' in self:
-            self['age'] += 1
-    
     def die(self, cause = 'natural deth'):
         if print_methods_names:
             print 'die'

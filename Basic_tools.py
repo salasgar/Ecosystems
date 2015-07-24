@@ -276,6 +276,11 @@ def extract_all_gene_names(ecosystem_settings):
         result_set = result_set.union(set(categories[category_name]['genes'].keys()))
     return result_set
 
+def extract_all_feature_names(ecosystem_settings):
+    biotope_features_settings = ecosystem_settings['biotope']['biotope features']
+    ecosystem_features_settings = ecosystem_settings['ecosystem features']
+    return biotope_features_settings.keys() + ecosystem_features_settings.keys()
+
 def extract_all_strings(settings, exceptions):
     result_set = set([])
     if is_string(settings):

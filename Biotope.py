@@ -62,10 +62,12 @@ class Feature_map(object):
     
     def update(self): # or   def evolve(self):
         if hasattr(self, 'time_of_next_update') and self.parent_ecosystem.time > self.time_of_next_update:
+            new_value = Matrix(self.size_x, self.size_y)
             for i in range(size_x):
                 for j in range(size_y):
-                    self.current_value[i, j] = \
+                    new_value[i, j] = \
                         self.calculate_value_after_update(self.parent_ecosystem, i/size_x, j/size_y)
+            self.current_value = new_value
             self.time_of_next_update += self.update_once_every
 
     def get_value(self, x, y):
@@ -113,7 +115,7 @@ class Biotope(object):
         self.settings = settings
         self.parent_ecosystem = parent_ecosystem
         self.organisms_matrix = Matrix(*self.settings['size'])
-        self.initialize_feature_maps()
+        self.initialize_features()
         self.random_free_locations = self.random_free_locations_list(self)
         # The 'distance' between two points A and B is subjective. Depends on
         # the topology of the biotope (currently it's a flat torus) and the
@@ -148,7 +150,7 @@ class Biotope(object):
     def add_feature_map(self, feature_name, feature_settings):
         self.features[feature_name] = Feature_map(feature_settings, self.parent_ecosystem)
 
-    def initialize_feature_maps(self):
+    def initialize_features(self):
         if 'biotope features' in self.settings:
             for feature in self.settings['biotope features']:
                 if 'matrix size' in self.settings['biotope features'][feature]:
@@ -265,12 +267,8 @@ class Biotope(object):
         return self.featuremaps[featuremap_code]
 
     def evolve(self):
-        """ SALAS:
-        TO DO: Posteriormente habra que definir el "clima", que consistira en cierto regimen de "lluvia" de distintas substancias, como agua, luz solar o sales minerales,
-        que iran apareciendo en el biotopo y de las cuales se iran alimentando los organismos. Las sales minerales van apareciendo por la disolucion de las rocas.
-        """
-        for featuremap in self.featuremaps_dict.values():
-            featuremap.spread()
+        for feature in self.features:
+            feature.update()
 
 
 

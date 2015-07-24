@@ -1,5 +1,5 @@
 import pygame
-from Tools import *
+from Basic_tools import *
 # from pygame.locals import *
 # from random import random
 # sfrom time import sleep  # To remove
