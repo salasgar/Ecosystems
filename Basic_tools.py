@@ -276,10 +276,11 @@ def extract_all_gene_names(ecosystem_settings):
         result_set = result_set.union(set(categories[category_name]['genes'].keys()))
     return result_set
 
-def extract_all_feature_names(ecosystem_settings):
-    biotope_features_settings = ecosystem_settings['biotope']['biotope features']
-    ecosystem_features_settings = ecosystem_settings['ecosystem features']
-    return biotope_features_settings.keys() + ecosystem_features_settings.keys()
+def extract_biotope_feature_names(ecosystem_settings):
+    return ecosystem_settings['biotope']['biotope features'].keys()
+
+def extract_ecosystem_feature_names(ecosystem_settings):
+    return ecosystem_settings['ecosystem features'].keys()
 
 def extract_all_strings(settings, exceptions):
     result_set = set([])
@@ -303,6 +304,15 @@ def extract_from_dict(keyword, dictionary):
         if is_dict(dictionary[item]):
             result += extract_from_dict(keyword, dictionary[item])
     return result
+
+def get_skeleton_of_settings(settings, null_element):
+    if is_dict(settings):
+        result = {}
+        for item in settings:
+            result[item] = get_skeleton_of_settings(settings[item], null_element)
+        return result
+    else:
+        return null_element
 
 def get_tags_list(function_name):
     tags_list = []

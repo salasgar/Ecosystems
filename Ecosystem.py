@@ -6,6 +6,7 @@ from Organism import *
 from time import *
 from SYNTAX import *
 from Function_settings_reader import *
+from copy import deep_copy
 import logging
 
 
@@ -16,7 +17,7 @@ logger = logging.getLogger('ecosystems')
 class Ecosystem(object):
 
     def __init__(self, ecosystem_settings):
-        # Parse experiment settings
+        self.function_maker = Function_maker(ecosystem_settings)
         self.load_settings(ecosystem_settings)
         self.time = 0
         self.initialize_biotope()
@@ -59,26 +60,24 @@ class Ecosystem(object):
         self.costs = {}
         if 'costs' in self.settings:
             for action_name in self.settings['costs']:
-                tags_list = get_tags_list(action_name)
-                cost_settings = self.settings['costs'][action_name]
                 self.costs[action_name] = {}
-                for reserve_substance in cost_settings:
-                    self.costs[action_name][reserve_substance] = make_function(
-                        cost_settings[reserve_substance], 
-                        self.all_gene_names,
-                        tags_list)
+                for reserve_substance in self.settings['costs'][action_name]:
+                    self.costs[action_name][reserve_substance] = \
+                        self.function_maker.read_function_settings(
+                            action_name
+                            self.settings['costs'][action_name][reserve_substance]
+                        )
     
     def initialize_constraints(self):
         print 'initialize_constraints'
         self.constraints = {}
         if 'constraints' in self.settings:        
             for constraint_name in self.settings['constraints']:
-                tags_list = get_tags_list(constraint_name)
-                constraint_settings = self.settings['constraints'][constraint_name]
-                self.constraints[constraint_name] = make_function(
-                    constraint_settings, 
-                    self.all_gene_names,
-                    tags_list)        
+                self.constraints[constraint_name] = \
+                    self.function_maker.read_function_settings(
+                        constraint_name, 
+                        self.settings['constraints'][constraint_name]
+                    )
     
     def initialize_statistics(self):
         print 'initialize_statistics'
@@ -141,11 +140,11 @@ class Ecosystem(object):
                     })
                 # Load genes:
                 for gene_name in genes_settings:
-                    new_organism.add_gene(gene_name, genes_settings[gene_name], self.all_gene_names)
+                    new_organism.add_gene(gene_name, genes_settings[gene_name])
                 # Load decisions:
                 if 'decisions' in category_settings:
                     for decision in category_settings['decisions']:
-                        new_organism.add_decision(decision, category_settings['decisions'][decision], self.all_gene_names)
+                        new_organism.add_decision(decision, category_settings['decisions'][decision])
                 self.add_organism(new_organism) # This adds new_organism to self.newborns and to self.biotope in a random location
         self.organisms_list = self.newborns
         self.newborns = []

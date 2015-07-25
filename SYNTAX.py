@@ -150,7 +150,7 @@ def output_function_of_discrete_distribution(inputs):
 
 # EXPRESSIONS:
 
-Operator_definition = {
+Operator_definitions = {
 
     # BINARY / N-ARY OPERATORS:
 
@@ -610,7 +610,7 @@ All_operators = [
     'shuffle', # randomly shuffles a list
 
     # LITERAL:
-    'literal', # Literal operator returns its input without evaluate it
+    #'literal', # If 'literal' was an operator, it would return its input without evaluate it
 
     # OTHER OPERATORS:
     'choice',
@@ -627,18 +627,21 @@ Auxiliar_commands = ['allowed interval', 'substance']
 Commands_that_comunicate_an_organism_with_the_environment = [
     'cost',
     'constraint',
-    'feature value',
+    'get feature value',
+    'get feature map value',
     'extract feature (percentage)',
     'extract feature',
     'normalized location x',
-    'normalized location y',
+    'normalized location y'
     ]
 
 
 All_allowed_commands_in_expression = (
     All_operators 
     + No_effect_commands 
-    + Auxiliar_commands + ['cost', 'constraint', 'literal', 'infinity'])
+    + Auxiliar_commands 
+    + Commands_that_comunicate_an_organism_with_the_environment
+    + ['literal', 'infinity'])
 
 All_allowed_commands = extract_from_dict('$ ALLOWED COMMANDS', ecosystem_settings_syntax) + All_allowed_commands_in_expression
 
@@ -763,7 +766,6 @@ Operators_with_list_output = [
 ]
 
 Operators_with_output_of_any_type = [
-    'literal',
     'choice',
 ]
 
@@ -819,7 +821,6 @@ Operators_with_list_inputs = [
 Operators_with_inputs_of_any_type = [
     '!=',
     'in',
-    'literal',
     'choice',
 ]
 
@@ -836,8 +837,11 @@ Commands_with_string_output = [ # Commands that COULD have a string output
     'discrete distribution'
 ]
 
-All_main_command_names = All_operators + ['cost', 'constraint', 'literal']
-
+All_main_command_names = (
+    All_operators 
+    + Commands_that_comunicate_an_organism_with_the_environment 
+    + ['literal']
+)
 
 Expressions = [
     '<numeric value>',

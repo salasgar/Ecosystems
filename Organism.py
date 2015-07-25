@@ -50,16 +50,28 @@ class Organism(dict):
                 
                 return ", ".join("{0}: {1}".format(attribute, self[attribute]) for attribute in list_of_attributes if attribute in self)
    
-    def add_gene(self, gene_name, gene_settings, all_gene_names):
-        initial_value_generator = make_function(gene_settings['initial value'], all_gene_names)
+    def add_gene(self, gene_name, gene_settings):
+        initial_value_generator = self.function_maker.read_function_settings(
+            'initial value', 
+            gene_settings['initial value']
+        )
         self[gene_name] = initial_value_generator(self)
         if 'value after mutation' in gene_settings:
-            self['value after mutation'][gene_name] = make_function(gene_settings['value after mutation'], all_gene_names)       
+            self['value after mutation'][gene_name] = self.function_maker.read_function_settings(
+                gene_name, 
+                gene_settings['value after mutation']
+            )       
         if 'value in next cycle' in gene_settings:
-            self['value in next cycle'][gene_name] = make_function(gene_settings['value in next cycle'], all_gene_names)       
+            self['value in next cycle'][gene_name] = self.function_maker.read_function_settings(
+                gene_name,
+                gene_settings['value in next cycle']
+            )       
     
-    def add_decision(self, decision_name, decision_settings, all_gene_names):
-        self[decision_name] = make_function(decision_settings, all_gene_names, get_tags_list(decision_name))
+    def add_decision(self, decision_name, decision_settings):
+        self[decision_name] = self.function_maker.read_function_settings(
+            decision_name,
+            decision_settings
+        )
     
     def act(self):
         if print_methods_names:

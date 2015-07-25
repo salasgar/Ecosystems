@@ -7,6 +7,49 @@ from Basic_tools import *
 """ ******************************************************* """
 
 
+def my_operator(a, b):
+    return gauss(
+        (a+b)/2,
+        abs(a-b)/5
+        )
+
+# User-defined operators:
+
+_operator_definitions = {
+    'my operator': {
+        'check number of inputs': lambda inputs: is_tuple_or_list(inputs) and (len(inputs) == 2),    
+        'output function': my_operator
+    },
+
+    'curve from 0 to 1': {
+        'type of inputs': 'Number',
+        'type of outputs': 'Number',        
+        'output function #input': {'+': (
+            -1,
+            {'*': (
+                2,
+                {'sigmoid': '#input'}
+            )}
+        )}
+    },
+
+    'gauss variation': {
+        'output function #value': {
+            'gauss': (
+                '#value',
+                {'/': ('#value', 4)}
+            )}
+    },
+
+    'variate': {
+        'output function #value #probability_of_change': {
+            'if': (
+                {'random true': '#probability_of_change'},
+                {'gauss variation': '#value'},
+                '#value'
+            )}
+    }
+}
 
 _sunlight = {
     'matrix size': (25, 25),
@@ -61,8 +104,8 @@ _temperature = {
         '*': (
             0.9, # this is the percentage (90 per cent) of the heat that remains in the biotope
             {'+': (
-                {'get feature map value': ('temperature', '#x', '#y')}, # the new value depends on the previous value
-                {'get feature map value': ('sunlight', '#x', '#y')}
+                {'#biotope temperature': ('#x', '#y')}, # the new value depends on the previous value
+                {'#biotope sunlight': ('#x', '#y')}
             )}
         )},
     'update once every': 1 # The values of the matrix of sunlight is updated every 1 cycle.
@@ -81,30 +124,26 @@ _nutrient_A = {
         '+': (
             {'*': (
                 0.80,  # the location (#x, #y) keeps the 80 per cent of its amount of nutrient A
-                {'get feature map value': ('nutrient A', '#x', '#y')}
+                {'#biotope nutrient A': ('#x', '#y')}
             )},
             {'*': (
                 0.05,  # the location (#x, #y) gets the 5 per cent from each of the adjacent locations:
                 {'+': (
-                    {'get feature map value': (
-                        'nutrient A', 
+                    {'#biotope nutrient A': ( 
                         {'+': ('#x', 1)},
                         '#y'
                     )},
-                    {'get feature map value': (
-                        'nutrient A', 
+                    {'#biotope nutrient A': ( 
                         {'-': ('#x', 1)},
                         '#y'
                     )},
-                    {'get feature map value': (
-                        'nutrient A', 
+                    {'#biotope nutrient A': ( 
                         '#x',
                         {'+': ('#y', 1)},
                     )},
-                    {'get feature map value': (
-                        'nutrient A', 
+                    {'#biotope nutrient A': ( 
                         '#x',
-                        {'-': ('#y', 1)},
+                        {'-': ('#y', 1)}
                     )}
                 )}
             )}
@@ -128,30 +167,26 @@ _nutrient_B = {
         '+': (
             {'*': (
                 0.90,  # the location (#x, #y) keeps the 90 per cent of its amount of nutrient B
-                {'get feature map value': ('nutrient A', '#x', '#y')}
+                {'#biotope nutrient A': ('#x', '#y')}
             )},
             {'*': (
                 0.025,  # the location (#x, #y) gets the 2,5 per cent from each of the adjacent locations:
                 {'+': (
-                    {'get feature map value': (
-                        'nutrient A', 
+                    {'#biotope nutrient A': ( 
                         {'+': ('#x', 1)},
                         '#y'
                     )},
-                    {'get feature map value': (
-                        'nutrient A', 
+                    {'#biotope nutrient A': ( 
                         {'-': ('#x', 1)},
                         '#y'
                     )},
-                    {'get feature map value': (
-                        'nutrient A', 
+                    {'#biotope nutrient A': ( 
                         '#x',
                         {'+': ('#y', 1)},
                     )},
-                    {'get feature map value': (
-                        'nutrient A', 
+                    {'#biotope nutrient A': ( 
                         '#x',
-                        {'-': ('#y', 1)},
+                        {'-': ('#y', 1)}
                     )}
                 )}
             )}
@@ -170,10 +205,11 @@ _biotope = {
             'initial value': 0.2,
             'value after updating': {
                 '+': (
-                    {'feature value': 'seasons speed'},
+                    'seasons speed',
                     {'uniform': [-0.05, 0.05]}
                 )
             },
+            'allowed interval': [0, 'infinity'],
             'update once every': 100
         }
     }
@@ -223,6 +259,33 @@ def _default_value_after_mutation_C(gene):
     return {'function': (_value, gene, 'mutation frequency')}
 
 _ecosystem_features = {
+
+    'time': {
+        'initial value': 0,
+        'value after updating': lambda ecosystem: ecosystem.time
+    },
+
+    'population': {
+        'initial value': 0,
+        'value after updating': lambda ecosystem: (
+            len(ecosystem.organisms_list) +
+            len(ecosystem.newborns)
+            )
+    },
+
+    'maximum population allowed': {
+        'initial value': 5000,
+
+        '+': (
+            5000,
+            {'*': (
+                10000,
+                {'curve from 0 to 1': 
+                    {'*': (0.01, 'time')}
+                }
+            )}
+    )},
+
     'autotrophs productivity': {
         'initial value': 10000.0  
     # Each organism has a different photosynthesis capacity, but this capacity is multiplied
@@ -257,9 +320,8 @@ _gene_energy_reserve = {
                 '+': (
                     'energy reserve',
                     {'*': (
-                        {'feature value': 'autotrophs productivity'},
-                        {'extract feature (percentage)': (
-                            'sunlight',
+                        {'#ecosystem autotrophs productivity'},
+                        {'extract #biotope sunlight (percentage)': (
                             'normalized location x',
                             'normalized location y',
                             {'+': (
@@ -281,8 +343,7 @@ _gene_nutrient_A_reserve = {
     'value in next cycle': {
         '+': (
             'nutrient A reserve',
-            {'extract feature (percentage)': (
-                'nutrient A',
+            {'extract #biotope nutrient A (percentage)': (
                 'normalized location x',
                 'normalized location y',
                 {'uniform': [0, 0.15]}  # Every organism can extract at most the 15 per cent of nutrient A from its biotope location
@@ -296,8 +357,7 @@ _gene_nutrient_B_reserve = {
     'value in next cycle': {
         '+': (
             'nutrient B reserve',
-            {'extract feature (percentage)': (
-                'nutrient A',
+            {'extract #biotope nutrient A (percentage)': (
                 'normalized location x',
                 'normalized location y',
                 {'+': (
@@ -338,8 +398,12 @@ _gene_temperature_adaptation_level = {
             'initial value': {
                 'uniform': [0, 2]
             },
-            'value after mutation': \
-            _default_value_after_mutation_C('temperature adaptation level')
+            'value after mutation': {
+                'gauss': (
+                    'temperature adaptation level',
+                    '#biotope seasons speed'
+                )},
+            'allowed interval': [0.00001, 'infinity']
 }
 
 _constraint_die = {
@@ -371,7 +435,7 @@ _constraint_die = {
                         {'**': (
                             {'-': (
                                 'optimal temperature',
-                                {'feature value': ('temperature', 'normalized location x', 'normalized location y') }
+                                {'#biotope temperature': ('normalized location x', 'normalized location y') }
                             )},
                             2
                         )},
@@ -691,22 +755,26 @@ _decisions = {
     'decide hunt': {
         'random true': 'aggressiveness'
     },
-    'decide attack #predator #prey': {
-        '!=': ('#predator species', '#prey species')
+    'decide attack #prey': {
+        '!=': ('species', '#prey species')
     },
 }
 
 _organisms_category_a['decisions'] = _decisions
 
 _constraints = {
-    'can kill #predator #prey': {
+    'can kill #prey': {
         '>': (
-            '#predator attack capacity',
+            'attack capacity',
             '#prey defense capacity'
         ) 
     },
     'can procreate': {
         'and': (
+            {'<': (
+                '#ecosystem population',
+                '#ecosystem maximum population allowed'
+            )},
             {'>': (
                 'energy reserve',
                 {'+': (
@@ -846,6 +914,7 @@ _organisms_category_b['genes']['speed'] = {'initial value': 0}
 
 my_example_of_ecosystem_settings = {
     'help': ''' This is an example of ecosystem settings ''',
+    'new operators': _operator_definitions,
     'biotope': _biotope,
     'ecosystem features': _ecosystem_features,
     'organisms': 
