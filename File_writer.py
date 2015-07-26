@@ -3,71 +3,6 @@ from Settings import *
 from SYNTAX import *
 from copy import *
 
-Elements_to_store = {
-
-    """
-        In this dictionary we indicate what and how often to store:
-
-            'Once'  means that this data is stored only once at the begining of the file
-            200     means that this data is stored once every 200 cycles
-            None    means that this data is never stored
-
-    """
-
-    'genes': {
-        'nutrient B reserve at birth': None,
-        'photosynthesis capacity growth': None,
-        'nutrient B storage capacity': None,
-        'generation': 200,
-        'energy reserve': 100,
-        'nutrient A reserve': None,
-        'temperature adaptation level': 40,
-        'aggressiveness': 20,
-        'indicator gene B': 1000,
-        'indicator gene A': 1000,
-        'moving frequency': None,
-        'photosynthesis capacity': None,
-        'defense capacity': None,
-        'minimum energy reserve for procreating': None,
-        'speed': None,
-        'minimum nutrient B reserve for procreating': None,
-        'species': None,
-        'actions sequence': None,
-        'nutrient B reserve': None,
-        'energy reserve at birth': None,
-        'hunt radius': None,
-        'optimal temperature': None,
-        'nutrient A reserve at birth': None,
-        'energy storage capacity': None,
-        'attack capacity': None,
-        'mean aggressiveness': None,
-        'procreation frequency': None,
-        'species identity mutation frequency': None,
-        'basal defense capacity': None,
-        'age': 20,
-        'minimum nutrient A reserve for procreating': None,
-        'nutrient A storage capacity': None,
-        'radius of procreation': None,
-        'mutation frequency': None
-        }
-    },
-    'biotope': {
-        'biotope features': {
-            'nutrient B': 'Once',
-            'nutrient A': 'Once',
-            'sunlight': 'Once',
-            'temperature': 'Once',
-            'seasons speed': 'Once'
-            },
-        'size': 'Once'
-        },
-    'ecosystem features': {
-        'maximum population allowed': 100,
-        'time': 20,
-        'autotrophs productivity': 'Once',
-        'population': 20
-        }
-    }
 
 def get_skeleton_of_settings(settings, final_element):
     if is_dict(settings):
@@ -139,18 +74,18 @@ class Data_storer:
             'organisms list': [],
         }
         if check('biotope', 'size'):
-            current_data['biotope']['size'] = deep_copy(self.parent_ecosystem.biotope.size)
+            current_data['biotope']['size'] = deepcopy(self.parent_ecosystem.biotope.size)
         for feature in self.elements_to_store['biotope']['biotope features']:
             if check('biotope', 'biotope features', feature):
-                current_data['biotope']['biotope features'][feature] = deep_copy(self.parent_ecosystem.biotope.biotope_features[feature].current_value)
+                current_data['biotope']['biotope features'][feature] = deepcopy(self.parent_ecosystem.biotope.biotope_features[feature].current_value)
         for feature in self.elements_to_store['ecosystem features']:
             if check('ecosystem features', feature):
-                current_data['ecosystem features'][feature] = deep_copy(self.parent_ecosystem.ecosystem_features[feature].current_value)
+                current_data['ecosystem features'][feature] = deepcopy(self.parent_ecosystem.ecosystem_features[feature].current_value)
         for organism in self.parent_ecosystem.organisms_list:
             data = {}
             for gene in self.elements_to_store['genes']:
                 if check('genes', gene):
-                    data[gene] = deep_copy(organism[gene])
+                    data[gene] = deepcopy(organism[gene])
             current_data['organisms list'].append(data)
 
         self.data.append(current_data)

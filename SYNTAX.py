@@ -10,8 +10,10 @@ No_effect_commands = ['help', 'comment', 'label']
 
 ecosystem_settings_syntax = {
 
-    '$ ALLOWED COMMANDS': ['biotope', 'organisms', 'constraints', 'costs', 'help', 'comment', 'label'],
+    '$ ALLOWED COMMANDS': ['new operators', 'biotope', 'organisms', 'constraints', 'costs', 'help', 'comment', 'label'],
     '$ MANDATORY COMMANDS': ['biotope', 'organisms'],
+
+    'new operators': {},
 
     'biotope': { 
 
@@ -506,6 +508,13 @@ Operator_definitions = {
         'output function': chi_squared
     },
 
+    'triangular': {
+        'check number of inputs': lambda inputs: is_tuple_or_list(inputs) and (len(inputs) == 3),
+        'type of inputs': 'Number',
+        'type of output': 'Number',
+        'output function': triangular
+    },
+
     'shuffle': {
         'check number of inputs': lambda inputs: is_list(inputs),
         'type of inputs': 'List',
@@ -607,6 +616,7 @@ All_operators = [
     'uniform', # random value, uniform distribution in given interval [a, b]
     'gauss', # random value, normal distribution with given mean and variance
     'chi-squared', # random value, chi-squared distribution with given degree of freedom k
+    'triangular', # random value, triangular distribution with given lower and upper bounds and mode
     'shuffle', # randomly shuffles a list
 
     # LITERAL:
@@ -624,23 +634,20 @@ Auxiliar_commands = ['allowed interval', 'substance']
  # 'allowed interval' can be used in all numeric operators expressions
  # 'substance' can be used in 'cost' expressions
 
-Commands_that_comunicate_an_organism_with_the_environment = [
+Commands_that_comunicate_an_organism_with_its_environment = [
     'cost',
     'constraint',
-    'get feature value',
-    'get feature map value',
     'extract feature (percentage)',
     'extract feature',
     'normalized location x',
     'normalized location y'
     ]
 
-
 All_allowed_commands_in_expression = (
     All_operators 
     + No_effect_commands 
     + Auxiliar_commands 
-    + Commands_that_comunicate_an_organism_with_the_environment
+    + Commands_that_comunicate_an_organism_with_its_environment
     + ['literal', 'infinity'])
 
 All_allowed_commands = extract_from_dict('$ ALLOWED COMMANDS', ecosystem_settings_syntax) + All_allowed_commands_in_expression
@@ -837,11 +844,6 @@ Commands_with_string_output = [ # Commands that COULD have a string output
     'discrete distribution'
 ]
 
-All_main_command_names = (
-    All_operators 
-    + Commands_that_comunicate_an_organism_with_the_environment 
-    + ['literal']
-)
 
 Expressions = [
     '<numeric value>',
@@ -1041,19 +1043,7 @@ def check_settings_syntax(settings, syntax, all_gene_names, all_feature_names, e
                     not check_settings_syntax(settings[settings_item], syntax[syntax_item], all_gene_names, all_feature_names):
                     return False
     
-    if not check_gene_names(settings, all_gene_names, all_feature_names, error_messenger):
-        return False
-    else:
-        return True
-
-
-def main_command(expression, error_messenger):
-    if is_dict(expression):
-        for command in expression:
-            if command in All_main_command_names: # not all commands can be the main command. For example 'allowed interval' of 'help' can't be main commands
-                return command
-    error_messenger('Syntax error. Command not found in', expression)
-    return None
+    return True
 
 def check_type_of_expression(type_to_check, expression, all_gene_names, all_feature_names, error_messenger):
     if type_to_check == 'Any type':

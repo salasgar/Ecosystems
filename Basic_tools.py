@@ -12,6 +12,7 @@ print_deths = False
 print_killed = False
 print_costs = False
 print_births = False
+print_methods_names = False
 
 class Matrix(object):
 
@@ -282,7 +283,13 @@ def extract_biotope_feature_names(ecosystem_settings):
 def extract_ecosystem_feature_names(ecosystem_settings):
     return ecosystem_settings['ecosystem features'].keys()
 
-def extract_all_strings(settings, exceptions):
+def extract_all_feature_names(ecosystem_settings):
+    return (
+        extract_biotope_feature_names(ecosystem_settings) + 
+        extract_ecosystem_feature_names(ecosystem_settings)
+        )
+
+def extract_all_strings(settings, exceptions = []):
     result_set = set([])
     if is_string(settings):
         result_set = set([settings])
@@ -312,6 +319,9 @@ def get_tags_list(function_name):
     while keep_looping:
         hash_position = function_name.find('#', end_position)
         if hash_position > -1:
+            if hash_position == len(function_name) - 1:
+                print "Syntax error!", function_name
+                error_maker = 1/0
             end_position = function_name.find(' ', hash_position)
             if end_position > -1:
                 tags_list.append(function_name[hash_position: end_position])

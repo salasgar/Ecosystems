@@ -1,13 +1,13 @@
 from GUI import GUI
 from Basic_tools import *
-from Biotope import Biotope
+from Biotope import *
 from Settings import *
 from Organism import *
 from time import *
 from SYNTAX import *
 from Function_settings_reader import *
 from File_writer import *
-from copy import deep_copy
+from copy import *
 import logging
 
 
@@ -18,8 +18,9 @@ logger = logging.getLogger('ecosystems')
 class Ecosystem(object):
 
     def __init__(self, ecosystem_settings):
-        self.function_maker = Function_maker(ecosystem_settings)
-        self.load_settings(ecosystem_settings)
+        self.settings = ecosystem_settings  
+        self.all_gene_names = extract_all_gene_names(self.settings)
+        self.function_maker = Function_maker(self, ecosystem_settings)
         self.time = 0
         self.initialize_biotope()
         self.initialize_ecosystem_features()
@@ -53,14 +54,6 @@ class Ecosystem(object):
             print 'Unknown element of ecosystem'
             error_maker = 1/0
         
-    def load_settings(self, ecosystem_settings):
-        self.settings = ecosystem_settings  
-        #print_dictionary(self.settings)   
-        self.all_gene_names = extract_all_gene_names(self.settings)
-        self.all_feature_names = extract_all_feature_names(self.settings)    
-        if not check_settings_syntax(ecosystem_settings, ecosystem_settings_syntax, self.all_gene_names, self.all_feature_names):
-            error_maker = 1/0  
-
     def initialize_biotope(self):
         print 'initialize_biotope'
         self.biotope = Biotope(settings = self.settings['biotope'],
@@ -70,9 +63,10 @@ class Ecosystem(object):
         self.ecosystem_features[feature_name] = Feature(feature_settings, self)
 
     def initialize_ecosystem_features(self):
+        self.ecosystem_features = {}
         if 'ecosystem features' in self.settings:
             for feature in self.settings['ecosystem features']:
-                self.add_feature(feature, self.settings['biotope features'][feature])
+                self.add_feature(feature, self.settings['ecosystem features'][feature])
 
     def initialize_costs(self):
         print 'initialize_costs'
@@ -83,7 +77,7 @@ class Ecosystem(object):
                 for reserve_substance in self.settings['costs'][action_name]:
                     self.costs[action_name][reserve_substance] = \
                         self.function_maker.read_function_settings(
-                            action_name
+                            action_name,
                             self.settings['costs'][action_name][reserve_substance]
                         )
     
@@ -169,13 +163,11 @@ class Ecosystem(object):
         self.newborns = []
 
     def evolve(self):
-        if Store_data:
-            self.data_storer.store_data()
         # Biotope actions:
         self.biotope.evolve()
         # Ecosystem actions:
         for feature in self.ecosystem_features:
-            feature.update()        
+            self.ecosystem_features[feature].update()        
         # Organisms actions:
         i = 0        
         while i < len(self.organisms_list):

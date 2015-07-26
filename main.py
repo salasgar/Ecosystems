@@ -53,6 +53,15 @@ def main():
 
     ecosystem = Ecosystem(my_example_of_ecosystem_settings)
 
+    """
+    f = ecosystem.function_maker.make_function('normalized location x')
+
+    for org in ecosystem.organisms_list:
+        print f(org)
+
+    error_maker = 1/0
+    """
+    
     if enable_graphics:
         gui = GUI(ecosystem)
     # Loop

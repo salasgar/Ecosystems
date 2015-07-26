@@ -6,7 +6,7 @@ from Basic_tools import *
 """                                                         """
 """ ******************************************************* """
 
-Store_data = True
+Store_data = False
 
 Elements_to_store = {
 
@@ -54,7 +54,6 @@ Elements_to_store = {
         'nutrient A storage capacity': None,
         'radius of procreation': None,
         'mutation frequency': None
-        }
     },
     'biotope': {
         'biotope features': {
@@ -125,7 +124,7 @@ _sunlight = {
     # to a rectangular region of the ecosystem. If the size of the ecosystem is 200x100, then
     # the size of each region must be 8x4. 
 
-    'initial value #x y#': {'+': (1.0, '#x', '#y')},
+    'initial value #x #y': {'+': (1.0, '#x', '#y')},
     # No matters the size of the ecosystem nor the size of the matrix of sunlight values, the
     # function that gives the value of each point is defined in the square [0, 1] x [0, 1],
     # i.e. the function initial_value(x, y) of any substance is defined for 0 <= x <= 1 and
@@ -161,7 +160,7 @@ _sunlight = {
 
 _temperature = {
     'matrix size': (20, 20),
-    'initial value #x y#': 10.0,
+    'initial value #x #y': 10.0,
     'value after updating #x #y': {
         'help':
         """

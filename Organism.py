@@ -51,24 +51,26 @@ class Organism(dict):
                 return ", ".join("{0}: {1}".format(attribute, self[attribute]) for attribute in list_of_attributes if attribute in self)
    
     def add_gene(self, gene_name, gene_settings):
-        initial_value_generator = self.function_maker.read_function_settings(
+        initial_value_generator = self.parent_ecosystem.function_maker.read_function_settings(
             'initial value', 
             gene_settings['initial value']
         )
         self[gene_name] = initial_value_generator(self)
         if 'value after mutation' in gene_settings:
-            self['value after mutation'][gene_name] = self.function_maker.read_function_settings(
-                gene_name, 
-                gene_settings['value after mutation']
-            )       
+            self['value after mutation'][gene_name] = \
+                self.parent_ecosystem.function_maker.read_function_settings(
+                    gene_name, 
+                    gene_settings['value after mutation']
+                )       
         if 'value in next cycle' in gene_settings:
-            self['value in next cycle'][gene_name] = self.function_maker.read_function_settings(
-                gene_name,
-                gene_settings['value in next cycle']
-            )       
+            self['value in next cycle'][gene_name] = \
+                self.parent_ecosystem.function_maker.read_function_settings(
+                    gene_name,
+                    gene_settings['value in next cycle']
+                )       
     
     def add_decision(self, decision_name, decision_settings):
-        self[decision_name] = self.function_maker.read_function_settings(
+        self[decision_name] = self.parent_ecosystem.function_maker.read_function_settings(
             decision_name,
             decision_settings
         )
@@ -268,7 +270,7 @@ class Organism(dict):
         energy_reserve = self['energy reserve'] # this is for debuggin
 
         for gene in self['value in next cycle']:
-            #print 'do_internal_changes', gene
+            print 'do_internal_changes', gene
             self[gene] = self['value in next cycle'][gene](self)
 
         #print 'energy reserve: {0} + {1} = {2}'.format(energy_reserve, self['energy reserve'] - energy_reserve, self['energy reserve']) 

@@ -2,7 +2,7 @@ from random import *
 from math import *
 #from Basic_tools import *
 #import Organism
-from Syntax import *
+from SYNTAX import *
 
 class Feature(object):
     def __init__(self, feature_settings, parent_ecosystem):
@@ -76,10 +76,14 @@ class Feature_map(object):
             self.time_of_next_update += self.update_once_every
 
     def get_value(self, x, y):
-        return self.current_value[round(x * self.size_x), round(y * self.size_y)]
+        for n in (x, y, self.size_x, self.size_y):
+            if not is_number(n):
+                print n, 'is not a FLOAT!!!'
+                error_maker = 1/0
+        return self.current_value[int(round(x * self.size_x)), int(round(y * self.size_y))]
 
     def set_value(self, x, y, new_value):
-        self.current_value[round(x * self.size_x), round(y * self.size_y)] = new_value
+        self.current_value[int(round(x * self.size_x)), int(round(y * self.size_y))] = new_value
         return new_value
 
     def modify_proportionally(self, x, y, proportion):
@@ -150,12 +154,17 @@ class Biotope(object):
             print [0 if self.organisms_matrix[x, y] == None else 1 for x in range(self.size_x())]
    
     def add_feature(self, feature_name, feature_settings):
+        #print 'add_feature:', feature_name
         self.biotope_features[feature_name] = Feature(feature_settings, self.parent_ecosystem)
 
     def add_feature_map(self, feature_name, feature_settings):
+        #print 'add_feature_map:', feature_name
         self.biotope_features[feature_name] = Feature_map(feature_settings, self.parent_ecosystem)
 
     def initialize_biotope_features(self):
+        if print_methods_names:
+            print 'Biotope.py: initialize_biotope_features'
+        self.biotope_features = {}
         if 'biotope features' in self.settings:
             for feature_name in self.settings['biotope features']:
                 if 'matrix size' in self.settings['biotope features'][feature_name]:
@@ -163,11 +172,10 @@ class Biotope(object):
                         feature_name, 
                         self.settings['biotope features'][feature_name]
                         )
-                    self.parent_ecosystem.add_feature_operators(
-                        feature_name
-                        )
                 else:
                     self.add_feature(feature_name, self.settings['biotope features'][feature_name])
+        if print_methods_names:
+            print 'initialize_biotope_features done!!'
 
     def set_parent_ecosystem(self, parent_ecosystem):
         """
@@ -276,7 +284,7 @@ class Biotope(object):
         
     def evolve(self):
         for feature in self.biotope_features:
-            feature.update()
+            self.biotope_features[feature].update()
 
 
 
