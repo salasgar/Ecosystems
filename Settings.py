@@ -6,6 +6,73 @@ from Basic_tools import *
 """                                                         """
 """ ******************************************************* """
 
+Store_data = True
+
+Elements_to_store = {
+
+    """
+        In this dictionary we indicate what and how often to store:
+
+            'Once'  means that this data is stored only once at the begining of the file
+            200     means that this data is stored once every 200 cycles
+            None    means that this data is never stored
+
+    """
+
+    'genes': {
+        'nutrient B reserve at birth': None,
+        'photosynthesis capacity growth': None,
+        'nutrient B storage capacity': None,
+        'generation': 200,
+        'energy reserve': 100,
+        'nutrient A reserve': None,
+        'temperature adaptation level': 40,
+        'aggressiveness': 20,
+        'indicator gene B': 1000,
+        'indicator gene A': 1000,
+        'moving frequency': None,
+        'photosynthesis capacity': None,
+        'defense capacity': None,
+        'minimum energy reserve for procreating': None,
+        'speed': None,
+        'minimum nutrient B reserve for procreating': None,
+        'species': None,
+        'actions sequence': None,
+        'nutrient B reserve': None,
+        'energy reserve at birth': None,
+        'hunt radius': None,
+        'optimal temperature': None,
+        'nutrient A reserve at birth': None,
+        'energy storage capacity': None,
+        'attack capacity': None,
+        'mean aggressiveness': None,
+        'procreation frequency': None,
+        'species identity mutation frequency': None,
+        'basal defense capacity': None,
+        'age': 20,
+        'minimum nutrient A reserve for procreating': None,
+        'nutrient A storage capacity': None,
+        'radius of procreation': None,
+        'mutation frequency': None
+        }
+    },
+    'biotope': {
+        'biotope features': {
+            'nutrient B': 'Once',
+            'nutrient A': 'Once',
+            'sunlight': 'Once',
+            'temperature': 'Once',
+            'seasons speed': 'Once'
+            },
+        'size': 'Once'
+        },
+    'ecosystem features': {
+        'maximum population allowed': 100,
+        'time': 20,
+        'autotrophs productivity': 'Once',
+        'population': 20
+        }
+    }
 
 def my_operator(a, b):
     return gauss(
@@ -66,11 +133,11 @@ _sunlight = {
     # This way, we can change the number of values we store without having to change any function
     # definition.
     
-    'value after updating #x #y #time': {
+    'value after updating #x #y': {
     # Each time the substance evolves, the whole matrix change its values, calling this 
     # function. But this function is defined for 0 <= x <= 1 and 0 <= y <= 1. Thus, for each
     # entry (i, j) of the matrix, we call this function with x = i / size_x   and   y = j /size_y
-    # where (size_x, size_y) is the size of the matrix of this substance. #time is the number
+    # where (size_x, size_y) is the size of the matrix of this substance. 'time' is the number
     # of cycles since the experiment started.
         'help':
         """
@@ -86,7 +153,7 @@ _sunlight = {
                 -1, 
                 {'cos': {'*': (2, pi, '#y')}}
             )},
-            {'sin': {'*': ('seasons speed', '#time')}}
+            {'sin': {'*': ('seasons speed', 'time')}}
         )},
 
     'update once every': 1 # The values of the matrix of sunlight is updated every 1 cycle.
@@ -95,7 +162,7 @@ _sunlight = {
 _temperature = {
     'matrix size': (20, 20),
     'initial value #x y#': 10.0,
-    'value after updating #x #y #time': {
+    'value after updating #x #y': {
         'help':
         """
             Each cycle the temperature is increased by sunlight, but the 10 per cent of
@@ -119,7 +186,7 @@ _nutrient_A = {
             {'uniform': [0, 10]},
             {'*': (2.5, '#x', '#y')}
         )},
-    'value after updating #x #y #time': {
+    'value after updating #x #y': {
         # Spreading:
         '+': (
             {'*': (
@@ -162,7 +229,7 @@ _nutrient_B = {
                 {'-': ('#x', '#y')}
             )}
         )},
-    'value after updating #x #y #time': {
+    'value after updating #x #y': {
         # Spreading:
         '+': (
             {'*': (

@@ -64,6 +64,8 @@ def main():
             print_ecosystem_status(ecosystem)
             #organism1, organism2 = ecosystem.get_random_organisms(number_of_random_organisms = 2)
             #print_organism(organism1, 'energy reserve')
+        if Store_data:
+            self.data_storer.store_data()        
         # Evolve:
         ecosystem.evolve()
         if enable_graphics:

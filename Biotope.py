@@ -65,7 +65,6 @@ class Feature_map(object):
                 self.update_once_every = 1
             self.time_of_next_update = self.parent_ecosystem.time + self.update_once_every
 
-    
     def update(self): # or   def evolve(self):
         if hasattr(self, 'time_of_next_update') and self.parent_ecosystem.time > self.time_of_next_update:
             new_value = Matrix(self.size_x, self.size_y)
@@ -121,7 +120,7 @@ class Biotope(object):
         self.settings = settings
         self.parent_ecosystem = parent_ecosystem
         self.organisms_matrix = Matrix(*self.settings['size'])
-        self.initialize_features()
+        self.initialize_biotope_features()
         self.random_free_locations = self.random_free_locations_list(self)
         # The 'distance' between two points A and B is subjective. Depends on
         # the topology of the biotope (currently it's a flat torus) and the
@@ -151,12 +150,12 @@ class Biotope(object):
             print [0 if self.organisms_matrix[x, y] == None else 1 for x in range(self.size_x())]
    
     def add_feature(self, feature_name, feature_settings):
-        self.features[feature_name] = Feature(feature_settings, self.parent_ecosystem)
+        self.biotope_features[feature_name] = Feature(feature_settings, self.parent_ecosystem)
 
     def add_feature_map(self, feature_name, feature_settings):
-        self.features[feature_name] = Feature_map(feature_settings, self.parent_ecosystem)
+        self.biotope_features[feature_name] = Feature_map(feature_settings, self.parent_ecosystem)
 
-    def initialize_features(self):
+    def initialize_biotope_features(self):
         if 'biotope features' in self.settings:
             for feature_name in self.settings['biotope features']:
                 if 'matrix size' in self.settings['biotope features'][feature_name]:
@@ -276,7 +275,7 @@ class Biotope(object):
             self.distance = lambda A, B: self.calculate_distance(A, B, distance)
         
     def evolve(self):
-        for feature in self.features:
+        for feature in self.biotope_features:
             feature.update()
 
 

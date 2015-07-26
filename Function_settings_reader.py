@@ -56,7 +56,7 @@ class Function_maker:
             'type of inputs': 'Number',
             'type of output': 'Number',
             'output function': lambda x, y: \
-                self.biotope.features[feature_name].get_value(x, y)
+                self.biotope.biotope_features[feature_name].get_value(x, y)
         }
         self.operator_definitions['extract #biotope ' + feature_name] = {
             'check number of inputs': lambda inputs: \
@@ -64,7 +64,7 @@ class Function_maker:
             'type of inputs': 'Number',
             'type of output': 'Number',
             'output function': lambda x, y, amount: \
-                self.biotope.features[feature_name].modify(x, y, -amount)
+                self.biotope.biotope_features[feature_name].modify(x, y, -amount)
         }
         self.operator_definitions['extract #biotope ' + feature_name + ' (percentage)'] = {
             'check number of inputs': lambda inputs: \
@@ -72,7 +72,7 @@ class Function_maker:
             'type of inputs': 'Number',
             'type of output': 'Number',
             'output function': lambda x, y, amount: \
-                self.biotope.features[feature_name].modify_proportionally(x, y, -amount)
+                self.biotope.biotope_features[feature_name].modify_proportionally(x, y, -amount)
         }
         self.operator_definitions['secrete #biotope ' + feature_name] = {
             'check number of inputs': lambda inputs: \
@@ -80,7 +80,7 @@ class Function_maker:
             'type of inputs': 'Number',
             'type of output': 'Number',
             'output function': lambda x, y, amount: \
-                self.biotope.features[feature_name].modify(x, y, amount)
+                self.biotope.biotope_features[feature_name].modify(x, y, amount)
         }
         self.operator_definitions['secrete #biotope ' + feature_name + ' (percentage)'] = {
             'check number of inputs': lambda inputs: \
@@ -88,7 +88,7 @@ class Function_maker:
             'type of inputs': 'Number',
             'type of output': 'Number',
             'output function': lambda x, y, amount: \
-                self.biotope.features[feature_name].modify_proportionally(x, y, amount)
+                self.biotope.biotope_features[feature_name].modify_proportionally(x, y, amount)
         }
         self.all_operators += [
             '#biotope ' + feature_name,
@@ -134,10 +134,10 @@ class Function_maker:
                     """
                     if attribute_name in self.ecosystem_feature_names:
                         return lambda *arguments: arguments[0].parent_ecosystem.\
-                            features[attribute_name].get_value()
+                            ecosystem_features[attribute_name].get_value()
                     elif attribute_name in self.biotope_feature_names:
                         return lambda *arguments: arguments[0].parent_ecosystem.biotope.\
-                            features[attribute_name].get_value()
+                            biotope_features[attribute_name].get_value()
                     else:
                         self.error_messenger(
                             'Unknown feature', 
@@ -162,14 +162,23 @@ class Function_maker:
                     """
                    return lambda *arguments: arguments[0][function_settings]
                 elif (
-                    function_settings in self.all_feature_names and 
-                    self.tags_list[0] in ['#ecosystem', '#biotope']
+                    function_settings in self.ecosystem_feature_names and 
+                    self.tags_list[0] == '#ecosystem':
                     ):
                     """ EXAMPLE:
-                        Inside 'biotope features' or 'ecosystem features':
+                        Inside 'ecosystem features':
                         '#ecosystem maximum population allowed'
                     """
-                    return lambda *arguments: arguments[0].features[function_settings].get_value()
+                    return lambda *arguments: arguments[0].ecosystem_features[function_settings].get_value()
+                elif (
+                    function_settings in self.biotope_feature_names and 
+                    self.tags_list[0] == '#biotope':
+                    ):
+                    """ EXAMPLE:
+                        Inside 'biotope features':
+                        '#ecosystem maximum population allowed'
+                    """
+                    return lambda *arguments: arguments[0].biotope_features[function_settings].get_value()
                 else:
                     """ EXAMPLE:
                         The value of a gene could be a string, like 'Plants':

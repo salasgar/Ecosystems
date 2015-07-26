@@ -150,32 +150,32 @@ def choice_operator(inputs):
 
 # DICTIONARIES:
 
-def dictionary_to_string(dictionary, indent_level=0):
-    dict_string = ""
+def dictionary_to_string(dictionary, indent_level = 0):
     tabulator = " "*4
-    if is_dict(dictionary):
-        # This line could be removed
-        dict_string += tabulator*indent_level + '{\n'
-        for key in dictionary.keys():
-            if hasattr(dictionary[key], '__iter__'):
-                dict_string += tabulator*indent_level + str(key)+":\n"
-                dict_string += dictionary_to_string(
-                    dictionary[key], indent_level + 1)
+    if hasattr(dictionary, '__iter__'):
+        result_list = []
+        indent_level += 1
+        for item in dictionary:
+            if is_string(item):
+                result_list += [tabulator*indent_level + "'" + item + "': " + dictionary_to_string(dictionary[item], indent_level)] 
             else:
-                dict_string += tabulator*indent_level + \
-                    str(key) + ": " + str(dictionary[key]) + "\n"
-        # This line also could be removed
-        dict_string += tabulator*indent_level + '}\n'
-    elif hasattr(dictionary, '__iter__'):
-        for element in dictionary:
-            dict_string += dictionary_to_string(element, indent_level + 1)
+                result_list += [tabulator*indent_level + str(item) + ': ' + dictionary_to_string(dictionary[item], indent_level)] 
+        if is_dict(dictionary):
+            return '{\n' + ',\n'.join(result_list) + '\n' + tabulator*indent_level + '}'
+        elif is_list(dictionary):
+            return '[\n' + ',\n'.join(result_list) + '\n' + tabulator*indent_level + ']'
+        else:
+            return '(\n' + ',\n'.join(result_list) + '\n' + tabulator*indent_level + ')'
+    elif is_string(dictionary):
+        return "'" + dictionary + "'"
     else:
-        dict_string += tabulator*indent_level + str(dictionary) + "\n"
-    return dict_string
+        return str(dictionary)
 
-
-def print_dictionary(dictionary):
-    print dictionary_to_string(dictionary)
+def print_dictionary(dictionary, dictionary_name = ''):
+    if dictionary_name != '':
+        print dictionary_name + " = " + dictionary_to_string(dictionary)
+    else:
+        print dictionary_to_string(dictionary)
 
 def print_organism(organism, *lists_of_genes):
     for one_list in lists_of_genes:
@@ -304,15 +304,6 @@ def extract_from_dict(keyword, dictionary):
         if is_dict(dictionary[item]):
             result += extract_from_dict(keyword, dictionary[item])
     return result
-
-def get_skeleton_of_settings(settings, null_element):
-    if is_dict(settings):
-        result = {}
-        for item in settings:
-            result[item] = get_skeleton_of_settings(settings[item], null_element)
-        return result
-    else:
-        return null_element
 
 def get_tags_list(function_name):
     tags_list = []

@@ -6,6 +6,7 @@ from Organism import *
 from time import *
 from SYNTAX import *
 from Function_settings_reader import *
+from File_writer import *
 from copy import deep_copy
 import logging
 
@@ -33,6 +34,24 @@ class Ecosystem(object):
             # to do: add more thigs
             }
         self.initialize_statistics()
+        self.data_storer = Data_storer(self, Elements_to_store)
+
+    def __getitem__(self, code):
+        if code == 'biotope':
+            return self.biotope
+        elif code == 'ecosystem features':
+            return self.ecosystem_features
+        elif code == 'organisms' or code == 'organisms list':
+            return self.organisms_list
+        elif code == 'constraints':
+            return self.constraints
+        elif code == 'costs':
+            return self.costs
+        elif code == 'time':
+            return self.time
+        else:
+            print 'Unknown element of ecosystem'
+            error_maker = 1/0
         
     def load_settings(self, ecosystem_settings):
         self.settings = ecosystem_settings  
@@ -150,9 +169,13 @@ class Ecosystem(object):
         self.newborns = []
 
     def evolve(self):
-        #print 'evolve'
+        if Store_data:
+            self.data_storer.store_data()
         # Biotope actions:
         self.biotope.evolve()
+        # Ecosystem actions:
+        for feature in self.ecosystem_features:
+            feature.update()        
         # Organisms actions:
         i = 0        
         while i < len(self.organisms_list):
@@ -167,8 +190,6 @@ class Ecosystem(object):
             self.new_deads = []
         self.organisms_list += self.newborns
         self.newborns = []
-        for feature in self.ecosystem_features:
-            feature.update()        
         self.time += 1
         
         # print 'Num of organisms + newborns: %d' % len(self.organisms)
