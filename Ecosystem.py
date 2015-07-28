@@ -21,13 +21,14 @@ class Ecosystem(object):
         self.settings = ecosystem_settings  
         self.all_gene_names = extract_all_gene_names(self.settings)
         self.function_maker = Function_maker(self, ecosystem_settings)
+        self.organisms_list = []
+        self.newborns = []
+        self.new_deads = []
         self.time = 0
         self.initialize_biotope()
         self.initialize_ecosystem_features()
         self.initialize_costs()
         self.initialize_constraints()
-        self.newborns = []
-        self.new_deads = []
         self.initialize_organisms()
         self.storage_capacities_dictionary = {
             'energy reserve': 'energy storage capacity',
@@ -114,6 +115,10 @@ class Ecosystem(object):
                     self.statistics['average amount of ' + reserve_substance + ' in ' + category] = 0             
         for gene in self.all_gene_names:
             self.statistics['average ' + gene] = 0
+        for action in self.costs:
+            self.statistics['average cost ' + action] = {'total': 0}
+            for substance in self.costs[action]:
+                self.statistics['average cost ' + action][substance] = 0
         # print "statistics finished" # ***
         
     def add_organism(self, organism):

@@ -56,6 +56,18 @@ def main():
 
     """ ***********************  TRIAL ZONE *********************************** 
 
+    f_set = {'<': (
+                '#ecosystem population',
+                '#ecosystem maximum population allowed'
+            )}
+
+    f = ecosystem.function_maker.read_function_settings('#organism', f_set)
+
+    for org in ecosystem.organisms_list:
+        print f(org)
+
+    error_maker = 1/0
+
     f_set = {'extract #biotope sunlight (percentage)': (
                             'normalized location x',
                             'normalized location y',

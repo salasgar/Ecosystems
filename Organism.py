@@ -96,7 +96,20 @@ class Organism(dict):
 
     def add_decision(self, decision_name, decision_settings):
         self[decision_name] = self.parent_ecosystem.function_maker.read_function_settings(
-            decision_name,
+            '#organism ' + decision_name,
+
+
+
+
+
+
+
+
+
+
+
+
+            
             decision_settings
         )
     
@@ -259,7 +272,21 @@ class Organism(dict):
             if reserve_substance in self:
                 #print 'eating', prey['category'], self[reserve_substance], "+", prey[reserve_substance], "=", # ***
                 self[reserve_substance] += prey[reserve_substance]
-                storage_capacity = self.parent_ecosystem.storage_capacities_dictionary[reserve_substance] 
+                storage_capacity = reserve_substance[:-7] + 'storage capacity'
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 if storage_capacity in self:
                     self[reserve_substance] = min(self[reserve_substance], self[storage_capacity])
                 #print self['energy reserve'] # ***

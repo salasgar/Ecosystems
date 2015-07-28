@@ -8,8 +8,8 @@ from types import FunctionType
 # Variables for debuggin: # ***
 print_ages = False
 print_organisms = False
-print_deths = True
-print_killed = True
+print_deths = False
+print_killed = False
 print_costs = False
 print_reserves = False
 print_births = True

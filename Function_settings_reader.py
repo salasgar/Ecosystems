@@ -343,8 +343,11 @@ class Function_maker:
             print 'make_function', self.tags_list
             print function_settings
 
-        if is_number(function_settings) or is_function(function_settings):
+        if is_number(function_settings):
             return lambda *arguments: function_settings
+
+        elif is_function(function_settings):
+            return function_settings
 
         elif is_string(function_settings):
             return self.make_function_from_string(function_settings)
@@ -362,6 +365,10 @@ class Function_maker:
                     allowed_interval)
             else:
                 return function_to_return
+
+        else:
+            self.error_messenger('Warning. Unevaluated function settings:', function_settings)
+            return lambda *arguments: function_settings
 
 
     def read_function_settings(self, function_name_with_tags, function_settings):
