@@ -4,7 +4,7 @@ from math import *
 #import Organism
 from SYNTAX import *
 
-class Feature(object):
+class Feature(object):  # A float variable
     def __init__(self, feature_name, feature_settings, parent_ecosystem):
         self.feature_name = feature_name
         self.parent_ecosystem = parent_ecosystem
@@ -45,7 +45,7 @@ class Feature(object):
         self.set_value(value)
         return increment
 
-class Feature_map(object):
+class Feature_map(object):  # A function f(x, y)
     def __init__(self, feature_name, feature_settings, parent_ecosystem):
         self.feature_name = feature_name
         self.parent_ecosystem = parent_ecosystem
