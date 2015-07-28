@@ -5,14 +5,17 @@ from copy import *
 #from Ecosystem_settings import *
 from types import FunctionType
 
-# Variables for debuggin:
+# Variables for debuggin: # ***
 print_ages = False
 print_organisms = False
-print_deths = False
-print_killed = False
+print_deths = True
+print_killed = True
 print_costs = False
-print_births = False
+print_reserves = False
+print_births = True
 print_methods_names = False
+print_operators = False
+
 
 class Matrix(object):
 
@@ -96,7 +99,7 @@ def random_true(probability_of_True):
     return probability_of_True > random()
 
 def chi_squared(k): 
-    return math.fsum(gauss(0, 1)**2 for i in range(k)) # random value, chi-squared distribution with given degree of freedom k
+    return fsum(gauss(0, 1)**2 for i in range(k)) # random value, chi-squared distribution with given degree of freedom k
 
 # equivalent to range( ) but with float parameters
 def float_range(start, stop=0.0, step=1.0):
@@ -116,6 +119,7 @@ def float_range(start, stop=0.0, step=1.0):
 
 def bounded_value(value, a, b):  # a and b could be infinity
     """ This function returns value if a <= value <= b,  returns a if value < a and returns b if value > b """
+    #print 'Value:', value, 'a:', a, 'b:', b # ***
     if a in {'- infinity', '-infinity'} and b in {'+ infinity', '+infinity', 'infinity'}:  # this means no constraints
         return value
     elif a in {'- infinity', '-infinity'}:
@@ -158,9 +162,12 @@ def dictionary_to_string(dictionary, indent_level = 0):
         indent_level += 1
         for item in dictionary:
             if is_string(item):
-                result_list += [tabulator*indent_level + "'" + item + "': " + dictionary_to_string(dictionary[item], indent_level)] 
+                new_element = tabulator*indent_level + "'" + item + "'"
             else:
-                result_list += [tabulator*indent_level + str(item) + ': ' + dictionary_to_string(dictionary[item], indent_level)] 
+                new_element = tabulator*indent_level + str(item)
+            if is_dict(dictionary):
+                new_element += ": " + dictionary_to_string(dictionary[item], indent_level)
+            result_list += [new_element]
         if is_dict(dictionary):
             return '{\n' + ',\n'.join(result_list) + '\n' + tabulator*indent_level + '}'
         elif is_list(dictionary):
@@ -341,3 +348,25 @@ def remove_tags(function_name):
         return function_name[:hash_position]
 
   
+def default_error_messenger(*error_messages):
+    if len(error_messages) > 0 and error_messages[len(error_messages) - 1] == '':
+        for message in error_messages:
+            print message,
+    else:
+        for message in error_messages:
+            if is_dict(message):
+                print_dictionary(message)
+            elif is_iterable(message):
+                for item in message:
+                    default_error_messenger(item)
+            else:
+                print message
+    return True
+
+
+
+
+
+
+
+        

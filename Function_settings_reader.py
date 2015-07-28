@@ -52,6 +52,8 @@ class Function_maker:
                 ]
             self.all_operators += new_operators  
             self.all_main_command_names += new_operators
+            # The following lines are designed to initialize new operators in the right order
+            # so that some of them can be call others and must be initialized after these others:
             progressing = True
             while progressing:
                 progressing = False
@@ -63,6 +65,12 @@ class Function_maker:
                             progressing = True
 
     def check_new_operators(self, operator_settings, new_operators):
+        """ 
+            If in operator_settings is there a mention to an operator of new_operators that 
+            hasn't yet been initialized, operator_settings can't still be initialized until 
+            all operators that it refers to are initialized. 
+            This function says whether operator_settings can be already initialized  or not.
+        """
         all_strings = extract_all_strings(operator_settings)
         for item in all_strings:
             if item in new_operators and not item in self.operator_definitions:
@@ -95,7 +103,7 @@ class Function_maker:
             'type of inputs': 'Number',
             'type of output': 'Number',
             'output function': lambda x, y, amount: \
-                self.parent_ecosystem.biotope.biotope_features[feature_name].modify(x, y, -amount)
+                - self.parent_ecosystem.biotope.biotope_features[feature_name].modify(x, y, -amount)
         }
         self.operator_definitions['extract #biotope ' + feature_name + ' (percentage)'] = {
             'check number of inputs': lambda inputs: \
@@ -103,7 +111,7 @@ class Function_maker:
             'type of inputs': 'Number',
             'type of output': 'Number',
             'output function': lambda x, y, amount: \
-                self.parent_ecosystem.biotope.biotope_features[feature_name].modify_proportionally(x, y, -amount)
+                - self.parent_ecosystem.biotope.biotope_features[feature_name].modify_proportionally(x, y, -amount)
         }
         self.operator_definitions['secrete #biotope ' + feature_name] = {
             'check number of inputs': lambda inputs: \
@@ -143,6 +151,7 @@ class Function_maker:
         else:
             return False
 
+
     def make_function_from_string(self, function_settings):
         if function_settings in self.tags_list:
             """ EXAMPLE:
@@ -162,6 +171,7 @@ class Function_maker:
                 if tag in self.tags_list:
                     tag_position = self.tags_list.index(tag)
                     return lambda *arguments: arguments[tag_position][attribute_name]
+
                 elif tag in ['#ecosystem', '#biotope']:
                     """ EXAMPLE:
                         Inside 'constraints', 'cost' or 'genes':
@@ -195,25 +205,25 @@ class Function_maker:
                     """ EXAMPLE:
                         'attack capacity'
                     """
-                    return lambda *arguments: arguments[0][function_settings]
+                    return lambda *arguments: arguments[0][function_settings] #if self.error_messenger(arguments) else 0
                 elif (
-                    function_settings in self.ecosystem_feature_names and 
-                    self.tags_list[0] == '#ecosystem'
+                    function_settings in self.ecosystem_feature_names 
+                    # and self.tags_list[0] == '#ecosystem'
                     ):
                     """ EXAMPLE:
                         Inside 'ecosystem features':
-                        '#ecosystem maximum population allowed'
+                        '#maximum population allowed'
                     """
                     return lambda *arguments: arguments[0].ecosystem_features[function_settings].get_value()
                 elif (
-                    function_settings in self.biotope_feature_names and 
-                    self.tags_list[0] == '#biotope'
+                    function_settings in self.biotope_feature_names 
+                    # and self.tags_list[0] == '#biotope'
                     ):
                     """ EXAMPLE:
                         Inside 'biotope features':
-                        '#ecosystem maximum population allowed'
+                        '#maximum population allowed'
                     """
-                    return lambda *arguments: arguments[0].biotope_features[function_settings].get_value()
+                    return lambda *arguments: arguments[0].biotope.biotope_features[function_settings].get_value()
                 elif function_settings == 'normalized location x':
                     return lambda *arguments: (
                         float(arguments[0]['location'][0]) / 
@@ -224,6 +234,11 @@ class Function_maker:
                         float(arguments[0]['location'][1]) / 
                         arguments[0].parent_ecosystem.biotope.size_y()
                         )
+                elif function_settings == 'time':
+                    if self.tags_list[0] in ['#organism', '#biotope']:
+                        return lambda *arguments: arguments[0].parent_ecosystem.time
+                    elif self.tags_list[0] == '#ecosystem':
+                        return lambda *arguments: arguments[0].time
                 else:
                     """ EXAMPLE:
                         The value of a gene could be a string, like 'Plants':
@@ -249,6 +264,7 @@ class Function_maker:
             {'+': (1, 2, 3, 4, 5)}
             In this case we have to apply several times the operator '+'
         """
+        #print "associative", inputs # ***
         return reduce(main_operation, inputs[1:], inputs[0])
 
     def main_command(self, expression, error_messenger):
@@ -265,7 +281,7 @@ class Function_maker:
             inputs = function_settings[command]
         else:
             self.error_messenger('Main command not found in', function_settings)
-            print 'ALL MAIN COMMANDS:'
+            print 'ALL MAIN COMMANDS:' # ***
             for one_command in self.all_main_command_names:
                 print one_command
             error_maker = 1/0
@@ -283,9 +299,9 @@ class Function_maker:
             elif is_dict(inputs):
                 substance_name = inputs['substance']
                 action_name = inputs['action']
-            #print "action_name", action_name, "substance_name", substance_name, "inputs", inputs
+            #print "action_name", action_name, "substance_name", substance_name, "inputs", inputs # ***
             return lambda *arguments: arguments[0].parent_ecosystem\
-                .costs[action_name][substance_name](arguments[0])
+                .costs[action_name][substance_name](arguments[0]) 
 
         elif command == 'constraint':
             return lambda *arguments: arguments[0].parent_ecosystem\
@@ -300,23 +316,30 @@ class Function_maker:
                     inputs_function(*arguments)
                     )
             elif command in Unary_operators:
-                return lambda *arguments: main_operation(inputs_function(*arguments))
+                if print_operators: # ***
+                    return lambda *arguments: main_operation(inputs_function(*arguments)) \
+                        if self.error_messenger(command, '') else main_operation(inputs_function(*arguments)) 
+                else:
+                    return lambda *arguments: main_operation(inputs_function(*arguments))
             else:
-                return lambda *arguments: main_operation(*(inputs_function(*arguments)))
+                if print_operators: # ***
+                    return lambda *arguments: main_operation(*(inputs_function(*arguments))) \
+                        if self.error_messenger(command, '') else main_operation(*(inputs_function(*arguments))) 
+                else:
+                    return lambda *arguments: main_operation(*(inputs_function(*arguments)))
         else:        
             self.error_messenger('Syntax error in', function_settings)
             self.error_messenger('Unknown command', command)
             error_maker = 1/0
 
     def constrain_function_to_allowed_interval(self, function_to_return, interval_functions):
-        bounded_value = lambda value, a, b: a if value < a else b if value > b else value
         return lambda *arguments: bounded_value(
             function_to_return(*arguments), 
             *interval_functions(*arguments)
-            )
+            ) #if self.error_messenger(interval_functions(*arguments)) else 0
 
     def make_function(self, function_settings):
-        if print_methods_names:
+        if print_methods_names: # ***
             print 'make_function', self.tags_list
             print function_settings
 
@@ -374,18 +397,19 @@ class Function_maker:
             return self.read_function_settings(caller, settings)
         result = {}
         for item in settings:
-            #print 'turning', item, 'into function', settings[item]
+            #print 'turning', item, 'into function', settings[item] # ***
             function_name = remove_tags(item)
             self.tags_list = [caller] + get_tags_list(item)
-            #print 'tags_list', self.tags_list
+            #print 'tags_list', self.tags_list # ***
             result[function_name] = self.make_function(settings[item])
             self.tags_list = []
         if 'allowed interval' in settings:
             for function_name in result:
-                result[function_name] = self.constrain_function_to_allowed_interval(
-                    result[function_name],
-                    result['allowed interval']
-                    )
+                if function_name != 'allowed interval':
+                    result[function_name] = self.constrain_function_to_allowed_interval(
+                        result[function_name],
+                        result['allowed interval']
+                        )
         return result
 
 

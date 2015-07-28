@@ -124,7 +124,7 @@ _sunlight = {
     # to a rectangular region of the ecosystem. If the size of the ecosystem is 200x100, then
     # the size of each region must be 8x4. 
 
-    'initial value #x #y': {'+': (1.0, '#x', '#y')},
+    'initial value #x #y': {'+': (10.0, '#x', '#y')},
     # No matters the size of the ecosystem nor the size of the matrix of sunlight values, the
     # function that gives the value of each point is defined in the square [0, 1] x [0, 1],
     # i.e. the function initial_value(x, y) of any substance is defined for 0 <= x <= 1 and
@@ -147,7 +147,7 @@ _sunlight = {
             south at the same time (as summers do), because both poles are the same place.
         """,
         '+': (
-            2,
+            20,
             {'*': (
                 -1, 
                 {'cos': {'*': (2, pi, '#y')}}
@@ -182,12 +182,14 @@ _nutrient_A = {
     'initial value #x #y': {
         'if': (
             {'random true': 0.03},
-            {'uniform': [0, 10]},
-            {'*': (2.5, '#x', '#y')}
+            {'uniform': [0, 10000]},
+            {'*': (2000.5, '#x', '#y')}
         )},
     'value after updating #x #y': {
-        # Spreading:
         '+': (
+            # Generating:
+            1000,
+            # Spreading:
             {'*': (
                 0.80,  # the location (#x, #y) keeps the 80 per cent of its amount of nutrient A
                 {'#biotope nutrient A': ('#x', '#y')}
@@ -214,7 +216,7 @@ _nutrient_A = {
                 )}
             )}
         )},
-    'update once every': 20 # The values of the matrix of nutrient A is updated once every 20 cycles.
+    'update once every': 2 # The values of the matrix of nutrient A is updated once every 20 cycles.
 }
 
 _nutrient_B = {
@@ -222,15 +224,17 @@ _nutrient_B = {
     'initial value #x #y': {
         'if': (
             {'random true': 0.04},
-            {'uniform': [0, 20]},
+            {'uniform': [0, 2000]},
             {'+': (
-                1.0,
+                1000.0,
                 {'-': ('#x', '#y')}
             )}
         )},
     'value after updating #x #y': {
-        # Spreading:
         '+': (
+            # Generating:
+            15,
+            # Spreading:
             {'*': (
                 0.90,  # the location (#x, #y) keeps the 90 per cent of its amount of nutrient B
                 {'#biotope nutrient A': ('#x', '#y')}
@@ -257,7 +261,7 @@ _nutrient_B = {
                 )}
             )}
         )},
-    'update once every': 15 # The values of the matrix of nutrient B is updated once every 15 cycles.
+    'update once every': 5 # The values of the matrix of nutrient B is updated once every 15 cycles.
 }
 
 _biotope = {
@@ -268,7 +272,7 @@ _biotope = {
         'nutrient A': _nutrient_A,
         'nutrient B': _nutrient_B,
         'seasons speed': {
-            'initial value': 0.2,
+            'initial value': 0.237,
             'value after updating': {
                 '+': (
                     'seasons speed',
@@ -326,11 +330,6 @@ def _default_value_after_mutation_C(gene):
 
 _ecosystem_features = {
 
-    'time': {
-        'initial value': 0,
-        'value after updating': lambda ecosystem: ecosystem.time
-    },
-
     'population': {
         'initial value': 0,
         'value after updating': lambda ecosystem: (
@@ -352,8 +351,12 @@ _ecosystem_features = {
             )}
     )},
 
+    'global longevity': {
+        'initial value': 200 # At this age all organisms must die
+    },
+
     'autotrophs productivity': {
-        'initial value': 10000.0  
+        'initial value': 100000.1  
     # Each organism has a different photosynthesis capacity, but this capacity is multiplied
     # by the value of 'autotrophs productivity', that is a variable of the experiment that 
     # remains always the same, although the user can change it at any time.
@@ -365,7 +368,7 @@ _ecosystem_features = {
 
 _gene_energy_reserve = {
             # This is the definition of the gene 'energy reserve'
-            'initial value': 10000.0,
+            'initial value': 10000.2,
             'value in next cycle': {
                 'help': 
                 """
@@ -386,17 +389,11 @@ _gene_energy_reserve = {
                 '+': (
                     'energy reserve',
                     {'*': (
-                        {'#ecosystem autotrophs productivity'},
+                        '#ecosystem autotrophs productivity',
                         {'extract #biotope sunlight (percentage)': (
                             'normalized location x',
                             'normalized location y',
-                            {'+': (
-                                -1,
-                                {'*': (
-                                    2,
-                                    {'sigmoid': 'photosynthesis capacity'}
-                                )}
-                            )}
+                            0.2
                         )}                       
                     )}
                 )},
@@ -405,34 +402,28 @@ _gene_energy_reserve = {
         }
 
 _gene_nutrient_A_reserve = {
-    'initial value': 5.0,
+    'initial value': 500.0,
     'value in next cycle': {
         '+': (
             'nutrient A reserve',
             {'extract #biotope nutrient A (percentage)': (
                 'normalized location x',
                 'normalized location y',
-                {'uniform': [0, 0.15]}  # Every organism can extract at most the 15 per cent of nutrient A from its biotope location
+                {'uniform': [0, 0.105]}  # Every organism can extract at most the 25 per cent of nutrient A from its biotope location
             )}
         )},
     'value after mutation': 'nutrient A reserve at birth'
 }
 
 _gene_nutrient_B_reserve = {
-    'initial value': 1.5,
+    'initial value': 1000.5,
     'value in next cycle': {
         '+': (
             'nutrient B reserve',
-            {'extract #biotope nutrient A (percentage)': (
+            {'extract #biotope nutrient B (percentage)': (
                 'normalized location x',
                 'normalized location y',
-                {'+': (
-                    -0.1,
-                    {'*': (
-                        0.2,
-                        {'sigmoid': 'photosynthesis capacity'}
-                    )}
-                )}
+                {'uniform': [0, 0.105]}  # Every organism can extract at most the 25 per cent of nutrient A from its biotope location
             )}
         )},
     'value after mutation': 'nutrient A reserve at birth'
@@ -462,7 +453,7 @@ _gene_temperature_adaptation_level = {
                 may survive in a wider range of temperatures than otherwise.
             """,
             'initial value': {
-                'uniform': [0, 2]
+                'uniform': [0, 2000]
             },
             'value after mutation': {
                 'gauss': (
@@ -489,33 +480,33 @@ _constraint_die = {
         """,
         'or': (
             # RANDOM CAUSE OF DETH:
-            {'random true': 0.0005},
+            #{'random true': 0.00005},
             # DEATH BY STARVATION:
-            {'<': ('energy reserve', 1000.0)},
+            {'<': ('energy reserve', 100.0)},
             {'<': ('nutrient A reserve', 1.0)},
-            {'<': ('nutrient B reserve', 0.3)},
+            {'<': ('nutrient B reserve', 0.3)}#,
             # DEATH BY TEMPERATURE:
-            {'>': (
-                {'gauss': (
-                    {'/': (
-                        {'**': (
-                            {'-': (
-                                'optimal temperature',
-                                {'#biotope temperature': ('normalized location x', 'normalized location y') }
-                            )},
-                            2
-                        )},
-                        'temperature adaptation level'
-                    )},
-                    0.1
-                )},
-                {'chi-squared': 2}
-            )},
+            #{'>': (
+            #    {'gauss': (
+            #        {'/': (
+            #            {'**': (
+            #                {'-': (
+            #                    'optimal temperature',
+            #                    {'#biotope temperature': ('normalized location x', 'normalized location y') }
+            #                )},
+            #                2
+            #            )},
+            #            'temperature adaptation level'
+            #        )},
+            #        0.1
+            #    )},
+            #    {'chi-squared': 4}
+            #)},
             # DEATH BY OLD AGE:
-            {'>': (
-                {'gauss': ('age', 'age')},
-                '$longevity'
-                )}
+            #{'>': (
+            #    {'gauss': ('age', 'age')},
+            #    '#ecosystem global longevity'
+            #    )}
         )
     }
 
@@ -523,6 +514,9 @@ _organisms_category_a = {
     # Define initial number of organisms:
     'initial number of organisms': 200,
     'genes': {
+        'category': {
+            'initial value': 'A'
+            },
         'species': {
             # An organism will never attack any other organism of the same species. It only
             # attacks organisms of other species.
@@ -592,13 +586,13 @@ _organisms_category_a = {
             }
         },
         'energy reserve at birth': {
-            'initial value': 10000.0
+            'initial value': 1000.3
         },
         'nutrient A reserve at birth': {
-            'initial value': 10000.0
+            'initial value': 100.4
         },
         'nutrient B reserve at birth': {
-            'initial value': 10000.0
+            'initial value': 100.5
         },        
         'energy reserve': _gene_energy_reserve,
         'nutrient A reserve': _gene_nutrient_A_reserve,
@@ -609,7 +603,7 @@ _organisms_category_a = {
                 Maximum possible energy reserve
             """,
             'initial value': {
-                'uniform': [0, 20000]
+                'uniform': [20000, 200000]
             },
             'value after mutation': \
             _default_value_after_mutation_B('energy storage capacity')
@@ -622,7 +616,7 @@ _organisms_category_a = {
                 Maximum possible nutrient A reserve
             """,
             'initial value': {
-                'uniform': [0, 20000]
+                'uniform': [20000, 200000]
             },
             'value after mutation': \
             _default_value_after_mutation_A('nutrient A storage capacity')
@@ -635,7 +629,7 @@ _organisms_category_a = {
                 Maximum possible nutrient B reserve
             """,
             'initial value': {
-                'uniform': [0, 20000]
+                'uniform': [20000, 200000]
             },
             'value after mutation': \
             _default_value_after_mutation_B('nutrient B storage capacity')
@@ -846,24 +840,24 @@ _constraints = {
                 {'+': (
                     'energy reserve at birth',
                     {'cost': 'procreate'},
-                    {'cost': 'stay alive'}
-                )},
-                1000.0
+                    {'cost': 'stay alive'},
+                    1000.1
+                )}
             )},
             {'>': (
                 'nutrient A reserve',
                 {'+': (
                     'nutrient A reserve at birth',
-                    {'cost': ('nutrient A', 'procreate')},
-                    {'cost': ('nutrient A', 'stay alive')}
+                    {'cost': ('procreate', 'nutrient A reserve')},
+                    {'cost': ('stay alive', 'nutrient A reserve')}
                 )}
             )},
             {'>': (
                 'nutrient B reserve',
                 {'+': (
                     'nutrient B reserve at birth',
-                    {'cost': ('nutrient B', 'procreate')},
-                    {'cost': ('nutrient B', 'stay alive')}
+                    {'cost': ('procreate', 'nutrient B reserve')},
+                    {'cost': ('stay alive', 'nutrient B reserve')}
                 )}
             )}
     )},
@@ -873,101 +867,102 @@ _constraints = {
 _cost_move = {
     'energy reserve': {
         '+': (
-            {'*': (0.2,
+            {'*': (0.002,
                    'attack capacity',
                    'defense capacity',
                    'hunt radius')
             },
-            {'*': (2, 'speed')},
-            {'*': (10.0, 'photosynthesis capacity')},
-            0.1
+            {'*': (0.02, 'speed')},
+            {'*': (0.01, 'photosynthesis capacity')},
+            0.001
         )},
     'nutrient A reserve': {
         '+': (
-            {'*': (0.0002,
+            {'*': (0.00002,
                    'attack capacity',
                    'basal defense capacity',
                    'radius of procreation')
             },
-            {'*': (0.02, 'speed')},
-            {'*': (0.001, 'photosynthesis capacity')},
-            0.01
+            {'*': (0.002, 'speed')},
+            {'*': (0.0001, 'photosynthesis capacity')},
+            0.001
         )},
     'nutrient B reserve': {
         '+': (
-            {'*': (0.0002,
+            {'*': (0.00002,
                    'attack capacity',
                    'basal defense capacity',
                    'radius of procreation')
             },
-            {'*': (0.02, 'speed')},
-            {'*': (0.001, 'photosynthesis capacity')},
-            0.01
+            {'*': (0.002, 'speed')},
+            {'*': (0.0001, 'photosynthesis capacity')},
+            0.001
         )}
 }
 
 _costs = {
     'move': _cost_move,
     'procreate': {
-        'energy reserve': {'+': (
-            1000,
+        'energy reserve': {'*': (
+            0.001,
             'energy reserve at birth'
         )},
         'nutrient A reserve': {'+': (
-            1.2,
+            0.012,
             'nutrient A reserve at birth'
         )},
         'nutrient B reserve': {'+': (
-            0.5,
+            0.005,
             'nutrient B reserve at birth'
         )}
 
     },
+
     'stay alive': {
         'energy reserve': {'+': (
-            100.0,
-            {'*': (50.0, 'temperature adaptation level')},
-            {'*': (500.0, 'photosynthesis capacity growth')},
-            {'*': (5.0, 'photosynthesis capacity')},
-            {'*': (1.0, 'indicator gene A')},
-            {'*': (1.0, 'basal defense capacity')},
-            {'*': (1.0, 'attack capacity')},
-            {'*': (10.0, 'speed')},
-            {'*': (50.0, 'hunt radius')},
-            {'*': (0.002, 'energy storage capacity')},
-            {'*': (0.2, 'nutrient A storage capacity')},
-            {'*': (1.5, 'nutrient B storage capacity')},
-            {'*': (500.0, 'procreation frequency')},
-            {'*': (50.0, 'radius of procreation')},
-            {'*': (50.0, 'mutation frequency')}
+            0.0,
+            {'*': (0.0, 'temperature adaptation level')},
+            {'*': (0.0, 'photosynthesis capacity growth')},
+            {'*': (0.0, 'photosynthesis capacity')},
+            {'*': (0.0, 'indicator gene A')},
+            {'*': (0.0, 'basal defense capacity')},
+            {'*': (0.0, 'attack capacity')},
+            {'*': (0.0, 'speed')},
+            {'*': (0.0, 'hunt radius')},
+            {'*': (0.0, 'energy storage capacity')},
+            {'*': (0.0, 'nutrient A storage capacity')},
+            {'*': (0.0, 'nutrient B storage capacity')},
+            {'*': (0.0, 'procreation frequency')},
+            {'*': (0.0, 'radius of procreation')},
+            {'*': (0.0, 'mutation frequency')}
         )},
         'nutrient A reserve': {'+': (
-            0.05,
-            {'*': (0.001, 'temperature adaptation level')},
-            {'*': (0.001, 'photosynthesis capacity growth')},
-            {'*': (0.01, 'basal defense capacity')},
-            {'*': (0.05, 'attack capacity')},
-            {'*': (0.03, 'speed')},
-            {'*': (0.03, 'hunt radius')},
-            {'*': (0.00002, 'energy storage capacity')},
-            {'*': (0.02, 'nutrient A storage capacity')},
-            {'*': (0.005, 'nutrient B storage capacity')},
-            {'*': (0.02, 'radius of procreation')},
-            {'*': (0.01, 'mutation frequency')}
+            0.005,
+            {'*': (0.00001, 'temperature adaptation level')},
+            {'*': (0.000001, 'photosynthesis capacity growth')},
+            {'*': (0.0001, 'basal defense capacity')},
+            {'*': (0.0005, 'attack capacity')},
+            {'*': (0.0003, 'speed')},
+            {'*': (0.0003, 'hunt radius')},
+            {'*': (0.0000002, 'energy storage capacity')},
+            {'*': (0.0002, 'nutrient A storage capacity')},
+            {'*': (0.00005, 'nutrient B storage capacity')},
+            {'*': (0.0002, 'radius of procreation')},
+            {'*': (0.0001, 'mutation frequency')}
         )},
         'nutrient B reserve': {'+': (
-            0.02,
-            {'*': (0.001, 'temperature adaptation level')},
-            {'*': (0.001, 'photosynthesis capacity growth')},
-            {'*': (0.01, 'basal defense capacity')},
-            {'*': (0.05, 'attack capacity')},
-            {'*': (0.03, 'speed')},
-            {'*': (0.03, 'hunt radius')},
-            {'*': (0.00002, 'energy storage capacity')},
-            {'*': (0.02, 'nutrient A storage capacity')},
-            {'*': (0.005, 'nutrient B storage capacity')},
-            {'*': (0.02, 'radius of procreation')},
-            {'*': (0.01, 'mutation frequency')}
+            0.002,
+            {'*': (0.00001, 'temperature adaptation level')},
+            {'*': (0.00001, 'photosynthesis capacity growth')},
+            {'*': (0.0001, 'basal defense capacity')},
+            {'*': (0.0005, 'attack capacity')},
+            {'*': (0.0003, 'speed')},
+            {'*': (0.0003, 'hunt radius')},
+            {'*': (0.0000002, 'energy storage capacity')},
+            {'*': (0.0002, 'nutrient A storage capacity')},
+            {'*': (0.00005, 'nutrient B storage capacity')},
+            {'*': (0.0002, 'radius of procreation')},
+            {'*': (0.0001, 'mutation frequency')}
         )}
     }
 }
@@ -976,6 +971,7 @@ from Basic_tools import *
 
 _organisms_category_b = deep_copy_of_a_dictionary(_organisms_category_a)
 
+_organisms_category_b['genes']['category'] = {'initial value': 'B'}
 _organisms_category_b['genes']['speed'] = {'initial value': 0}
 
 my_example_of_ecosystem_settings = {

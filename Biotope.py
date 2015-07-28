@@ -5,7 +5,8 @@ from math import *
 from SYNTAX import *
 
 class Feature(object):
-    def __init__(self, feature_settings, parent_ecosystem):
+    def __init__(self, feature_name, feature_settings, parent_ecosystem):
+        self.feature_name = feature_name
         self.parent_ecosystem = parent_ecosystem
         functions_dict = parent_ecosystem.function_maker.turn_settings_into_functions(
             feature_settings, 
@@ -21,6 +22,7 @@ class Feature(object):
             self.time_of_next_update = self.parent_ecosystem.time + self.update_once_every
 
     def update(self): # or   def evolve(self):
+        #print 'Updating', self.feature_name # ***
         if hasattr(self, 'time_of_next_update') and self.parent_ecosystem.time > self.time_of_next_update:
             self.current_value = self.calculate_value_after_update(self.parent_ecosystem)
             self.time_of_next_update += self.update_once_every
@@ -44,7 +46,8 @@ class Feature(object):
         return increment
 
 class Feature_map(object):
-    def __init__(self, feature_settings, parent_ecosystem):
+    def __init__(self, feature_name, feature_settings, parent_ecosystem):
+        self.feature_name = feature_name
         self.parent_ecosystem = parent_ecosystem
         functions_dict = parent_ecosystem.function_maker.turn_settings_into_functions(
             feature_settings, 
@@ -56,7 +59,7 @@ class Feature_map(object):
         for i in range(size_x):
             for j in range(size_y):
                 self.current_value[i, j] = \
-                    functions_dict['initial value'](self.parent_ecosystem, i/size_x, j/size_y)
+                    functions_dict['initial value'](self.parent_ecosystem, float(i)/size_x, float(j)/size_y)
         if 'value after updating' in functions_dict:
             self.calculate_value_after_update = functions_dict['value after updating'] # we take the function without calling it
             if 'update once every' in functions_dict:
@@ -66,19 +69,20 @@ class Feature_map(object):
             self.time_of_next_update = self.parent_ecosystem.time + self.update_once_every
 
     def update(self): # or   def evolve(self):
+        #print 'Updating', self.feature_name # ***
         if hasattr(self, 'time_of_next_update') and self.parent_ecosystem.time > self.time_of_next_update:
             new_value = Matrix(self.size_x, self.size_y)
-            for i in range(size_x):
-                for j in range(size_y):
+            for i in range(self.size_x):
+                for j in range(self.size_y):
                     new_value[i, j] = \
-                        self.calculate_value_after_update(self.parent_ecosystem, i/size_x, j/size_y)
+                        self.calculate_value_after_update(self.parent_ecosystem, float(i)/self.size_x, float(j)/self.size_y)
             self.current_value = new_value
             self.time_of_next_update += self.update_once_every
 
     def get_value(self, x, y):
         for n in (x, y, self.size_x, self.size_y):
             if not is_number(n):
-                print n, 'is not a FLOAT!!!'
+                print n, 'is not a FLOAT!!!' # ***
                 error_maker = 1/0
         return self.current_value[int(round(x * self.size_x)), int(round(y * self.size_y))]
 
@@ -154,16 +158,24 @@ class Biotope(object):
             print [0 if self.organisms_matrix[x, y] == None else 1 for x in range(self.size_x())]
    
     def add_feature(self, feature_name, feature_settings):
-        #print 'add_feature:', feature_name
-        self.biotope_features[feature_name] = Feature(feature_settings, self.parent_ecosystem)
+        #print 'add_feature:', feature_name # ***
+        self.biotope_features[feature_name] = Feature(feature_name, feature_settings, self.parent_ecosystem)
 
     def add_feature_map(self, feature_name, feature_settings):
-        #print 'add_feature_map:', feature_name
-        self.biotope_features[feature_name] = Feature_map(feature_settings, self.parent_ecosystem)
+        #print 'add_feature_map:', feature_name # ***
+        self.biotope_features[feature_name] = Feature_map(feature_name, feature_settings, self.parent_ecosystem)
 
     def initialize_biotope_features(self):
+        """
+            We don't need to initialize features in a particular order. That's why we don't
+            initialize them the same way as genes or new operators.
+            Features can refer to each other and can even refer to themselves, because we
+            built feature operators (such as '#biotope seasons speed' or 
+            'extract #biotope nutrient A') before initializing features themselves.
+            We built them out of features' names.
+        """
         if print_methods_names:
-            print 'Biotope.py: initialize_biotope_features'
+            print 'Biotope.py: initialize_biotope_features' # ***
         self.biotope_features = {}
         if 'biotope features' in self.settings:
             for feature_name in self.settings['biotope features']:
@@ -175,7 +187,7 @@ class Biotope(object):
                 else:
                     self.add_feature(feature_name, self.settings['biotope features'][feature_name])
         if print_methods_names:
-            print 'initialize_biotope_features done!!'
+            print 'initialize_biotope_features done!!' # ***
 
     def set_parent_ecosystem(self, parent_ecosystem):
         """
@@ -201,7 +213,7 @@ class Biotope(object):
         if (location != None) and (self.organisms_matrix[location] == None):            
             organism['location'] = location # this way we assure that everything is in its place
             self.organisms_matrix[location] = organism
-            #print "in", location, "there is", organism
+            #print "in", location, "there is", organism # ***
             return 'success'
         else:
             return 'fail'

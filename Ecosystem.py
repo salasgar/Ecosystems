@@ -60,7 +60,10 @@ class Ecosystem(object):
                                parent_ecosystem = self)
                 
     def add_feature(self, feature_name, feature_settings):
-        self.ecosystem_features[feature_name] = Feature(feature_settings, self)
+        self.ecosystem_features[feature_name] = Feature(
+            feature_name, 
+            feature_settings, 
+            parent_ecosystem = self)
 
     def initialize_ecosystem_features(self):
         self.ecosystem_features = {}
@@ -111,15 +114,15 @@ class Ecosystem(object):
                     self.statistics['average amount of ' + reserve_substance + ' in ' + category] = 0             
         for gene in self.all_gene_names:
             self.statistics['average ' + gene] = 0
-        print "statistics finished"
+        # print "statistics finished" # ***
         
     def add_organism(self, organism):
-        #print 'add organism'
+        #print 'add organism' # ***
         self.biotope.add_organism(organism)
         self.newborns.append(organism)  
         
     def delete_organism(self, organism):
-        #print 'delete organism'
+        #print 'delete organism' # ***
         self.biotope.delete_organism(organism['location'])
         if organism in self.newborns:
             del self.newborns[self.newborns.index(organism)]
@@ -134,7 +137,7 @@ class Ecosystem(object):
         return self.biotope['size'][1]
     
     def initialize_organisms(self):
-        print 'initialize_organisms'
+        print 'initialize_organisms' 
         """ 
         PRE-CONDITIONS:
             This initialization must be called AFTER self.initialize_biotope, 
@@ -152,8 +155,7 @@ class Ecosystem(object):
                         'list of reserve substances': []
                     })
                 # Load genes:
-                for gene_name in genes_settings:
-                    new_organism.add_gene(gene_name, genes_settings[gene_name])
+                new_organism.add_all_genes(genes_settings)
                 # Load decisions:
                 if 'decisions' in category_settings:
                     for decision in category_settings['decisions']:
@@ -178,13 +180,13 @@ class Ecosystem(object):
                 if dead_organism in self.organisms_list and self.organisms_list.index(dead_organism) < i:
                     i -= 1
                 self.delete_organism(dead_organism) # this erases the organism from the biotope too
-                #print "number of organisms", len(self.organisms_list)
+                #print "number of organisms", len(self.organisms_list) # ***
             self.new_deads = []
         self.organisms_list += self.newborns
         self.newborns = []
         self.time += 1
         
-        # print 'Num of organisms + newborns: %d' % len(self.organisms)
+        # print 'Num of organisms + newborns: %d' % len(self.organisms) # ***
 
     def count(self, gene, value): # Counts how many organisms have that gene with that value
         N = 0

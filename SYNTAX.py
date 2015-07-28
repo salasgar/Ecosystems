@@ -174,7 +174,7 @@ Operator_definitions = {
         'check number of inputs': lambda inputs: is_tuple_or_list(inputs) and (len(inputs) > 1),
         'type of inputs': 'Number',
         'type of output': 'Number',
-        'output function': lambda x, y: x * y
+        'output function': lambda x, y: x * y # if default_error_messenger(x, y) else x * y # ***
     },
 
     '/': {
@@ -989,9 +989,6 @@ Other_decisions = {
 #                                   CHECK SYNTAX:
 # *********************************************************************************
 
-def default_error_messenger(*error_messages):
-    for message in error_messages:
-        print message
 
 def check_settings_syntax(settings, syntax, all_gene_names, all_feature_names, error_messenger = default_error_messenger):
 

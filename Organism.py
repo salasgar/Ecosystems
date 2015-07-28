@@ -3,7 +3,6 @@ from copy import deepcopy
 from Basic_tools import *
 from Function_settings_reader import *
 
-print_methods_names = False
 
 actions_dictionary = {
     'do photosynthesis': lambda organism: organism.do_photosynthesis(),
@@ -49,26 +48,52 @@ class Organism(dict):
             else:
                 
                 return ", ".join("{0}: {1}".format(attribute, self[attribute]) for attribute in list_of_attributes if attribute in self)
-   
+
+    def check_new_gene(self, gene_name, all_genes_settings):
+        """ 
+            If in the definition of the gene gene_name is there a mention to a gene that hasn't
+            yet been initialized, gene_name can't still be initialized until all genes that it
+            refers to are initialized. 
+            This function says whether gene_name can be already initialized or not.
+        """
+        all_strings = extract_all_strings(all_genes_settings[gene_name]['initial value'])
+        if 'allowed interval' in all_genes_settings[gene_name]:
+            all_strings = all_strings.union(
+                extract_all_strings(all_genes_settings[gene_name]['allowed interval']))
+        for item in all_strings:
+            if item in all_genes_settings and not item in self:
+                #default_error_messenger('In', gene_name, 'failed', item)
+                return False
+        return True
+
+    def is_reserve_substance(self, gene_name):
+        return len(gene_name) > 8 and gene_name[-8:] == ' reserve'
+
     def add_gene(self, gene_name, gene_settings):
-        initial_value_generator = self.parent_ecosystem.function_maker.read_function_settings(
-            'initial value', 
-            gene_settings['initial value']
-        )
-        self[gene_name] = initial_value_generator(self)
+        #print "Adding gene", gene_name # ***
+        functions = self.parent_ecosystem.function_maker.turn_settings_into_functions(
+            gene_settings, 
+            caller = '#organism')
+        self[gene_name] = functions['initial value'](self)
         if 'value after mutation' in gene_settings:
-            self['value after mutation'][gene_name] = \
-                self.parent_ecosystem.function_maker.read_function_settings(
-                    gene_name, 
-                    gene_settings['value after mutation']
-                )       
+            self['value after mutation'][gene_name] = functions['value after mutation']
         if 'value in next cycle' in gene_settings:
-            self['value in next cycle'][gene_name] = \
-                self.parent_ecosystem.function_maker.read_function_settings(
-                    gene_name,
-                    gene_settings['value in next cycle']
-                )       
+            self['value in next cycle'][gene_name] = functions['value in next cycle']
+        if self.is_reserve_substance(gene_name):
+            self['list of reserve substances'].append(gene_name)
     
+    def add_all_genes(self, all_genes_settings):
+        progressing = True
+        while progressing:
+            progressing = False
+            for gene_name in all_genes_settings:
+                if (
+                    not gene_name in self and
+                    self.check_new_gene(gene_name, all_genes_settings)
+                    ):
+                    self.add_gene(gene_name, all_genes_settings[gene_name])
+                    progressing = True
+
     def add_decision(self, decision_name, decision_settings):
         self[decision_name] = self.parent_ecosystem.function_maker.read_function_settings(
             decision_name,
@@ -76,40 +101,54 @@ class Organism(dict):
         )
     
     def act(self):
-        if print_methods_names:
+        if print_methods_names: # ***
             print 'act'
-        #print self['actions list']
+        if print_reserves: # ***
+            print 'begin:',
+            for reserve_substance in self['list of reserve substances']:
+                print reserve_substance, self[reserve_substance],
+            print ''
+        #print self['actions list'] # ***
         actions_sequence = self['actions sequence']
         for action in actions_sequence:
             decision_name = 'decide ' + action
-            if ((decision_name in self) and self[decision_name](self)) or (not decision_name in self):
+            if ((decision_name in self) and self[decision_name](self)
+                ) or (not decision_name in self):
                 constraints = self.parent_ecosystem.constraints
                 constraint_name = 'can ' + action
-                if ((constraint_name in constraints) and constraints[constraint_name](self)) or (not constraint_name in constraints):
+                if (
+                    (constraint_name in constraints) and constraints[constraint_name](self)
+                    ) or (not constraint_name in constraints):
                     actions_dictionary[action](self)                    
+        if print_reserves: # ***
+            for reserve_substance in self['list of reserve substances']:
+                print reserve_substance, self[reserve_substance],
+            print ''
         if self.parent_ecosystem.constraints['die'](self):
-            #print "dying alone", self.__str__(list_of_attributes = ('category', 'age', 'energy reserve'))
+            #print "dying alone", self.__str__(list_of_attributes = ('category', 'age', 'energy reserve')) # ***
             self.die('natural cause')
                        
     def subtract_costs(self, action, factor = 1):
-        if print_methods_names:
-            print 'subtract_costs', action
+        if print_methods_names or print_costs:
+            print 'subtract_costs', action # ***
         if action in self.parent_ecosystem.costs:
             for reserve_substance in self.parent_ecosystem.costs[action]:                       
                 if reserve_substance in self:
-                    if print_costs:
-                        print action + " - " + self.__str__(0, ('category', 'age', 'energy reserve')), 
+                    if print_costs: # ***
+                        print action + ":\n<-- ",
+                        print_organism(self, 'category', 'age', reserve_substance)
                     self[reserve_substance] = max(0, self[reserve_substance] - factor * self.parent_ecosystem.costs[action][reserve_substance](self)  )                  
-                    if print_costs:
-                        print "--> " + self.__str__(0, 'energy reserve')
+                    if print_costs: # ***
+                        print "--> ",
+                        print_organism(self, 'category', 'age', reserve_substance)
 
     def interchange_substances_with_the_biotope(self):
-        #if print_methods_names:
+        #if print_methods_names: # ***
         #   print 'interchange_substances_with_the_biotope'
         pass
 
     def interchange_substances_with_other_organisms(self):
-        #if print_methods_names:
+        #if print_methods_names: # ***
         #   print 'interchange_substances_with_other_organisms'
         """ 
         Peacefull trade of substances:
@@ -128,7 +167,7 @@ class Organism(dict):
         pass
 
     def fertilize_other_organisms(self):
-        #if print_methods_names:
+        #if print_methods_names: # ***
         #   print 'fertilize_other_organisms'
         """ To partially transmit its own genes to other organisms that
         accepts them in order to produce a new being that inherit genes from
@@ -138,21 +177,22 @@ class Organism(dict):
     
     
     def stay_alive(self):
-        #if print_methods_names:
-        #   print 'stay_alive'
+        if print_methods_names or print_costs: # ***
+           print 'stay_alive'
         #print self['energy reserve'], self['photosynthesis capacity'], "*****", self['actions sequence'](self)
         """ An organism has to spend energy and maybe other substances only to
         stay alive.
         """
         if 'energy reserve' in self:
-            energy_reserve = self['energy reserve']
-            self.subtract_costs('stay alive', factor = 1)  
+            energy_reserve = copy(self['energy reserve'])
+            if 'stay alive' in self.parent_ecosystem.costs:
+                self.subtract_costs('stay alive', factor = 1)  
             return 'energy reserve: {0} - {1} = {2}'.format(energy_reserve, energy_reserve - self['energy reserve'], self['energy reserve'])          
-        else:
+        elif 'stay alive' in self.parent_ecosystem.costs:
             self.subtract_costs('stay alive', factor = 1)          
         
     def move(self):
-        if print_methods_names:
+        if print_methods_names: # ***
             print 'move'
         """
             Check if there is a new available location. If yes
@@ -213,27 +253,27 @@ class Organism(dict):
                     self.subtract_costs('move', factor = self.parent_ecosystem.biotope.distance(old_location, new_location))
 
     def eat(self, prey):
-        if print_methods_names:
+        if print_methods_names: # ***
             print 'eat'
         for reserve_substance in prey['list of reserve substances']:
             if reserve_substance in self:
-                #print 'eating', prey['category'], self[reserve_substance], "+", prey[reserve_substance], "=",                 
+                #print 'eating', prey['category'], self[reserve_substance], "+", prey[reserve_substance], "=", # ***
                 self[reserve_substance] += prey[reserve_substance]
                 storage_capacity = self.parent_ecosystem.storage_capacities_dictionary[reserve_substance] 
                 if storage_capacity in self:
                     self[reserve_substance] = min(self[reserve_substance], self[storage_capacity])
-                #print self['energy reserve']
+                #print self['energy reserve'] # ***
         self.subtract_costs('eat')
                 
     def hunt(self):
-        if print_methods_names:
+        if print_methods_names: # ***
             print 'hunt'
         prey_location = None
         if 'seeking prey technique' in self:            
             prey_location = self['seeking prey technique'](self)
         else:
             if 'decide attack #prey' in self:
-                condition = lambda prey: (prey != None) and (prey != self) and self['decide attack #prey'](prey)
+                condition = lambda prey: (prey != None) and (prey != self) and self['decide attack #prey'](self, prey)
             else:
                 condition = lambda prey: (prey != None) and (prey != self)
             if 'hunt radius' in self:
@@ -246,7 +286,7 @@ class Organism(dict):
                     condition = condition)
         if prey_location != None:
             prey = self.parent_ecosystem.biotope.get_organism(prey_location)
-            if self.parent_ecosystem.constraints['can kill #predator #prey'](self, prey):
+            if self.parent_ecosystem.constraints['can kill #prey'](self, prey):
                 self.eat(prey)
                 prey.die('killed by a predator')  
                 result = 'successful hunt'
@@ -259,26 +299,26 @@ class Organism(dict):
                     
     def mutate(self):
         if print_methods_names:
-            print 'mutate'
+            print 'mutate' # ***
         for gene in self['value after mutation']:
-            # print "MUTATING", gene
+            # print "MUTATING", gene # ***
             self[gene] = self['value after mutation'][gene](self)
 
     def do_internal_changes(self):
         if print_methods_names:
-            print 'do_internal_changes'
+            print 'do_internal_changes' # ***
         energy_reserve = self['energy reserve'] # this is for debuggin
 
         for gene in self['value in next cycle']:
-            print 'do_internal_changes', gene
+            #print 'do_internal_changes', gene # ***
             self[gene] = self['value in next cycle'][gene](self)
 
-        #print 'energy reserve: {0} + {1} = {2}'.format(energy_reserve, self['energy reserve'] - energy_reserve, self['energy reserve']) 
+        #print 'energy reserve: {0} + {1} = {2}'.format(energy_reserve, self['energy reserve'] - energy_reserve, self['energy reserve']) # ***
         return 'energy reserve: {0} + {1} = {2}'.format(energy_reserve, self['energy reserve'] - energy_reserve, self['energy reserve'])  # this is for debuggin purposes        
 
     def procreate(self): 
         if print_methods_names:
-            print 'procreate'
+            print 'procreate' # ***
         """
             Depending on the reproduction frequency and the energy,
             a baby can be created and added to:
@@ -304,7 +344,7 @@ class Organism(dict):
             seek_free_location_close_to(center = self['location'], radius = radius_of_procreation)
         if new_location != None: # if there is enough space:
             # Create the baby:
-            #print 'making a deep copy'                
+            #print 'making a deep copy'  # ***              
             newborn = Organism(self.parent_ecosystem, deep_copy_of_a_dictionary(self))
             """              
             # Utilizamos deep_copy_of_a_dictionary, porque es mucho mas veloz que deepcopy()
@@ -324,7 +364,7 @@ class Organism(dict):
             self.parent_ecosystem.add_organism(newborn)
             self.subtract_costs('procreate', self.parent_ecosystem.biotope.distance(self['location'], new_location))
             procreated = True
-            if print_births:                
+            if print_births:       # ***         
                 #print 'SELF:'
                 #print_dictionary(self)
                 #print "\nNEWBORN:"
@@ -332,16 +372,16 @@ class Organism(dict):
                 #a = raw_input('press any key...')
                 print "newborn!"
         #else:
-            #print "Not enough space"
+            #print "Not enough space" # ***
         return procreated
 
     def die(self, cause = 'natural deth'):
         if print_methods_names:
-            print 'die'
+            print 'die' # ***
         # self.parent_ecosystem.delete_organism(self) # parent_ecosystem tells biotope to erase organism from it
-        if print_deths:        
-            print 'dying', self.__str__(list_of_attributes = ('category', 'age', 'energy reserve')), cause        
-        elif print_killed and cause == 'killed by a predator':
+        if print_deths:     # ***   
+            print 'dying', self.__str__(list_of_attributes = ('category', 'age', 'energy reserve', 'nutrient A reserve', 'nutrient B reserve')), cause        
+        elif print_killed and cause == 'killed by a predator': # ***
             print 'dying', self.__str__(list_of_attributes = ('category', 'age', 'energy reserve')), cause                    
         self.parent_ecosystem.new_deads.append(self)
 
