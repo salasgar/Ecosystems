@@ -126,7 +126,7 @@ _sunlight = {
     # to a rectangular region of the ecosystem. If the size of the ecosystem is 200x100, then
     # the size of each region must be 8x4. 
 
-    'initial value #x #y': {'+': (5.0, '#x', '#y')},
+    'initial value #x #y': {'+': (10.0, '#x', '#y')},
     # No matters the size of the ecosystem nor the size of the matrix of sunlight values, the
     # function that gives the value of each point is defined in the square [0, 1] x [0, 1],
     # i.e. the function initial_value(x, y) of any substance is defined for 0 <= x <= 1 and
@@ -149,7 +149,7 @@ _sunlight = {
             south at the same time (as summers do), because both poles are the same place.
         """,
         '+': (
-            2,
+            10,
             {'*': (
                 -1, 
                 {'cos': {'*': (2, pi, '#y')}}
@@ -190,7 +190,7 @@ _nutrient_A = {
     'value after updating #x #y': {
         '+': (
             # Generating:
-            200,
+            500,
             # Spreading:
             {'*': (
                 0.80,  # the location (#x, #y) keeps the 80 per cent of its amount of nutrient A
@@ -228,7 +228,7 @@ _nutrient_B = {
             {'random true': 0.04},
             {'uniform': [0, 2000]},
             {'+': (
-                200.0,
+                1000.0,
                 {'-': ('#x', '#y')}
             )}
         )},
@@ -267,7 +267,7 @@ _nutrient_B = {
 }
 
 _biotope = {
-    'size': (150, 100),
+    'size': (200, 100),
     'biotope features': {
         'sunlight': _sunlight,
         'temperature': _temperature,
@@ -345,10 +345,10 @@ _ecosystem_features = {
     },
 
     'maximum population allowed': {
-        'initial value': 200000,
+        'initial value': 5000,
 
         '+': (
-            200000,
+            5000,
             {'*': (
                 10000,
                 {'curve from 0 to 1': 
@@ -459,7 +459,7 @@ _gene_temperature_adaptation_level = {
                 may survive in a wider range of temperatures than otherwise.
             """,
             'initial value': {
-                'uniform': [0, 200]
+                'uniform': [0, 2000]
             },
             'value after mutation': {
                 'gauss': (
@@ -518,7 +518,7 @@ _constraint_die = {
 
 _organisms_category_a = {
     # Define initial number of organisms:
-    'initial number of organisms': 2000,
+    'initial number of organisms': 200,
     'genes': {
         'category': {
             'initial value': 'A'
@@ -539,49 +539,10 @@ _organisms_category_a = {
             }
         },
         'species identity mutation frequency': {
-            'initial value': {'uniform': [0, 1.0]},
+            'initial value': 1.0,
             'value after mutation': \
-            _default_value_after_mutation_B('species identity mutation frequency'),
+            _default_value_after_mutation_A('species identity mutation frequency'),
             'allowed interval': [0, 1]
-        },
-        'red': {
-            'initial value': {'uniform': [0, 255]},
-            'value after mutation': {
-                '+': (
-                    'red',
-                    {'gauss': (0, 3)}
-            )},
-            'allowed interval': [0, 255]
-        },
-        'green': {
-            'initial value': {'uniform': [0, 255]},
-            'value after mutation': {
-                '+': (
-                    'green',
-                    {'gauss': (0, 3)}
-            )},
-            'allowed interval': [0, 255]
-        },
-        'blue': {
-            'initial value': {'uniform': [0, 255]},
-            'value after mutation': {
-                '+': (
-                    'blue',
-                    {'gauss': (0, 3)}
-            )},
-            'allowed interval': [0, 255]
-        },
-        'color': {
-            'initial value': [
-                {'round': 'red'},
-                {'round': 'green'},
-                {'round': 'blue'},
-                ],
-            'value after mutation': [
-                {'round': 'red'},
-                {'round': 'green'},
-                {'round': 'blue'},
-            ]
         },
         'age': {
             'help': 
@@ -608,14 +569,14 @@ _organisms_category_a = {
             """
                 Capacity to transform sunlight into energy reserve
             """,
-            'initial value': 10.0,
+            'initial value': 0.0,
             'value in next cycle': {
                 '+': (
                     'photosynthesis capacity',
                     'photosynthesis capacity growth'
                     )
             },
-            'value after mutation': 10.0,
+            'value after mutation': 0.0,
             'allowed interval': [0, 'infinity']
         },
         'photosynthesis capacity growth': {
@@ -631,19 +592,13 @@ _organisms_category_a = {
             }
         },
         'energy reserve at birth': {
-            'initial value': {'uniform': [0, 10000]},
-            'value after mutation': \
-            _default_value_after_mutation_A('energy reserve at birth')
+            'initial value': 1000.3
         },
         'nutrient A reserve at birth': {
-            'initial value': {'uniform': [0, 200]},
-            'value after mutation': \
-            _default_value_after_mutation_A('nutrient A reserve at birth')
+            'initial value': 100.4
         },
         'nutrient B reserve at birth': {
-            'initial value': {'uniform': [0, 200]},
-            'value after mutation': \
-            _default_value_after_mutation_A('nutrient B reserve at birth')
+            'initial value': 100.5
         },        
         'energy reserve': _gene_energy_reserve,
         'nutrient A reserve': _gene_nutrient_A_reserve,
@@ -657,7 +612,8 @@ _organisms_category_a = {
                 'uniform': [20000, 200000]
             },
             'value after mutation': \
-            _default_value_after_mutation_A('energy storage capacity'),
+            _default_value_after_mutation_B('energy storage capacity')
+            ,
             'allowed interval': [0, 'infinity']
         },
         'nutrient A storage capacity': {
@@ -669,7 +625,8 @@ _organisms_category_a = {
                 'uniform': [20000, 200000]
             },
             'value after mutation': \
-            _default_value_after_mutation_A('nutrient A storage capacity'),
+            _default_value_after_mutation_A('nutrient A storage capacity')
+            ,
             'allowed interval': [0, 'infinity']
         },
         'nutrient B storage capacity': {
@@ -681,7 +638,8 @@ _organisms_category_a = {
                 'uniform': [20000, 200000]
             },
             'value after mutation': \
-            _default_value_after_mutation_A('nutrient B storage capacity'),
+            _default_value_after_mutation_B('nutrient B storage capacity')
+            ,
             'allowed interval': [0, 'infinity']
         },
         'minimum energy reserve for procreating': {
@@ -691,9 +649,7 @@ _organisms_category_a = {
             """,
             'initial value': {
                 'uniform': [0, 3000]
-            },
-            'value after mutation': \
-            _default_value_after_mutation_A('minimum energy reserve for procreating')
+            }
         },
         'minimum nutrient A reserve for procreating': {
             'help':
@@ -701,10 +657,8 @@ _organisms_category_a = {
                 Minimum nutrient A reserve for procreating
             """,
             'initial value': {
-                'uniform': [0, 300]
-            },
-            'value after mutation': \
-            _default_value_after_mutation_A('minimum nutrient A reserve for procreating')
+                'uniform': [0, 30]
+            }
         },
         'minimum nutrient B reserve for procreating': {
             'help':
@@ -712,10 +666,8 @@ _organisms_category_a = {
                 Minimum nutrient B reserve for procreating
             """,
             'initial value': {
-                'uniform': [0, 300]
-            },
-            'value after mutation': \
-            _default_value_after_mutation_A('minimum nutrient B reserve for procreating')
+                'uniform': [0, 30]
+            }
         },
         'speed': {
             'help':
@@ -723,40 +675,39 @@ _organisms_category_a = {
                 Number of positions that moves every time cycle
             """,
             'initial value': {
-                'uniform': [0, 4]
+                'uniform': [0, 14]
             },
             'value after mutation': \
             make_variation(
                 gene = 'speed',
                 absolute_variation = {'uniform': [-0.2, 0.2]},
                 probability_of_change = 'mutation frequency'
-                ),
-            'allowed interval': [0, 'infinity']
+                )
         },
         'hunt radius': {
             'help':
             """
                 The radius whitin a prey must be in order to be hunted
             """,
-            'initial value': {'uniform': [0, 5]},
+            'initial value': 1.1,
             'value after mutation': \
             _default_value_after_mutation_A('hunt radius')
         },
         'radius of procreation': {
-            'initial value': {'uniform': [0, 5]},
+            'initial value': 3.5,
             'value after mutation': \
             _default_value_after_mutation_A('radius of procreation')
         },
         'attack capacity': {
             'initial value': {
-                'uniform': [0, 2000]
+                'uniform': [0, 20000]
             },
             'value after mutation': \
-            make_variation('attack capacity', relative_variation = {'gauss': (0, 0.1)})
+            make_variation('attack capacity', absolute_variation = {'gauss': (0, 1)})
         },
         'basal defense capacity': {
             'initial value': {
-                'uniform': [0, 200]
+                'uniform': [0, 20]
             },
             'value after mutation': \
             _default_value_after_mutation_A('defense capacity')
@@ -775,17 +726,16 @@ _organisms_category_a = {
         },
         'mean aggressiveness': {
             'initial value': {
-                'uniform': [0, 1]
+                'uniform': [0.5, 1]
             },
             'value after mutation': \
-            _default_value_after_mutation_B('aggressiveness'),
+            _default_value_after_mutation_A('aggressiveness')
         },        
         'aggressiveness': {
             'initial value': 0,
             'value in next cycle': {
                 'gauss': ('mean aggressiveness', 0.1)
-            },
-            'allowed interval': [0, 1]
+            }
         },
         'indicator gene A': {
             'initial value': 1.0,
@@ -813,24 +763,22 @@ _organisms_category_a = {
         },
         'procreation frequency': {
             'initial value': {
-                'uniform': [0, 1]
-            },
-            'value after mutation': \
-            _default_value_after_mutation_A('procreation frequency')
+                'uniform': [0.5, 1]
+            }
         },
         'optimal temperature': {
             'initial value': {
-                'uniform': [0, 50]
+                'uniform': [0, 40]
             },
             'value after mutation': \
             _default_value_after_mutation_B('optimal temperature')
         },
         'temperature adaptation level': {
             'initial value': {
-                'uniform': [0, 15]
+                'uniform': [0, 2]
             },
             'value after mutation': \
-            _default_value_after_mutation_A('temperature adaptation level')
+            _default_value_after_mutation_B('temperature adaptation level')
         },
         'actions sequence': {
             'initial value': {
@@ -925,7 +873,7 @@ _constraints = {
 _cost_move = {
     'energy reserve': {
         '+': (
-            {'*': (0.0002,
+            {'*': (0.000002,
                    'attack capacity',
                    'defense capacity',
                    'hunt radius')
@@ -936,7 +884,7 @@ _cost_move = {
         )},
     'nutrient A reserve': {
         '+': (
-            {'*': (0.000002,
+            {'*': (0.00000002,
                    'attack capacity',
                    'basal defense capacity',
                    'radius of procreation')
@@ -947,7 +895,7 @@ _cost_move = {
         )},
     'nutrient B reserve': {
         '+': (
-            {'*': (0.000002,
+            {'*': (0.00000002,
                    'attack capacity',
                    'basal defense capacity',
                    'radius of procreation')
@@ -984,8 +932,8 @@ _costs = {
             {'*': (0.00001, 'photosynthesis capacity')},
             {'*': (0.0001, 'indicator gene A')},
             {'*': (0.0001, 'basal defense capacity')},
-            {'*': (0.001, 'attack capacity')},
-            {'*': (10.1, 'speed')},
+            {'*': (0.0001, 'attack capacity')},
+            {'*': (0.01, 'speed')},
             {'*': (0.2, 'hunt radius')},
             {'*': (0.00001, 'energy storage capacity')},
             {'*': (0.0001, 'nutrient A storage capacity')},
@@ -1000,7 +948,7 @@ _costs = {
             {'*': (0.00001, 'photosynthesis capacity growth')},
             {'*': (0.0001, 'basal defense capacity')},
             {'*': (0.000005, 'attack capacity')},
-            {'*': (3.0, 'speed')},
+            {'*': (0.003, 'speed')},
             {'*': (0.003, 'hunt radius')},
             {'*': (0.000002, 'energy storage capacity')},
             {'*': (0.002, 'nutrient A storage capacity')},
@@ -1014,7 +962,7 @@ _costs = {
             {'*': (0.00001, 'photosynthesis capacity growth')},
             {'*': (0.0001, 'basal defense capacity')},
             {'*': (0.000005, 'attack capacity')},
-            {'*': (3.0, 'speed')},
+            {'*': (0.03, 'speed')},
             {'*': (0.03, 'hunt radius')},
             {'*': (0.0000002, 'energy storage capacity')},
             {'*': (0.0002, 'nutrient A storage capacity')},
@@ -1049,5 +997,9 @@ my_example_of_ecosystem_settings = {
     'constraints': _constraints,
     'costs': _costs
 }
+
+
+
+
 
 

@@ -32,7 +32,7 @@ class GUI(object):
             # Draw organism
             # TODO: Define proper color
             if 'color' in organism:   
-                o_color = organism['color'](organism)
+                o_color = organism['color']
                 #print o_color
             elif organism['speed'] == 0.0:
                 o_color = (0, 150, 0)
