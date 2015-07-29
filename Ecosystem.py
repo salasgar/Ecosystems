@@ -153,20 +153,28 @@ class Ecosystem(object):
             number_of_organisms = category_settings['initial number of organisms']
             genes_settings = category_settings['genes']
             for _ in range(number_of_organisms):                
-                new_organism = Organism(
-                    self, {
-                        'value after mutation': {}, 
-                        'value in next cycle': {}, 
-                        'list of reserve substances': []
-                    })
-                # Load genes:
-                new_organism.add_all_genes(genes_settings)
-                # Load decisions:
-                if 'decisions' in category_settings:
-                    for decision in category_settings['decisions']:
-                        new_organism.add_decision(decision, category_settings['decisions'][decision])
+                new_organism = Organism(parent_ecosystem = self)
+                new_organism.configure_with_category_settings(category_settings)
                 self.add_organism(new_organism) # This adds new_organism to self.newborns and to self.biotope in a random location
-        self.organisms_list = self.newborns
+        self.organisms_list += self.newborns
+        self.newborns = []
+
+    def create_new_organisms(self, number_of_organisms):
+        # Chose the number of new organisms of each category proportionally to the
+        # initial number of organisms of each category:
+        total = 0
+        for category_name in self.settings['organisms']:
+            total += self.settings['organisms'][category_name]['initial number of organisms']
+        for category_name in self.settings['organisms']:
+            n = (self.settings['organisms'][category_name]['initial number of organisms'] 
+                * number_of_organisms) / total
+            for _ in range(n):                
+                new_organism = Organism(parent_ecosystem = self)
+                new_organism.configure_with_category_settings(
+                    self.settings['organisms'][category_name]
+                    )
+                self.add_organism(new_organism) # This adds new_organism to self.newborns and to self.biotope in a random location
+        self.organisms_list += self.newborns
         self.newborns = []
 
     def evolve(self):
@@ -176,7 +184,8 @@ class Ecosystem(object):
         for feature in self.ecosystem_features:
             self.ecosystem_features[feature].update()        
         # Organisms actions:
-        i = 0        
+        i = 0    
+        number_of_deths = 0    
         while i < len(self.organisms_list):
             self.organisms_list[i].act()
             i += 1
@@ -186,7 +195,14 @@ class Ecosystem(object):
                     i -= 1
                 self.delete_organism(dead_organism) # this erases the organism from the biotope too
                 #print "number of organisms", len(self.organisms_list) # ***
+            if print_number_of_deths:
+                number_of_deths += len(self.new_deads)
             self.new_deads = []
+        if print_number_of_deths:
+            print 'Number of deths:', number_of_deths
+            number_of_deths = 0
+        if print_number_of_births:
+            print 'New births:', len(self.newborns)
         self.organisms_list += self.newborns
         self.newborns = []
         self.time += 1
@@ -206,6 +222,9 @@ class Ecosystem(object):
             if gene in organism and value1 <= organism[gene] and organism[gene] <= value:
                 N += 1
         return N
+
+    def population(self):
+        return len(self.organisms_list) + len(self.newborns)
 
     def get_random_organisms(self, number_of_random_organisms):
         return sample(self.organisms_list, number_of_random_organisms)

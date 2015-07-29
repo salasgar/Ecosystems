@@ -486,33 +486,33 @@ _constraint_die = {
         """,
         'or': (
             # RANDOM CAUSE OF DETH:
-            #{'random true': 0.00005},
+            {'random true': 0.0005},
             # DEATH BY STARVATION:
             {'<': ('energy reserve', 100.0)},
             {'<': ('nutrient A reserve', 1.0)},
-            {'<': ('nutrient B reserve', 0.3)}#,
+            {'<': ('nutrient B reserve', 0.3)},
             # DEATH BY TEMPERATURE:
-            #{'>': (
-            #    {'gauss': (
-            #        {'/': (
-            #            {'**': (
-            #                {'-': (
-            #                    'optimal temperature',
-            #                    {'#biotope temperature': ('normalized location x', 'normalized location y') }
-            #                )},
-            #                2
-            #            )},
-            #            'temperature adaptation level'
-            #        )},
-            #        0.1
-            #    )},
-            #    {'chi-squared': 4}
-            #)},
+            {'>': (
+                {'gauss': (
+                    {'/': (
+                        {'**': (
+                            {'-': (
+                                'optimal temperature',
+                                {'#biotope temperature': ('normalized location x', 'normalized location y') }
+                            )},
+                            2
+                        )},
+                        'temperature adaptation level'
+                    )},
+                    0.1
+                )},
+                {'chi-squared': 4}
+            )},
             # DEATH BY OLD AGE:
-            #{'>': (
-            #    {'gauss': ('age', 'age')},
-            #    '#ecosystem global longevity'
-            #    )}
+            {'>': (
+                {'gauss': ('age', 'age')},
+                '#ecosystem global longevity'
+                )}
         )
     }
 
@@ -526,20 +526,20 @@ _organisms_category_a = {
         'species': {
             # An organism will never attack any other organism of the same species. It only
             # attacks organisms of other species.
-            'initial value': {'random integer': [0, 99999]},
+            'initial value': {'random integer': [0, 999999]},
             'value after mutation': {
                 'if': (
                     # Condition:
                     {'random true': 'species identity mutation frequency'},
                     # Value if condition == True:
-                    {'random integer': [0, 99999]},
+                    {'random integer': [0, 999999]},
                     # Value if condition == False:
                     'species'
                     )
             }
         },
         'species identity mutation frequency': {
-            'initial value': 0.91,
+            'initial value': 1.0,
             'value after mutation': \
             _default_value_after_mutation_A('species identity mutation frequency'),
             'allowed interval': [0, 1]
@@ -838,34 +838,34 @@ _constraints = {
     'can procreate': {
         'and': (
             {'<': (
-                '#ecosystem population',
+                lambda organism: organism.parent_ecosystem.population(),
                 '#ecosystem maximum population allowed'
             )},
-            #{'>': (
-            #    'energy reserve',
-            #    {'+': (
-            #        'energy reserve at birth',
-            #        {'cost': 'procreate'},
-            #        {'cost': 'stay alive'},
-            #        100.1
-            #    )}
-            #)},
-            #{'>': (
-            #    'nutrient A reserve',
-            #    {'+': (
-            #        'nutrient A reserve at birth',
-            #        {'cost': ('procreate', 'nutrient A reserve')},
-            #        {'cost': ('stay alive', 'nutrient A reserve')}
-            #    )}
-            #)},
-            #{'>': (
-            #    'nutrient B reserve',
-            #    {'+': (
-            #        'nutrient B reserve at birth',
-            #        {'cost': ('procreate', 'nutrient B reserve')},
-            #        {'cost': ('stay alive', 'nutrient B reserve')}
-            #    )}
-            #)}
+            {'>': (
+                'energy reserve',
+                {'+': (
+                    'energy reserve at birth',
+                    {'cost': 'procreate'},
+                    {'cost': 'stay alive'},
+                    100.1
+                )}
+            )},
+            {'>': (
+                'nutrient A reserve',
+                {'+': (
+                    'nutrient A reserve at birth',
+                    {'cost': ('procreate', 'nutrient A reserve')},
+                    {'cost': ('stay alive', 'nutrient A reserve')}
+                )}
+            )},
+            {'>': (
+                'nutrient B reserve',
+                {'+': (
+                    'nutrient B reserve at birth',
+                    {'cost': ('procreate', 'nutrient B reserve')},
+                    {'cost': ('stay alive', 'nutrient B reserve')}
+                )}
+            )}
     )},
     'die': _constraint_die
 }

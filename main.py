@@ -54,6 +54,8 @@ def main():
 
     ecosystem = Ecosystem(my_example_of_ecosystem_settings)
 
+    ecosystem.minimum_population_allowed = 1000
+
     """ ***********************  TRIAL ZONE *********************************** 
 
     f_set = {'<': (
@@ -128,6 +130,10 @@ def main():
             gui.draw_ecosystem()
         if make_sleeps:
             sleep(1.0)  # To remove
+        if ecosystem.population() < ecosystem.minimum_population_allowed:
+            n = ecosystem.minimum_population_allowed - ecosystem.population()
+            ecosystem.create_new_organisms(n)
+            print n, "organisms created"
 
     print "Time:", ecosystem.time, "Number of organisms:", len(ecosystem.organisms_list) # ***
 

@@ -20,7 +20,7 @@ actions_dictionary = {
 
 class Organism(dict):
 
-    def __init__(self, parent_ecosystem, organism_data = None):
+    def __init__(self, parent_ecosystem, organism_data = {}):
         self.parent_ecosystem = parent_ecosystem
         for key in organism_data:
             self[key] = organism_data[key]
@@ -82,7 +82,19 @@ class Organism(dict):
         if self.is_reserve_substance(gene_name):
             self['list of reserve substances'].append(gene_name)
     
-    def add_all_genes(self, all_genes_settings):
+    def add_decision(self, decision_name, decision_settings):
+        self[decision_name] = self.parent_ecosystem.function_maker.read_function_settings(
+            '#organism ' + decision_name,
+            decision_settings
+        )        
+
+    def configure_with_category_settings(self, category_settings):
+        # Adding genes:
+        all_genes_settings = category_settings['genes'] if \
+            'genes' in category_settings else {}
+        self['list of reserve substances'] = []
+        self['value in next cycle'] = {}
+        self['value after mutation'] = {}
         progressing = True
         while progressing:
             progressing = False
@@ -93,26 +105,12 @@ class Organism(dict):
                     ):
                     self.add_gene(gene_name, all_genes_settings[gene_name])
                     progressing = True
+        # Adding decisions:
+        all_decisions_settings = category_settings['decisions'] if \
+            'decisions' in category_settings else {}
+        for decision in all_decisions_settings:
+            self.add_decision(decision, all_decisions_settings[decision])
 
-    def add_decision(self, decision_name, decision_settings):
-        self[decision_name] = self.parent_ecosystem.function_maker.read_function_settings(
-            '#organism ' + decision_name,
-
-
-
-
-
-
-
-
-
-
-
-
-            
-            decision_settings
-        )
-    
     def act(self):
         if print_methods_names: # ***
             print 'act'
@@ -273,20 +271,6 @@ class Organism(dict):
                 #print 'eating', prey['category'], self[reserve_substance], "+", prey[reserve_substance], "=", # ***
                 self[reserve_substance] += prey[reserve_substance]
                 storage_capacity = reserve_substance[:-7] + 'storage capacity'
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                 if storage_capacity in self:
                     self[reserve_substance] = min(self[reserve_substance], self[storage_capacity])
                 #print self['energy reserve'] # ***
@@ -397,7 +381,7 @@ class Organism(dict):
                 #print "\nNEWBORN:"
                 #print_dictionary(newborn)
                 #a = raw_input('press any key...')
-                print "newborn!"
+                print "newborn!",
         #else:
             #print "Not enough space" # ***
         return procreated

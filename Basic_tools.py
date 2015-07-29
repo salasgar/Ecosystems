@@ -9,10 +9,12 @@ from types import FunctionType
 print_ages = False
 print_organisms = False
 print_deths = False
+print_number_of_deths = True
 print_killed = False
 print_costs = False
 print_reserves = False
-print_births = True
+print_births = False
+print_number_of_births = True
 print_methods_names = False
 print_operators = False
 
