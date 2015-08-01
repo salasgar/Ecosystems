@@ -7,6 +7,7 @@ from Basic_tools import *
 """ ******************************************************* """
 
 
+
 Store_data = False
 
 Elements_to_store = {
@@ -75,7 +76,6 @@ Elements_to_store = {
         }
     }
 
-
 def my_operator(a, b):
     return gauss(
         (a+b)/2,
@@ -86,16 +86,14 @@ def my_operator(a, b):
 
 _operator_definitions = {
     'my operator': {
-        # You can prevent any binary operator from being associative:
-        'is associative': False,
-        'check number of inputs': lambda inputs:
-            is_tuple_or_list(inputs) and (len(inputs) == 2),
+        'is associative': False, # You can prevent any binary operator from being associative
+        'check number of inputs': lambda inputs: is_tuple_or_list(inputs) and (len(inputs) == 2),    
         'output function #a #b': my_operator
     },
 
     'curve from 0 to 1': {
         'type of inputs': 'Number',
-        'type of outputs': 'Number',
+        'type of outputs': 'Number',        
         'output function #input': {'+': (
             -1,
             {'*': (
@@ -114,8 +112,7 @@ _operator_definitions = {
     },
 
     'variate': {
-        # You can prevent any binary operator from being associative
-        'is associative': False,
+        'is associative': False, # You can prevent any binary operator from being associative
         'output function #value #probability_of_change': {
             'if': (
                 {'random true': '#probability_of_change'},
@@ -127,49 +124,44 @@ _operator_definitions = {
 
 _sunlight = {
     'matrix size': (25, 25),
-    # No matters the size of the ecosystem (it might be changed later for
-    # further experiments), we will store 25x25 = 625 values of sunlight in any
-    # giving moment. Each value correspond to a rectangular region of the
-    # ecosystem. If the size of the ecosystem is 200x100, then
-    # the size of each region must be 8x4.
+    # No matters the size of the ecosystem (it might be changed later for further experiments), 
+    # we will store 25x25 = 625 values of sunlight in any giving moment. Each value correspond
+    # to a rectangular region of the ecosystem. If the size of the ecosystem is 200x100, then
+    # the size of each region must be 8x4. 
 
     'initial value #x #y': {'+': (5.0, '#x', '#y')},
-    # No matters the size of the ecosystem nor the size of the matrix of
-    # sunlight values, the function that gives the value of each point is
-    # defined in the square [0, 1] x [0, 1], i.e. the function
-    # initial_value(x, y) of any substance is defined for 0 <= x <= 1 and
+    # No matters the size of the ecosystem nor the size of the matrix of sunlight values, the
+    # function that gives the value of each point is defined in the square [0, 1] x [0, 1],
+    # i.e. the function initial_value(x, y) of any substance is defined for 0 <= x <= 1 and
     # 0 <= y <= 1
-    # This way, we can change the number of values we store without having to
-    # change any function definition.
-
+    # This way, we can change the number of values we store without having to change any function
+    # definition.
+    
     'value after updating #x #y': {
-        # Each time the substance evolves, the whole matrix change its values,
-        # calling this function. But this function is defined for 0 <= x <= 1
-        # and 0 <= y <= 1. Thus, for each entry (i, j) of the matrix, we call
-        # this function with x = i / size_x   and   y = j /size_y
-        # where (size_x, size_y) is the size of the matrix of this substance.
-        # 'time' is the number of cycles since the experiment started.
+    # Each time the substance evolves, the whole matrix change its values, calling this 
+    # function. But this function is defined for 0 <= x <= 1 and 0 <= y <= 1. Thus, for each
+    # entry (i, j) of the matrix, we call this function with x = i / size_x   and   y = j /size_y
+    # where (size_x, size_y) is the size of the matrix of this substance. 'time' is the number
+    # of cycles since the experiment started.
         'help':
         """
-            Sunlight leads the climate, providing food for autotrophs and
-            powering the rise of temperatures.
-            This feature varies from 0 to 4. In the poles is much lower than in
-            the equator. But globally varies from winter to summer. Winters
-            occur in the north and in the south at the same time (as summers
-            do), because both poles are the same place.
+            Sunlight leads the climate, providing food for autotrophs and powering the 
+            rise of temperatures.
+            This feature varies from 0 to 4. In the poles is much lower than in the equator.
+            But globally varies from winter to summer. Winters occur in the north and in the
+            south at the same time (as summers do), because both poles are the same place.
         """,
         '+': (
             2,
             {'*': (
-                -1,
+                -1, 
                 {'cos': {'*': (2, pi, '#y')}}
             )},
             {'sin': {'*': ('seasons speed', 'time')}}
         )},
 
-    # The values of the matrix of sunlight is updated every 1 cycle.
-    'update once every': 1
-}
+    'update once every': 1 # The values of the matrix of sunlight is updated every 1 cycle.
+} 
 
 _temperature = {
     'matrix size': (20, 20),
@@ -177,21 +169,17 @@ _temperature = {
     'value after updating #x #y': {
         'help':
         """
-            Each cycle the temperature is increased by sunlight, but the 10 per
-            cent of the accumulated heat is lost in every cycle.
+            Each cycle the temperature is increased by sunlight, but the 10 per cent of
+            the accumulated heat is lost in every cycle.
         """,
         '*': (
-            # this is the percentage (93 per cent) of the heat that remains in
-            # the biotope:
-            0.93,
+            0.93, # this is the percentage (93 per cent) of the heat that remains in the biotope
             {'+': (
-                # the new value depends on the previous value:
-                {'#biotope temperature': ('#x', '#y')},
+                {'#biotope temperature': ('#x', '#y')}, # the new value depends on the previous value
                 {'#biotope sunlight': ('#x', '#y')}
             )}
         )},
-    # The values of the matrix of sunlight is updated every 1 cycle.
-    'update once every': 1
+    'update once every': 1 # The values of the matrix of sunlight is updated every 1 cycle.
 }
 
 _nutrient_A = {
@@ -208,37 +196,32 @@ _nutrient_A = {
             200,
             # Spreading:
             {'*': (
-                # the location (#x, #y) keeps the 80 per cent of its amount
-                # of nutrient A:
-                0.80,
+                0.80,  # the location (#x, #y) keeps the 80 per cent of its amount of nutrient A
                 {'#biotope nutrient A': ('#x', '#y')}
             )},
             {'*': (
-                # the location (#x, #y) gets the 5 per cent from each
-                # of the adjacent locations:
-                0.05,
+                0.05,  # the location (#x, #y) gets the 5 per cent from each of the adjacent locations:
                 {'+': (
-                    {'#biotope nutrient A': (
+                    {'#biotope nutrient A': ( 
                         {'+': ('#x', 1)},
                         '#y'
                     )},
-                    {'#biotope nutrient A': (
+                    {'#biotope nutrient A': ( 
                         {'-': ('#x', 1)},
                         '#y'
                     )},
-                    {'#biotope nutrient A': (
+                    {'#biotope nutrient A': ( 
                         '#x',
                         {'+': ('#y', 1)},
                     )},
-                    {'#biotope nutrient A': (
+                    {'#biotope nutrient A': ( 
                         '#x',
                         {'-': ('#y', 1)}
                     )}
                 )}
             )}
         )},
-    # The values of the matrix of nutrient A is updated once every 20 cycles:
-    'update once every': 2
+    'update once every': 2 # The values of the matrix of nutrient A is updated once every 20 cycles.
 }
 
 _nutrient_B = {
@@ -258,37 +241,32 @@ _nutrient_B = {
             7.5,
             # Spreading:
             {'*': (
-                # the location (#x, #y) keeps the 90 per cent of its amount
-                # of nutrient B:
-                0.90,
+                0.90,  # the location (#x, #y) keeps the 90 per cent of its amount of nutrient B
                 {'#biotope nutrient A': ('#x', '#y')}
             )},
             {'*': (
-                # the location (#x, #y) gets the 2,5 per cent from each
-                # of the adjacent locations:
-                0.025,
+                0.025,  # the location (#x, #y) gets the 2,5 per cent from each of the adjacent locations:
                 {'+': (
-                    {'#biotope nutrient A': (
+                    {'#biotope nutrient A': ( 
                         {'+': ('#x', 1)},
                         '#y'
                     )},
-                    {'#biotope nutrient A': (
+                    {'#biotope nutrient A': ( 
                         {'-': ('#x', 1)},
                         '#y'
                     )},
-                    {'#biotope nutrient A': (
+                    {'#biotope nutrient A': ( 
                         '#x',
                         {'+': ('#y', 1)},
                     )},
-                    {'#biotope nutrient A': (
+                    {'#biotope nutrient A': ( 
                         '#x',
                         {'-': ('#y', 1)}
                     )}
                 )}
             )}
         )},
-    # The values of the matrix of nutrient B is updated once every 15 cycles:
-    'update once every': 5
+    'update once every': 5 # The values of the matrix of nutrient B is updated once every 15 cycles.
 }
 
 _biotope = {
@@ -312,35 +290,30 @@ _biotope = {
     }
 }
 
-
 def _default_value_after_mutation_A(gene):
     """
         Since this module is common to many genes,
-        we define it as an independent function
+        we define it as an independent function 
     """
     return make_variation(
-        gene=gene,
-        relative_variation={'uniform': [-0.05, 0.05]},
-        # "relative variation" means that the gene will
-        # be increased or decreased proportionally
-        # to its current value. For example:
-        # relative_variation = -0.034 means that the gene
-        # will lose the 3.4 per cent of its value
-        probability_of_change='mutation frequency')
-
+        gene = gene, 
+        relative_variation = {'uniform': [-0.05, 0.05]}, 
+        # "relative variation" means that the gene will be increased or decreased proportionally 
+        # to its current value. For example: relative_variation = -0.034 means that the gene will 
+        # lose the 3.4 per cent of its value
+        probability_of_change = 'mutation frequency')
 
 def _default_value_after_mutation_B(gene):
     """
         Since this module is common to many genes,
-        we define it as an independent function
+        we define it as an independent function 
     """
     return make_variation(
-        gene=gene,
-        absolute_variation={'uniform': [-0.05, 0.05]},
-        # Example: if absolute_variation = -0.034 means that
-        # the gene will be 0.034 units less than before
-        probability_of_change='mutation frequency')
-
+        gene = gene, 
+        absolute_variation = {'uniform': [-0.05, 0.05]}, 
+        # Example: if absolute_variation = -0.034 means that the gene will be 0.034 units less
+        # than before
+        probability_of_change = 'mutation frequency')
 
 def _default_value_after_mutation_C(gene):
     """
@@ -351,15 +324,13 @@ def _default_value_after_mutation_C(gene):
 
     def _value(gene_value, mutation_frequency):
         if random_true(mutation_frequency):
-            # This is the random function of a 'cubic'
-            # distribution of probability:
+            # This is the random function of a 'cubic' distribution of probability:
             return gene_value * (1 + uniform(-0.5, 0.5)**3)
         else:
             return gene_value
 
-    # This means that the function _value will be
-    # called and two parameters will be passed
-    # to it: The values of gene and 'mutation frequency':
+    # This means that the function _value will be called and two parameters will be passed
+    # to it: The values of gene and 'mutation frequency'
     return {'function': (_value, gene, 'mutation frequency')}
 
 _ecosystem_features = {
@@ -373,7 +344,7 @@ _ecosystem_features = {
                     len(ecosystem.organisms_list) +
                     len(ecosystem.newborns)
                     ),
-
+        
         'value after updating': lambda ecosystem: (
             len(ecosystem.organisms_list) +
             len(ecosystem.newborns)
@@ -383,31 +354,25 @@ _ecosystem_features = {
     'maximum population allowed': {
         'initial value': 200000,
 
-        '+':
-            (
-                200000,
-                {'*': (
-                    10000,
-                    {
-                        'curve from 0 to 1':
-                        {'*': (0.01, 'time')}
-                    }
-                )}
-            )
-    },
+        '+': (
+            200000,
+            {'*': (
+                10000,
+                {'curve from 0 to 1': 
+                    {'*': (0.01, 'time')}
+                }
+            )}
+    )},
 
     'global longevity': {
-        'initial value': 200  # At this age all organisms must die
+        'initial value': 200 # At this age all organisms must die
     },
 
     'autotrophs productivity': {
         'initial value': 10000.1  
-    # Each organism has a different photosynthesis capacity,
-    # but this capacity is multiplied
-    # by the value of 'autotrophs productivity', that
-    # is a variable of the experiment that
-    # remains always the same, although the user
-    # can change it at any time.
+    # Each organism has a different photosynthesis capacity, but this capacity is multiplied
+    # by the value of 'autotrophs productivity', that is a variable of the experiment that 
+    # remains always the same, although the user can change it at any time.
     }
 }
 
@@ -454,9 +419,9 @@ _gene_energy_reserve = {
                 0,
                 {'*': (0.2, 'energy reserve')}
             )},
-        'prices': {
-            'nutrient A reserve': 'price nutr A / energy',
-            'nutrient B reserve': 'price nutr B / energy',
+        'price': {
+            'nutrient A reserve': 'price energy / nutr A',
+            'nutrient B reserve': 'price energy / nutr B',
         },
     'offer to buy': {
         'amount of nutrient A #price': {
@@ -482,10 +447,10 @@ _gene_nutrient_A_reserve = {
         )},
     'value after mutation': 'nutrient A reserve at birth',
     'offer to sell': {
-        'amount': 'nutrient A surplus',
-        'prices': {
-            'nutrient B reserve': 'price nutr B / nutr A',
-            'energy reserve': 'energy / price nutr A'
+        'amount': {'*': (0.2, 'nutrient A reserve')},
+        'price': {
+            'nutrient B reserve': 'price nutr A / nutr B',
+            'energy reserve': 'price nutr A / energy'
         }
     }
 }
@@ -503,10 +468,10 @@ _gene_nutrient_B_reserve = {
         )},
     'value after mutation': 'nutrient B reserve at birth',
     'offer to sell': {
-        'amount': 'nutrient B surplus',
-        'prices': {
-            'nutrient A reserve': 'price nutr A / nutr B',
-            'energy reserve': 'price energy / nutr B'
+        'amount': {'*': (0.2, 'nutrient B reserve')},
+        'price': {
+            'nutrient A reserve': 'price nutr B / nutr A',
+            'energy reserve': 'price nutr B / energy'
         }
 
 }
@@ -948,21 +913,21 @@ _organisms_category_a = {
 
 _decisions = {
     'decide procreate': True,
-#        'and': (
-#            {'random true': 'procreation frequency'},
-#            {'>': (
-#                'energy reserve',
-#                'minimum energy reserve for procreating'
-#            )},
-#            {'>': (
-#                'nutrient A reserve',
-#                'minimum nutrient A reserve for procreating'
-#            )},
-#            {'>': (
-#                'nutrient B reserve',
-#                'minimum nutrient B reserve for procreating'
-#            )}
-#    )},
+        'and': (
+            {'random true': 'procreation frequency'},
+            {'>': (
+                'energy reserve',
+                'minimum energy reserve for procreating'
+            )},
+            {'>': (
+                'nutrient A reserve',
+                'minimum nutrient A reserve for procreating'
+            )},
+            {'>': (
+                'nutrient B reserve',
+                'minimum nutrient B reserve for procreating'
+            )}
+    )},
     'decide move': {
         'random true': 'moving frequency'
     },
@@ -972,6 +937,41 @@ _decisions = {
     'decide attack #prey': {
         '!=': ('species', '#prey species')
     },
+    """   Esto no se si lo vamos a usar:  ***
+    'decide buy #seller #reserve_substance_for_sale #reserve_substance': {
+        'choice': '#reserve_substance',
+            'energy reserve': {
+                'if': (
+                    {'<'}
+
+
+
+                    )
+
+            }
+                {'-': (
+                        'energy reserve at birth',
+                        'energy reserve'
+                        ),
+                    'allowed interval': [0, 'energy reserve at birth']
+                },
+            'nutrient A reserve': {
+                    '-': (
+                        'nutrient A reserve at birth',
+                        'nutrient A reserve'
+                        ),
+                    'allowed interval': [0, 'nutrient A reserve at birth']
+                    },
+            'nutrient B reserve': {
+                    '-': (
+                        'nutrient B reserve at birth',
+                        'nutrient B reserve'
+                        ),
+                    'allowed interval': [0, 'nutrient B reserve at birth']
+                    }
+
+    }
+    """
 }
 
 _organisms_category_a['decisions'] = _decisions
@@ -1024,10 +1024,11 @@ _cost_move = {
             {'*': (0.0002,
                    'attack capacity',
                    'defense capacity',
-                   'hunt radius')
+                   'hunt radius', 
+                   'radius of procreation')
             },
             {'*': (0.2, 'speed', 'radius of procreation', 'procreation frequency')},
-            {'*': (0.01, 'photosynthesis capacity')},
+            {'*': (0.01, 'photosynthesis capacity', 'radius of procreation')},
             0.001
         )},
     'nutrient A reserve': {
@@ -1038,7 +1039,7 @@ _cost_move = {
                    'radius of procreation')
             },
             {'*': (0.002, 'speed', 'radius of procreation', 'procreation frequency')},
-            {'*': (0.0001, 'photosynthesis capacity')},
+            {'*': (0.0001, 'photosynthesis capacity', 'radius of procreation')},
             0.001
         )},
     'nutrient B reserve': {
@@ -1048,8 +1049,8 @@ _cost_move = {
                    'basal defense capacity',
                    'radius of procreation')
             },
-            {'*': (0.002, 'speed')},
-            {'*': (0.0001, 'photosynthesis capacity')},
+            {'*': (0.002, 'speed', 'radius of procreation')},
+            {'*': (0.0001, 'photosynthesis capacity', 'radius of procreation')},
             0.001
         )}
 }
@@ -1084,7 +1085,7 @@ _costs = {
                 {'*': (0.01, 'basal defense capacity', 'nutrient B extraction capacity')},
                 {'*': (0.01, 'attack capacity', 'nutrient A extraction capacity')},
                 {'*': (2.0, 'speed', 'photosynthesis capacity')},
-                {'*': (0.2, 'hunt radius')},
+                {'*': (0.2, 'hunt radius', 'radius of procreation')},
                 {'*': (0.00001, 'energy storage capacity')},
                 {'*': (0.0001, 'nutrient A storage capacity')},
                 {'*': (0.0002, 'nutrient B storage capacity')},
@@ -1102,7 +1103,7 @@ _costs = {
                 {'*': (0.0001, 'basal defense capacity')},
                 {'*': (0.005, 'attack capacity')},
                 {'*': (0.1, 'speed', 'photosynthesis capacity growth')},
-                {'*': (0.003, 'hunt radius')},
+                {'*': (0.003, 'hunt radius', 'radius of procreation')},
                 {'*': (0.000002, 'energy storage capacity')},
                 {'*': (0.002, 'nutrient A storage capacity')},
                 {'*': (0.00005, 'nutrient B storage capacity')},
@@ -1119,7 +1120,7 @@ _costs = {
                 {'*': (0.0001, 'basal defense capacity')},
                 {'*': (0.000005, 'attack capacity')},
                 {'*': (0.1, 'speed', 'nutrient A extraction capacity', 'nutrient B extraction capacity')},
-                {'*': (0.03, 'hunt radius')},
+                {'*': (0.03, 'hunt radius', 'radius of procreation')},
                 {'*': (0.000002, 'energy storage capacity')},
                 {'*': (0.0002, 'nutrient A storage capacity')},
                 {'*': (0.00005, 'nutrient B storage capacity')},

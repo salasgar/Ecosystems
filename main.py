@@ -58,15 +58,12 @@ def main():
 
     """ ***********************  TRIAL ZONE *********************************** 
 
-    f_set = {'<': (
-                '#ecosystem population',
-                '#ecosystem maximum population allowed'
-            )}
+    f_set = {'curve from 0 to 1': 'photosynthesis capacity'}
 
-    f = ecosystem.function_maker.read_function_settings('#organism', f_set)
+    f = ecosystem.function_maker.read_function_settings('output function #organism #input', f_set)
 
     for org in ecosystem.organisms_list:
-        print f(org)
+        print f(org, 5)
 
     error_maker = 1/0
 
@@ -133,7 +130,7 @@ def main():
         if ecosystem.population() < ecosystem.minimum_population_allowed:
             n = ecosystem.minimum_population_allowed - ecosystem.population()
             ecosystem.create_new_organisms(n)
-            print n, "organisms created"
+            print n, "organisms created",
 
     print "Time:", ecosystem.time, "Number of organisms:", len(ecosystem.organisms_list) # ***
 

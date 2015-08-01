@@ -255,7 +255,7 @@ class Biotope(object):
             (x, y) = choice(list_of_free_locations)
             return (x % self['size'][0], y % self['size'][1])
     
-    def seek_possible_prey_close_to(self, center, radius, condition = None):
+    def seek_organism_close_to(self, center, radius, condition = None):
         if condition == None:
             condition = lambda x: (x != None) and (x['location'] != center)
         list_of_locations = self.list_of_locations_close_to(center, radius, condition)

@@ -199,10 +199,10 @@ class Ecosystem(object):
                 number_of_deths += len(self.new_deads)
             self.new_deads = []
         if print_number_of_deths:
-            print 'Number of deths:', number_of_deths
+            print 'Number of deths:', number_of_deths,
             number_of_deths = 0
         if print_number_of_births:
-            print 'New births:', len(self.newborns)
+            print 'New births:', len(self.newborns),
         self.organisms_list += self.newborns
         self.newborns = []
         self.time += 1

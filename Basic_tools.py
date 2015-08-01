@@ -223,6 +223,8 @@ def deep_copy_of_a_dictionary(dictionary):
         copy_to_return = []
         for item in dictionary:
             copy_to_return.append(deep_copy_of_a_dictionary(item))
+        if is_tuple(dictionary):
+            copy_to_return = tuple(copy_to_return)
     else:
         copy_to_return = copy(dictionary)
     return copy_to_return
@@ -348,6 +350,7 @@ def remove_tags(function_name):
         while (hash_position > 0) and (function_name[hash_position - 1] == ' '):
             hash_position -= 1
         return function_name[:hash_position]
+
 
   
 def default_error_messenger(*error_messages):
