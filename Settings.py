@@ -184,7 +184,7 @@ _temperature = {
         '*': (
             # this is the percentage (93 per cent) of the heat that remains in
             # the biotope:
-            0.93,
+            0.91,
             {'+': (
                 # the new value depends on the previous value:
                 {'#biotope temperature': ('#x', '#y')},
@@ -206,7 +206,7 @@ _nutrient_A = {
     'value after updating #x #y': {
         '+': (
             # Generating:
-            {'*': (50, '#x', chi_squared(2))},
+            {'*': (60, '#x', chi_squared(2))},
             # Spreading:
             {'*': (
                 # the location (#x, #y) keeps the 80 per cent of its amount
@@ -256,7 +256,7 @@ _nutrient_B = {
     'value after updating #x #y': {
         '+': (
             # Generating:
-            {'*': (20, '#y', chi_squared(2))},
+            {'*': (25, '#y', chi_squared(2))},
             # Spreading:
             {'*': (
                 # the location (#x, #y) keeps the 90 per cent of its amount
@@ -402,7 +402,7 @@ _ecosystem_features = {
     },
 
     'autotrophs productivity': {
-        'initial value': 10000.1
+        'initial value': 14000
         # Each organism has a different photosynthesis capacity,
         # but this capacity is multiplied
         # by the value of 'autotrophs productivity', that
@@ -693,9 +693,42 @@ _organisms_category_a = {
                 {'round': 'blue'},
                 ],
             'value after mutation': [
-                {'round': 'red'},
-                {'round': 'green'},
-                {'round': 'blue'},
+                {  # RED:
+                    'round': {
+                        '*': (
+                            255,
+                            {
+                                'curve from 0 to 1': {
+                                    '+': ('price energy / nutr A', 'price energy / nutr B')
+                                    }
+                            }
+                            )
+                    }
+                },
+                {  # GREEN:
+                    'round': {
+                        '*': (
+                            255,
+                            {
+                                'curve from 0 to 1': {
+                                    '+': ('price nutr A / energy', 'price nutr A / nutr B')
+                                    }
+                            }
+                            )
+                    }
+                },
+                {  # BLUE:
+                    'round': {
+                        '*': (
+                            255,
+                            {
+                                'curve from 0 to 1': {
+                                    '+': ('price nutr B / nutr A', 'price nutr B / energy')
+                                    }
+                            }
+                            )
+                    }
+                },
             ]
         },
         'age': {

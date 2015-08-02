@@ -16,7 +16,7 @@ print_births = False
 print_number_of_births = True
 print_methods_names = False
 print_operators = False
-print_trade_transactions = 0.01  # print 0.1 per cent of them
+print_trade_transactions = 0.01  # print x per cent of them
 
 
 class Default:
