@@ -387,7 +387,7 @@ Operators_definitions = {
         'output function': lambda x, y: (x and not y) or (y and not x)
     },
 
-# UNARY OPERATORS:
+    # UNARY OPERATORS:
 
     'not': {
         'check number of inputs': lambda inputs: not is_tuple_or_list(inputs),

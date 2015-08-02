@@ -160,7 +160,7 @@ _sunlight = {
             do), because both poles are the same place.
         """,
         '+': (
-            2,
+            3,
             {'*': (
                 -1,
                 {'cos': {'*': (2, pi, '#y')}}
@@ -206,7 +206,7 @@ _nutrient_A = {
     'value after updating #x #y': {
         '+': (
             # Generating:
-            200,
+            {'*': (50, '#x', chi_squared(2))},
             # Spreading:
             {'*': (
                 # the location (#x, #y) keeps the 80 per cent of its amount
@@ -256,7 +256,7 @@ _nutrient_B = {
     'value after updating #x #y': {
         '+': (
             # Generating:
-            7.5,
+            {'*': (20, '#y', chi_squared(2))},
             # Spreading:
             {'*': (
                 # the location (#x, #y) keeps the 90 per cent of its amount
@@ -454,9 +454,14 @@ _gene_energy_reserve = {
     'offer to sell': {
         'amount': {
             'if': (
-                {'<': ('energy reserve', 200)},
+                {
+                    '<': (
+                        'energy reserve',
+                        'minimum energy reserve for procreating'
+                        )
+                    },
                 0,
-                {'*': (0.2, 'energy reserve')}
+                {'*': (0.1, 'energy reserve')}
             )},
         'prices': {
             'nutrient A reserve': 'price nutr A / energy',
@@ -481,7 +486,7 @@ _gene_nutrient_A_reserve = {
         'amount': 'nutrient A surplus',
         'prices': {
             'nutrient B reserve': 'price nutr B / nutr A',
-            'energy reserve': 'energy / price nutr A'
+            'energy reserve': 'price energy / nutr A'
         }
     }
 }
@@ -613,8 +618,8 @@ def _gene_creator(gene_name, mean=1):
             },
         'value after mutation': {
             'triangular': (
-                {'*': (0.5, gene_name)},
-                {'*': (2.0, gene_name)},
+                {'*': (0.8, gene_name)},
+                {'*': (1.25, gene_name)},
                 gene_name
                 )
             }
@@ -622,7 +627,7 @@ def _gene_creator(gene_name, mean=1):
 
 _organisms_category_a = {
     # Define initial number of organisms:
-    'initial number of organisms': 200,
+    'initial number of organisms': 100,
     'genes': {
         'category': {
             'initial value': 'A'
@@ -829,7 +834,7 @@ _organisms_category_a = {
                 Minimum nutrient A reserve for procreating
             """,
             'initial value': {
-                'uniform': [0, 200]
+                'uniform': [0, 20]
             },
             'value after mutation':
             _default_value_after_mutation_A(
@@ -842,12 +847,54 @@ _organisms_category_a = {
                 Minimum nutrient B reserve for procreating
             """,
             'initial value': {
-                'uniform': [0, 200]
+                'uniform': [0, 20]
             },
             'value after mutation':
             _default_value_after_mutation_A(
                 'minimum nutrient B reserve for procreating'
                 )
+        },
+        'nutrient A surplus': {
+            'help':
+            """
+                The amount of nutrient A reserve that is
+                available for being spent in trade
+            """,
+            'initial value': 0,
+            'value in next cycle': {
+                '-': (
+                    'nutrient A reserve',
+                    {
+                        '+': (
+                            10.5,
+                            'minimum nutrient A reserve for procreating'
+                        )
+                    }
+                )
+            },
+            'value after mutation': 0,
+            'allowed interval': [0, 'infinity']
+        },
+        'nutrient B surplus': {
+            'help':
+            """
+                The amount of nutrient B reserve that is
+                available for being spent in trade
+            """,
+            'initial value': 0,
+            'value in next cycle': {
+                '-': (
+                    'nutrient B reserve',
+                    {
+                        '+': (
+                            8.5,
+                            'minimum nutrient B reserve for procreating'
+                        )
+                    }
+                )
+            },
+            'value after mutation': 0,
+            'allowed interval': [0, 'infinity']
         },
         'speed': {
             'help':
@@ -974,6 +1021,7 @@ _organisms_category_a = {
                     'hunt',
                     'do internal changes',
                     'stay alive',
+                    'interchange substances with other organisms',
                     'procreate']},
             'value after mutation': {
                 'if': ({'true with probability': 'mutation frequency'},
@@ -1082,34 +1130,34 @@ _cost_move = {
         '+': (
             {
                 '*': (
-                    0.000002,
+                    0.00002,
                     'attack capacity',
                     'basal defense capacity',
                     'radius of procreation'
                 )
             },
             {'*': (
-                0.002,
+                0.02,
                 'speed',
                 'radius of procreation',
                 'procreation frequency'
                 )},
-            {'*': (0.0001, 'photosynthesis capacity')},
-            0.001
+            {'*': (0.001, 'photosynthesis capacity')},
+            0.5
         )},
     'nutrient B reserve': {
         '+': (
             {
                 '*': (
-                    0.000002,
+                    0.00003,
                     'attack capacity',
                     'basal defense capacity',
                     'radius of procreation'
                     )
             },
-            {'*': (0.002, 'speed')},
-            {'*': (0.0001, 'photosynthesis capacity')},
-            0.001
+            {'*': (0.02, 'speed')},
+            {'*': (0.002, 'photosynthesis capacity')},
+            0.1
         )}
 }
 
@@ -1117,15 +1165,15 @@ _costs = {
     'move': _cost_move,
     'procreate': {
         'energy reserve': {'*': (
-            0.01,
+            0.1,
             'energy reserve at birth'
         )},
         'nutrient A reserve': {'+': (
-            0.012,
+            1.2,
             'nutrient A reserve at birth'
         )},
         'nutrient B reserve': {'+': (
-            0.05,
+            5,
             'nutrient B reserve at birth'
         )}
 
@@ -1164,7 +1212,7 @@ _costs = {
         'nutrient A reserve': {'*': (
             '#ecosystem general costs level',
             {'+': (
-                0.05,
+                0.5,
                 {'*': (0.0001, 'temperature adaptation level')},
                 {'*': (0.00001, 'photosynthesis capacity growth')},
                 {'*': (0.0001, 'basal defense capacity')},
@@ -1181,7 +1229,7 @@ _costs = {
         'nutrient B reserve': {'*': (
             '#ecosystem general costs level',
             {'+': (
-                0.02,
+                0.2,
                 {'*': (0.00001, 'temperature adaptation level')},
                 {'*': (0.00001, 'photosynthesis capacity growth')},
                 {'*': (0.0001, 'basal defense capacity')},
@@ -1221,5 +1269,6 @@ my_example_of_ecosystem_settings = {
     'constraints': _constraints,
     'costs': _costs
 }
+
 
 

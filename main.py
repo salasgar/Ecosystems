@@ -57,14 +57,39 @@ def main():
     #        not item in All_allowed_commands_in_expression]
     enable_graphics = True
     make_sleeps = False
-    time_lapse = 1
+    time_lapse = 2
     Total_time = 200000
 
     ecosystem = Ecosystem(my_example_of_ecosystem_settings)
 
-    ecosystem.minimum_population_allowed = 1000
+    ecosystem.minimum_population_allowed = 500
 
     """ ***********************  TRIAL ZONE ****************************
+
+    ecosystem.evolve()
+
+    org = ecosystem.get_random_organisms(1)[0]
+
+    print_dictionary(
+        evaluate_functions_of_a_dictionary(
+            org['offers to sell'], org
+            )
+        )
+
+    f_set = {'-': ('nutrient A reserve', 'minimum nutrient A reserve for procreating')}
+    f = ecosystem.function_maker.read_function_settings(
+        '#organism',
+        f_set)
+
+
+    print_organism(org, 'nutrient A reserve', 'minimum nutrient A reserve for procreating')
+    print_organism(org, 'nutrient A surplus')
+
+    print f(org)
+
+    print org['value in next cycle']['nutrient A surplus'](org)
+
+    halt()
 
     f_set = {'curve from 0 to 1': 'photosynthesis capacity'}
 
@@ -75,7 +100,7 @@ def main():
     for org in ecosystem.organisms_list:
         print f(org, 5)
 
-    error_maker = 1/0
+    halt()
 
     f_set = {'extract #biotope sunlight (percentage)': (
                             'normalized location x',
@@ -98,28 +123,24 @@ def main():
 
     print f(org), f_2(org)
 
-
     for i in range(10):
         org.act()
 
     print_dictionary(org)
 
-
-
-
-    #f_set = ecosystem.settings['constraints']['can procreate']
-    #f_set = {'cost': 'procreate'}
+    # f_set = ecosystem.settings['constraints']['can procreate']
+    # f_set = {'cost': 'procreate'}
     f_set = 'time'
     f = ecosystem.function_maker.read_function_settings('#organism', f_set)
 
-    #print f(ecosystem)
+    # print f(ecosystem)
 
     for org in ecosystem.organisms_list:
         print f(org)
 
-    error_maker = 1/0
+    halt()
 
-     *********************** (TRIAL ZONE) ************************** """
+    *********************** (TRIAL ZONE) ************************** """
 
     if enable_graphics:
         gui = GUI(ecosystem)
@@ -132,7 +153,6 @@ def main():
             print_ecosystem_status(ecosystem)
             # organism1, organism2 = ecosystem.get_random_organisms(
             #    number_of_random_organisms = 2)
-            # print_organism(organism1, 'energy reserve')  # ***
         if Store_data:
             self.data_storer.store_data()
         # Evolve:

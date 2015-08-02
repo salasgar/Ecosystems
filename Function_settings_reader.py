@@ -101,7 +101,7 @@ class Function_maker:
         all_strings = extract_all_strings(operator_settings)
         for item in all_strings:
             if (
-                item in new_operator_names and 
+                item in new_operator_names and
                 item not in self.operators_definitions
                     ):
                 return False
@@ -225,7 +225,7 @@ class Function_maker:
                         attribute_name]
 
                 elif tag in ['#ecosystem', '#biotope']:
-                    """ 
+                    """
                         Inside 'constraints', 'cost' or 'genes',
                                     self.tags_list[0] = '#organism'.
                         Then, '#ecosystem' and '#biotope' may not be
@@ -248,7 +248,7 @@ class Function_maker:
                             'in',
                             function_settings
                         )
-                        error_maker = 1 / 0
+                        halt()
                 else:
                     self.error_messenger(
                         'Syntax error in ',
@@ -257,17 +257,21 @@ class Function_maker:
                         'not in tags list',
                         self.tags_list
                     )
-                    error_maker = 1 / 0
+                    halt()
             elif hash_position == -1:
-                """ 
+                """
                     In this case there isn't a tag inside function_settings
                 """
                 if function_settings in self.all_gene_names:
                     """ EXAMPLE:
                         'attack capacity'
-                        In this case we asume that self.tags_list[0] = '#organism'
+                        In this case we asume that
+                        self.tags_list[0] = '#organism'
                     """
-                    return lambda *arguments: arguments[0][function_settings]  # if self.error_messenger(arguments) else 0
+                    return lambda *arguments: arguments[0][function_settings]
+                    # return lambda *arguments: arguments[0][
+                    #     function_settings]\
+                    # if self.error_messenger(arguments) else 0
                 elif (
                     function_settings in self.ecosystem_feature_names
                     # and self.tags_list[0] == '#ecosystem'
@@ -279,8 +283,9 @@ class Function_maker:
                         return lambda *arguments: arguments[0]\
                             .ecosystem_features[function_settings].get_value()
                     elif self.tags_list[0] in ['#biotope', '#organism']:
-                        return lambda *arguments: arguments[0].parent_ecosystem\
-                            .ecosystem_features[function_settings].get_value()
+                        return lambda *arguments: arguments[0].\
+                            parent_ecosystem.ecosystem_features[
+                                function_settings].get_value()
                 elif (
                     function_settings in self.biotope_feature_names
                     # and self.tags_list[0] == '#biotope'
@@ -290,13 +295,15 @@ class Function_maker:
                     """
                     if self.tags_list[0] == '#ecosystem':
                         return lambda *arguments: arguments[0]\
-                            .biotope.biotope_features[function_settings].get_value()
+                            .biotope.biotope_features[
+                                function_settings].get_value()
                     elif self.tags_list[0] == '#biotope':
                         return lambda *arguments: arguments[0]\
                             .biotope_features[function_settings].get_value()
                     elif self.tags_list[0] == '#organism':
                         return lambda *arguments: arguments[0]\
-                            .parent_ecosystem.biotope.biotope_features[function_settings].get_value()
+                            .parent_ecosystem.biotope.biotope_features[
+                                function_settings].get_value()
                 elif function_settings == 'normalized location x':
                     return lambda *arguments: (
                         float(arguments[0]['location'][0]) /
@@ -309,7 +316,8 @@ class Function_maker:
                     )
                 elif function_settings == 'time':
                     if self.tags_list[0] in ['#organism', '#biotope']:
-                        return lambda *arguments: arguments[0].parent_ecosystem.time
+                        return lambda *arguments: arguments[0].\
+                            parent_ecosystem.time
                     elif self.tags_list[0] == '#ecosystem':
                         return lambda *arguments: arguments[0].time
                 else:
@@ -330,7 +338,7 @@ class Function_maker:
                     return lambda *arguments: function_settings
             else:
                 self.error_messenger('Syntax error. ', function_settings)
-                error_maker = 1 / 0
+                halt()
 
     def apply_associative_operator(self, main_operation, inputs):
         """ EXAMPLE:
@@ -360,7 +368,7 @@ class Function_maker:
             print 'ALL MAIN COMMANDS:'  # ***
             for one_command in self.all_main_command_names:
                 print one_command
-            error_maker = 1 / 0
+            halt()
 
         if command == 'literal':
             # 'literal' operator returns its input without evaluate it
@@ -396,22 +404,32 @@ class Function_maker:
                 )
             elif command in self.unary_operators:
                 if print_operators:  # ***
-                    return lambda *arguments: main_operation(inputs_function(*arguments)) \
-                        if self.error_messenger(command, '') else main_operation(inputs_function(*arguments))
+                    return lambda *arguments: main_operation(
+                        inputs_function(*arguments)) \
+                        if self.error_messenger(command, '') \
+                        else main_operation(inputs_function(*arguments))
                 else:
-                    return lambda *arguments: main_operation(inputs_function(*arguments))
+                    return lambda *arguments: \
+                        main_operation(inputs_function(*arguments))
             else:
                 if print_operators:  # ***
-                    return lambda *arguments: main_operation(*(inputs_function(*arguments))) \
-                        if self.error_messenger(command, '') else main_operation(*(inputs_function(*arguments)))
+                    return lambda *arguments: \
+                        main_operation(*(inputs_function(*arguments))) \
+                        if self.error_messenger(command, '') \
+                        else main_operation(*(inputs_function(*arguments)))
                 else:
-                    return lambda *arguments: main_operation(*(inputs_function(*arguments)))
+                    return lambda *arguments: \
+                        main_operation(*(inputs_function(*arguments)))
         else:
             self.error_messenger('Syntax error in', function_settings)
             self.error_messenger('Unknown command', command)
-            error_maker = 1 / 0
+            halt()
 
-    def constrain_function_to_allowed_interval(self, function_to_return, interval_functions):
+    def constrain_function_to_allowed_interval(
+        self,
+        function_to_return,
+        interval_functions
+            ):
         return lambda *arguments: bounded_value(
             function_to_return(*arguments),
             *interval_functions(*arguments)
@@ -458,7 +476,7 @@ class Function_maker:
         function_name_with_tags,
         function_settings
             ):
-        """ 
+        """
         In this EXAMPLE:
 
                         {'initial value #x #y': {

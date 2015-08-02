@@ -197,6 +197,9 @@ class Organism(dict):
             'prices'][substance_to_buy_with](seller)
         self[substance_to_buy_with] -= amount * price
         seller[substance_to_buy_with] += amount * price
+        if random_true(print_trade_transactions):
+            print '\nTrade:', amount, substance_to_sell, 'for',
+            print amount * price, substance_to_buy_with, 'price:', price, "\n"
 
     def find_matching_trade_offers(self, seller):
         if seller is None or 'offers to sell' not in seller:
@@ -230,22 +233,24 @@ class Organism(dict):
     def trade_with(self, seller):
         matching_offers_list = self.find_matching_trade_offers(seller)
         if len(matching_offers_list) > 0:
-            schuffle(matching_offers_list)
+            shuffle(matching_offers_list)
             for offer in matching_offers_list:
                 (
                     substance_to_sell,
                     substance_to_buy_with,
                     amount
                 ) = offer
-            if amount > 0:
-                self.buy_substance(
-                    seller,
-                    substance_to_sell,
-                    substance_to_buy_with,
-                    amount
-                    )
-                # We can execute only one of the offers, because once it is
-                # done, the rest of offers may probably be obsolete
+                if amount > 0:
+                    self.buy_substance(
+                        seller,
+                        substance_to_sell,
+                        substance_to_buy_with,
+                        amount
+                        )
+                    return True
+                    # We can execute only one of the offers, because once it is
+                    # done, the rest of offers may probably be obsolete
+        return False
 
     def interchange_substances_with_other_organisms(self):
         # if print_methods_names: # ***

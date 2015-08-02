@@ -4,12 +4,13 @@ from SYNTAX import *
 No_effect_commands = ['help', 'comment', 'label']
 
 
-
 Dictionary_of_operators_output_function_in_text = {
 
     # BINARY:
-    'op': "lambda x, y: 'op(' + x + ', ' + y + ')'", #formal operator for debugging purpose
-    'op_': "lambda x, y: '(' + x + ' op ' + y + ')'", #formal operator for debugging purpose
+    # formal operator for debugging purpose:
+    'op': "lambda x, y: 'op(' + x + ', ' + y + ')'",
+    # formal operator for debugging purpose:
+    'op_': "lambda x, y: '(' + x + ' op ' + y + ')'",
     '+': "lambda x, y: x + y",
     '-': "lambda x, y: x - y",
     '*': "lambda x, y: x * y",
@@ -25,11 +26,15 @@ Dictionary_of_operators_output_function_in_text = {
     '==': "lambda x, y: x == y",
     '!=': "lambda x, y: x != y",
     'in': "lambda x, y: x in y",
-    'random integer': "randint",  # random integer between x and y
-    'randint': "randint",  # random integer between x and y
-    'gauss': "gauss", # random value, normal distribution with mean x and variance y
-    'uniform': "uniform", # random value, uniform distribution in [x, y]
-    
+    # random integer between x and y:
+    'random integer': "randint",
+    # random integer between x and y:
+    'randint': "randint",
+    # random value, normal distribution with mean x and variance y:
+    'gauss': "gauss",
+    # random value, uniform distribution in [x, y]:
+    'uniform': "uniform",
+
     # Logic operators:
     'and': "lambda x, y: x and y",
     'AND': "lambda x, y: x and y",
@@ -59,7 +64,8 @@ Dictionary_of_operators_output_function_in_text = {
     'random boolean': "random_boolean",
     'randbool': "random_boolean",
     'random true': "random_boolean",
-    'chi-squared': "chi_squared", # random value, chi-squared distribution with given degree of freedom k
+    # random value, chi-squared distribution with given degree of freedom k:
+    'chi-squared': "chi_squared",
     'shuffle': "shuffle_function",
     'not': "lambda x: not x",
     'NOT': "lambda x: not x",
@@ -67,8 +73,6 @@ Dictionary_of_operators_output_function_in_text = {
     # Literal operator returns its input without evaluate it:
     'literal': "lambda x: x"
     }
-
-
 
 
 def check_number_of_inputs_in_text(operator):
@@ -83,6 +87,7 @@ def check_number_of_inputs_in_text(operator):
     else:
         return 'lambda inputs: True'
 
+
 def type_of_inputs(operator):
     if operator in Operators_with_inputs_of_any_type:
         return 'Any type'
@@ -94,7 +99,8 @@ def type_of_inputs(operator):
         return 'List'
     else:
         print operator
-        error_maker = 1/0
+        halt()
+
 
 def type_of_output(operator):
     if operator in Operators_with_output_of_any_type:
@@ -106,10 +112,12 @@ def type_of_output(operator):
     elif operator in Operators_with_list_output:
         return 'List'
     else:
-        error_maker = 1/0
+        halt()
+
 
 def output_function_in_text(operator):
     return Dictionary_of_operators_output_function_in_text[operator]
+
 
 def Make_operator_definition(operator):
     return """
@@ -119,7 +127,7 @@ def Make_operator_definition(operator):
         'type of output': '{4}',
         'output function': {5}
     {6},""".format(
-        operator, 
+        operator,
         '{',
         check_number_of_inputs_in_text(operator),
         type_of_inputs(operator),
