@@ -206,7 +206,7 @@ _nutrient_A = {
     'value after updating #x #y': {
         '+': (
             # Generating:
-            {'*': (60, '#x', chi_squared(2))},
+            {'*': (80, '#x', chi_squared(2))},
             # Spreading:
             {'*': (
                 # the location (#x, #y) keeps the 80 per cent of its amount
@@ -699,7 +699,14 @@ _organisms_category_a = {
                             255,
                             {
                                 'curve from 0 to 1': {
-                                    '+': ('price energy / nutr A', 'price energy / nutr B')
+                                    '*': (
+                                        0.5,
+                                        {
+                                            '+': (
+                                                'price energy / nutr A',
+                                                'price energy / nutr B')
+                                        }
+                                        )
                                     }
                             }
                             )
@@ -711,7 +718,14 @@ _organisms_category_a = {
                             255,
                             {
                                 'curve from 0 to 1': {
-                                    '+': ('price nutr A / energy', 'price nutr A / nutr B')
+                                    '*': (
+                                        0.5,
+                                        {
+                                            '+': (
+                                                'price nutr A / energy',
+                                                'price nutr A / nutr B')
+                                        }
+                                        )
                                     }
                             }
                             )
@@ -723,7 +737,14 @@ _organisms_category_a = {
                             255,
                             {
                                 'curve from 0 to 1': {
-                                    '+': ('price nutr B / nutr A', 'price nutr B / energy')
+                                    '*': (
+                                        0.5,
+                                        {
+                                            '+': (
+                                                'price nutr B / nutr A',
+                                                'price nutr B / energy')
+                                        }
+                                        )
                                     }
                             }
                             )
@@ -1151,7 +1172,7 @@ _cost_move = {
                     )
             },
             {'*': (
-                0.2,
+                2,
                 'speed',
                 'radius of procreation',
                 'procreation frequency'
@@ -1163,19 +1184,19 @@ _cost_move = {
         '+': (
             {
                 '*': (
-                    0.00002,
+                    0.0002,
                     'attack capacity',
                     'basal defense capacity',
                     'radius of procreation'
                 )
             },
             {'*': (
-                0.02,
+                0.92,
                 'speed',
                 'radius of procreation',
                 'procreation frequency'
                 )},
-            {'*': (0.001, 'photosynthesis capacity')},
+            {'*': (0.01, 'photosynthesis capacity')},
             0.5
         )},
     'nutrient B reserve': {
