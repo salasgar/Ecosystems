@@ -2,7 +2,6 @@ from random import *
 from functools import reduce
 from math import *
 from copy import *
-#from Ecosystem_settings import *
 from types import FunctionType
 
 # Variables for debuggin: # ***
@@ -39,7 +38,10 @@ class Matrix(object):
         if traspose:
             return "\n".join(str(self.data[i]) for i in range(len(self.data)))
         else:
-            return "\n".join(str([self.data[i][j] for i in range(self.size_x)]) for j in range(self.size_y))
+            return "\n".join(
+                str([self.data[i][j] for i in range(self.size_x)])
+                for j in range(self.size_y)
+                )
 
 
 # TYPE FUNCTIONS:
@@ -51,29 +53,38 @@ def is_number(x):
     except TypeError:
         return False
 
+
 def is_string(x):
     return isinstance(x, str)
+
 
 def is_function(x):
     return isinstance(x, FunctionType)
 
+
 def is_dict(x):
     return isinstance(x, dict)
+
 
 def is_iterable(x):
     return hasattr(x, '__iter__')
 
+
 def is_list(x):
     return isinstance(x, list)
+
 
 def is_tuple(x):
     return isinstance(x, tuple)
 
+
 def is_tuple_or_list(x):
     return isinstance(x, list) or isinstance(x, tuple)
 
+
 def is_boolean(x):
     return isinstance(x, bool)
+
 
 def count_elements(expression, *sets_list):
     results_list = [{'set': set_, 'result': 0} for set_ in sets_list]
@@ -86,25 +97,37 @@ def count_elements(expression, *sets_list):
                 unknown_element = False
         if unknown_element:
             number_of_unknown_elements += 1
-    return [pair['result'] for pair in results_list] + [number_of_unknown_elements]
+    return (
+                [
+                    pair['result']
+                    for pair in results_list
+                ] +
+                [number_of_unknown_elements]
+            )
 
 # MATH FUNCTIONS:
 
-# Calculates the product of all the elements in the iterable
+
 def prod(iterable):
+    # Calculates the product of all the elements in the iterable
     return reduce((lambda x, y: x * y), iterable, 1)
+
 
 def signed_random():
     return 2*random() - 1
 
+
 def random_true(probability_of_True):
     return probability_of_True > random()
 
-def chi_squared(k): 
-    return fsum(gauss(0, 1)**2 for i in range(k)) # random value, chi-squared distribution with given degree of freedom k
 
-# equivalent to range( ) but with float parameters
+def chi_squared(k):
+    # random value, chi-squared distribution with given degree of freedom k
+    return fsum(gauss(0, 1)**2 for i in range(k))
+
+
 def float_range(start, stop=0.0, step=1.0):
+    # equivalent to range( ) but with float parameters
     result = []
     if step * (stop - start) < 0:
         start, stop = stop, start
@@ -119,10 +142,15 @@ def float_range(start, stop=0.0, step=1.0):
             x += step
     return result
 
+
 def bounded_value(value, a, b):  # a and b could be infinity
-    """ This function returns value if a <= value <= b,  returns a if value < a and returns b if value > b """
-    #print 'Value:', value, 'a:', a, 'b:', b # ***
-    if a in {'- infinity', '-infinity'} and b in {'+ infinity', '+infinity', 'infinity'}:  # this means no constraints
+    """ This function returns value if a <= value <= b,
+    returns a if value < a and returns b if value > b """
+    # print 'Value:', value, 'a:', a, 'b:', b  # ***
+    if (
+        a in {'- infinity', '-infinity'} and
+        b in {'+ infinity', '+infinity', 'infinity'}
+            ):  # this means no constraints
         return value
     elif a in {'- infinity', '-infinity'}:
         if value in {'- infinity', '-infinity'}:
@@ -136,6 +164,7 @@ def bounded_value(value, a, b):  # a and b could be infinity
             return max(value, a)
     else:
         return max(a, min(value, b))
+
 
 def sigmoid(x):
     t = bounded_value(x, -50, 50)

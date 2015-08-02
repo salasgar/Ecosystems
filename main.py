@@ -10,6 +10,7 @@ import logging
 
 logger = logging.getLogger('ecosystems')
 
+
 def setup_logger():
     logger.setLevel(logging.DEBUG)
     # create a file handler
@@ -38,15 +39,22 @@ def print_ecosystem_status(ecosystem):
                                     'energy reserve',
                                     'color'))
 
+
 def main():
     setup_logger()
     logger.debug('DEBUG')
-    print " *"*30, "\nWe start NOW!" # ***
-    #all_gene_names = extract_all_gene_names(my_example_of_ecosystem_settings)
-    #all_strings = extract_all_strings(my_example_of_ecosystem_settings, exceptions = No_effect_commands + All_action_names)
-    #print 'ALL GENES:', all_gene_names
-    #print 'ALL STRINGS:', all_strings
-    #print 'DIFFERENCE:', [item for item in all_strings if not item in all_gene_names and not item in All_allowed_commands_in_expression]
+    print " *"*30, "\nWe start NOW!"  # ***
+    # all_gene_names = extract_all_gene_names(my_example_of_ecosystem_settings)
+    # all_strings = extract_all_strings(
+    #    my_example_of_ecosystem_settings,
+    #    exceptions = No_effect_commands + All_action_names)
+    # print 'ALL GENES:', all_gene_names
+    # print 'ALL STRINGS:', all_strings
+    # print 'DIFFERENCE:', [
+    #    item
+    #    for item in all_strings
+    #    if not item in all_gene_names and \
+    #        not item in All_allowed_commands_in_expression]
     enable_graphics = True
     make_sleeps = False
     time_lapse = 1
@@ -56,11 +64,13 @@ def main():
 
     ecosystem.minimum_population_allowed = 1000
 
-    """ ***********************  TRIAL ZONE *********************************** 
+    """ ***********************  TRIAL ZONE ****************************
 
     f_set = {'curve from 0 to 1': 'photosynthesis capacity'}
 
-    f = ecosystem.function_maker.read_function_settings('output function #organism #input', f_set)
+    f = ecosystem.function_maker.read_function_settings(
+        'output function #organism #input',
+        f_set)
 
     for org in ecosystem.organisms_list:
         print f(org, 5)
@@ -71,9 +81,14 @@ def main():
                             'normalized location x',
                             'normalized location y',
                             0.8
-                        )}                       
+                        )}
 
-    f_2_set = {'#biotope sunlight': ('normalized location x', 'normalized location y')}
+    f_2_set = {
+        '#biotope sunlight': (
+            'normalized location x',
+            'normalized location y'
+            )
+        }
 
     org = choice(ecosystem.organisms_list)
     print_dictionary(org)
@@ -83,7 +98,7 @@ def main():
 
     print f(org), f_2(org)
 
-    
+
     for i in range(10):
         org.act()
 
@@ -91,22 +106,21 @@ def main():
 
 
 
-    
+
     #f_set = ecosystem.settings['constraints']['can procreate']
     #f_set = {'cost': 'procreate'}
     f_set = 'time'
     f = ecosystem.function_maker.read_function_settings('#organism', f_set)
 
     #print f(ecosystem)
-    
+
     for org in ecosystem.organisms_list:
         print f(org)
-    
-    error_maker = 1/0
-    
-     *********************** (TRIAL ZONE) *********************************** """
 
-    
+    error_maker = 1/0
+
+     *********************** (TRIAL ZONE) ************************** """
+
     if enable_graphics:
         gui = GUI(ecosystem)
     # Loop
@@ -116,10 +130,11 @@ def main():
         # Print ecosystem status:
         if ecosystem.time % time_lapse == 0:
             print_ecosystem_status(ecosystem)
-            #organism1, organism2 = ecosystem.get_random_organisms(number_of_random_organisms = 2)
-            #print_organism(organism1, 'energy reserve') # ***
+            # organism1, organism2 = ecosystem.get_random_organisms(
+            #    number_of_random_organisms = 2)
+            # print_organism(organism1, 'energy reserve')  # ***
         if Store_data:
-            self.data_storer.store_data()        
+            self.data_storer.store_data()
         # Evolve:
         ecosystem.evolve()
         if enable_graphics:
@@ -132,7 +147,8 @@ def main():
             ecosystem.create_new_organisms(n)
             print n, "organisms created",
 
-    print "Time:", ecosystem.time, "Number of organisms:", len(ecosystem.organisms_list) # ***
+    print "Time:", ecosystem.time, "Number of organisms:", \
+        len(ecosystem.organisms_list)  # ***
 
     if enable_graphics:
         gui.delete()
@@ -140,7 +156,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-
 
 
 

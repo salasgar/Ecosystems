@@ -14,7 +14,8 @@ Elements_to_store = {
     """
         In this dictionary we indicate what and how often to store:
 
-            'Once'  means that this data is stored only once at the begining of the file
+            'Once'  means that this data is stored only once at the
+                    begining of the file
             200     means that this data is stored once every 200 cycles
             None    means that this data is never stored
 
@@ -401,13 +402,13 @@ _ecosystem_features = {
     },
 
     'autotrophs productivity': {
-        'initial value': 10000.1  
-    # Each organism has a different photosynthesis capacity,
-    # but this capacity is multiplied
-    # by the value of 'autotrophs productivity', that
-    # is a variable of the experiment that
-    # remains always the same, although the user
-    # can change it at any time.
+        'initial value': 10000.1
+        # Each organism has a different photosynthesis capacity,
+        # but this capacity is multiplied
+        # by the value of 'autotrophs productivity', that
+        # is a variable of the experiment that
+        # remains always the same, although the user
+        # can change it at any time.
     }
 }
 
@@ -418,18 +419,21 @@ _gene_energy_reserve = {
     # This is the definition of the gene 'energy reserve'
     'initial value': 10000.2,
     'value in next cycle': {
-        'help': 
+        'help':
         """
-            The increasement of the energy reserve depends both on the amount of sunlight
+            The increasement of the energy reserve depends
+            both on the amount of sunlight
             and the photosynthesis capacity of the organism.
 
-            'extract feature' returns certain amount of sunlight and also decreased the 
-            available amount of sunlight for other organisms that act after this one.
+            'extract feature' returns certain amount of sunlight
+            and also decreased the
+            available amount of sunlight for other organisms that
+            act after this one.
 
-            'normalized location' returns the location of the current organisms but
-            in these terms:
-                If the location of the organism is (i, j) and the size of the ecosystem 
-                is (size_x, size_y), then:
+            'normalized location' returns the location of the current
+            organisms but in these terms:
+                If the location of the organism is (i, j) and the size
+                of the ecosystem is (size_x, size_y), then:
                     'normalized location x' returns  i / size_x
                     and
                     'normalized location y' returns j / size_y
@@ -442,7 +446,7 @@ _gene_energy_reserve = {
                     'normalized location x',
                     'normalized location y',
                     {'curve from 0 to 1': 'photosynthesis capacity'}
-                )}                       
+                )}
             )}
         )},
     'value after mutation': 'energy reserve at birth',
@@ -457,17 +461,9 @@ _gene_energy_reserve = {
         'prices': {
             'nutrient A reserve': 'price nutr A / energy',
             'nutrient B reserve': 'price nutr B / energy',
-        },
-    'offer to buy': {
-        'amount of nutrient A #price': {
-            'nutrient A surplus'
-            }
-
-
         }
-
     }
-}
+    }
 
 _gene_nutrient_A_reserve = {
     'initial value': 500.0,
@@ -477,7 +473,7 @@ _gene_nutrient_A_reserve = {
             {'extract #biotope nutrient A (percentage)': (
                 'normalized location x',
                 'normalized location y',
-                {'curve from 0 to 1': 'nutrient A extraction capacity'}  # Every organism can extract at most the 25 per cent of nutrient A from its biotope location
+                {'curve from 0 to 1': 'nutrient A extraction capacity'}
             )}
         )},
     'value after mutation': 'nutrient A reserve at birth',
@@ -498,7 +494,7 @@ _gene_nutrient_B_reserve = {
             {'extract #biotope nutrient B (percentage)': (
                 'normalized location x',
                 'normalized location y',
-                {'curve from 0 to 1': 'nutrient B extraction capacity'}  # Every organism can extract at most the 25 per cent of nutrient A from its biotope location
+                {'curve from 0 to 1': 'nutrient B extraction capacity'}
             )}
         )},
     'value after mutation': 'nutrient B reserve at birth',
@@ -509,20 +505,21 @@ _gene_nutrient_B_reserve = {
             'energy reserve': 'price energy / nutr B'
         }
 
+    }
 }
 
 _gene_optimal_temperature = {
             # This is the definition of the gene 'optimal temperature'
             'help':
             """
-                All organisms have a probability of dying at any given moment. But every 
-                organism will have an optimal environmental temperature that minimizes that 
-                probability.
+                All organisms have a probability of dying at any given moment.
+                But every organism will have an optimal environmental
+                temperature that minimizes that probability.
             """,
             'initial value': {
                 'uniform': [0, 40]
             },
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_B('optimal temperature')
         }
 
@@ -530,9 +527,11 @@ _gene_temperature_adaptation_level = {
             # This is the definition of the gene 'temperature adaptation level'
             'help':
             """
-                Each organism have a different tolerance to too high or too low temperatures.
-                If the gene 'temperature adaptation level' has a high value, then the organism
-                may survive in a wider range of temperatures than otherwise.
+                Each organism have a different tolerance to too high or too
+                low temperatures.
+                If the gene 'temperature adaptation level' has a high value,
+                then the organism may survive in a wider range of temperatures
+                than otherwise.
             """,
             'initial value': {
                 'uniform': [0, 200]
@@ -549,20 +548,27 @@ _constraint_die = {
         # This is the definition of the constraint 'die'
         'help':
         """
-            If an organism isn't killed by a predator, it has 3 different ways of dying:
-                - BY CHANCE: It can be an illness or an accident. Every organism has a 
-                        chance of 0.05 percent of dying because of this reason.
-                - BY STARVATION: If the energy reserve of an organism is less than 1000 units, 
-                        it dies.
-                - BY HEAT OR COLD: If the temperature of the environment is very different 
-                        from the 'optimal temperature' of the organism, it has a high 
-                        probability of dying. But if the organism has a high
-                        'temperature adaptation level', it will lower that probability.
-                - BY OLD AGE: As an organism get old it increases its chance of dying.
+            If an organism isn't killed by a predator, it has 3 different
+            ways of dying:
+                - BY CHANCE: It can be an illness or an accident. Every
+                        organism has a chance of 0.05 percent of dying
+                        because of this reason. It could be an illness,
+                        an accident, ...
+                - BY STARVATION: If the energy reserve of an organism is
+                        less than 1000 units, it dies.
+                - BY HEAT OR COLD: If the temperature of the environment
+                        is very different
+                        from the 'optimal temperature' of the organism,
+                        it has a high
+                        probability of dying. But if the organism has a
+                        high 'temperature adaptation level', it will lower
+                        that probability.
+                - BY OLD AGE: As an organism get old it increases its
+                        chance of dying.
         """,
         'or': (
             # RANDOM CAUSE OF DETH:
-            {'random true': 0.0005},
+            {'random true': 0.005},
             # DEATH BY STARVATION:
             {'<': ('energy reserve', 100.0)},
             {'<': ('nutrient A reserve', 1.0)},
@@ -574,7 +580,13 @@ _constraint_die = {
                         {'**': (
                             {'-': (
                                 'optimal temperature',
-                                {'#biotope temperature': ('normalized location x', 'normalized location y') }
+                                {
+                                    '#biotope temperature':
+                                        (
+                                            'normalized location x',
+                                            'normalized location y'
+                                        )
+                                }
                             )},
                             2
                         )},
@@ -592,6 +604,22 @@ _constraint_die = {
         )
     }
 
+
+def _gene_creator(gene_name, mean=1):
+    return {
+        'initial value': {
+            'gauss': (mean, 0.2 * mean),
+            'allowed interval': [0, 'infinity']
+            },
+        'value after mutation': {
+            'triangular': (
+                {'*': (0.5, gene_name)},
+                {'*': (2.0, gene_name)},
+                gene_name
+                )
+            }
+        }
+
 _organisms_category_a = {
     # Define initial number of organisms:
     'initial number of organisms': 200,
@@ -600,7 +628,8 @@ _organisms_category_a = {
             'initial value': 'A'
             },
         'species': {
-            # An organism will never attack any other organism of the same species. It only
+            # An organism will never attack any other organism
+            # of the same species. It only
             # attacks organisms of other species.
             'initial value': {'random integer': [0, 999999]},
             'value after mutation': {
@@ -616,8 +645,10 @@ _organisms_category_a = {
         },
         'species identity mutation frequency': {
             'initial value': {'uniform': [0, 1.0]},
-            'value after mutation': \
-            _default_value_after_mutation_B('species identity mutation frequency'),
+            'value after mutation':
+            _default_value_after_mutation_B(
+                'species identity mutation frequency'
+            ),
             'allowed interval': [0, 1]
         },
         'red': {
@@ -626,7 +657,8 @@ _organisms_category_a = {
                 '+': (
                     'red',
                     {'gauss': (0, 3)}
-            )},
+                    )
+            },
             'allowed interval': [0, 255]
         },
         'green': {
@@ -635,7 +667,8 @@ _organisms_category_a = {
                 '+': (
                     'green',
                     {'gauss': (0, 3)}
-            )},
+                    )
+            },
             'allowed interval': [0, 255]
         },
         'blue': {
@@ -644,7 +677,8 @@ _organisms_category_a = {
                 '+': (
                     'blue',
                     {'gauss': (0, 3)}
-            )},
+                    )
+            },
             'allowed interval': [0, 255]
         },
         'color': {
@@ -660,10 +694,10 @@ _organisms_category_a = {
             ]
         },
         'age': {
-            'help': 
-            """ 
+            'help':
+            """
                 Age of organism (increase +1 every time cycle).
-            """, 
+            """,
             'initial value': 0,
             'value in next cycle': {
                 '+': ('age', 1)
@@ -694,18 +728,8 @@ _organisms_category_a = {
             'value after mutation': 0.5,
             'allowed interval': [0, 'infinity']
         },
-        'photosynthesis capacity growth': {
-            'initial value': {
-                'uniform': [0, 0.2]
-            },
-            'value after mutation': {
-                'triangular': (
-                    {'*': (0.9, 'photosynthesis capacity growth')},
-                    {'*': (1.1, 'photosynthesis capacity growth')},
-                    'photosynthesis capacity growth'
-                    )
-            }
-        },
+        'photosynthesis capacity growth':
+            _gene_creator('photosynthesis capacity growth', mean=0.2),
         'nutrient A extraction capacity': {
             'initial value': 0.5,
             'value after mutation': {
@@ -728,22 +752,28 @@ _organisms_category_a = {
         },
         'energy reserve at birth': {
             'initial value': {'uniform': [0, 3000]},
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_A('energy reserve at birth')
         },
         'nutrient A reserve at birth': {
             'initial value': {'uniform': [0, 200]},
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_A('nutrient A reserve at birth')
         },
         'nutrient B reserve at birth': {
             'initial value': {'uniform': [0, 200]},
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_A('nutrient B reserve at birth')
-        },        
+        },
         'energy reserve': _gene_energy_reserve,
         'nutrient A reserve': _gene_nutrient_A_reserve,
         'nutrient B reserve': _gene_nutrient_B_reserve,
+        'price nutr A / energy': _gene_creator('price nutr A / energy'),
+        'price nutr B / energy': _gene_creator('price nutr B / energy'),
+        'price nutr A / nutr B': _gene_creator('price nutr A / nutr B'),
+        'price nutr B / nutr A': _gene_creator('price nutr B / nutr A'),
+        'price energy / nutr A': _gene_creator('price energy / nutr A'),
+        'price energy / nutr B': _gene_creator('price energy / nutr B'),
         'energy storage capacity': {
             'help':
             """
@@ -752,7 +782,7 @@ _organisms_category_a = {
             'initial value': {
                 'uniform': [0, 20000]
             },
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_A('energy storage capacity'),
             'allowed interval': [0, 'infinity']
         },
@@ -764,7 +794,7 @@ _organisms_category_a = {
             'initial value': {
                 'uniform': [0, 2000]
             },
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_A('nutrient A storage capacity'),
             'allowed interval': [0, 'infinity']
         },
@@ -776,7 +806,7 @@ _organisms_category_a = {
             'initial value': {
                 'uniform': [0, 2000]
             },
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_A('nutrient B storage capacity'),
             'allowed interval': [0, 'infinity']
         },
@@ -788,8 +818,10 @@ _organisms_category_a = {
             'initial value': {
                 'uniform': [0, 3000]
             },
-            'value after mutation': \
-            _default_value_after_mutation_A('minimum energy reserve for procreating')
+            'value after mutation':
+            _default_value_after_mutation_A(
+                'minimum energy reserve for procreating'
+                )
         },
         'minimum nutrient A reserve for procreating': {
             'help':
@@ -799,8 +831,10 @@ _organisms_category_a = {
             'initial value': {
                 'uniform': [0, 200]
             },
-            'value after mutation': \
-            _default_value_after_mutation_A('minimum nutrient A reserve for procreating')
+            'value after mutation':
+            _default_value_after_mutation_A(
+                'minimum nutrient A reserve for procreating'
+                )
         },
         'minimum nutrient B reserve for procreating': {
             'help':
@@ -810,8 +844,10 @@ _organisms_category_a = {
             'initial value': {
                 'uniform': [0, 200]
             },
-            'value after mutation': \
-            _default_value_after_mutation_A('minimum nutrient B reserve for procreating')
+            'value after mutation':
+            _default_value_after_mutation_A(
+                'minimum nutrient B reserve for procreating'
+                )
         },
         'speed': {
             'help':
@@ -821,11 +857,11 @@ _organisms_category_a = {
             'initial value': {
                 'uniform': [0, 4]
             },
-            'value after mutation': \
+            'value after mutation':
             make_variation(
-                gene = 'speed',
-                absolute_variation = {'uniform': [-0.2, 0.2]},
-                probability_of_change = 'mutation frequency'
+                gene='speed',
+                absolute_variation={'uniform': [-0.2, 0.2]},
+                probability_of_change='mutation frequency'
                 ),
             'allowed interval': [0, 'infinity']
         },
@@ -835,26 +871,29 @@ _organisms_category_a = {
                 The radius whitin a prey must be in order to be hunted
             """,
             'initial value': {'uniform': [0, 1.5]},
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_A('hunt radius')
         },
         'radius of procreation': {
             'initial value': {'uniform': [0, 5]},
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_A('radius of procreation')
         },
         'attack capacity': {
             'initial value': {
                 'uniform': [0, 20]
             },
-            'value after mutation': \
-            make_variation('attack capacity', relative_variation = {'gauss': (0, 0.1)})
+            'value after mutation':
+            make_variation(
+                'attack capacity',
+                relative_variation={'gauss': (0, 0.1)}
+                )
         },
         'basal defense capacity': {
             'initial value': {
                 'uniform': [0, 200]
             },
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_A('defense capacity')
         },
         'defense capacity': {
@@ -873,9 +912,9 @@ _organisms_category_a = {
             'initial value': {
                 'uniform': [0, 1]
             },
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_B('aggressiveness'),
-        },        
+        },
         'aggressiveness': {
             'initial value': 0,
             'value in next cycle': {
@@ -885,47 +924,47 @@ _organisms_category_a = {
         },
         'indicator gene A': {
             'initial value': 1.0,
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_A('indicator gene A')
         },
         'indicator gene B': {
             'initial value': 1.0,
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_A('indicator gene B')
         },
         'mutation frequency': {
             'initial value': {
                 'uniform': [0, 1]
             },
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_A('mutation frequency')
         },
         'moving frequency': {
             'initial value': {
                 'uniform': [0, 1]
             },
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_A('moving frequency')
         },
         'procreation frequency': {
             'initial value': {
                 'uniform': [0, 1]
             },
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_A('procreation frequency')
         },
         'optimal temperature': {
             'initial value': {
                 'uniform': [0, 50]
             },
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_B('optimal temperature')
         },
         'temperature adaptation level': {
             'initial value': {
                 'uniform': [0, 15]
             },
-            'value after mutation': \
+            'value after mutation':
             _default_value_after_mutation_A('temperature adaptation level')
         },
         'actions sequence': {
@@ -947,22 +986,23 @@ _organisms_category_a = {
 }
 
 _decisions = {
-    'decide procreate': True,
-#        'and': (
-#            {'random true': 'procreation frequency'},
-#            {'>': (
-#                'energy reserve',
-#                'minimum energy reserve for procreating'
-#            )},
-#            {'>': (
-#                'nutrient A reserve',
-#                'minimum nutrient A reserve for procreating'
-#            )},
-#            {'>': (
-#                'nutrient B reserve',
-#                'minimum nutrient B reserve for procreating'
-#            )}
-#    )},
+    'decide procreate': {
+        'and': (
+            {'random true': 'procreation frequency'},
+            {'>': (
+                'energy reserve',
+                'minimum energy reserve for procreating'
+            )},
+            {'>': (
+                'nutrient A reserve',
+                'minimum nutrient A reserve for procreating'
+            )},
+            {'>': (
+                'nutrient B reserve',
+                'minimum nutrient B reserve for procreating'
+            )}
+            )
+        },
     'decide move': {
         'random true': 'moving frequency'
     },
@@ -981,7 +1021,7 @@ _constraints = {
         '>': (
             'attack capacity',
             '#prey defense capacity'
-        ) 
+        )
     },
     'can procreate': {
         'and': (
@@ -1014,39 +1054,58 @@ _constraints = {
                     {'cost': ('stay alive', 'nutrient B reserve')}
                 )}
             )}
-    )},
+        )},
     'die': _constraint_die
 }
 
 _cost_move = {
     'energy reserve': {
         '+': (
-            {'*': (0.0002,
-                   'attack capacity',
-                   'defense capacity',
-                   'hunt radius')
+            {
+                '*': (
+                    0.0002,
+                    'attack capacity',
+                    'defense capacity',
+                    'hunt radius'
+                    )
             },
-            {'*': (0.2, 'speed', 'radius of procreation', 'procreation frequency')},
+            {'*': (
+                0.2,
+                'speed',
+                'radius of procreation',
+                'procreation frequency'
+                )},
             {'*': (0.01, 'photosynthesis capacity')},
             0.001
         )},
     'nutrient A reserve': {
         '+': (
-            {'*': (0.000002,
-                   'attack capacity',
-                   'basal defense capacity',
-                   'radius of procreation')
+            {
+                '*': (
+                    0.000002,
+                    'attack capacity',
+                    'basal defense capacity',
+                    'radius of procreation'
+                )
             },
-            {'*': (0.002, 'speed', 'radius of procreation', 'procreation frequency')},
+            {'*': (
+                0.002,
+                'speed',
+                'radius of procreation',
+                'procreation frequency'
+                )},
             {'*': (0.0001, 'photosynthesis capacity')},
             0.001
         )},
     'nutrient B reserve': {
         '+': (
-            {'*': (0.000002,
-                   'attack capacity',
-                   'basal defense capacity',
-                   'radius of procreation')
+            {
+                '*': (
+                    0.000002,
+                    'attack capacity',
+                    'basal defense capacity',
+                    'radius of procreation'
+                    )
             },
             {'*': (0.002, 'speed')},
             {'*': (0.0001, 'photosynthesis capacity')},
@@ -1077,12 +1136,21 @@ _costs = {
             '#ecosystem general costs level',
             {'+': (
                 0.2,
-                {'*': (0.01, 'temperature adaptation level', 'radius of procreation')},
+                {'*': (
+                    0.01,
+                    'temperature adaptation level',
+                    'radius of procreation')},
                 {'*': (0.01, 'photosynthesis capacity growth', 'hunt radius')},
                 {'*': (0.01, 'photosynthesis capacity', 'attack capacity')},
                 {'*': (0.01, 'indicator gene A')},
-                {'*': (0.01, 'basal defense capacity', 'nutrient B extraction capacity')},
-                {'*': (0.01, 'attack capacity', 'nutrient A extraction capacity')},
+                {'*': (
+                    0.01,
+                    'basal defense capacity',
+                    'nutrient B extraction capacity')},
+                {'*': (
+                    0.01,
+                    'attack capacity',
+                    'nutrient A extraction capacity')},
                 {'*': (2.0, 'speed', 'photosynthesis capacity')},
                 {'*': (0.2, 'hunt radius')},
                 {'*': (0.00001, 'energy storage capacity')},
@@ -1118,7 +1186,11 @@ _costs = {
                 {'*': (0.00001, 'photosynthesis capacity growth')},
                 {'*': (0.0001, 'basal defense capacity')},
                 {'*': (0.000005, 'attack capacity')},
-                {'*': (0.1, 'speed', 'nutrient A extraction capacity', 'nutrient B extraction capacity')},
+                {'*': (
+                    0.1,
+                    'speed',
+                    'nutrient A extraction capacity',
+                    'nutrient B extraction capacity')},
                 {'*': (0.03, 'hunt radius')},
                 {'*': (0.000002, 'energy storage capacity')},
                 {'*': (0.0002, 'nutrient A storage capacity')},
@@ -1130,23 +1202,18 @@ _costs = {
     }
 }
 
-from Basic_tools import *
 
 _organisms_category_b = deep_copy_of_a_dictionary(_organisms_category_a)
 
 _organisms_category_b['genes']['category'] = {'initial value': 'B'}
 _organisms_category_b['genes']['speed'] = {'initial value': 0}
 
-
-
-
-
 my_example_of_ecosystem_settings = {
     'help': ''' This is an example of ecosystem settings ''',
     'new operators': _operator_definitions,
     'biotope': _biotope,
     'ecosystem features': _ecosystem_features,
-    'organisms': 
+    'organisms':
         {
             'category A': _organisms_category_a,
             'category B': _organisms_category_b,
