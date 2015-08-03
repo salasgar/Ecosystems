@@ -24,6 +24,11 @@ class Organism(dict):
         self.parent_ecosystem = parent_ecosystem
         for key in organism_data:
             self[key] = organism_data[key]
+        if 'metabolic time' in self:
+            self.evolve = self.act_with_metabolic_time
+        else:
+            self.evolve = self.act
+
 
     def to_string(self, data):
         if is_number(data):
@@ -128,6 +133,18 @@ class Organism(dict):
             'decisions' in category_settings else {}
         for decision in all_decisions_settings:
             self.add_decision(decision, all_decisions_settings[decision])
+        if 'metabolic time' in self:
+            self.evolve = self.act_with_metabolic_time
+        else:
+            self.evolve = self.act
+
+    def act_with_metabolic_time(self):
+        while (
+            self['metabolic time'] > 0 and
+            self not in self.parent_ecosystem.new_deads
+                ):
+            self.act()
+            self['metabolic time'] -= 1.0
 
     def act(self):
         if print_methods_names:  # ***
@@ -164,21 +181,32 @@ class Organism(dict):
             # ('category', 'age', 'energy reserve')) # ***
             self.die('natural cause')
 
-    def subtract_costs(self, action, factor=1):
+    def subtract_costs(self, action, tags_dictionary={}):
         if print_methods_names or print_costs:
             print 'subtract_costs', action  # ***
+        if '#organism' not in tags_dictionary:
+            tags_dictionary['#organism'] = self
         if action in self.parent_ecosystem.costs:
-            for reserve_substance in self.parent_ecosystem.costs[action]:
+            costs = self.parent_ecosystem.costs[action]
+            for reserve_substance in costs:
                 if reserve_substance in self:
                     if print_costs:  # ***
                         print action + ":\n<-- ",
                         print_organism(
                             self, 'category', 'age', reserve_substance)
-                    self[reserve_substance] = max(
-                        0,
+                    self[reserve_substance] = (
                         self[reserve_substance] -
-                        factor * self.parent_ecosystem.costs[action][
-                            reserve_substance](self))
+                        costs[reserve_substance](tags_dictionary)
+                        )
+                    if self[reserve_substance] < 0:
+                        self.die('Starvation ' + reserve_substance)
+                        if print_costs:
+                            print 'Cost', action, reserve_substance,
+                            print costs[reserve_substance](tags_dictionary),
+                            print 'over reserve',
+                            print reserve_substance, self[reserve_substance]
+                        return 'deth'
+                        
                     if print_costs:  # ***
                         print "--> ",
                         print_organism(
@@ -231,7 +259,9 @@ class Organism(dict):
         return matching_offers_list
 
     def trade_with(self, seller):
+        # Find offers:
         matching_offers_list = self.find_matching_trade_offers(seller)
+        # Chose one of the offers:
         if len(matching_offers_list) > 0:
             shuffle(matching_offers_list)
             for offer in matching_offers_list:
@@ -241,12 +271,38 @@ class Organism(dict):
                     amount
                 ) = offer
                 if amount > 0:
+                    # Do the transaction:
                     self.buy_substance(
                         seller,
                         substance_to_sell,
                         substance_to_buy_with,
                         amount
                         )
+                    # Subtract costs (pay taxes):
+                    """
+                        Para acelerar esta parte del codigo podemos utilizar
+                        self.parent_ecosystem.costs[
+                            'interchange substances with other organisms'][
+                                'tags list']
+                        para construir solamente la parte de tags_dictionary
+                        que se vaya a usar:
+                    """
+                    tags_dictionary = {
+                        '#organism': self,
+                        '#seller': seller,
+                        '#substance_to_sell': substance_to_sell,
+                        '#substance_to_buy_with': substance_to_buy_with,
+                        '#amount': amount,
+                        '#distance': self.parent_ecosystem.biotope.distance(
+                            self['location'],
+                            seller['location']
+                            )
+                        }
+                    self.subtract_costs(
+                        'interchange substances with other organisms',
+                        tags_dictionary
+                        )
+                    # A transaction has been made:
                     return True
                     # We can execute only one of the offers, because once it is
                     # done, the rest of offers may probably be obsolete
@@ -317,17 +373,11 @@ class Organism(dict):
         other substances only to
         stay alive.
         """
-        if 'energy reserve' in self:
-            energy_reserve = copy(self['energy reserve'])
-            if 'stay alive' in self.parent_ecosystem.costs:
-                self.subtract_costs('stay alive', factor=1)
-            return 'energy reserve: {0} - {1} = {2}'.format(
-                energy_reserve,
-                energy_reserve - self['energy reserve'],
-                self['energy reserve']
-                )
-        elif 'stay alive' in self.parent_ecosystem.costs:
-            self.subtract_costs('stay alive', factor=1)
+        if 'stay alive' in self.parent_ecosystem.costs:
+            tags_dictionary = {
+                '#organism': self
+            }
+            self.subtract_costs('stay alive', tags_dictionary)
 
     def move(self):
         if print_methods_names:  # ***
@@ -350,12 +400,17 @@ class Organism(dict):
             # 4. Update biotope (organisms matrix):
             self.parent_ecosystem.biotope.move_organism(
                 old_location, new_location)
-            # 5. The costs are proportional to the distance we have jump:
-            self.subtract_costs(
-                'move',
-                factor=self.parent_ecosystem.biotope.distance(
+            # 5. The costs may be proportional to the distance we have jump,
+            # or even the substances that there are in the biotope:
+            tags_dictionary = {
+                '#organism': self,
+                '#distance': self.parent_ecosystem.biotope.distance(
                     old_location,
-                    new_location))
+                    new_location),
+                '#x': old_location[0],
+                '#y': old_location[1]
+            }
+            self.subtract_costs('move', tags_dictionary)
             return 'moved to', new_location
         return "It didn't move"
 
@@ -401,12 +456,16 @@ class Organism(dict):
                     self.parent_ecosystem.biotope.move_organism(
                         old_location, new_location)
                     # 7. The costs are proportional to the distance we have
-                    # jump:
-                    self.subtract_costs(
-                        'move',
-                        factor=self.parent_ecosystem.biotope.distance(
+                    # jump or the substances that there are in the biotope:
+                    tags_dictionary = {
+                        '#organism': self,
+                        '#distance': self.parent_ecosystem.biotope.distance(
                             old_location,
-                            new_location))
+                            new_location),
+                        '#x': old_location[0],
+                        '#y': old_location[1]
+                    }
+                    self.subtract_costs('move', tags_dictionary)
 
     def eat(self, prey):
         if print_methods_names:  # ***
@@ -421,7 +480,11 @@ class Organism(dict):
                     self[reserve_substance] = min(
                         self[reserve_substance], self[storage_capacity])
                 # print self['energy reserve'] # ***
-        self.subtract_costs('eat')
+        tags_dictionary = {
+            '#organism': self,
+            '#prey': prey
+        }
+        self.subtract_costs('eat', tags_dictionary)
 
     def hunt(self):
         def check_if_prey_is_not_self(prey):
@@ -455,14 +518,20 @@ class Organism(dict):
             if self.parent_ecosystem.constraints['can kill #prey'](self, prey):
                 self.eat(prey)
                 prey.die('killed by a predator')
+                hunt_was_successful = True
                 result = 'successful hunt'
             else:
+                hunt_was_successful = False
                 result = 'hunt failed, prey won'
-            self.subtract_costs(
-                'hunt',
-                factor=self.parent_ecosystem.biotope.distance(
+            tags_dictionary = {
+                '#organism': self,
+                '#prey': prey,
+                '#distance': self.parent_ecosystem.biotope.distance(
                     self['location'],
-                    prey_location))
+                    prey_location),
+                '#hunt_was_successful': hunt_was_successful
+            }
+            self.subtract_costs('hunt', tags_dictionary)
         else:
             result = 'hunt failed, prey not found'
         return result
@@ -542,11 +611,16 @@ class Organism(dict):
                 self[reserve_substance] -= newborn[reserve_substance]
             # Add the new organism to the ecosystem:
             self.parent_ecosystem.add_organism(newborn)
+            tags_dictionary = {
+                '#organism': self,
+                '#newborn': newborn,
+                '#distance': self.parent_ecosystem.biotope.distance(
+                    self['location'],
+                    new_location)
+            }
             self.subtract_costs(
                 'procreate',
-                self.parent_ecosystem.biotope.distance(
-                    self['location'],
-                    new_location))
+                tags_dictionary)
             procreated = True
             if print_births:       # ***
                 # print 'SELF:'

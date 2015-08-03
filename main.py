@@ -38,6 +38,11 @@ def print_ecosystem_status(ecosystem):
                 list_of_attributes=('age',
                                     'energy reserve',
                                     'color'))
+    if print_number_of_deths:
+        print 'Number of deths:', ecosystem.number_of_new_deths,
+    if print_number_of_births:
+        print 'New births:', ecosystem.number_of_new_births,
+
 
 
 def main():
@@ -58,7 +63,7 @@ def main():
     enable_graphics = True
     make_sleeps = False
     time_lapse = 2
-    Total_time = 200000
+    Total_time = 500000
 
     ecosystem = Ecosystem(my_example_of_ecosystem_settings)
 

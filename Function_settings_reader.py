@@ -1,6 +1,18 @@
 from SYNTAX import *
 from Basic_tools import *
 
+def remove_no_effect_commands(function_settings):
+    if is_dict(function_settings):
+        for item in No_effect_commands:
+            if item in function_settings:
+                del function_settings[item]
+        for item in function_settings:
+            remove_no_effect_commands(function_settings[item])
+    elif is_iterable(function_settings):
+        for item in function_settings:
+            remove_no_effect_commands(item)
+    return function_settings
+
 
 class Function_maker:
 
@@ -386,8 +398,31 @@ class Function_maker:
                 action_name = inputs['action']
             # print "action_name", action_name, "substance_name",
             # substance_name, "inputs", inputs # ***
-            return lambda *arguments: arguments[0].parent_ecosystem\
-                .costs[action_name][substance_name](arguments[0])
+            if len(function_settings) == 1:
+                return lambda *arguments: arguments[0].parent_ecosystem\
+                    .costs[action_name][substance_name](
+                        {'#organism': arguments[0]}
+                        )
+            else:
+                tags_dictionary_functions = {}
+                for item in function_settings:
+                    if item != 'cost':
+                        tags_dictionary_functions[item] =\
+                            self.make_function(function_settings[item])
+ 
+                def function_to_return(*arguments):
+                    organism = arguments[0]
+                    cost = organism.parent_ecosystem.costs[action_name][
+                        substance_name]
+                    tags_dictionary = {
+                        '#organism': organism
+                    }
+                    for item in tags_dictionary_functions:
+                        tags_dictionary[item] = tags_dictionary_functions[
+                            item](*arguments)
+                    return cost(tags_dictionary)
+
+                return function_to_return
 
         elif command == 'constraint':
             return lambda *arguments: arguments[0].parent_ecosystem\
@@ -435,7 +470,13 @@ class Function_maker:
             *interval_functions(*arguments)
         )  # if self.error_messenger(interval_functions(*arguments)) else 0
 
-    def make_function(self, function_settings):
+    def set_tags_list(self, tags_list):
+        self.tags_list = tags_list
+
+    def make_function(self, function_settings, tags_list=None):
+        remove_no_effect_commands(function_settings)
+        if tags_list is not None:
+            self.tags_list = tags_list
         if print_methods_names:  # ***
             print 'make_function', self.tags_list
             print function_settings
@@ -474,7 +515,8 @@ class Function_maker:
     def read_function_settings(
         self,
         function_name_with_tags,
-        function_settings
+        function_settings,
+        caller=None
             ):
         """
         In this EXAMPLE:
@@ -500,6 +542,8 @@ class Function_maker:
         two arguments x and y
         """
         self.tags_list = get_tags_list(function_name_with_tags)
+        if caller is not None and caller not in self.tags_list:
+            self.tags_list = [caller, ] + self.tags_list
         function_to_return = self.make_function(function_settings)
         self.tags_list = []
         return function_to_return
@@ -538,3 +582,26 @@ class Function_maker:
                     )
         self.tags_list = []
         return result
+
+    def make_function_with_tags_dictionary(
+        self,
+        function_name_with_tags,
+        function_settings,
+        caller
+            ):
+        self.tags_list = get_tags_list(function_name_with_tags)
+        if caller is not None and caller not in self.tags_list:
+            self.tags_list = [caller, ] + self.tags_list
+        function_to_evaluate = self.make_function(function_settings)
+        tags_list = deepcopy(self.tags_list)
+        self.tags_list = []
+
+        def function_to_return(tags_dictionary):
+            inputs = [tags_dictionary[tag] for tag in tags_list]
+            return function_to_evaluate(*inputs)
+
+        return function_to_return
+
+
+
+

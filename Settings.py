@@ -106,6 +106,14 @@ _operator_definitions = {
         )}
     },
 
+    'random amount': {
+        'output function #factor': {'*': (
+            '#factor',
+            {'chi-squared': 1}
+            )
+        }
+    },
+
     'gauss variation': {
         'output function #value': {
             'gauss': (
@@ -160,7 +168,7 @@ _sunlight = {
             do), because both poles are the same place.
         """,
         '+': (
-            3,
+            4,
             {'*': (
                 -1,
                 {'cos': {'*': (2, pi, '#y')}}
@@ -184,7 +192,7 @@ _temperature = {
         '*': (
             # this is the percentage (93 per cent) of the heat that remains in
             # the biotope:
-            0.91,
+            0.8,
             {'+': (
                 # the new value depends on the previous value:
                 {'#biotope temperature': ('#x', '#y')},
@@ -200,13 +208,13 @@ _nutrient_A = {
     'initial value #x #y': {
         'if': (
             {'random true': 0.03},
-            {'uniform': [0, 10000]},
-            {'*': (2000.5, '#x', '#y')}
+            {'uniform': [0, 100]},
+            {'*': (20.5, '#x', '#y')}
         )},
     'value after updating #x #y': {
         '+': (
             # Generating:
-            {'*': (80, '#x', chi_squared(2))},
+            {'*': (150, '#x', chi_squared(2))},
             # Spreading:
             {'*': (
                 # the location (#x, #y) keeps the 80 per cent of its amount
@@ -256,7 +264,7 @@ _nutrient_B = {
     'value after updating #x #y': {
         '+': (
             # Generating:
-            {'*': (25, '#y', chi_squared(2))},
+            {'*': (50, '#y', chi_squared(2))},
             # Spreading:
             {'*': (
                 # the location (#x, #y) keeps the 90 per cent of its amount
@@ -402,7 +410,7 @@ _ecosystem_features = {
     },
 
     'autotrophs productivity': {
-        'initial value': 14000
+        'initial value': 20000
         # Each organism has a different photosynthesis capacity,
         # but this capacity is multiplied
         # by the value of 'autotrophs productivity', that
@@ -573,7 +581,7 @@ _constraint_die = {
         """,
         'or': (
             # RANDOM CAUSE OF DETH:
-            {'random true': 0.005},
+            {'random true': 0.05},
             # DEATH BY STARVATION:
             {'<': ('energy reserve', 100.0)},
             {'<': ('nutrient A reserve', 1.0)},
@@ -614,7 +622,7 @@ def _gene_creator(gene_name, mean=1):
     return {
         'initial value': {
             'gauss': (mean, 0.2 * mean),
-            'allowed interval': [0, 'infinity']
+            'allowed interval': [0.00001, 'infinity']
             },
         'value after mutation': {
             'triangular': (
@@ -686,7 +694,19 @@ _organisms_category_a = {
             },
             'allowed interval': [0, 255]
         },
-        'color': {
+        'color 1': {
+            'initial value': [
+                {'round': 'red'},
+                {'round': 'green'},
+                {'round': 'blue'},
+                ],
+            'value after mutation': [
+                {'round': 'red'},
+                {'round': 'green'},
+                {'round': 'blue'},
+                ]
+        },
+        'color 2': {
             'initial value': [
                 {'round': 'red'},
                 {'round': 'green'},
@@ -744,6 +764,60 @@ _organisms_category_a = {
                                                 'price nutr B / nutr A',
                                                 'price nutr B / energy')
                                         }
+                                        )
+                                    }
+                            }
+                            )
+                    }
+                },
+            ]
+        },
+        'color': {
+            'initial value': [
+                {'round': 'red'},
+                {'round': 'green'},
+                {'round': 'blue'},
+                ],
+            'value after mutation': [
+                {  # RED:
+                    'round': {
+                        '*': (
+                            255,
+                            {
+                                'curve from 0 to 1': {
+                                    '*': (
+                                        0.5,
+                                        'metabolic speed'
+                                        )
+                                    }
+                            }
+                            )
+                    }
+                },
+                {  # GREEN:
+                    'round': {
+                        '*': (
+                            255,
+                            {
+                                'curve from 0 to 1': {
+                                    '*': (
+                                        0.5,
+                                        'metabolic speed'
+                                        )
+                                    }
+                            }
+                            )
+                    }
+                },
+                {  # BLUE:
+                    'round': {
+                        '*': (
+                            255,
+                            {
+                                'curve from 0 to 1': {
+                                    '*': (
+                                        0.5,
+                                        'metabolic speed'
                                         )
                                     }
                             }
@@ -838,9 +912,7 @@ _organisms_category_a = {
             """
                 Maximum possible energy reserve
             """,
-            'initial value': {
-                'uniform': [0, 20000]
-            },
+            'initial value': {'random amount': 20000},
             'value after mutation':
             _default_value_after_mutation_A('energy storage capacity'),
             'allowed interval': [0, 'infinity']
@@ -850,9 +922,7 @@ _organisms_category_a = {
             """
                 Maximum possible nutrient A reserve
             """,
-            'initial value': {
-                'uniform': [0, 2000]
-            },
+            'initial value': {'random amount': 2000},
             'value after mutation':
             _default_value_after_mutation_A('nutrient A storage capacity'),
             'allowed interval': [0, 'infinity']
@@ -862,9 +932,7 @@ _organisms_category_a = {
             """
                 Maximum possible nutrient B reserve
             """,
-            'initial value': {
-                'uniform': [0, 2000]
-            },
+            'initial value': {'random amount': 2000},
             'value after mutation':
             _default_value_after_mutation_A('nutrient B storage capacity'),
             'allowed interval': [0, 'infinity']
@@ -1023,6 +1091,8 @@ _organisms_category_a = {
             },
             'allowed interval': [0, 1]
         },
+        'digestion capacity': _gene_creator('digestion capacity', mean=20),
+        'poison level': _gene_creator('poison level', mean=30),
         'indicator gene A': {
             'initial value': 1.0,
             'value after mutation':
@@ -1082,6 +1152,25 @@ _organisms_category_a = {
                        {'shuffle': 'actions sequence'},
                        'actions sequence')
             }
+        },
+        'metabolic time': {
+            'initial value': 1.0,
+            'value in next cycle': {'+': (
+                'metabolic time',
+                'metabolic speed'
+                )}
+        },
+        'metabolic speed': {
+            'initial value': 1.0,
+            'value after mutation': {'**': (
+                    {'triangular': (
+                        {'*': (0.8, 'metabolic speed')},
+                        {'*': (1.25, 'metabolic speed')},
+                        'metabolic speed'
+                        )},
+                    1
+                    )},
+            'allowed interval': [0.1, 10]
         }
 
     }
@@ -1135,8 +1224,11 @@ _constraints = {
                 'energy reserve',
                 {'+': (
                     'energy reserve at birth',
-                    {'cost': 'procreate'},
-                    {'cost': 'stay alive'},
+                    {
+                        'cost': ('procreate', 'energy reserve'),
+                        '#distance': 'speed'
+                    },
+                    {'cost': ('stay alive', 'energy reserve')},
                     100.1
                 )}
             )},
@@ -1144,7 +1236,10 @@ _constraints = {
                 'nutrient A reserve',
                 {'+': (
                     'nutrient A reserve at birth',
-                    {'cost': ('procreate', 'nutrient A reserve')},
+                    {
+                        'cost': ('procreate', 'nutrient A reserve'),
+                        '#distance': 0
+                    },
                     {'cost': ('stay alive', 'nutrient A reserve')}
                 )}
             )},
@@ -1152,7 +1247,10 @@ _constraints = {
                 'nutrient B reserve',
                 {'+': (
                     'nutrient B reserve at birth',
-                    {'cost': ('procreate', 'nutrient B reserve')},
+                    {
+                        'cost': ('procreate', 'nutrient B reserve'),
+                        '#distance': 0
+                    },
                     {'cost': ('stay alive', 'nutrient B reserve')}
                 )}
             )}
@@ -1168,7 +1266,7 @@ _cost_move = {
                     0.0002,
                     'attack capacity',
                     'defense capacity',
-                    'hunt radius'
+                    '#distance'
                     )
             },
             {'*': (
@@ -1187,16 +1285,22 @@ _cost_move = {
                     0.0002,
                     'attack capacity',
                     'basal defense capacity',
-                    'radius of procreation'
+                    'radius of procreation',
+                    '#distance'
                 )
             },
             {'*': (
                 0.92,
                 'speed',
                 'radius of procreation',
-                'procreation frequency'
+                'procreation frequency',
+                '#distance'
                 )},
-            {'*': (0.01, 'photosynthesis capacity')},
+            {'*': (
+                0.01,
+                'photosynthesis capacity',
+                '#distance'
+                )},
             0.5
         )},
     'nutrient B reserve': {
@@ -1215,25 +1319,7 @@ _cost_move = {
         )}
 }
 
-_costs = {
-    'move': _cost_move,
-    'procreate': {
-        'energy reserve': {'*': (
-            0.1,
-            'energy reserve at birth'
-        )},
-        'nutrient A reserve': {'+': (
-            1.2,
-            'nutrient A reserve at birth'
-        )},
-        'nutrient B reserve': {'+': (
-            5,
-            'nutrient B reserve at birth'
-        )}
-
-    },
-
-    'stay alive': {
+_cost_stay_alive = {
         'energy reserve': {'*': (
             '#ecosystem general costs level',
             {'+': (
@@ -1302,6 +1388,78 @@ _costs = {
             )}
         )}
     }
+
+
+_costs = {
+
+    'move #distance': _cost_move,
+
+    'hunt #prey #distance': {
+        'energy reserve': {'*': (
+            '#prey defense capacity',
+            '#distance',
+            0.002
+            )
+        }
+    },
+
+    'eat #prey': {
+        'energy reserve': {'*': (
+            '#prey defense capacity',
+            0.02
+            )
+        },
+        'nutrient B reserve': {'/': (
+            '#prey poison level',
+            'digestion capacity'
+            )
+        }
+    },
+
+    'procreate #distance': {
+        'energy reserve': {'*': (
+            0.1,
+            'energy reserve at birth',
+            '#distance'
+        )},
+        'nutrient A reserve': {'+': (
+            0.02,
+            'nutrient A reserve at birth',
+            'digestion capacity'
+        )},
+        'nutrient B reserve': {'+': (
+            0.015,
+            'nutrient B reserve at birth',
+            'poison level'
+        )}
+
+    },
+
+    'stay alive': _cost_stay_alive,
+
+    'interchange substances with other organisms #amount #substance_to_sell': {
+        'energy reserve': {
+            'if': (
+                {'==': ('#substance_to_sell', 'energy reserve')},
+                {'*': (0.15, '#amount')},
+                0
+            )
+        },
+        'nutrient A reserve': {
+            'if': (
+                {'==': ('#substance_to_sell', 'nutrient A reserve')},
+                {'*': (0.05, '#amount')},
+                0
+            )
+        },
+        'nutrient B reserve': {
+            'if': (
+                {'==': ('#substance_to_sell', 'nutrient B reserve')},
+                {'*': (0.05, '#amount')},
+                0
+            )
+        }
+    }
 }
 
 
@@ -1309,6 +1467,7 @@ _organisms_category_b = deep_copy_of_a_dictionary(_organisms_category_a)
 
 _organisms_category_b['genes']['category'] = {'initial value': 'B'}
 _organisms_category_b['genes']['speed'] = {'initial value': 0}
+_organisms_category_b['genes']['metabolic speed'] = {'initial value': 1}
 
 my_example_of_ecosystem_settings = {
     'help': ''' This is an example of ecosystem settings ''',
