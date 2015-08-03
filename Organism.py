@@ -145,6 +145,8 @@ class Organism(dict):
                 ):
             self.act()
             self['metabolic time'] -= 1.0
+        self['metabolic time'] = self['value in next cycle'][
+            'metabolic time'](self)
 
     def act(self):
         if print_methods_names:  # ***
@@ -206,7 +208,7 @@ class Organism(dict):
                             print 'over reserve',
                             print reserve_substance, self[reserve_substance]
                         return 'deth'
-                        
+
                     if print_costs:  # ***
                         print "--> ",
                         print_organism(
@@ -550,7 +552,8 @@ class Organism(dict):
 
         for gene in self['value in next cycle']:
             # print 'do_internal_changes', gene # ***
-            self[gene] = self['value in next cycle'][gene](self)
+            if gene != 'metabolic time':
+                self[gene] = self['value in next cycle'][gene](self)
 
         # print 'energy reserve: {0} + {1} = {2}'.format(energy_reserve,
         # self['energy reserve'] - energy_reserve, self['energy reserve']) #

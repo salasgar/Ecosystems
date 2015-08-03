@@ -786,7 +786,7 @@ _organisms_category_a = {
                             {
                                 'curve from 0 to 1': {
                                     '*': (
-                                        0.5,
+                                        1.2,
                                         'metabolic speed'
                                         )
                                     }
@@ -801,7 +801,7 @@ _organisms_category_a = {
                             {
                                 'curve from 0 to 1': {
                                     '*': (
-                                        0.5,
+                                        1.2,
                                         'metabolic speed'
                                         )
                                     }
@@ -816,7 +816,7 @@ _organisms_category_a = {
                             {
                                 'curve from 0 to 1': {
                                     '*': (
-                                        0.5,
+                                        1.2,
                                         'metabolic speed'
                                         )
                                     }
@@ -1154,22 +1154,20 @@ _organisms_category_a = {
             }
         },
         'metabolic time': {
-            'initial value': 1.0,
+            'initial value': 0,
             'value in next cycle': {'+': (
                 'metabolic time',
-                'metabolic speed'
+                {'random amount': 'metabolic speed'}
                 )}
         },
         'metabolic speed': {
             'initial value': 1.0,
-            'value after mutation': {'**': (
+            'value after mutation':
                     {'triangular': (
                         {'*': (0.8, 'metabolic speed')},
                         {'*': (1.25, 'metabolic speed')},
                         'metabolic speed'
                         )},
-                    1
-                    )},
             'allowed interval': [0.1, 10]
         }
 
@@ -1467,7 +1465,7 @@ _organisms_category_b = deep_copy_of_a_dictionary(_organisms_category_a)
 
 _organisms_category_b['genes']['category'] = {'initial value': 'B'}
 _organisms_category_b['genes']['speed'] = {'initial value': 0}
-_organisms_category_b['genes']['metabolic speed'] = {'initial value': 1}
+# _organisms_category_b['genes']['metabolic speed'] = {'initial value': 1}
 
 my_example_of_ecosystem_settings = {
     'help': ''' This is an example of ecosystem settings ''',

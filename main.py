@@ -42,7 +42,10 @@ def print_ecosystem_status(ecosystem):
         print 'Number of deths:', ecosystem.number_of_new_deths,
     if print_number_of_births:
         print 'New births:', ecosystem.number_of_new_births,
-
+    if print_metabolic_speed > 0:
+        org_list = ecosystem.get_random_organisms(print_metabolic_speed)
+        for org in org_list:
+            print_organism(org, 'metabolic speed', 'metabolic time')
 
 
 def main():
