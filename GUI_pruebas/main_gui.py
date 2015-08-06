@@ -8,7 +8,7 @@ from matplotlib.patches import Rectangle
 from matplotlib.figure import Figure
 import flufl.lock
 
-lock = flufl.lock.Lock('./map.lock')
+lock = flufl.lock.Lock('./map.lock')  # JUST FOR DEBUG
 
 
 class GenericObserver(object):
@@ -190,6 +190,63 @@ class GenericObserver(object):
         self.frame.place_configure(x=self.x, y=self.y)
 
 
+class NavigationObserver(GenericObserver):
+
+    def __init__(self, subject, title, x, y,
+                 width, height, commands_file_path):
+        """
+            Initialize a histogram observer
+        """
+        super(NavigationObserver, self).__init__(
+            subject, title, x, y, width, height)
+
+        # Creates 'Play' button
+        self.play_button = tk.Button(self.frame, text="Play",
+                                     command=self.callback_play)
+
+        # Creates 'Pause' button
+        self.pause_button = tk.Button(self.frame, text="Pause",
+                                      command=self.callback_pause)
+
+        self.widgets.append(self.play_button)
+        self.widgets.append(self.pause_button)
+
+        # Update widgets_positions
+        self.update_widgets_positions()
+
+        # Focus current observer
+        self.subject.focus(observer_to_be_focused=self)
+
+        # Commands file lock
+        self.commands_file_path = commands_file_path
+        self.commands_lock = flufl.lock.Lock(self.commands_file_path +
+                                             '.lock')
+
+    def update_widgets_positions(self):
+        """
+            Update all widgets positions according to new width and height
+        """
+        super(NavigationObserver, self).update_widgets_positions()
+
+        # Buttons
+        self.play_button.place(x=0, y=50, width=100, height=25)
+        self.pause_button.place(x=self.width - 120, y=50, width=100, height=25)
+
+    def callback_play(self):
+        # TODO: Implement Play
+        self.commands_lock.lock()
+        with open(self.commands_file_path, 'w') as f:
+            f.write('PLAY')  # JUST FOR DEBUG
+        self.commands_lock.unlock()
+
+    def callback_pause(self):
+        # TODO: Implement Pause
+        self.commands_lock.lock()
+        with open(self.commands_file_path, 'w') as f:
+            f.write('PAUSE')  # JUST FOR DEBUG
+        self.commands_lock.unlock()
+
+
 class MapObserver(GenericObserver):
 
     def __init__(self, subject, title, x, y, width, height):
@@ -254,7 +311,7 @@ class MapObserver(GenericObserver):
 
     def update_map(self):
         lock.lock()
-        RGB_matrix = pickle.load(open("map.p", "rb"))
+        RGB_matrix = pickle.load(open("map.p", "rb"))  # JUST FOR DEBUG
         lock.unlock()
         self.image.set_data(RGB_matrix)
         self.image.set_extent([0, RGB_matrix.shape[0],
