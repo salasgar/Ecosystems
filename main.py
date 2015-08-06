@@ -70,7 +70,7 @@ def main():
 
     ecosystem = Ecosystem(my_example_of_ecosystem_settings)
 
-    ecosystem.minimum_population_allowed = 500
+    ecosystem.minimum_population_allowed = 200
 
     """ ***********************  TRIAL ZONE ****************************
 

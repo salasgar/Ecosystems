@@ -32,7 +32,7 @@ DEFAULT = Default()
 
 class Matrix(object):
 
-    def __init__(self, size_x, size_y, value=None):
+    def __init__(self, size_x=1, size_y=1, value=None):
         self.data = [[value] * size_y for i in range(size_x)]
         # No usar [[None] * size_y] * size_x, ya que no hace copia profunda
         self.size_x = size_x
@@ -45,6 +45,37 @@ class Matrix(object):
     def __setitem__(self, coordinates, value):
         x, y = coordinates
         self.data[x % self.size_x][y % self.size_y] = value
+
+    def get_value_from_normalized_x_y(x, y):
+        return self[x*self.size_x, y*self.size_y]
+
+    def copy_matrix(self, other_matrix):
+        if isinstance(other_matrix, Matrix):
+            self = other_matrix
+        else:
+            self.size_x = len(other_matrix)
+            self.size_y = len(other_matrix[0])
+            self.data = other_matrix
+
+    def deep_copy_matrix(self, other_matrix):
+        if isinstance(other_matrix, Matrix):
+            self.size_x = other_matrix.size_x
+            self.size_y = other_matrix.size_y
+            self.data = deepcopy(other_matrix.data)
+        else:
+            self.size_x = len(other_matrix)
+            self.size_y = len(other_matrix[0])
+            self.data = deepcopy(other_matrix)
+
+    def copy(self):  # returns a copy of itself
+        new_matrix = Matrix()
+        new_matrix.copy_matrix(self)
+        return new_matrix
+
+    def deep_copy(self):  # returns a copy of itself
+        new_matrix = Matrix()
+        new_matrix.deep_copy_matrix(self)
+        return new_matrix
 
     def __str__(self, traspose=False):
         if traspose:

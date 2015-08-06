@@ -181,7 +181,7 @@ class Organism(dict):
         if self.parent_ecosystem.constraints['die'](self):
             # print "dying alone", self.__str__(list_of_attributes =
             # ('category', 'age', 'energy reserve')) # ***
-            self.die('natural cause')
+            self.die('Natural deth')
 
     def subtract_costs(self, action, tags_dictionary={}):
         if print_methods_names or print_costs:
@@ -200,8 +200,9 @@ class Organism(dict):
                         self[reserve_substance] -
                         costs[reserve_substance](tags_dictionary)
                         )
-                    if self[reserve_substance] < 0:
-                        self.die('Starvation ' + reserve_substance)
+                    if self[reserve_substance] < 0 and action != 'die':
+                        self.die(
+                            'Natural deth: Starvation ' + reserve_substance)
                         if print_costs:
                             print 'Cost', action, reserve_substance,
                             print costs[reserve_substance](tags_dictionary),
@@ -245,19 +246,22 @@ class Organism(dict):
                     substance_to_sell in self_prices and
                     substance_to_buy_with in seller_prices and
                     seller_prices[substance_to_buy_with](seller) <
-                    1 / self_prices[substance_to_sell](self)
+                    1.0 / self_prices[substance_to_sell](self)
                 ):
                     price = seller_prices[substance_to_buy_with](seller)
                     amount = min(
-                        seller_offers[substance_to_sell]['amount'](seller),
-                        price * self_offers[substance_to_sell]['amount'](self)
+                        seller_offers[substance_to_sell][
+                            'amount'](seller),
+                        self_offers[substance_to_buy_with][
+                            'amount'](self) / price
                     )
-                    matching_offer = (
-                        substance_to_sell,
-                        substance_to_buy_with,
-                        amount
-                    )
-                    matching_offers_list.append(matching_offer)
+                    if amount > 0:
+                        matching_offer = (
+                            substance_to_sell,
+                            substance_to_buy_with,
+                            amount
+                        )
+                        matching_offers_list.append(matching_offer)
         return matching_offers_list
 
     def trade_with(self, seller):
@@ -519,7 +523,7 @@ class Organism(dict):
             prey = self.parent_ecosystem.biotope.get_organism(prey_location)
             if self.parent_ecosystem.constraints['can kill #prey'](self, prey):
                 self.eat(prey)
-                prey.die('killed by a predator')
+                prey.die('Killed by a predator')
                 hunt_was_successful = True
                 result = 'successful hunt'
             else:
@@ -651,13 +655,14 @@ class Organism(dict):
                     'nutrient B reserve'
                     )
                 ), cause
-        elif print_killed and cause == 'killed by a predator':  # ***
+        elif print_killed and cause == 'Killed by a predator':  # ***
             print 'dying', self.__str__(
                 list_of_attributes=(
                     'category',
                     'age',
                     'energy reserve')
                 ), cause
+        self.subtract_costs('die', {'#organism': self, '#cause': cause})
         self.parent_ecosystem.new_deads.append(self)
 
 

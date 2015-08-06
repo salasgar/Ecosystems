@@ -7,76 +7,6 @@ from Basic_tools import *
 """ ******************************************************* """
 
 
-Store_data = False
-
-Elements_to_store = {
-
-    """
-        In this dictionary we indicate what and how often to store:
-
-            'Once'  means that this data is stored only once at the
-                    begining of the file
-            200     means that this data is stored once every 200 cycles
-            None    means that this data is never stored
-
-    """
-
-    'genes': {
-        'nutrient B reserve at birth': None,
-        'photosynthesis capacity growth': None,
-        'nutrient B storage capacity': None,
-        'generation': 200,
-        'energy reserve': 100,
-        'nutrient A reserve': None,
-        'temperature adaptation level': 40,
-        'aggressiveness': 20,
-        'indicator gene B': 1000,
-        'indicator gene A': 1000,
-        'moving frequency': None,
-        'photosynthesis capacity': None,
-        'defense capacity': None,
-        'minimum energy reserve for procreating': None,
-        'speed': None,
-        'minimum nutrient B reserve for procreating': None,
-        'species': None,
-        'actions sequence': None,
-        'nutrient B reserve': None,
-        'energy reserve at birth': None,
-        'hunt radius': None,
-        'optimal temperature': None,
-        'nutrient A reserve at birth': None,
-        'energy storage capacity': None,
-        'attack capacity': None,
-        'mean aggressiveness': None,
-        'procreation frequency': None,
-        'species identity mutation frequency': None,
-        'basal defense capacity': None,
-        'age': 20,
-        'minimum nutrient A reserve for procreating': None,
-        'nutrient A storage capacity': None,
-        'radius of procreation': None,
-        'mutation frequency': None
-    },
-    'biotope': {
-        'biotope features': {
-            'nutrient B': 'Once',
-            'nutrient A': 'Once',
-            'sunlight': 'Once',
-            'temperature': 'Once',
-            'seasons speed': 'Once'
-            },
-        'size': 'Once'
-        },
-    'ecosystem features': {
-        'general costs level': None,
-        'maximum population allowed': 100,
-        'time': 20,
-        'autotrophs productivity': 'Once',
-        'population': 20
-        }
-    }
-
-
 def my_operator(a, b):
     return gauss(
         (a+b)/2,
@@ -573,6 +503,33 @@ _gene_nutrient_B_reserve = {
     }
 }
 
+_gene_nutrient_C_reserve = {
+    'initial value': 1000,
+    'value in next cycle': {
+        '+': (
+            {'*': (0.99, 'nutrient C reserve')},
+            {'extract #biotope nutrient C': (
+                'normalized location x',
+                'normalized location y',
+                1.0
+            )}
+        )},
+    'value after mutation': {'/': ('nutrient C reserve', 2)},
+    'offer to sell': {
+        'amount': {'-': (
+            'nutrient C reserve',
+            'minimum nutrient C reserve savings'
+            ),
+            'allowed interval': [0, 'infinity']
+        },
+        'prices': {
+            'nutrient A reserve': 'price nutr A / nutr B',
+            'energy reserve': 'price energy / nutr B'
+        }
+
+    }
+}
+
 _gene_optimal_temperature = {
             # This is the definition of the gene 'optimal temperature'
             'help':
@@ -970,6 +927,8 @@ _organisms_category_a = {
         'energy reserve': _gene_energy_reserve,
         'nutrient A reserve': _gene_nutrient_A_reserve,
         'nutrient B reserve': _gene_nutrient_B_reserve,
+        'nutrient C reserve': _gene_nutrient_C_reserve,
+        'nutrient D reserve': _gene_nutrient_D_reserve,
         'price nutr A / energy': _gene_creator('price nutr A / energy'),
         'price nutr B / energy': _gene_creator('price nutr B / energy'),
         'price nutr A / nutr B': _gene_creator('price nutr A / nutr B'),
@@ -1321,6 +1280,14 @@ _constraints = {
                     {'cost': ('stay alive', 'nutrient B reserve')}
                 )}
             )},
+            {'or': (
+                {'>=': ('nutrient C reserve', 1.0)},
+                {'random true': 0.01}
+            )},
+            {'or': (
+                {'>=': ('nutrient D reserve', 2.0)},
+                {'random true': 0.01}
+            )},
         )},
     'die': _constraint_die
 }
@@ -1509,6 +1476,8 @@ _costs = {
             'nutrient B reserve at birth',
             'poison level'
         )},
+        'nutrient C reserve': {'/': ('nutrient C reserve', 2)},
+        'nutrient D reserve': {'/': ('nutrient D reserve', 2)}
     },
 
     'stay alive': _cost_stay_alive,

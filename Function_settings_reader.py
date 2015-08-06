@@ -1,6 +1,7 @@
 from SYNTAX import *
 from Basic_tools import *
 
+
 def remove_no_effect_commands(function_settings):
     if is_dict(function_settings):
         for item in No_effect_commands:
