@@ -10,6 +10,7 @@ from Basic_tools import *
 Store_data = False
 
 Elements_to_store = {
+    'help':
 
     """
         In this dictionary we indicate what and how often to store:
@@ -19,19 +20,19 @@ Elements_to_store = {
             200     means that this data is stored once every 200 cycles
             None    means that this data is never stored
 
-    """
+    """,
 
     'genes': {
         'nutrient B reserve at birth': None,
         'photosynthesis capacity growth': None,
         'nutrient B storage capacity': None,
-        'generation': 200,
-        'energy reserve': 100,
+        'generation': 20000,
+        'energy reserve': 10000,
         'nutrient A reserve': None,
-        'temperature adaptation level': 40,
-        'aggressiveness': 20,
-        'indicator gene B': 1000,
-        'indicator gene A': 1000,
+        'temperature adaptation level': 4000,
+        'aggressiveness': 2000,
+        'indicator gene B': 100000,
+        'indicator gene A': 100000,
         'moving frequency': None,
         'photosynthesis capacity': None,
         'defense capacity': None,
@@ -51,7 +52,7 @@ Elements_to_store = {
         'procreation frequency': None,
         'species identity mutation frequency': None,
         'basal defense capacity': None,
-        'age': 20,
+        'age': 2000,
         'minimum nutrient A reserve for procreating': None,
         'nutrient A storage capacity': None,
         'radius of procreation': None,
@@ -70,9 +71,8 @@ Elements_to_store = {
     'ecosystem features': {
         'general costs level': None,
         'maximum population allowed': 100,
-        'time': 20,
         'autotrophs productivity': 'Once',
-        'population': 20
+        'population': 2000
         }
     }
 

@@ -66,7 +66,12 @@ class Data_storer:
         self.data = []
 
     def store_data(self):
+
+        # print "Storing data..."
+
         def check(*kew_words):
+            # This checks if it's time to store the
+            # element referenced with kew_words
             code = self.elements_to_store
             for kew_word in kew_words:
                 code = code[kew_word]
@@ -80,6 +85,7 @@ class Data_storer:
                     == self.parent_ecosystem.time / code
                 )
             )
+
         current_data = {
             'biotope': {
                 'biotope features': {}
@@ -89,7 +95,7 @@ class Data_storer:
         }
         if check('biotope', 'size'):
             current_data['biotope']['size'] = deepcopy(
-                self.parent_ecosystem.biotope.size)
+                self.parent_ecosystem.biotope['size'])
         for feature in self.elements_to_store['biotope']['biotope features']:
             if check('biotope', 'biotope features', feature):
                 current_data['biotope']['biotope features'][
@@ -105,12 +111,18 @@ class Data_storer:
                     )
         for organism in self.parent_ecosystem.organisms_list:
             data = {}
-            for gene in self.elements_to_store['genes']:
-                if check('genes', gene):
-                    data[gene] = deepcopy(organism[gene])
+            if 'genes' in self.elements_to_store:
+                for gene in self.elements_to_store['genes']:
+                    if check('genes', gene):
+                        data[gene] = deepcopy(organism[gene])
+            else:
+                print_dictionary(self.elements_to_store)
             current_data['organisms list'].append(data)
 
         self.data.append(current_data)
+
+        # TODO:
+        # Check if it's time to flush self.data into a file, and do it.
 
         return current_data
 
