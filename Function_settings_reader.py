@@ -1,220 +1,540 @@
 from SYNTAX import *
 from Basic_tools import *
 
-"""
 
-Binary_operators_dictionary = {
-    'op': lambda x, y: 'op(' + x + ', ' + y + ')', #formal operator for debugging purpose
-    'op_': lambda x, y: '(' + x + ' op ' + y + ')', #formal operator for debugging purpose
-    '+': lambda x, y: x + y,
-    '-': lambda x, y: x - y,
-    '*': lambda x, y: x * y,
-    '/': lambda x, y: x / y,
-    '**': lambda x, y: x ** y,
-    '//': lambda x, y: x // y,
-    '%': lambda x, y: x % y,
-    'mod': lambda x, y: x % y,
-    '>': lambda x, y: x > y,
-    '<': lambda x, y: x < y,
-    '>=': lambda x, y: x >= y,
-    '<=': lambda x, y: x <= y,
-    '==': lambda x, y: x == y,
-    '!=': lambda x, y: x != y,
-    'in': lambda x, y: x in y,
-    'random integer': randint,  # random integer between x and y
-    'randint': randint,  # random integer between x and y
-    'gauss': gauss, # random value, normal distribution with mean x and variance y
-    'uniform': uniform, # random value, uniform distribution in [x, y]
-    
-    # Logic operators:
-    'and': lambda x, y: x and y,
-    'AND': lambda x, y: x and y,
-    '&': lambda x, y: x and y,
-    '&&': lambda x, y: x and y,
-    'or': lambda x, y: x or y,
-    'OR': lambda x, y: x or y,
-    '|': lambda x, y: x or y,
-    '||': lambda x, y: x or y,
-    'xor': lambda x, y: (x and not y) or (y and not x),
-    'XOR': lambda x, y: (x and not y) or (y and not x)}
+class Function_maker:
 
-Unary_operators_dictionary = {
-    'abs': abs,
-    'minus': lambda x: -x,
-    'sqrt': sqrt,
-    'log': log,
-    'exp': exp,
-    'sigmoid': sigmoid,
-    'sin': sin,
-    'cos': cos,
-    'tan': tan,
-    'tg':  tan,
-    'round': lambda x: round(x, 0),
-    'int': lambda x: int(x),
-    'roundint': lambda x: int(round(x, 0)),
-    'random boolean': random_true,
-    'randbool': random_true,
-    'random true': random_true,
-    'chi-squared': chi_squared, # random value, chi-squared distribution with given degree of freedom k
-    'shuffle': shuffle_function,
-    'not': lambda x: not x}
+    """
+        This object reads function settings like:
 
-"""
+                        {'initial value #x #y': {
+                            'if': (
+                                {'random true': 0.03},
+                                {'uniform': [0, 10]},
+                                {'*': (2.5, '#x', '#y')}
+                            )}
+                        }
 
-def get_gene_value(organism, gene):
-    if is_function(organism[gene]):
-        return organism[gene](organism)
-    else:
-        return organism[gene]
+        and returns an actual function.
 
-def make_function_from_string(function_settings, all_gene_names, tags_list, error_messenger):
-    if function_settings in tags_list:
-        tag_position = tags_list.index(function_settings)
-        return lambda *arguments: arguments[tag_position]
-    else:
-        hash_position = function_settings.find('#')
-        if hash_position == 0:
-            # it's an expression like '#prey defense capacity'
-            length = function_settings.find(' ')
-            tag = function_settings[:length]
-            if tag in tags_list:
-                tag_position = tags_list.index(tag)
-            else:
-                error_messenger('Syntax error in ', function_settings, tag, 'not in tags list', tags_list)
-                error_maker = 1/0
-            gene_name = function_settings[length+1:]
-            return lambda *arguments: arguments[tag_position][gene_name]
-        elif hash_position == -1:
-            if function_settings in all_gene_names:
-                return lambda *arguments: arguments[0][function_settings] if is_tuple_or_list(arguments) else arguments[function_settings]
-            else:
-                return lambda *arguments: function_settings
-        else:
-            error_messenger('Syntax error. ', function_settings)
-            error_maker = 1/0
+        All methods of this class must be treated as private, but:
 
-def make_function_from_built_function(function_settings, tags_list):
-    error_maker = 1/0
-    """ This will be erased if it is no longer used """
-    function_and_parameters = function_settings['function']
-    if is_tuple_or_list(function_and_parameters) and len(function_and_parameters) > 0:
-        function = function_and_parameters[0]
-        if is_function(function):
-            parameters = [make_function(item, tags_list, error_messenger) for item in function_and_parameters[1:]]
-            return lambda *arguments: function(*[item(*arguments) for item in parameters])
-        else:
-            "Error"
-            error_maker = 1/0
-    elif is_function(function_and_parameters):
-        return lambda *arguments: function_and_parameters() # Call without arguments
+                read_function_settings(
+                    self,
+                    function_name_with_tags,
+                    function_settings)
 
-def apply_associative_operator(main_operation, inputs):
-    return reduce(main_operation, inputs[1:], inputs[0])
+                        and
 
-def make_function_from_dict(function_settings, all_gene_names, tags_list, error_messenger):
+                turn_settings_into_functions(self, settings, caller)
+    """
 
-    command = main_command(function_settings, error_messenger)
-    inputs = function_settings[command]
+    def __init__(
+        self,
+        parent_ecosystem,
+        ecosystem_settings,
+        error_messenger=default_error_messenger
+    ):
+        self.parent_ecosystem = parent_ecosystem
+        self.ecosystem_settings = ecosystem_settings
+        self.error_messenger = error_messenger
+        self.all_operator_names = deepcopy(All_operator_names)
+        self.associative_operators = deepcopy(Associative_operators)
+        self.unary_operators = deepcopy(Unary_operators)
+        self.all_main_command_names = (
+            self.all_operator_names
+            + Commands_that_comunicate_an_organism_with_its_environment
+            + ['literal']
+        )
+        self.operators_definitions = deepcopy(Operators_definitions)
+        self.all_gene_names = extract_all_gene_names(ecosystem_settings)
+        self.biotope_feature_names = extract_biotope_feature_names(
+            ecosystem_settings)
+        self.ecosystem_feature_names = extract_ecosystem_feature_names(
+            ecosystem_settings)
+        self.all_feature_names = self.biotope_feature_names + \
+            self.ecosystem_feature_names
+        self.tags_list = []
+        for feature_name in self.biotope_feature_names:
+            if self.is_two_dimensional_feature(feature_name):
+                self.add_feature_operators(feature_name)
+        self.initialize_new_operators()
 
-    if command == 'literal':
-        return lambda *arguments: inputs # 'literal' operator returns its input without evaluate it
-    
-        """ This will be erased, because it may not be necessary:
+    def initialize_new_operators(self):
+        if 'new operators' in self.ecosystem_settings:
+            new_operators_settings = self.ecosystem_settings['new operators']
+            new_operator_names = [
+                operator for operator in new_operators_settings.keys()
+                if operator not in No_effect_commands
+            ]
+            self.all_operator_names += new_operator_names
+            self.all_main_command_names += new_operator_names
+            # The following lines are designed to initialize new operators in
+            # the right order
+            # so that some of them can be call others and must be initialized
+            # after these others:
+            progressing = True
+            while progressing:
+                progressing = False
+                for operator_name in self.ecosystem_settings['new operators']:
+                    if operator_name not in self.operators_definitions:
+                        operator_settings = self.ecosystem_settings[
+                            'new operators'][operator_name]
+                        if self.check_new_operators(
+                            operator_settings,
+                            new_operator_names
+                        ):
+                            self.add_new_operator(
+                                operator_name, operator_settings)
+                            progressing = True
 
-    elif command == 'if':
-        (condition, value_if_true, value_if_false) = \
-            [make_function(item, tags_list, error_messenger) for item in function_settings['if']]
-        return lambda *arguments: \
-            value_if_true(*arguments) \
-            if condition(*arguments) \
-            else value_if_false(*arguments)
-    
-    elif command == 'function':
-        return make_function_from_built_function(function_settings, tags_list)
-    
-    elif command == 'discrete distribution':
-        def choice_value(values_list, r, *arguments):
-            i = 0
-            while (i < len(values_list) - 1) and (r > values_list[i][0](*arguments)):
-                i += 1
-                r -= values_list[i][0](*arguments)
-            return values_list[i][1](*arguments)
-        values_list = [(make_function(pair['probability'], tags_list, error_messenger), make_function(
-            pair['value'], tags_list, error_messenger)) for pair in function_settings['discrete distribution']]
-        return lambda *arguments: choice_value(values_list, random(), *arguments)
+    def check_new_operators(self, operator_settings, new_operator_names):
         """
+            If in operator_settings is there a mention to an operator
+            of new_operator_names that
+            hasn't yet been initialized, operator_settings can't still
+            be initialized until
+            all operators that it refers to are initialized.
+            This function says whether operator_settings can be already
+            initialized  or not.
+        """
+        all_strings = extract_all_strings(operator_settings)
+        for item in all_strings:
+            if (
+                item in new_operator_names and
+                item not in self.operators_definitions
+                    ):
+                return False
+        return True
 
-    elif command == 'cost':
-        if is_string(inputs):
-            substance_name = 'energy reserve'
-            action_name = inputs
-        elif is_tuple_or_list(inputs):
-            substance_name = inputs[1]
-            action_name = inputs[0]
-        elif is_dict(inputs):
-            substance_name = inputs['substance']
-            action_name = inputs['action']
+    def add_new_operator(self, operator_name, operator_settings):
+        definition = deepcopy(operator_settings)
+        # Find output function name:
+        for item in definition:
+            if remove_tags(item) == 'output function':
+                output_function_name = item
+        # Turn function's definition into a function:
+        definition['output function'] = self.read_function_settings(
+            output_function_name,
+            definition[output_function_name]
+        )
+        # Add operator definition to self.operators_definitions:
+        self.operators_definitions[operator_name] = definition
+        # Add operator name to self.unary_operators or
+        # self.associative_operators lists if that's the case:
+        if len(get_tags_list(output_function_name)) == 1:
+            self.unary_operators.append(operator_name)
+        elif len(get_tags_list(output_function_name)) == 2 \
+            and not (
+                'is associative' in operator_settings
+                and not operator_settings['is associative']
+        ):
+            self.associative_operators.append(operator_name)
 
-        print "action_name", action_name, "substance_name", substance_name, "inputs", inputs
-        return lambda *arguments: arguments[0].parent_ecosystem.costs[action_name][substance_name](arguments[0])
+    def add_feature_operators(self, feature_name):
+        self.operators_definitions['#biotope ' + feature_name] = {
+            'check number of inputs': lambda inputs:
+            is_tuple_or_list(inputs) and (len(inputs) == 2),
+            'type of inputs': 'Number',
+            'type of output': 'Number',
+            'output function': lambda x, y:
+            self.parent_ecosystem.biotope.biotope_features[
+                feature_name].get_value(x, y)
+        }
+        self.operators_definitions['extract #biotope ' + feature_name] = {
+            'check number of inputs': lambda inputs:
+            is_tuple_or_list(inputs) and (len(inputs) == 3),
+            'type of inputs': 'Number',
+            'type of output': 'Number',
+            'output function': lambda x, y, amount:
+            -
+                self.parent_ecosystem.biotope.biotope_features[
+                    feature_name].modify(x, y, -amount)
+        }
+        operator_name = 'extract #biotope ' + feature_name + ' (percentage)'
+        self.operators_definitions[operator_name] = {
+            'check number of inputs': lambda inputs:
+            is_tuple_or_list(inputs) and (len(inputs) == 3),
+            'type of inputs': 'Number',
+            'type of output': 'Number',
+            'output function': lambda x, y, amount:
+            - self.parent_ecosystem.biotope.biotope_features[
+                feature_name].modify_proportionally(x, y, -amount)
+        }
+        self.operators_definitions['secrete #biotope ' + feature_name] = {
+            'check number of inputs': lambda inputs:
+            is_tuple_or_list(inputs) and (len(inputs) == 3),
+            'type of inputs': 'Number',
+            'type of output': 'Number',
+            'output function': lambda x, y, amount:
+            self.parent_ecosystem.biotope.biotope_features[
+                feature_name].modify(x, y, amount)
+        }
+        operator_name = 'secrete #biotope ' + feature_name + ' (percentage)'
+        self.operators_definitions[operator_name] = {
+            'check number of inputs': lambda inputs:
+            is_tuple_or_list(inputs) and (len(inputs) == 3),
+            'type of inputs': 'Number',
+            'type of output': 'Number',
+            'output function': lambda x, y, amount:
+            self.parent_ecosystem.biotope.biotope_features[
+                feature_name].modify_proportionally(x, y, amount)
+        }
+        new_operator_names = [
+            '#biotope ' + feature_name,
+            'extract #biotope ' + feature_name,
+            'extract #biotope ' + feature_name + ' (percentage)',
+            'secrete #biotope ' + feature_name,
+            'secrete #biotope ' + feature_name + ' (percentage)'
+        ]
+        self.all_operator_names += new_operator_names
+        self.all_main_command_names += new_operator_names
 
-    elif command == 'constraint':
-        return lambda *arguments: arguments[0].parent_ecosystem.constraints[inputs](arguments[0])
-
-    elif command in All_operators:
-        inputs_function = make_function(inputs, all_gene_names, tags_list, error_messenger)
-        main_operation = Operator_definition[command]['output function']
-        if command in Associative_operators:          
-            return lambda *arguments: apply_associative_operator(main_operation, inputs_function(*arguments))
-        elif command in Unary_operators:
-            return lambda *arguments: main_operation(inputs_function(*arguments))
+    def is_two_dimensional_feature(self, feature_name):
+        if (
+            'biotope features' in self.ecosystem_settings[
+                'biotope'] and
+            feature_name in self.ecosystem_settings[
+                'biotope']['biotope features'] and
+            'matrix size' in self.ecosystem_settings[
+                'biotope']['biotope features'][feature_name]
+        ):
+            return True
         else:
-            return lambda *arguments: main_operation(*(inputs_function(*arguments)))
-    
+            return False
 
-    print "Hey, dude! We shouldn't be here!"
-    #print_dictionary( function_settings )
-    error_messenger('Syntax error in', function_settings)
-    error_messenger('Unknown command', command)
-    error_maker = 1/0
+    def make_function_from_string(self, function_settings):
+        if function_settings in self.tags_list:
+            """ EXAMPLE:
+                'my_function #x #y': '#x'
+            """
+            tag_position = self.tags_list.index(function_settings)
+            return lambda *arguments: arguments[tag_position]
+        else:
+            hash_position = function_settings.find('#')
+            if hash_position == 0:
+                length = function_settings.find(' ')
+                tag = function_settings[:length]
+                attribute_name = function_settings[length + 1:]
+                if tag in self.tags_list:
+                    """ EXAMPLE:
+                        'my function #prey': '#prey defense capacity'
+                    """
+                    tag_position = self.tags_list.index(tag)
+                    return lambda *arguments: arguments[tag_position][
+                        attribute_name]
 
-def constrain_function_to_allowed_interval(function_to_return, interval_settings):
-    if hasattr(interval_settings, '__iter__') and not is_dict(interval_settings):
-        lower_bound = make_function(
-            interval_settings[0], tags_list, error_messenger)
-        upper_bound = make_function(
-            interval_settings[1], tags_list, error_messenger)
-    else:
-        interval = make_function(interval_settings, tags_list, error_messenger)
-    bounded_value = lambda value, a, b: a if value < a else b if value > b else value
-    if number_of_organisms == 0:
+                elif tag in ['#ecosystem', '#biotope']:
+                    """
+                        Inside 'constraints', 'cost' or 'genes',
+                                    self.tags_list[0] = '#organism'.
+                        Then, '#ecosystem' and '#biotope' may not be
+                        in self.tags_list.
+                        EXAMPLE:
+                        '#ecosystem maximum population allowed'
+                    """
+                    if attribute_name in self.ecosystem_feature_names:
+                        return lambda *arguments: arguments[0].\
+                            parent_ecosystem.\
+                            ecosystem_features[attribute_name].get_value()
+                    elif attribute_name in self.biotope_feature_names:
+                        return lambda *arguments: arguments[0].\
+                            parent_ecosystem.biotope.\
+                            biotope_features[attribute_name].get_value()
+                    else:
+                        self.error_messenger(
+                            'Unknown feature',
+                            attribute_name,
+                            'in',
+                            function_settings
+                        )
+                        halt()
+                else:
+                    self.error_messenger(
+                        'Syntax error in ',
+                        function_settings,
+                        tag,
+                        'not in tags list',
+                        self.tags_list
+                    )
+                    halt()
+            elif hash_position == -1:
+                """
+                    In this case there isn't a tag inside function_settings
+                """
+                if function_settings in self.all_gene_names:
+                    """ EXAMPLE:
+                        'attack capacity'
+                        In this case we asume that
+                        self.tags_list[0] = '#organism'
+                    """
+                    return lambda *arguments: arguments[0][function_settings]
+                    # return lambda *arguments: arguments[0][
+                    #     function_settings]\
+                    # if self.error_messenger(arguments) else 0
+                elif (
+                    function_settings in self.ecosystem_feature_names
+                    # and self.tags_list[0] == '#ecosystem'
+                ):
+                    """ EXAMPLE:
+                        '#maximum population allowed'
+                    """
+                    if self.tags_list[0] == '#ecosystem':
+                        return lambda *arguments: arguments[0]\
+                            .ecosystem_features[function_settings].get_value()
+                    elif self.tags_list[0] in ['#biotope', '#organism']:
+                        return lambda *arguments: arguments[0].\
+                            parent_ecosystem.ecosystem_features[
+                                function_settings].get_value()
+                elif (
+                    function_settings in self.biotope_feature_names
+                    # and self.tags_list[0] == '#biotope'
+                ):
+                    """ EXAMPLE:
+                        '#seasons speed'
+                    """
+                    if self.tags_list[0] == '#ecosystem':
+                        return lambda *arguments: arguments[0]\
+                            .biotope.biotope_features[
+                                function_settings].get_value()
+                    elif self.tags_list[0] == '#biotope':
+                        return lambda *arguments: arguments[0]\
+                            .biotope_features[function_settings].get_value()
+                    elif self.tags_list[0] == '#organism':
+                        return lambda *arguments: arguments[0]\
+                            .parent_ecosystem.biotope.biotope_features[
+                                function_settings].get_value()
+                elif function_settings == 'normalized location x':
+                    return lambda *arguments: (
+                        float(arguments[0]['location'][0]) /
+                        arguments[0].parent_ecosystem.biotope.size_x()
+                    )
+                elif function_settings == 'normalized location y':
+                    return lambda *arguments: (
+                        float(arguments[0]['location'][1]) /
+                        arguments[0].parent_ecosystem.biotope.size_y()
+                    )
+                elif function_settings == 'time':
+                    if self.tags_list[0] in ['#organism', '#biotope']:
+                        return lambda *arguments: arguments[0].\
+                            parent_ecosystem.time
+                    elif self.tags_list[0] == '#ecosystem':
+                        return lambda *arguments: arguments[0].time
+                else:
+                    """ EXAMPLE:
+                        The value of a gene could be a string, like 'Plants':
+
+                        {'if': (
+                            {'!=': (
+                                'category name',
+                                'Plants'
+                            )},
+                            0,
+                            1
+                        )}
+
+                        In this example, function_settings = 'Plants'
+                    """
+                    return lambda *arguments: function_settings
+            else:
+                self.error_messenger('Syntax error. ', function_settings)
+                halt()
+
+    def apply_associative_operator(self, main_operation, inputs):
+        """ EXAMPLE:
+            {'+': (1, 2, 3, 4, 5)}
+            In this case we have to apply several times the operator '+'
+        """
+        # print "associative", inputs # ***
+        return reduce(main_operation, inputs[1:], inputs[0])
+
+    def main_command(self, expression, error_messenger):
+        if is_dict(expression):
+            for command in expression:
+                # not all commands can be the main command. For example
+                # 'allowed interval' of 'help' can't be main commands
+                if command in self.all_main_command_names:
+                    return command
+        self.error_messenger('Syntax error. Command not found in', expression)
+        return None
+
+    def make_function_from_dict(self, function_settings):
+        command = self.main_command(function_settings, self.error_messenger)
+        if command in function_settings:
+            inputs = function_settings[command]
+        else:
+            self.error_messenger(
+                'Main command not found in', function_settings)
+            print 'ALL MAIN COMMANDS:'  # ***
+            for one_command in self.all_main_command_names:
+                print one_command
+            halt()
+
+        if command == 'literal':
+            # 'literal' operator returns its input without evaluate it
+            return lambda *arguments: inputs
+
+        elif command == 'cost':
+            if is_string(inputs):
+                substance_name = 'energy reserve'
+                action_name = inputs
+            elif is_tuple_or_list(inputs):
+                substance_name = inputs[1]
+                action_name = inputs[0]
+            elif is_dict(inputs):
+                substance_name = inputs['substance']
+                action_name = inputs['action']
+            # print "action_name", action_name, "substance_name",
+            # substance_name, "inputs", inputs # ***
+            return lambda *arguments: arguments[0].parent_ecosystem\
+                .costs[action_name][substance_name](arguments[0])
+
+        elif command == 'constraint':
+            return lambda *arguments: arguments[0].parent_ecosystem\
+                .constraints[inputs](arguments[0])
+
+        elif command in self.all_operator_names:
+            inputs_function = self.make_function(inputs)
+            main_operation = self.operators_definitions[
+                command]['output function']
+            if command in self.associative_operators:
+                return lambda *arguments: self.apply_associative_operator(
+                    main_operation,
+                    inputs_function(*arguments)
+                )
+            elif command in self.unary_operators:
+                if print_operators:  # ***
+                    return lambda *arguments: main_operation(
+                        inputs_function(*arguments)) \
+                        if self.error_messenger(command, '') \
+                        else main_operation(inputs_function(*arguments))
+                else:
+                    return lambda *arguments: \
+                        main_operation(inputs_function(*arguments))
+            else:
+                if print_operators:  # ***
+                    return lambda *arguments: \
+                        main_operation(*(inputs_function(*arguments))) \
+                        if self.error_messenger(command, '') \
+                        else main_operation(*(inputs_function(*arguments)))
+                else:
+                    return lambda *arguments: \
+                        main_operation(*(inputs_function(*arguments)))
+        else:
+            self.error_messenger('Syntax error in', function_settings)
+            self.error_messenger('Unknown command', command)
+            halt()
+
+    def constrain_function_to_allowed_interval(
+        self,
+        function_to_return,
+        interval_functions
+            ):
         return lambda *arguments: bounded_value(
-            function_to_return(*arguments), 
-            lower_bound(*arguments), 
-            upper_bound(*arguments))
+            function_to_return(*arguments),
+            *interval_functions(*arguments)
+        )  # if self.error_messenger(interval_functions(*arguments)) else 0
 
-def make_function(function_settings, all_gene_names, tags_list = [], error_messenger = default_error_messenger):
-    
-    if is_number(function_settings) or is_function(function_settings):
-        return lambda *arguments: function_settings
-    elif is_string(function_settings):
-        return make_function_from_string(function_settings, all_gene_names, tags_list, error_messenger)
-    elif is_tuple_or_list(function_settings):
-        terms = [make_function(item, all_gene_names, tags_list, error_messenger)
-                 for item in function_settings]
-        return lambda *arguments: [item(*arguments) for item in terms] # This is necessary for 'shuffle' operator
-    elif is_dict(function_settings):
-        function_to_return = make_function_from_dict(function_settings, all_gene_names, tags_list, error_messenger)
-        if 'allowed interval' in function_settings:
-            return constrain_function_to_allowed_interval(
-                function_to_return, 
-                function_settings['allowed interval'])
+    def make_function(self, function_settings):
+        if print_methods_names:  # ***
+            print 'make_function', self.tags_list
+            print function_settings
+
+        if is_number(function_settings):
+            return lambda *arguments: function_settings
+
+        elif is_function(function_settings):
+            return function_settings
+
+        elif is_string(function_settings):
+            return self.make_function_from_string(function_settings)
+
+        elif is_tuple_or_list(function_settings):
+            terms = [self.make_function(item) for item in function_settings]
+            # This is necessary for 'shuffle' operator
+            return lambda *arguments: [item(*arguments) for item in terms]
+
+        elif is_dict(function_settings):
+            function_to_return = self.make_function_from_dict(
+                function_settings)
+            if 'allowed interval' in function_settings:
+                allowed_interval = self.make_function(
+                    function_settings['allowed interval'])
+                return self.constrain_function_to_allowed_interval(
+                    function_to_return,
+                    allowed_interval)
+            else:
+                return function_to_return
+
         else:
-            return function_to_return
+            self.error_messenger(
+                'Warning. Unevaluated function settings:', function_settings)
+            return lambda *arguments: function_settings
 
+    def read_function_settings(
+        self,
+        function_name_with_tags,
+        function_settings
+            ):
+        """
+        In this EXAMPLE:
 
-def read_function_settings(function_name, function_settings, error_messenger = default_error_messenger):
-    return make_function(function_settings, get_tags_list(function_name), error_messenger)
+                        {'initial value #x #y': {
+                            'if': (
+                                {'random true': 0.03},
+                                {'uniform': [0, 10]},
+                                {'*': (2.5, '#x', '#y')}
+                            )}
+                        }
 
+        function_name_with_tags = 'initial value #x #y'
+        function_settings = {'initial value #x #y': {
+                                'if': (
+                                    {'random true': 0.03},
+                                    {'uniform': [0, 10]},
+                                    {'*': (2.5, '#x', '#y')}
+                                )}
+                            }
 
+        and this method returns an actual function that takes
+        two arguments x and y
+        """
+        self.tags_list = get_tags_list(function_name_with_tags)
+        function_to_return = self.make_function(function_settings)
+        self.tags_list = []
+        return function_to_return
 
+    def turn_settings_into_functions(self, settings, caller):
+        if not is_dict(settings):
+            return self.read_function_settings(caller, settings)
+        result = {}
+        for item in settings:
+            # print 'turning', item, 'into function', settings[item] # ***
+            if item == 'offer to sell':
+                offer_to_sell = {}
+                self.tags_list = [caller, ]
+                offer_to_sell['amount'] = self.make_function(
+                    settings['offer to sell']['amount']
+                )
+                price = {}
+                for substance in settings['offer to sell']['prices']:
+                    price[substance] = self.make_function(
+                        settings['offer to sell']['prices'][substance]
+                    )
+                offer_to_sell['prices'] = price
+                result['offer to sell'] = offer_to_sell
+            elif item not in No_effect_commands:
+                function_name = remove_tags(item)
+                self.tags_list = [caller, ] + get_tags_list(item)
+                # print 'tags_list', self.tags_list # ***
+                result[function_name] = self.make_function(settings[item])
+        if 'allowed interval' in settings:
+            for function_name in result:
+                if function_name not in ['allowed interval', 'offer to sell']:
+                    result[function_name] = \
+                        self.constrain_function_to_allowed_interval(
+                            result[function_name],
+                            result['allowed interval']
+                    )
+        self.tags_list = []
+        return result

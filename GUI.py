@@ -1,5 +1,5 @@
 import pygame
-from Tools import *
+from Basic_tools import *
 # from pygame.locals import *
 # from random import random
 # sfrom time import sleep  # To remove
@@ -31,9 +31,9 @@ class GUI(object):
             o_y = organism['location'][1] * self.zoom
             # Draw organism
             # TODO: Define proper color
-            if 'color' in organism:   
-                o_color = organism['color'](organism)
-                #print o_color
+            if 'color' in organism:
+                o_color = organism['color']
+                # print o_color
             elif organism['speed'] == 0.0:
                 o_color = (0, 150, 0)
             else:
@@ -68,7 +68,8 @@ class GUI(object):
 
     def handle_events(self):
         """
-        # Este metodo no deberia llamar a algun metodo como pygame.handle_events o algo asi?
+        # Este metodo no deberia llamar a algun metodo como
+        # pygame.handle_events o algo asi?
         """
         pass  # Get events and modify Ecosystem accordingly
 
