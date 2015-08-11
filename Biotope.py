@@ -108,6 +108,7 @@ class Feature_map(object):  # A function f(x, y)
             self.time_of_next_update += self.update_once_every
 
     def get_value(self, x, y):
+        # PRECONDITION:  0 <= x <= 1,  0 <= y <= 1
         for n in (x, y, self.size_x, self.size_y):
             if not is_number(n):
                 print n, 'is not a FLOAT!!!'  # ***
@@ -118,6 +119,7 @@ class Feature_map(object):  # A function f(x, y)
             ]
 
     def set_value(self, x, y, new_value):
+        # PRECONDITION:  0 <= x <= 1,  0 <= y <= 1
         self.current_value[
             int(round(x * self.size_x)),
             int(round(y * self.size_y))
@@ -125,12 +127,14 @@ class Feature_map(object):  # A function f(x, y)
         return new_value
 
     def modify_proportionally(self, x, y, proportion):
+        # PRECONDITION:  0 <= x <= 1,  0 <= y <= 1
         value = self.get_value(x, y)
         increment = proportion * value
         self.set_value(x, y, value + increment)
         return increment
 
     def modify(self, x, y, increment):
+        # PRECONDITION:  0 <= x <= 1,  0 <= y <= 1
         value = self.get_value(x, y) + increment
         self.set_value(x, y, value)
         return increment

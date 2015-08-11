@@ -164,7 +164,7 @@ class Function_maker:
                 self.parent_ecosystem.biotope.biotope_features[
                     feature_name].modify(x, y, -amount)
         }
-        operator_name = 'extract #biotope ' + feature_name + ' (percentage)'
+        operator_name = 'extract #biotope ' + feature_name + ' (proportion)'
         self.operators_definitions[operator_name] = {
             'check number of inputs': lambda inputs:
             is_tuple_or_list(inputs) and (len(inputs) == 3),
@@ -183,7 +183,7 @@ class Function_maker:
             self.parent_ecosystem.biotope.biotope_features[
                 feature_name].modify(x, y, amount)
         }
-        operator_name = 'secrete #biotope ' + feature_name + ' (percentage)'
+        operator_name = 'secrete #biotope ' + feature_name + ' (proportion)'
         self.operators_definitions[operator_name] = {
             'check number of inputs': lambda inputs:
             is_tuple_or_list(inputs) and (len(inputs) == 3),
@@ -196,9 +196,9 @@ class Function_maker:
         new_operator_names = [
             '#biotope ' + feature_name,
             'extract #biotope ' + feature_name,
-            'extract #biotope ' + feature_name + ' (percentage)',
+            'extract #biotope ' + feature_name + ' (proportion)',
             'secrete #biotope ' + feature_name,
-            'secrete #biotope ' + feature_name + ' (percentage)'
+            'secrete #biotope ' + feature_name + ' (proportion)'
         ]
         self.all_operator_names += new_operator_names
         self.all_main_command_names += new_operator_names
@@ -326,6 +326,14 @@ class Function_maker:
                     return lambda *arguments: (
                         float(arguments[0]['location'][1]) /
                         arguments[0].parent_ecosystem.biotope.size_y()
+                    )
+                elif function_settings == 'normalized abcissa unit':
+                    return lambda *arguments: (
+                        1.0 / arguments[0].parent_ecosystem.biotope.size_x()
+                    )
+                elif function_settings == 'normalized ordinate unit':
+                    return lambda *arguments: (
+                        1.0 / arguments[0].parent_ecosystem.biotope.size_y()
                     )
                 elif function_settings == 'time':
                     if self.tags_list[0] in ['#organism', '#biotope']:

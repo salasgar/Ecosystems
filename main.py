@@ -1,7 +1,7 @@
 from GUI import GUI
 from Basic_tools import *
 from Biotope import *
-from Settings import *
+from geology_example import *
 from Organism import *
 from time import sleep
 from Ecosystem import *
@@ -68,7 +68,7 @@ def main():
     time_lapse = 2
     Total_time = 500000
 
-    ecosystem = Ecosystem(my_example_of_ecosystem_settings)
+    ecosystem = Ecosystem(ecosystem_settings)
 
     ecosystem.minimum_population_allowed = 200
 

@@ -134,6 +134,8 @@ _operator_definitions = {
     }
 }
 
+# FEATURES:
+
 _sunlight = {
     'matrix size': (25, 25),
     # No matters the size of the ecosystem (it might be changed later for
@@ -190,7 +192,7 @@ _temperature = {
             cent of the accumulated heat is lost in every cycle.
         """,
         '*': (
-            # this is the percentage (93 per cent) of the heat that remains in
+            # this is the proportion (85 per cent) of the heat that remains in
             # the biotope:
             0.85,
             {'+': (
@@ -228,20 +230,20 @@ _nutrient_A = {
                 0.05,
                 {'+': (
                     {'#biotope nutrient A': (
-                        {'+': ('#x', 1)},
+                        {'+': ('#x', 'normalized abcissa unit')},
                         '#y'
                     )},
                     {'#biotope nutrient A': (
-                        {'-': ('#x', 1)},
+                        {'-': ('#x', 'normalized abcissa unit')},
                         '#y'
                     )},
                     {'#biotope nutrient A': (
                         '#x',
-                        {'+': ('#y', 1)},
+                        {'+': ('#y', 'normalized ordinate unit')},
                     )},
                     {'#biotope nutrient A': (
                         '#x',
-                        {'-': ('#y', 1)}
+                        {'-': ('#y', 'normalized ordinate unit')}
                     )}
                 )}
             )}
@@ -270,28 +272,28 @@ _nutrient_B = {
                 # the location (#x, #y) keeps the 90 per cent of its amount
                 # of nutrient B:
                 0.90,
-                {'#biotope nutrient A': ('#x', '#y')}
+                {'#biotope nutrient B': ('#x', '#y')}
             )},
             {'*': (
                 # the location (#x, #y) gets the 2,5 per cent from each
                 # of the adjacent locations:
                 0.025,
                 {'+': (
-                    {'#biotope nutrient A': (
-                        {'+': ('#x', 1)},
+                    {'#biotope nutrient B': (
+                        {'+': ('#x', 'normalized abcissa unit')},
                         '#y'
                     )},
-                    {'#biotope nutrient A': (
-                        {'-': ('#x', 1)},
+                    {'#biotope nutrient B': (
+                        {'-': ('#x', 'normalized abcissa unit')},
                         '#y'
                     )},
-                    {'#biotope nutrient A': (
+                    {'#biotope nutrient B': (
                         '#x',
-                        {'+': ('#y', 1)},
+                        {'+': ('#y', 'normalized ordinate unit')},
                     )},
-                    {'#biotope nutrient A': (
+                    {'#biotope nutrient B': (
                         '#x',
-                        {'-': ('#y', 1)}
+                        {'-': ('#y', 'normalized ordinate unit')}
                     )}
                 )}
             )}
@@ -502,7 +504,7 @@ _gene_energy_reserve = {
             'energy reserve',
             {'*': (
                 '#ecosystem autotrophs productivity',
-                {'extract #biotope sunlight (percentage)': (
+                {'extract #biotope sunlight (proportion)': (
                     'normalized location x',
                     'normalized location y',
                     {'curve from 0 to 1': 'photosynthesis capacity'}
@@ -535,7 +537,7 @@ _gene_nutrient_A_reserve = {
     'value in next cycle': {
         '+': (
             'nutrient A reserve',
-            {'extract #biotope nutrient A (percentage)': (
+            {'extract #biotope nutrient A (proportion)': (
                 'normalized location x',
                 'normalized location y',
                 {'curve from 0 to 1': 'nutrient A extraction capacity'}
@@ -556,7 +558,7 @@ _gene_nutrient_B_reserve = {
     'value in next cycle': {
         '+': (
             'nutrient B reserve',
-            {'extract #biotope nutrient B (percentage)': (
+            {'extract #biotope nutrient B (proportion)': (
                 'normalized location x',
                 'normalized location y',
                 {'curve from 0 to 1': 'nutrient B extraction capacity'}

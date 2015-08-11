@@ -8,16 +8,16 @@ from types import FunctionType
 print_ages = False
 print_organisms = False
 print_deths = False
-print_number_of_deths = True
+print_number_of_deths = False
 print_killed = False
 print_costs = False
 print_reserves = False
 print_births = False
-print_number_of_births = True
+print_number_of_births = False
 print_methods_names = False
 print_operators = False
-print_trade_transactions = 0.001  # print x per cent of them
-print_metabolic_speed = 10
+print_trade_transactions = 0.0  # print x per cent of them
+print_metabolic_speed = 0
 
 
 class Default:
@@ -413,11 +413,20 @@ def extract_all_gene_names(ecosystem_settings):
 
 
 def extract_biotope_feature_names(ecosystem_settings):
-    return ecosystem_settings['biotope']['biotope features'].keys()
+    if (
+        'biotope' in ecosystem_settings and
+        'biotope features' in ecosystem_settings['biotope']
+            ):
+        return ecosystem_settings['biotope']['biotope features'].keys()
+    else:
+        return []
 
 
 def extract_ecosystem_feature_names(ecosystem_settings):
-    return ecosystem_settings['ecosystem features'].keys()
+    if 'ecosystem features' in ecosystem_settings:
+        return ecosystem_settings['ecosystem features'].keys()
+    else:
+        return []
 
 
 def extract_all_feature_names(ecosystem_settings):
@@ -503,3 +512,9 @@ def default_error_messenger(*error_messages):
             else:
                 print message
     return True
+
+
+def halt():
+    # Esto es para salir del programa debido a algun error. Seguro
+    # que hay una funcion para eso. Ya la buscare.
+    print 1/0

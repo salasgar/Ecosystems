@@ -267,3 +267,4 @@ class Ecosystem(object):
 
     def get_random_organisms(self, number_of_random_organisms):
         return sample(self.organisms_list, number_of_random_organisms)
+        

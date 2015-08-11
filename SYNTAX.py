@@ -248,6 +248,13 @@ Operators_definitions = {
         'output function': lambda x, y: x % y
     },
 
+    'max': {
+        'check number of inputs': lambda inputs:
+            is_tuple_or_list(inputs) and (len(inputs) > 2),
+        'type of inputs': 'Number',
+        'type of output': 'Number',
+        'output function': lambda *inputs: max(*inputs)
+    },
 
     # BOOLEAN OPERATORS:
 
@@ -642,6 +649,7 @@ All_operator_names = [
     '//',
     '%',
     'mod',
+    'max',
 
     # BOOLEAN OPERATORS:
     '>',
@@ -763,6 +771,7 @@ Binary_operators = [
     '//',
     '%',
     'mod',
+    'max',  # 'max' can be binary, ternary, etc...
 
     # BOOLEAN OPERATORS:
     '>',
@@ -783,7 +792,8 @@ Binary_operators = [
 ]
 
 Ternary_operators = [
-    'if'
+    'if',
+    'max'  # 'max' can be binary, ternary, etc...
 ]
 
 Associative_operators = [
@@ -792,6 +802,7 @@ Associative_operators = [
     'and', 'AND', '&', '&&',
     'or', 'OR', '|', '||',
     'xor', 'XOR',
+    # despite 'max' is associative, we don't need to calculate it this way
 ]
 
 Operators_with_boolean_output = [
@@ -819,6 +830,7 @@ Operators_with_numeric_output = [
     '//',
     '%',
     'mod',
+    'max',
 
     # UNARY OPERATORS:
     'abs',
@@ -877,6 +889,7 @@ Operators_with_numeric_inputs = [
     '//',
     '%',
     'mod',
+    'max',
     '>',
     '<',
     '>=',
@@ -896,7 +909,8 @@ Operators_with_boolean_inputs = [
 ]
 
 Operators_with_list_inputs = [
-    'shuffle'
+    'shuffle',
+    'max'  # 'max' can be binary, ternary, etc...
 ]  # do not put + Associative_operators here
 
 Operators_with_inputs_of_any_type = [
