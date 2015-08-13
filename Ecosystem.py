@@ -1,6 +1,5 @@
 from Basic_tools import *
 from Biotope import *
-from Settings import *
 from Organism import *
 from time import *
 from SYNTAX import *
@@ -17,7 +16,7 @@ logger = logging.getLogger('ecosystems')
 
 class Ecosystem(object):
 
-    def __init__(self, ecosystem_settings):
+    def __init__(self, ecosystem_settings, elements_to_store={}):
         self.settings = ecosystem_settings
         self.all_gene_names = extract_all_gene_names(self.settings)
         self.function_maker = Function_maker(self, ecosystem_settings)
@@ -36,7 +35,9 @@ class Ecosystem(object):
             # to do: add more thigs
         }
         self.initialize_statistics()
-        self.data_storer = Data_storer(self, Elements_to_store)
+        self.data_storer = Data_storer(self, elements_to_store)
+        self.number_of_new_deths = 0
+        self.number_of_new_births = 0
 
     def __getitem__(self, code):
         if code == 'biotope':
@@ -53,7 +54,7 @@ class Ecosystem(object):
             return self.time
         else:
             print 'Unknown element of ecosystem'
-            halt()
+            exit()
 
     def initialize_biotope(self):
         print 'initialize_biotope'
@@ -78,15 +79,18 @@ class Ecosystem(object):
         print 'initialize_costs'
         self.costs = {}
         if 'costs' in self.settings:
-            for action_name in self.settings['costs']:
-                self.costs[action_name] = {}
-                for reserve_substance in self.settings['costs'][action_name]:
+            for action_name_with_tags in self.settings['costs']:
+                tags_list = get_tags_list(action_name_with_tags)
+                action_name = remove_tags(action_name_with_tags)
+                self.costs[action_name] = {'tags list': tags_list}
+                cost_settings = self.settings['costs'][action_name_with_tags]
+                for reserve_substance in cost_settings:
                     self.costs[action_name][reserve_substance] = \
-                        self.function_maker.read_function_settings(
-                            action_name,
-                            self.settings['costs'][action_name][
-                                reserve_substance]
-                    )
+                        self.function_maker.make_function_with_tags_dictionary(
+                            action_name_with_tags,
+                            cost_settings[reserve_substance],
+                            caller='#organism'
+                        )
 
     def initialize_constraints(self):
         print 'initialize_constraints'
@@ -98,6 +102,13 @@ class Ecosystem(object):
                         constraint_name,
                         self.settings['constraints'][constraint_name]
                 )
+        if (
+            'constraints' not in self.settings
+            or (
+                'constraints' in self.settings
+                and 'die' not in self.settings['constraints']
+                )):
+            self.constraints['die'] = lambda *inputs: False
 
     def initialize_statistics(self):
         print 'initialize_statistics'
@@ -147,9 +158,9 @@ class Ecosystem(object):
         # print 'delete organism' # ***
         self.biotope.delete_organism(organism['location'])
         if organism in self.newborns:
-            del self.newborns[self.newborns.index(organism)]
+            self.newborns.remove(organism)
         if organism in self.organisms_list:
-            del self.organisms_list[self.organisms_list.index(organism)]
+            self.organisms_list.remove(organism)
 
     def size_x(self):
         return self.biotope['size'][0]
@@ -203,6 +214,9 @@ class Ecosystem(object):
         self.newborns = []
 
     def evolve(self):
+        # This sentence stores data in the buffer of self.data_storer, and
+        # if it's time, it also flushes the buffer into the file:
+        self.data_storer.store_data()
         # Biotope actions:
         self.biotope.evolve()
         # Ecosystem actions:
@@ -210,9 +224,9 @@ class Ecosystem(object):
             self.ecosystem_features[feature].update()
         # Organisms actions:
         i = 0
-        number_of_deths = 0
+        self.number_of_new_deths = 0
         while i < len(self.organisms_list):
-            self.organisms_list[i].act()
+            self.organisms_list[i].evolve()
             i += 1
             for dead_organism in self.new_deads:
                 # the organism may be in self.organisms_list or
@@ -225,15 +239,10 @@ class Ecosystem(object):
                 # this erases the organism from the biotope too:
                 self.delete_organism(dead_organism)
                 # print "number of organisms", len(self.organisms_list) # ***
-            if print_number_of_deths:
-                number_of_deths += len(self.new_deads)
+            self.number_of_new_deths += len(self.new_deads)
             self.new_deads = []
-        if print_number_of_deths:
-            print 'Number of deths:', number_of_deths,
-            number_of_deths = 0
-        if print_number_of_births:
-            print 'New births:', len(self.newborns),
         self.organisms_list += self.newborns
+        self.number_of_new_births = len(self.newborns)
         self.newborns = []
         self.time += 1
 
@@ -264,3 +273,4 @@ class Ecosystem(object):
 
     def get_random_organisms(self, number_of_random_organisms):
         return sample(self.organisms_list, number_of_random_organisms)
+        

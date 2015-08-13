@@ -17,17 +17,19 @@ class Feature(object):  # A float variable
             )
         self.current_value = functions_dict['initial value'](
             self.parent_ecosystem)
-        if 'value after updating' in functions_dict:
+        try:
             self.calculate_value_after_update = functions_dict[
                 # we take the function without calling it
                 'value after updating']
-            if 'update once every' in functions_dict:
+            try:
                 self.update_once_every = functions_dict[
                     'update once every'](self.parent_ecosystem)
-            else:
+            except:
                 self.update_once_every = 1
             self.time_of_next_update = \
                 self.parent_ecosystem.time + self.update_once_every
+        except:
+            pass
 
     def update(self):  # or def evolve(self):
         # print 'Updating', self.feature_name # ***
@@ -78,17 +80,19 @@ class Feature_map(object):  # A function f(x, y)
                         self.parent_ecosystem,
                         float(i) / size_x,
                         float(j) / size_y)
-        if 'value after updating' in functions_dict:
+        try:
             self.calculate_value_after_update = functions_dict[
                 'value after updating'
             ]  # we take the function without calling it
-            if 'update once every' in functions_dict:
+            try:
                 self.update_once_every = functions_dict['update once every'](
                     self.parent_ecosystem)
-            else:
+            except:
                 self.update_once_every = 1
             self.time_of_next_update = (
                 self.parent_ecosystem.time + self.update_once_every)
+        except:
+            pass
 
     def update(self):  # or   def evolve(self):
         # print 'Updating', self.feature_name # ***
@@ -108,16 +112,18 @@ class Feature_map(object):  # A function f(x, y)
             self.time_of_next_update += self.update_once_every
 
     def get_value(self, x, y):
+        # PRECONDITION:  0 <= x <= 1,  0 <= y <= 1
         for n in (x, y, self.size_x, self.size_y):
             if not is_number(n):
                 print n, 'is not a FLOAT!!!'  # ***
-                halt()
+                exit()
         return self.current_value[
             int(round(x * self.size_x)),
             int(round(y * self.size_y))
             ]
 
     def set_value(self, x, y, new_value):
+        # PRECONDITION:  0 <= x <= 1,  0 <= y <= 1
         self.current_value[
             int(round(x * self.size_x)),
             int(round(y * self.size_y))
@@ -125,12 +131,14 @@ class Feature_map(object):  # A function f(x, y)
         return new_value
 
     def modify_proportionally(self, x, y, proportion):
+        # PRECONDITION:  0 <= x <= 1,  0 <= y <= 1
         value = self.get_value(x, y)
         increment = proportion * value
         self.set_value(x, y, value + increment)
         return increment
 
     def modify(self, x, y, increment):
+        # PRECONDITION:  0 <= x <= 1,  0 <= y <= 1
         value = self.get_value(x, y) + increment
         self.set_value(x, y, value)
         return increment
@@ -178,9 +186,9 @@ class Biotope(object):
         # The 'distance' between two points A and B is subjective. Depends on
         # the topology of the biotope (currently it's a flat torus) and the
         # metric we use (euclidean, chess, taxicab,...). So, we define:
-        if 'distance' in self.settings:
+        try:
             self.set_distance(self.settings['distance'])
-        else:
+        except:
             self.set_distance('euclidean distance')
 
     def __getitem__(self, keys):
@@ -252,9 +260,9 @@ class Biotope(object):
 
     def add_organism(self, organism, location='find location'):
         if location == 'find location':
-            if 'location' in organism.keys():
+            try:
                 location = organism['location']
-            else:
+            except:
                 location = self.seek_free_location()
         if location is not None and self.organisms_matrix[location] is None:
             # this way we assure that everything is in its place

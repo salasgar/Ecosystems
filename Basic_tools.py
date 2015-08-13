@@ -2,21 +2,25 @@ from random import *
 from functools import reduce
 from math import *
 from copy import *
-from types import FunctionType
+from types import FunctionType, MethodType, LambdaType
+from sys import exit
 
 # Variables for debuggin: # ***
 print_ages = False
 print_organisms = False
 print_deths = False
-print_number_of_deths = True
+print_number_of_deths = False
 print_killed = False
 print_costs = False
 print_reserves = False
 print_births = False
-print_number_of_births = True
+print_number_of_births = False
 print_methods_names = False
 print_operators = False
-print_trade_transactions = 0.01  # print x per cent of them
+print_trade_transactions = 0.0  # print x per cent of them
+print_metabolic_speed = 0
+Store_data = False
+draw_geology = True
 
 
 class Default:
@@ -31,7 +35,7 @@ DEFAULT = Default()
 
 class Matrix(object):
 
-    def __init__(self, size_x, size_y, value=None):
+    def __init__(self, size_x=1, size_y=1, value=None):
         self.data = [[value] * size_y for i in range(size_x)]
         # No usar [[None] * size_y] * size_x, ya que no hace copia profunda
         self.size_x = size_x
@@ -44,6 +48,37 @@ class Matrix(object):
     def __setitem__(self, coordinates, value):
         x, y = coordinates
         self.data[x % self.size_x][y % self.size_y] = value
+
+    def get_value_from_normalized_x_y(x, y):
+        return self[x*self.size_x, y*self.size_y]
+
+    def copy_matrix(self, other_matrix):
+        if isinstance(other_matrix, Matrix):
+            self = other_matrix
+        else:
+            self.size_x = len(other_matrix)
+            self.size_y = len(other_matrix[0])
+            self.data = other_matrix
+
+    def deep_copy_matrix(self, other_matrix):
+        if isinstance(other_matrix, Matrix):
+            self.size_x = other_matrix.size_x
+            self.size_y = other_matrix.size_y
+            self.data = deepcopy(other_matrix.data)
+        else:
+            self.size_x = len(other_matrix)
+            self.size_y = len(other_matrix[0])
+            self.data = deepcopy(other_matrix)
+
+    def copy(self):  # returns a copy of itself
+        new_matrix = Matrix()
+        new_matrix.copy_matrix(self)
+        return new_matrix
+
+    def deep_copy(self):  # returns a copy of itself
+        new_matrix = Matrix()
+        new_matrix.deep_copy_matrix(self)
+        return new_matrix
 
     def __str__(self, traspose=False):
         if traspose:
@@ -70,7 +105,7 @@ def is_string(x):
 
 
 def is_function(x):
-    return isinstance(x, FunctionType)
+    return isinstance(x, (MethodType, FunctionType, LambdaType))
 
 
 def is_dict(x):
@@ -90,7 +125,7 @@ def is_tuple(x):
 
 
 def is_tuple_or_list(x):
-    return isinstance(x, list) or isinstance(x, tuple)
+    return isinstance(x, (list, tuple))
 
 
 def is_boolean(x):
@@ -381,11 +416,20 @@ def extract_all_gene_names(ecosystem_settings):
 
 
 def extract_biotope_feature_names(ecosystem_settings):
-    return ecosystem_settings['biotope']['biotope features'].keys()
+    if (
+        'biotope' in ecosystem_settings and
+        'biotope features' in ecosystem_settings['biotope']
+            ):
+        return ecosystem_settings['biotope']['biotope features'].keys()
+    else:
+        return []
 
 
 def extract_ecosystem_feature_names(ecosystem_settings):
-    return ecosystem_settings['ecosystem features'].keys()
+    if 'ecosystem features' in ecosystem_settings:
+        return ecosystem_settings['ecosystem features'].keys()
+    else:
+        return []
 
 
 def extract_all_feature_names(ecosystem_settings):
@@ -431,7 +475,7 @@ def get_tags_list(function_name):
         if hash_position > -1:
             if hash_position == len(function_name) - 1:
                 print "Syntax error!", function_name
-                halt()
+                exit()
             end_position = function_name.find(' ', hash_position)
             if end_position > -1:
                 tags_list.append(function_name[hash_position: end_position])
@@ -471,3 +515,13 @@ def default_error_messenger(*error_messages):
             else:
                 print message
     return True
+
+
+def make_color_component(value, factor=1, start=0):
+    return int(127*(1+sigmoid((value - start) * factor)))
+
+
+
+
+
+

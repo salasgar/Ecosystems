@@ -248,6 +248,21 @@ Operators_definitions = {
         'output function': lambda x, y: x % y
     },
 
+    'min': {
+        'check number of inputs': lambda inputs:
+            is_tuple_or_list(inputs) and (len(inputs) > 2),
+        'type of inputs': 'Number',
+        'type of output': 'Number',
+        'output function': lambda *inputs: min(*inputs)
+    },
+
+    'max': {
+        'check number of inputs': lambda inputs:
+            is_tuple_or_list(inputs) and (len(inputs) > 2),
+        'type of inputs': 'Number',
+        'type of output': 'Number',
+        'output function': lambda *inputs: max(*inputs)
+    },
 
     # BOOLEAN OPERATORS:
 
@@ -620,6 +635,7 @@ Operators_definitions = {
             ),
         'type of output': 'Any type',
         'output function': lambda *inputs: inputs[0](*(inputs[1:]))
+        # if default_error_messenger(inputs) else 0
     },
 
     'discrete distribution': {
@@ -642,6 +658,8 @@ All_operator_names = [
     '//',
     '%',
     'mod',
+    'max',
+    'min',
 
     # BOOLEAN OPERATORS:
     '>',
@@ -763,6 +781,8 @@ Binary_operators = [
     '//',
     '%',
     'mod',
+    'min',
+    'max',  # 'min' and 'max' can be binary, ternary, etc...
 
     # BOOLEAN OPERATORS:
     '>',
@@ -783,7 +803,9 @@ Binary_operators = [
 ]
 
 Ternary_operators = [
-    'if'
+    'if',
+    'min',
+    'max'  # 'max' can be binary, ternary, etc...
 ]
 
 Associative_operators = [
@@ -792,6 +814,7 @@ Associative_operators = [
     'and', 'AND', '&', '&&',
     'or', 'OR', '|', '||',
     'xor', 'XOR',
+    # despite 'max' is associative, we don't need to calculate it this way
 ]
 
 Operators_with_boolean_output = [
@@ -819,6 +842,8 @@ Operators_with_numeric_output = [
     '//',
     '%',
     'mod',
+    'min',
+    'max',
 
     # UNARY OPERATORS:
     'abs',
@@ -877,6 +902,8 @@ Operators_with_numeric_inputs = [
     '//',
     '%',
     'mod',
+    'min',
+    'max',
     '>',
     '<',
     '>=',
@@ -896,7 +923,9 @@ Operators_with_boolean_inputs = [
 ]
 
 Operators_with_list_inputs = [
-    'shuffle'
+    'shuffle',
+    'min',
+    'max'  # 'max' can be binary, ternary, etc...
 ]  # do not put + Associative_operators here
 
 Operators_with_inputs_of_any_type = [
