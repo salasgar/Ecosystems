@@ -29,7 +29,6 @@ class Organism(dict):
         else:
             self.evolve = self.act
 
-
     def to_string(self, data):
         if is_number(data):
             return round(float(data), 2).__str__()
@@ -326,9 +325,9 @@ class Organism(dict):
         amount of substance and a price (i. e. a ratio) in terms of other
         substance.
         """
-        if 'trade radius' in self:
+        try:
             trade_radius = self['trade radius']
-        else:
+        except:
             trade_radius = DEFAULT.trade_radius
 
         def condition(organism):
@@ -510,9 +509,9 @@ class Organism(dict):
                 condition = check_if_self_decide_attack_prey
             else:
                 condition = check_if_prey_is_not_self
-            if 'hunt radius' in self:
+            try:
                 hunt_radius = self['hunt radius']
-            else:
+            except:
                 hunt_radius = 1.5
             prey_location = self.parent_ecosystem.biotope.\
                 seek_organism_close_to(
@@ -588,9 +587,9 @@ class Organism(dict):
 
         procreated = False
         # Get a new location for the new baby:
-        if 'radius of procreation' in self:
+        try:
             radius_of_procreation = self['radius of procreation']
-        else:
+        except:
             radius_of_procreation = 1.5
         new_location = self.parent_ecosystem.biotope.\
             seek_free_location_close_to(
@@ -650,9 +649,7 @@ class Organism(dict):
                 list_of_attributes=(
                     'category',
                     'age',
-                    'energy reserve',
-                    'nutrient A reserve',
-                    'nutrient B reserve'
+                    'energy reserve'
                     )
                 ), cause
         elif print_killed and cause == 'Killed by a predator':  # ***

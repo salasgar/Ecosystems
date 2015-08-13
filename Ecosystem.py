@@ -1,6 +1,5 @@
 from Basic_tools import *
 from Biotope import *
-from Settings import *
 from Organism import *
 from time import *
 from SYNTAX import *
@@ -17,7 +16,7 @@ logger = logging.getLogger('ecosystems')
 
 class Ecosystem(object):
 
-    def __init__(self, ecosystem_settings):
+    def __init__(self, ecosystem_settings, elements_to_store={}):
         self.settings = ecosystem_settings
         self.all_gene_names = extract_all_gene_names(self.settings)
         self.function_maker = Function_maker(self, ecosystem_settings)
@@ -36,7 +35,7 @@ class Ecosystem(object):
             # to do: add more thigs
         }
         self.initialize_statistics()
-        self.data_storer = Data_storer(self, Elements_to_store)
+        self.data_storer = Data_storer(self, elements_to_store)
         self.number_of_new_deths = 0
         self.number_of_new_births = 0
 
@@ -55,7 +54,7 @@ class Ecosystem(object):
             return self.time
         else:
             print 'Unknown element of ecosystem'
-            halt()
+            exit()
 
     def initialize_biotope(self):
         print 'initialize_biotope'
@@ -103,6 +102,13 @@ class Ecosystem(object):
                         constraint_name,
                         self.settings['constraints'][constraint_name]
                 )
+        if (
+            'constraints' not in self.settings
+            or (
+                'constraints' in self.settings
+                and 'die' not in self.settings['constraints']
+                )):
+            self.constraints['die'] = lambda *inputs: False
 
     def initialize_statistics(self):
         print 'initialize_statistics'
@@ -152,9 +158,9 @@ class Ecosystem(object):
         # print 'delete organism' # ***
         self.biotope.delete_organism(organism['location'])
         if organism in self.newborns:
-            del self.newborns[self.newborns.index(organism)]
+            self.newborns.remove(organism)
         if organism in self.organisms_list:
-            del self.organisms_list[self.organisms_list.index(organism)]
+            self.organisms_list.remove(organism)
 
     def size_x(self):
         return self.biotope['size'][0]

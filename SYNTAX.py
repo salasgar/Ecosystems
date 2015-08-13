@@ -248,6 +248,14 @@ Operators_definitions = {
         'output function': lambda x, y: x % y
     },
 
+    'min': {
+        'check number of inputs': lambda inputs:
+            is_tuple_or_list(inputs) and (len(inputs) > 2),
+        'type of inputs': 'Number',
+        'type of output': 'Number',
+        'output function': lambda *inputs: min(*inputs)
+    },
+
     'max': {
         'check number of inputs': lambda inputs:
             is_tuple_or_list(inputs) and (len(inputs) > 2),
@@ -627,6 +635,7 @@ Operators_definitions = {
             ),
         'type of output': 'Any type',
         'output function': lambda *inputs: inputs[0](*(inputs[1:]))
+        # if default_error_messenger(inputs) else 0
     },
 
     'discrete distribution': {
@@ -650,6 +659,7 @@ All_operator_names = [
     '%',
     'mod',
     'max',
+    'min',
 
     # BOOLEAN OPERATORS:
     '>',
@@ -771,7 +781,8 @@ Binary_operators = [
     '//',
     '%',
     'mod',
-    'max',  # 'max' can be binary, ternary, etc...
+    'min',
+    'max',  # 'min' and 'max' can be binary, ternary, etc...
 
     # BOOLEAN OPERATORS:
     '>',
@@ -793,6 +804,7 @@ Binary_operators = [
 
 Ternary_operators = [
     'if',
+    'min',
     'max'  # 'max' can be binary, ternary, etc...
 ]
 
@@ -830,6 +842,7 @@ Operators_with_numeric_output = [
     '//',
     '%',
     'mod',
+    'min',
     'max',
 
     # UNARY OPERATORS:
@@ -889,6 +902,7 @@ Operators_with_numeric_inputs = [
     '//',
     '%',
     'mod',
+    'min',
     'max',
     '>',
     '<',
@@ -910,6 +924,7 @@ Operators_with_boolean_inputs = [
 
 Operators_with_list_inputs = [
     'shuffle',
+    'min',
     'max'  # 'max' can be binary, ternary, etc...
 ]  # do not put + Associative_operators here
 

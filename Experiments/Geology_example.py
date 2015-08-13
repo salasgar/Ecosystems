@@ -1,6 +1,6 @@
 # GEOLOGY EXAMPLE
 
-from geology_settings import altitude, water_depth
+from Geology_settings import altitude, water_depth
 
 _sunlight = {
     'matrix size': (25, 25),
@@ -13,8 +13,8 @@ _temperature = {
     'value after updating #x #y': {
         'help':
         """
-            Each cycle the temperature is increased by sunlight, but the 10 per
-            cent of the accumulated heat is lost in every cycle.
+            Each cycle the temperature is increased by sunlight, but a
+            percentage of the accumulated heat is lost in every cycle.
         """,
         '*': (
             # this is the proportion (85 per cent) of the heat that remains in
@@ -43,7 +43,11 @@ ecosystem_settings = {
     'organisms': {
         'category name': {
             'initial number of organisms': 1,
-            'genes': {}
+            'genes': {
+                'actions sequence': {
+                    'initial value': []
+                }
+            }
         }
     }
 

@@ -2,7 +2,8 @@ from random import *
 from functools import reduce
 from math import *
 from copy import *
-from types import FunctionType
+from types import FunctionType, MethodType, LambdaType
+from sys import exit
 
 # Variables for debuggin: # ***
 print_ages = False
@@ -18,6 +19,8 @@ print_methods_names = False
 print_operators = False
 print_trade_transactions = 0.0  # print x per cent of them
 print_metabolic_speed = 0
+Store_data = False
+draw_geology = True
 
 
 class Default:
@@ -102,7 +105,7 @@ def is_string(x):
 
 
 def is_function(x):
-    return isinstance(x, FunctionType)
+    return isinstance(x, (MethodType, FunctionType, LambdaType))
 
 
 def is_dict(x):
@@ -122,7 +125,7 @@ def is_tuple(x):
 
 
 def is_tuple_or_list(x):
-    return isinstance(x, list) or isinstance(x, tuple)
+    return isinstance(x, (list, tuple))
 
 
 def is_boolean(x):
@@ -472,7 +475,7 @@ def get_tags_list(function_name):
         if hash_position > -1:
             if hash_position == len(function_name) - 1:
                 print "Syntax error!", function_name
-                halt()
+                exit()
             end_position = function_name.find(' ', hash_position)
             if end_position > -1:
                 tags_list.append(function_name[hash_position: end_position])
@@ -514,7 +517,11 @@ def default_error_messenger(*error_messages):
     return True
 
 
-def halt():
-    # Esto es para salir del programa debido a algun error. Seguro
-    # que hay una funcion para eso. Ya la buscare.
-    print 1/0
+def make_color_component(value, factor=1, start=0):
+    return int(127*(1+sigmoid((value - start) * factor)))
+
+
+
+
+
+

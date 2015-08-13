@@ -1,7 +1,7 @@
 from GUI import GUI
 from Basic_tools import *
 from Biotope import *
-from geology_example import *
+from Geology_example import *
 from Organism import *
 from time import sleep
 from Ecosystem import *
@@ -65,12 +65,12 @@ def main():
     #        not item in All_allowed_commands_in_expression]
     enable_graphics = True
     make_sleeps = False
-    time_lapse = 2
-    Total_time = 500000
+    time_lapse = 1
+    Total_time = 5
 
     ecosystem = Ecosystem(ecosystem_settings)
 
-    ecosystem.minimum_population_allowed = 200
+    ecosystem.minimum_population_allowed = 1
 
     """ ***********************  TRIAL ZONE ****************************
 
@@ -97,7 +97,7 @@ def main():
 
     print org['value in next cycle']['nutrient A surplus'](org)
 
-    halt()
+    exit()
 
     f_set = {'curve from 0 to 1': 'photosynthesis capacity'}
 
@@ -108,7 +108,7 @@ def main():
     for org in ecosystem.organisms_list:
         print f(org, 5)
 
-    halt()
+    exit()
 
     f_set = {'extract #biotope sunlight (percentage)': (
                             'normalized location x',
@@ -146,7 +146,7 @@ def main():
     for org in ecosystem.organisms_list:
         print f(org)
 
-    halt()
+    exit()
 
     *********************** (TRIAL ZONE) ************************** """
 
@@ -162,7 +162,7 @@ def main():
             # organism1, organism2 = ecosystem.get_random_organisms(
             #    number_of_random_organisms = 2)
         if Store_data:
-            self.data_storer.store_data()
+            ecosystem.data_storer.store_data()
         # Evolve:
         ecosystem.evolve()
         if enable_graphics:

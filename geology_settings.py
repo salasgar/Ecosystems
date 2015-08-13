@@ -30,7 +30,7 @@ class Altitude_creator:
 
 _altitude_creator = Altitude_creator(n_of_mountains=randint(3, 10))
 
-
+"""
 def _water_flow_auxiliar_function(
     coefficient,
     water_depth_0,
@@ -38,6 +38,29 @@ def _water_flow_auxiliar_function(
     water_depth_1,
     altitude_1
         ):
+    print 'coefficient', coefficient  # ***
+    return coefficient * max(
+        - water_depth_0,
+        min(
+            water_depth_1,
+            water_depth_1 + altitude_1 - water_depth_0 - altitude_0
+        )
+    )
+"""
+
+
+def _water_flow_auxiliar_function(*inputs):
+    if len(inputs) == 5:
+        (
+            coefficient,
+            water_depth_0,
+            altitude_0,
+            water_depth_1,
+            altitude_1
+        ) = inputs
+    else:
+        print inputs
+        exit()
     return coefficient * max(
         - water_depth_0,
         min(
@@ -48,10 +71,11 @@ def _water_flow_auxiliar_function(
 
 altitude = {
     'matrix size': _geology_matrix_size,
-    'initial value #x #y': _altitude_creator.get_value,
+    'initial value #x #y':
+        lambda ecosystem, x, y: _altitude_creator.get_value(x, y),
     'value after updating #x #y': {'+': (
         {'#biotope altitude': ('#x', '#y')},
-        # FLOW:
+        # EROSION:
         {'function': (
             _water_flow_auxiliar_function,
             0.015,
@@ -169,7 +193,7 @@ altitude = {
 }
 
 
-def _rain(x, y, time):
+def rain(x, y, time):
     # PRECONDITION:  0 <= x <= 1,  0 <= y <= 1
     return (1 + sin(float(time)/50))*(1+cos(x+y+x*y+(1+x-y)**2)+random()/4)
 
@@ -196,7 +220,7 @@ water_depth = {
         0,
         {'+': (
             # RAIN:
-            {'function', (_rain, '#x', '#y', 'time')},
+            {'function': (rain, '#x', '#y', 'time')},
             # EVAPORATION:
             {'*': (
                 -0.01,

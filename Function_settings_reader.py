@@ -68,6 +68,7 @@ class Function_maker:
         self.all_feature_names = self.biotope_feature_names + \
             self.ecosystem_feature_names
         self.tags_list = []
+        self.caller = None
         for feature_name in self.biotope_feature_names:
             if self.is_two_dimensional_feature(feature_name):
                 self.add_feature_operators(feature_name)
@@ -229,7 +230,9 @@ class Function_maker:
                 length = function_settings.find(' ')
                 tag = function_settings[:length]
                 attribute_name = function_settings[length + 1:]
-                if tag in self.tags_list:
+                if tag in self.tags_list and tag not in [
+                    '#ecosystem', '#biotope'
+                        ]:
                     """ EXAMPLE:
                         'my function #prey': '#prey defense capacity'
                     """
@@ -261,7 +264,7 @@ class Function_maker:
                             'in',
                             function_settings
                         )
-                        halt()
+                        exit()
                 else:
                     self.error_messenger(
                         'Syntax error in ',
@@ -270,7 +273,7 @@ class Function_maker:
                         'not in tags list',
                         self.tags_list
                     )
-                    halt()
+                    exit()
             elif hash_position == -1:
                 """
                     In this case there isn't a tag inside function_settings
@@ -290,7 +293,7 @@ class Function_maker:
                     # and self.tags_list[0] == '#ecosystem'
                 ):
                     """ EXAMPLE:
-                        '#maximum population allowed'
+                        'maximum population allowed'
                     """
                     if self.tags_list[0] == '#ecosystem':
                         return lambda *arguments: arguments[0]\
@@ -302,9 +305,9 @@ class Function_maker:
                 elif (
                     function_settings in self.biotope_feature_names
                     # and self.tags_list[0] == '#biotope'
-                ):
+                        ):
                     """ EXAMPLE:
-                        '#seasons speed'
+                        'seasons speed'
                     """
                     if self.tags_list[0] == '#ecosystem':
                         return lambda *arguments: arguments[0]\
@@ -317,6 +320,7 @@ class Function_maker:
                         return lambda *arguments: arguments[0]\
                             .parent_ecosystem.biotope.biotope_features[
                                 function_settings].get_value()
+
                 elif function_settings == 'normalized location x':
                     return lambda *arguments: (
                         float(arguments[0]['location'][0]) /
@@ -328,13 +332,25 @@ class Function_maker:
                         arguments[0].parent_ecosystem.biotope.size_y()
                     )
                 elif function_settings == 'normalized abcissa unit':
-                    return lambda *arguments: (
-                        1.0 / arguments[0].parent_ecosystem.biotope.size_x()
-                    )
+                    if self.tags_list[0] == '#ecosystem':
+                        return lambda *arguments: (
+                            1.0 / arguments[0].biotope.size_x()
+                        )
+                    else:
+                        return lambda *arguments: (
+                            1.0 /
+                            arguments[0].parent_ecosystem.biotope.size_x()
+                        )
                 elif function_settings == 'normalized ordinate unit':
-                    return lambda *arguments: (
-                        1.0 / arguments[0].parent_ecosystem.biotope.size_y()
-                    )
+                    if self.tags_list[0] == '#ecosystem':
+                        return lambda *arguments: (
+                            1.0 / arguments[0].biotope.size_y()
+                        )
+                    else:
+                        return lambda *arguments: (
+                            1.0 /
+                            arguments[0].parent_ecosystem.biotope.size_y()
+                        )
                 elif function_settings == 'time':
                     if self.tags_list[0] in ['#organism', '#biotope']:
                         return lambda *arguments: arguments[0].\
@@ -359,7 +375,7 @@ class Function_maker:
                     return lambda *arguments: function_settings
             else:
                 self.error_messenger('Syntax error. ', function_settings)
-                halt()
+                exit()
 
     def apply_associative_operator(self, main_operation, inputs):
         """ EXAMPLE:
@@ -389,7 +405,7 @@ class Function_maker:
             print 'ALL MAIN COMMANDS:'  # ***
             for one_command in self.all_main_command_names:
                 print one_command
-            halt()
+            exit()
 
         if command == 'literal':
             # 'literal' operator returns its input without evaluate it
@@ -418,7 +434,7 @@ class Function_maker:
                     if item != 'cost':
                         tags_dictionary_functions[item] =\
                             self.make_function(function_settings[item])
- 
+
                 def function_to_return(*arguments):
                     organism = arguments[0]
                     cost = organism.parent_ecosystem.costs[action_name][
@@ -438,9 +454,19 @@ class Function_maker:
                 .constraints[inputs](arguments[0])
 
         elif command in self.all_operator_names:
-            inputs_function = self.make_function(inputs)
-            main_operation = self.operators_definitions[
-                command]['output function']
+            if command == 'function':
+                if is_tuple_or_list(inputs):
+                    inputs_function = self.make_function(inputs[1:])
+                    main_operation = self.make_function(inputs[0])
+                else:
+                    def void_tuple_function(*arguments):
+                        return ()
+                    inputs_function = void_tuple_function
+                    main_operation = self.make_function(inputs)
+            else:
+                inputs_function = self.make_function(inputs)
+                main_operation = self.operators_definitions[
+                    command]['output function']
             if command in self.associative_operators:
                 return lambda *arguments: self.apply_associative_operator(
                     main_operation,
@@ -467,7 +493,7 @@ class Function_maker:
         else:
             self.error_messenger('Syntax error in', function_settings)
             self.error_messenger('Unknown command', command)
-            halt()
+            exit()
 
     def constrain_function_to_allowed_interval(
         self,
@@ -501,7 +527,6 @@ class Function_maker:
 
         elif is_tuple_or_list(function_settings):
             terms = [self.make_function(item) for item in function_settings]
-            # This is necessary for 'shuffle' operator
             return lambda *arguments: [item(*arguments) for item in terms]
 
         elif is_dict(function_settings):
@@ -518,7 +543,12 @@ class Function_maker:
 
         else:
             self.error_messenger(
-                'Warning. Unevaluated function settings:', function_settings)
+                'Warning. Unevaluated function settings:',
+                str(function_settings),
+                'y tal',
+                type(function_settings),
+                'y eso'
+                )
             return lambda *arguments: function_settings
 
     def read_function_settings(
@@ -598,12 +628,14 @@ class Function_maker:
         function_settings,
         caller
             ):
+        self.caller = caller
         self.tags_list = get_tags_list(function_name_with_tags)
         if caller is not None and caller not in self.tags_list:
             self.tags_list = [caller, ] + self.tags_list
         function_to_evaluate = self.make_function(function_settings)
         tags_list = deepcopy(self.tags_list)
         self.tags_list = []
+        self.caller = None
 
         def function_to_return(tags_dictionary):
             inputs = [tags_dictionary[tag] for tag in tags_list]

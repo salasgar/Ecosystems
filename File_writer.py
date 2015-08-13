@@ -1,5 +1,4 @@
 from Basic_tools import *
-from Settings import *
 from SYNTAX import *
 from copy import *
 
@@ -74,7 +73,10 @@ class Data_storer:
             # element referenced with kew_words
             code = self.elements_to_store
             for kew_word in kew_words:
-                code = code[kew_word]
+                if is_dict(code) and kew_word in code:
+                    code = code[kew_word]
+                else:
+                    return False
             return (
                 (
                     code == 'Once' and self.parent_ecosystem.time == 0
@@ -96,27 +98,32 @@ class Data_storer:
         if check('biotope', 'size'):
             current_data['biotope']['size'] = deepcopy(
                 self.parent_ecosystem.biotope['size'])
-        for feature in self.elements_to_store['biotope']['biotope features']:
-            if check('biotope', 'biotope features', feature):
-                current_data['biotope']['biotope features'][
-                    feature] = deepcopy(
-                        self.parent_ecosystem.biotope.biotope_features[
+        if (
+            'biotope' in self.elements_to_store and
+            'biotope features' in self.elements_to_store['biotope']
+                ):
+            for feature in (
+                self.elements_to_store['biotope']['biotope features']
+                    ):
+                if check('biotope', 'biotope features', feature):
+                    current_data['biotope']['biotope features'][
+                        feature] = deepcopy(
+                            self.parent_ecosystem.biotope.biotope_features[
+                                feature].current_value
+                            )
+        if 'ecosystem features' in self.elements_to_store:
+            for feature in self.elements_to_store['ecosystem features']:
+                if check('ecosystem features', feature):
+                    current_data['ecosystem features'][feature] = deepcopy(
+                        self.parent_ecosystem.ecosystem_features[
                             feature].current_value
                         )
-        for feature in self.elements_to_store['ecosystem features']:
-            if check('ecosystem features', feature):
-                current_data['ecosystem features'][feature] = deepcopy(
-                    self.parent_ecosystem.ecosystem_features[
-                        feature].current_value
-                    )
         for organism in self.parent_ecosystem.organisms_list:
             data = {}
             if 'genes' in self.elements_to_store:
                 for gene in self.elements_to_store['genes']:
                     if check('genes', gene):
                         data[gene] = deepcopy(organism[gene])
-            else:
-                print_dictionary(self.elements_to_store)
             current_data['organisms list'].append(data)
 
         self.data.append(current_data)
