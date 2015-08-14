@@ -2,16 +2,16 @@ from SYNTAX import *
 from Basic_tools import *
 
 
-def remove_no_effect_commands(function_settings):
+def remove_no_effect_directives(function_settings):
     if is_dict(function_settings):
-        for item in No_effect_commands:
+        for item in No_effect_directives:
             if item in function_settings:
                 del function_settings[item]
         for item in function_settings:
-            remove_no_effect_commands(function_settings[item])
+            remove_no_effect_directives(function_settings[item])
     elif is_iterable(function_settings):
         for item in function_settings:
-            remove_no_effect_commands(item)
+            remove_no_effect_directives(item)
     return function_settings
 
 
@@ -54,9 +54,9 @@ class Function_maker:
         self.all_operator_names = deepcopy(All_operator_names)
         self.associative_operators = deepcopy(Associative_operators)
         self.unary_operators = deepcopy(Unary_operators)
-        self.all_main_command_names = (
+        self.all_main_directive_names = (
             self.all_operator_names
-            + Commands_that_comunicate_an_organism_with_its_environment
+            + Directives_that_comunicate_an_organism_with_its_environment
             + ['literal']
         )
         self.operators_definitions = deepcopy(Operators_definitions)
@@ -79,10 +79,10 @@ class Function_maker:
             new_operators_settings = self.ecosystem_settings['new operators']
             new_operator_names = [
                 operator for operator in new_operators_settings.keys()
-                if operator not in No_effect_commands
+                if operator not in No_effect_directives
             ]
             self.all_operator_names += new_operator_names
-            self.all_main_command_names += new_operator_names
+            self.all_main_directive_names += new_operator_names
             # The following lines are designed to initialize new operators in
             # the right order
             # so that some of them can be call others and must be initialized
@@ -202,7 +202,7 @@ class Function_maker:
             'secrete #biotope ' + feature_name + ' (proportion)'
         ]
         self.all_operator_names += new_operator_names
-        self.all_main_command_names += new_operator_names
+        self.all_main_directive_names += new_operator_names
 
     def is_two_dimensional_feature(self, feature_name):
         if (
@@ -385,33 +385,33 @@ class Function_maker:
         # print "associative", inputs # ***
         return reduce(main_operation, inputs[1:], inputs[0])
 
-    def main_command(self, expression, error_messenger):
+    def main_directive(self, expression, error_messenger):
         if is_dict(expression):
-            for command in expression:
-                # not all commands can be the main command. For example
-                # 'allowed interval' of 'help' can't be main commands
-                if command in self.all_main_command_names:
-                    return command
-        self.error_messenger('Syntax error. Command not found in', expression)
+            for directive in expression:
+                # not all directives can be the main directive. For example
+                # 'allowed interval' of 'help' can't be main directives
+                if directive in self.all_main_directive_names:
+                    return directive
+        self.error_messenger('Syntax error. Directive not found in', expression)
         return None
 
     def make_function_from_dict(self, function_settings):
-        command = self.main_command(function_settings, self.error_messenger)
-        if command in function_settings:
-            inputs = function_settings[command]
+        directive = self.main_directive(function_settings, self.error_messenger)
+        if directive in function_settings:
+            inputs = function_settings[directive]
         else:
             self.error_messenger(
-                'Main command not found in', function_settings)
-            print 'ALL MAIN COMMANDS:'  # ***
-            for one_command in self.all_main_command_names:
-                print one_command
+                'Main directive not found in', function_settings)
+            print 'ALL MAIN DIRECTIVES:'  # ***
+            for one_directive in self.all_main_directive_names:
+                print one_directive
             exit()
 
-        if command == 'literal':
+        if directive == 'literal':
             # 'literal' operator returns its input without evaluate it
             return lambda *arguments: inputs
 
-        elif command == 'cost':
+        elif directive == 'cost':
             if is_string(inputs):
                 substance_name = 'energy reserve'
                 action_name = inputs
@@ -449,12 +449,12 @@ class Function_maker:
 
                 return function_to_return
 
-        elif command == 'constraint':
+        elif directive == 'constraint':
             return lambda *arguments: arguments[0].parent_ecosystem\
                 .constraints[inputs](arguments[0])
 
-        elif command in self.all_operator_names:
-            if command == 'function':
+        elif directive in self.all_operator_names:
+            if directive == 'function':
                 if is_tuple_or_list(inputs):
                     inputs_function = self.make_function(inputs[1:])
                     main_operation = self.make_function(inputs[0])
@@ -466,17 +466,17 @@ class Function_maker:
             else:
                 inputs_function = self.make_function(inputs)
                 main_operation = self.operators_definitions[
-                    command]['output function']
-            if command in self.associative_operators:
+                    directive]['output function']
+            if directive in self.associative_operators:
                 return lambda *arguments: self.apply_associative_operator(
                     main_operation,
                     inputs_function(*arguments)
                 )
-            elif command in self.unary_operators:
+            elif directive in self.unary_operators:
                 if print_operators:  # ***
                     return lambda *arguments: main_operation(
                         inputs_function(*arguments)) \
-                        if self.error_messenger(command, '') \
+                        if self.error_messenger(directive, '') \
                         else main_operation(inputs_function(*arguments))
                 else:
                     return lambda *arguments: \
@@ -485,14 +485,14 @@ class Function_maker:
                 if print_operators:  # ***
                     return lambda *arguments: \
                         main_operation(*(inputs_function(*arguments))) \
-                        if self.error_messenger(command, '') \
+                        if self.error_messenger(directive, '') \
                         else main_operation(*(inputs_function(*arguments)))
                 else:
                     return lambda *arguments: \
                         main_operation(*(inputs_function(*arguments)))
         else:
             self.error_messenger('Syntax error in', function_settings)
-            self.error_messenger('Unknown command', command)
+            self.error_messenger('Unknown directive', directive)
             exit()
 
     def constrain_function_to_allowed_interval(
@@ -509,7 +509,7 @@ class Function_maker:
         self.tags_list = tags_list
 
     def make_function(self, function_settings, tags_list=None):
-        remove_no_effect_commands(function_settings)
+        remove_no_effect_directives(function_settings)
         if tags_list is not None:
             self.tags_list = tags_list
         if print_methods_names:  # ***
@@ -606,7 +606,7 @@ class Function_maker:
                     )
                 offer_to_sell['prices'] = price
                 result['offer to sell'] = offer_to_sell
-            elif item not in No_effect_commands:
+            elif item not in No_effect_directives:
                 function_name = remove_tags(item)
                 self.tags_list = [caller, ] + get_tags_list(item)
                 # print 'tags_list', self.tags_list # ***

@@ -1,10 +1,10 @@
 from Basic_tools import *
 
-No_effect_commands = ['help', 'comment', 'label']
+No_effect_directives = ['help', 'comment', 'label']
 
 ecosystem_settings_syntax = {
 
-    '$ ALLOWED COMMANDS': [
+    '$ ALLOWED DIRECTIVES': [
         'new operators',
         'biotope',
         'ecosystem features',
@@ -13,11 +13,11 @@ ecosystem_settings_syntax = {
         'costs'
     ],
 
-    '$ MANDATORY COMMANDS': ['biotope', 'organisms'],
+    '$ MANDATORY DIRECTIVES': ['biotope', 'organisms'],
 
     'new operators': {
         '<operator name>': {
-            '$ ALLOWED COMMANDS': [
+            '$ ALLOWED DIRECTIVES': [
                 'is associative',
                 'check inputs'
                 'chec number of inputs',
@@ -30,12 +30,12 @@ ecosystem_settings_syntax = {
 
     'biotope': {
 
-        '$ ALLOWED COMMANDS': [
+        '$ ALLOWED DIRECTIVES': [
             'size',
             'biotope features'
         ],
 
-        '$ MANDATORY COMMANDS': ['size'],
+        '$ MANDATORY DIRECTIVES': ['size'],
 
         'size': '<expression>',
 
@@ -43,7 +43,7 @@ ecosystem_settings_syntax = {
 
             '<feature name or feature map name>': {
 
-                '$ ALLOWED COMMANDS': [
+                '$ ALLOWED DIRECTIVES': [
                     'matrix size',
                     'initial value #x #y',  # for a feature map
                     'initial value',  # for a simple feature
@@ -59,14 +59,14 @@ ecosystem_settings_syntax = {
 
             '<feature name>': {
 
-                '$ ALLOWED COMMANDS': [
+                '$ ALLOWED DIRECTIVES': [
                     'matrix size',
                     'initial value',
                     'value after updating',
                     'update once every'
                 ],
 
-                '$ MANDATORY COMMANDS': ['initial value'],
+                '$ MANDATORY DIRECTIVES': ['initial value'],
 
                 'initial value': '<expression>',
 
@@ -80,24 +80,24 @@ ecosystem_settings_syntax = {
 
         '<category name>': {
 
-            '$ ALLOWED COMMANDS': [
+            '$ ALLOWED DIRECTIVES': [
                 'initial number of organisms',
                 'genes',
                 'decisions'
             ],
 
-            '$ MANDATORY COMMANDS': [
+            '$ MANDATORY DIRECTIVES': [
                 'initial number of organisms',
                 'genes'
             ],
 
             'genes': {
 
-                '$ MANDATORY COMMANDS': ['actions sequence'],
+                '$ MANDATORY DIRECTIVES': ['actions sequence'],
 
                 '<gene name>': {
 
-                    '$ ALLOWED COMMANDS': [
+                    '$ ALLOWED DIRECTIVES': [
                         'initial value',
                         'value in next cycle',
                         'value after mutation',
@@ -105,15 +105,15 @@ ecosystem_settings_syntax = {
                         'offer to sell'
                         ],
 
-                    '$ MANDATORY COMMANDS': ['initial value'],
+                    '$ MANDATORY DIRECTIVES': ['initial value'],
 
                     'offer to sell': {
-                        '$ ALLOWED COMMANDS': [
+                        '$ ALLOWED DIRECTIVES': [
                             'amount',
                             'prices'
                         ],
 
-                        '$ MANDATORY COMMANDS': [
+                        '$ MANDATORY DIRECTIVES': [
                             'amount',
                             'prices'
                         ],
@@ -146,7 +146,7 @@ ecosystem_settings_syntax = {
 }
 
 
-def output_function_of_choice(inputs):
+def output_function_of_choice(*inputs):
     key_value = inputs[0]
     for pair in inputs[1:]:
         if pair[0] == key_value:
@@ -154,7 +154,7 @@ def output_function_of_choice(inputs):
     return None
 
 
-def check_inputs_of_discrete_distribution(inputs):
+def check_inputs_of_discrete_distribution(*inputs):
     if not is_tuple_or_list(inputs):
         return False
     total = 0
@@ -169,7 +169,7 @@ def check_inputs_of_discrete_distribution(inputs):
         return False
 
 
-def output_function_of_discrete_distribution(inputs):
+def output_function_of_discrete_distribution(*inputs):
     r = random()
     for (value, probability) in inputs:
         if r <= probability:
@@ -720,11 +720,11 @@ All_operator_names = [
     'discrete distribution'
 ]
 
-Auxiliar_commands = ['allowed interval', 'substance']
+Auxiliar_directives = ['allowed interval', 'substance']
 # 'allowed interval' can be used in all numeric operators expressions
 # 'substance' can be used in 'cost' expressions
 
-Commands_that_comunicate_an_organism_with_its_environment = [
+Directives_that_comunicate_an_organism_with_its_environment = [
     'cost',
     'constraint',
     'extract feature (percentage)',
@@ -733,19 +733,19 @@ Commands_that_comunicate_an_organism_with_its_environment = [
     'normalized location y'
     ]
 
-All_allowed_commands_in_expression = (
+All_allowed_directives_in_expression = (
     All_operator_names
-    + No_effect_commands
-    + Auxiliar_commands
-    + Commands_that_comunicate_an_organism_with_its_environment
+    + No_effect_directives
+    + Auxiliar_directives
+    + Directives_that_comunicate_an_organism_with_its_environment
     + ['literal', 'infinity'])
 
-All_allowed_commands = \
+All_allowed_directives = \
     extract_from_dict(
-        '$ ALLOWED COMMANDS',
+        '$ ALLOWED DIRECTIVES',
         ecosystem_settings_syntax
     ) + \
-    All_allowed_commands_in_expression
+    All_allowed_directives_in_expression
 
 Unary_operators = [
     # Boolean:
@@ -934,13 +934,13 @@ Operators_with_inputs_of_any_type = [
     'choice',
 ]
 
-Commands_with_numeric_output = Operators_with_numeric_inputs + ['cost']
+Directives_with_numeric_output = Operators_with_numeric_inputs + ['cost']
 
-Commands_with_boolean_output = Operators_with_boolean_inputs + ['constraint']
+Directives_with_boolean_output = Operators_with_boolean_inputs + ['constraint']
 
-Commands_with_list_output = Operators_with_list_inputs
+Directives_with_list_output = Operators_with_list_inputs
 
-Commands_with_string_output = [  # Commands that COULD have a string output
+Directives_with_string_output = [  # Directives that COULD have a string output
     'choice',
     'if',
     'function',
