@@ -20,7 +20,7 @@ print_operators = False
 print_trade_transactions = 0.0  # print x per cent of them
 print_metabolic_speed = 0
 Store_data = False
-draw_geology = True
+draw_geology = False
 
 
 class Default:
