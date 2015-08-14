@@ -1,6 +1,6 @@
 import pygame
 from Basic_tools import *
-from Geology_settings import *
+from geology_settings import *
 # from pygame.locals import *
 # from random import random
 # sfrom time import sleep  # To remove
