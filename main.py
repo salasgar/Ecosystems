@@ -1,4 +1,5 @@
 from GUI import GUI
+import os
 from Basic_tools import *
 from Biotope import *
 from Settings import *
@@ -13,6 +14,7 @@ import flufl.lock
 
 logger = logging.getLogger('ecosystems')
 lock = flufl.lock.Lock('./GUI_pruebas/map.lock')
+commands_file_path = './ecosystem.commands'  # JUST FOR DEBUG
 
 
 def setup_logger():
@@ -72,9 +74,9 @@ def export_organisms_map(ecosystem):
             o_color = (0, 150, 0)
         else:
             o_color = (200, 200, 200)
-        R[o_x, o_y] = o_color[0]/256.0
-        G[o_x, o_y] = o_color[1]/256.0
-        B[o_x, o_y] = o_color[2]/256.0
+        R[o_x, o_y] = o_color[0] / 256.0
+        G[o_x, o_y] = o_color[1] / 256.0
+        B[o_x, o_y] = o_color[2] / 256.0
     RGB_matrix = numpy.dstack((R, G, B))
     lock.lock()
     pickle.dump(RGB_matrix, open('./GUI_pruebas/map.p', 'wb'))
@@ -82,9 +84,10 @@ def export_organisms_map(ecosystem):
 
 
 def main():
+    commands_lock = flufl.lock.Lock(commands_file_path + '.lock')
     setup_logger()
     logger.debug('DEBUG')
-    print " *"*30, "\nWe start NOW!"  # ***
+    print " *" * 30, "\nWe start NOW!"  # ***
     # all_gene_names = extract_all_gene_names(my_example_of_ecosystem_settings)
     # all_strings = extract_all_strings(
     #    my_example_of_ecosystem_settings,
@@ -96,7 +99,7 @@ def main():
     #    for item in all_strings
     #    if not item in all_gene_names and \
     #        not item in All_allowed_directives_in_expression]
-    enable_graphics = True
+    enable_graphics = False  # True
     make_sleeps = False
     time_lapse = 4
     Total_time = 5000
@@ -182,13 +185,23 @@ def main():
     exit()
 
     *********************** (TRIAL ZONE) ************************** """
-
+    status = ''
     if enable_graphics:
         gui = GUI(ecosystem)
     # Loop
     print "LOOPING:"
+    # COMMANDS MANAGEMENT (temporary, just debug):
+    # TODO: Think a better place for commands management.
     while ((len(ecosystem.organisms_list) > 0) and
            (ecosystem.time < Total_time)):
+        if os.path.exists(commands_file_path):
+            commands_lock.lock()
+            with open(commands_file_path, 'r') as f:
+                status = f.readline()
+            commands_lock.unlock()
+        if status == 'PAUSE':
+            sleep(0.5)
+            continue
         # Print ecosystem status:
         if ecosystem.time % time_lapse == 0:
             print_ecosystem_status(ecosystem)
@@ -217,16 +230,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-

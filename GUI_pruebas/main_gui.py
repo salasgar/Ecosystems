@@ -606,7 +606,8 @@ class Subject:
         """
             Add a observer to the main window
         """
-        aux_observer = MapObserver(self, title, x, y, width, height)
+        #aux_observer = MapObserver(self, title, x, y, width, height)
+        aux_observer = NavigationObserver(self, title, x, y, width, height, '../ecosystem.commands')
         self.observers.append(aux_observer)
         self.update_minimized_positions()
 
