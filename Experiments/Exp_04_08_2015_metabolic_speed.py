@@ -10,7 +10,6 @@ from Basic_tools import *
 Store_data = False
 
 Elements_to_store = {
-    'help':
 
     """
         In this dictionary we indicate what and how often to store:
@@ -20,19 +19,19 @@ Elements_to_store = {
             200     means that this data is stored once every 200 cycles
             None    means that this data is never stored
 
-    """,
+    """
 
     'genes': {
         'nutrient B reserve at birth': None,
         'photosynthesis capacity growth': None,
         'nutrient B storage capacity': None,
-        'generation': 20000,
-        'energy reserve': 10000,
+        'generation': 200,
+        'energy reserve': 100,
         'nutrient A reserve': None,
-        'temperature adaptation level': 4000,
-        'aggressiveness': 2000,
-        'indicator gene B': 100000,
-        'indicator gene A': 100000,
+        'temperature adaptation level': 40,
+        'aggressiveness': 20,
+        'indicator gene B': 1000,
+        'indicator gene A': 1000,
         'moving frequency': None,
         'photosynthesis capacity': None,
         'defense capacity': None,
@@ -52,7 +51,7 @@ Elements_to_store = {
         'procreation frequency': None,
         'species identity mutation frequency': None,
         'basal defense capacity': None,
-        'age': 2000,
+        'age': 20,
         'minimum nutrient A reserve for procreating': None,
         'nutrient A storage capacity': None,
         'radius of procreation': None,
@@ -71,8 +70,9 @@ Elements_to_store = {
     'ecosystem features': {
         'general costs level': None,
         'maximum population allowed': 100,
+        'time': 20,
         'autotrophs productivity': 'Once',
-        'population': 2000
+        'population': 20
         }
     }
 
@@ -134,8 +134,6 @@ _operator_definitions = {
     }
 }
 
-# FEATURES:
-
 _sunlight = {
     'matrix size': (25, 25),
     # No matters the size of the ecosystem (it might be changed later for
@@ -192,7 +190,7 @@ _temperature = {
             cent of the accumulated heat is lost in every cycle.
         """,
         '*': (
-            # this is the proportion (85 per cent) of the heat that remains in
+            # this is the percentage (93 per cent) of the heat that remains in
             # the biotope:
             0.85,
             {'+': (
@@ -230,20 +228,20 @@ _nutrient_A = {
                 0.05,
                 {'+': (
                     {'#biotope nutrient A': (
-                        {'+': ('#x', 'normalized abcissa unit')},
+                        {'+': ('#x', 1)},
                         '#y'
                     )},
                     {'#biotope nutrient A': (
-                        {'-': ('#x', 'normalized abcissa unit')},
+                        {'-': ('#x', 1)},
                         '#y'
                     )},
                     {'#biotope nutrient A': (
                         '#x',
-                        {'+': ('#y', 'normalized ordinate unit')},
+                        {'+': ('#y', 1)},
                     )},
                     {'#biotope nutrient A': (
                         '#x',
-                        {'-': ('#y', 'normalized ordinate unit')}
+                        {'-': ('#y', 1)}
                     )}
                 )}
             )}
@@ -272,28 +270,28 @@ _nutrient_B = {
                 # the location (#x, #y) keeps the 90 per cent of its amount
                 # of nutrient B:
                 0.90,
-                {'#biotope nutrient B': ('#x', '#y')}
+                {'#biotope nutrient A': ('#x', '#y')}
             )},
             {'*': (
                 # the location (#x, #y) gets the 2,5 per cent from each
                 # of the adjacent locations:
                 0.025,
                 {'+': (
-                    {'#biotope nutrient B': (
-                        {'+': ('#x', 'normalized abcissa unit')},
+                    {'#biotope nutrient A': (
+                        {'+': ('#x', 1)},
                         '#y'
                     )},
-                    {'#biotope nutrient B': (
-                        {'-': ('#x', 'normalized abcissa unit')},
+                    {'#biotope nutrient A': (
+                        {'-': ('#x', 1)},
                         '#y'
                     )},
-                    {'#biotope nutrient B': (
+                    {'#biotope nutrient A': (
                         '#x',
-                        {'+': ('#y', 'normalized ordinate unit')},
+                        {'+': ('#y', 1)},
                     )},
-                    {'#biotope nutrient B': (
+                    {'#biotope nutrient A': (
                         '#x',
-                        {'-': ('#y', 'normalized ordinate unit')}
+                        {'-': ('#y', 1)}
                     )}
                 )}
             )}
@@ -504,7 +502,7 @@ _gene_energy_reserve = {
             'energy reserve',
             {'*': (
                 '#ecosystem autotrophs productivity',
-                {'extract #biotope sunlight (proportion)': (
+                {'extract #biotope sunlight (percentage)': (
                     'normalized location x',
                     'normalized location y',
                     {'curve from 0 to 1': 'photosynthesis capacity'}
@@ -537,7 +535,7 @@ _gene_nutrient_A_reserve = {
     'value in next cycle': {
         '+': (
             'nutrient A reserve',
-            {'extract #biotope nutrient A (proportion)': (
+            {'extract #biotope nutrient A (percentage)': (
                 'normalized location x',
                 'normalized location y',
                 {'curve from 0 to 1': 'nutrient A extraction capacity'}
@@ -558,7 +556,7 @@ _gene_nutrient_B_reserve = {
     'value in next cycle': {
         '+': (
             'nutrient B reserve',
-            {'extract #biotope nutrient B (proportion)': (
+            {'extract #biotope nutrient B (percentage)': (
                 'normalized location x',
                 'normalized location y',
                 {'curve from 0 to 1': 'nutrient B extraction capacity'}

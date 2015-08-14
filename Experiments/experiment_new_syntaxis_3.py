@@ -1,18 +1,3 @@
-common_allowed_terms = ['help', 'comment', 'label']
-
-LIST_OF_ALLOWED_TERMS = {
-    'settings': ['biotope', 'organisms', 'costs', 'constraints'] + common_allowed_terms,
-    'biotope': ['size'] + common_allowed_terms,
-    'organisms': ['category name', 'initial number of organisms', 'genes', 'decisions'] + common_allowed_terms,
-    'costs': [{'<action name>': '<cost>'}] + common_allowed_terms,
-    '<cost>': [{'<substance name>' + ' reserve': '<function>'}]
-    'constraints': ['help'] + common_allowed_terms
-        },
-    'organisms category': ['help', 'initial number of organisms', 'genes', 'decisions'] + common_allowed_terms,
-
-}
-
-
 biotope = {
     # Mandatory atributes
     'size': (100, 100)
@@ -23,82 +8,22 @@ def _default_value_after_mutation(gene):
         Since this module is common to many genes,
         we define it as an independent function 
     """
-    relative_variation = {
-        'uniform': [-0.05, 0.05]
-    }
-    total_variation = {
-        '*': (gene, relative_variation)
-    }
-    new_value = {'+': (gene, total_variation)}
-    value_after_mutation = {
-        'if': ({'random true': 'mutation frequency'},
-               new_value)}
+    def value_after_mutation(organism):
+        if random_true(organism['mutation frequency']):
+            return organism[gene] * uniform(-0.05, 0.05)
+        else:
+            return organism[gene]
     return value_after_mutation
 
 # genes
-
-# metabolism types:
-
-_metabolic_speed = {
-    'help': 
-        """
-            Indicates de average number of times the organism acts each time it's its turn
-        """,
-    'initial value': {
-        'uniform': [0, 2]
-    },
-    'value_after_mutation': _default_value_after_mutation('metabolic speed')
-}
-
-_metabolic_time_category_a = {
-    'help':
-        """
-            Indicates the amount of subjective time since the last time the organism did 
-            something. An organism can act again only if its metabolic time is greater than 0.
-            Each time the organism acts, its metabolic time decreases in one unit. And in 
-            each cycle, its metabolic time increases as much as indicates its metabolic speed.
-        """
-    'initial value': 0,
-    'value after time cycle': {
-        '+': ('metabolic time', 'metabolic speed')
-    }
-}
-
-_metabolic_time_category_b = {
-    'help':
-        """
-            Indicates the amount of subjective time since the last time the organism did 
-            something. An organism can act again only if its metabolic time is greater than 0.
-            Each time the organism acts, its metabolic time decreases in one unit. And in 
-            each cycle, its metabolic time increases as much as indicates its metabolic speed.
-        """
-    'initial value': 0,
-    'value after time cycle': {
-        '+': (
-            'metabolic time', 
-            {'uniform': [0, 'metabolic speed']}
-        )
-    }
-}
-
-_gene_age_category_a = {
+gene_age_category_a = {
     'help': 
         """ 
             Age of organism (increase +1 every time cycle)
         """, 
     'initial value': 0,
-    'value after time cycle': {
-        '+': ('age', 1)
-    },
-    'value after mutation': {
-        'if': (
-            # Condition:
-            {'>': ('age', 1000)},
-            # Then:
-            0,
-            # Else:
-            'age')  
-    },
+    'value after time cycle': lambda organism: organism['age'] + 1,
+    'value after mutation': lambda organism: 0,
     'allowed interval': [0, 'inf']
 }
 
@@ -119,7 +44,7 @@ organisms_category_a = {
                     )
             }
         }
-        'age': _gene_age_category_a,
+        'age': gene_age_category_a,
         'photosynthesis capacity': {
             'help':
             """
@@ -203,15 +128,15 @@ organisms_category_a = {
             'initial value': 1.0,
             'value after mutation': \
             _default_value_after_mutation('indicator gene A')
-        },
+        }
         'indicator gene B': {
             'initial value': 1.0,
             'value after mutation': \
             _default_value_after_mutation('indicator gene B')
-        },
+        }
         'energy reserve at birth': {
             'initial value': 10000.0
-        },
+        }
         'energy reserve': {
             'initial value': 'energy reserve at birth',
             'value in next cycle': {
@@ -219,7 +144,7 @@ organisms_category_a = {
                       'photosynthesis capacity')
             },
             'allowed interval': [0, 'energy storage capacity']
-        },
+        }
         'mutation frequency': {
             'initial value': {
                 'uniform': [0, 1]
@@ -265,6 +190,8 @@ decisions = {
     },
     'decide move': {
         'random true': 'moving frequency'
+    'decide where to move': {
+        'built-in function': 'seek random free location'
     },
     'decide hunt': {
         'random true': 'aggressiveness'
@@ -275,11 +202,11 @@ decisions = {
 }
 
 constraints = {
-    'can kill #prey': {
+    'can kill': {
         '>': (
             {''}
         ) 
-    },
+    }
     'can procreate': {
         '>': (
             'energy reserve',
@@ -289,7 +216,7 @@ constraints = {
                 {'cost': 'stay alive'}
             )}
         )
-    },
+    }
     'die': {
         'or': (
             {'<': ('energy reserve', 100.0)},

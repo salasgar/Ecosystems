@@ -1,9 +1,11 @@
-from GUI import GUI
-from Tools import *
-from Biotope import Biotope
-from Settings import *
+from Basic_tools import *
+from Biotope import *
 from Organism import *
 from time import *
+from SYNTAX import *
+from Function_settings_reader import *
+from File_writer import *
+from copy import *
 import logging
 
 
@@ -11,89 +13,103 @@ DEFAULT_SETTINGS = {}
 
 logger = logging.getLogger('ecosystems')
 
+
 class Ecosystem(object):
 
-    def __init__(self,
-                 ecosystem_settings,
-                 default_settings = DEFAULT_SETTINGS):
-        # Parse experiment settings
-        self.load_settings(ecosystem_settings, default_settings)
-        self.initialize_biotope()
-        self.initialize_costs()
-        self.initialize_constraints()
+    def __init__(self, ecosystem_settings, elements_to_store={}):
+        self.settings = ecosystem_settings
+        self.all_gene_names = extract_all_gene_names(self.settings)
+        self.function_maker = Function_maker(self, ecosystem_settings)
+        self.organisms_list = []
         self.newborns = []
         self.new_deads = []
+        self.time = 0
+        self.initialize_biotope()
+        self.initialize_ecosystem_features()
+        self.initialize_costs()
+        self.initialize_constraints()
         self.initialize_organisms()
         self.storage_capacities_dictionary = {
             'energy reserve': 'energy storage capacity',
             'water reserve': 'water storage capacity'
             # to do: add more thigs
-            }
+        }
         self.initialize_statistics()
-        
-    def load_settings(self, ecosystem_settings, default_settings):
-        print 'load_settings'
-        if 'ecosystem' in default_settings:            
-            ecosystem_settings = merge_dicts(ecosystem_settings,
-                                             default_settings['ecosystem'])
-        if is_dict(ecosystem_settings['organisms']):
-            ecosystem_settings['organisms'] = [ecosystem_settings['organisms']]
-        for category in ecosystem_settings['organisms']:
-            if not 'number of organisms' in category:
-                category['number of organisms'] = 1
-            if not 'genes' in category:
-                category['genes'] = {}
-          
-            category['genes'] = unpack_genes(category['genes'])
+        self.data_storer = Data_storer(self, elements_to_store)
+        self.number_of_new_deths = 0
+        self.number_of_new_births = 0
 
-            if not 'list of reserve substances' in category['genes']:
-                if 'energy reserve' in category['genes']:
-                    category['genes']['list of reserve substances'] = {'value, not function': ['energy reserve']}
-                else:
-                    category['genes']['list of reserve substances'] = {'value, not function': []}                    
-            if not 'actions sequence' in category['genes']:
-                category['genes']['actions sequence'] = []
-                actions_sequence = category['genes']['actions sequence']
-                organisms_genes_list = extract_genes_names(category['genes'])
-                if 'speed' in organisms_genes_list:
-                    actions_sequence.append('move')                 
-                if ('attack capacity' in organisms_genes_list) or ('hunt radius' in organisms_genes_list):
-                    actions_sequence.append('hunt')                   
-                if 'list of reserve substances' in organisms_genes_list:
-                    actions_sequence.append('interchange substances with the biotope')
-                    actions_sequence.append('interchange substances with other organisms')                    
-                if 'sex' in organisms_genes_list:
-                    actions_sequence.append('fertilize other organisms')                 
-                if 1 + 1 == 2:
-                    actions_sequence.append('procreate')
-                    actions_sequence.append('stay alive')   
-                category['genes']['actions sequence'] = actions_sequence
-            if ('hunt' in category['genes']['actions sequence']) and not ('hunt radius' in extract_genes_names(category['genes'])):
-                category['genes']['hunt radius'] = 1.5
-        self.settings = ecosystem_settings  
-        print_dictionary( self.settings     )         
+    def __getitem__(self, code):
+        if code == 'biotope':
+            return self.biotope
+        elif code == 'ecosystem features':
+            return self.ecosystem_features
+        elif code == 'organisms' or code == 'organisms list':
+            return self.organisms_list
+        elif code == 'constraints':
+            return self.constraints
+        elif code == 'costs':
+            return self.costs
+        elif code == 'time':
+            return self.time
+        else:
+            print 'Unknown element of ecosystem'
+            exit()
 
     def initialize_biotope(self):
         print 'initialize_biotope'
-        self.biotope = Biotope(settings = self.settings['biotope'],
-                               parent_ecosystem = self)
-                
+        self.biotope = Biotope(settings=self.settings['biotope'],
+                               parent_ecosystem=self)
+
+    def add_feature(self, feature_name, feature_settings):
+        self.ecosystem_features[feature_name] = Feature(
+            feature_name,
+            feature_settings,
+            parent_ecosystem=self)
+
+    def initialize_ecosystem_features(self):
+        self.ecosystem_features = {}
+        if 'ecosystem features' in self.settings:
+            for feature in self.settings['ecosystem features']:
+                self.add_feature(
+                    feature,
+                    self.settings['ecosystem features'][feature])
+
     def initialize_costs(self):
         print 'initialize_costs'
         self.costs = {}
         if 'costs' in self.settings:
-            for action in self.settings['costs']:
-                self.costs[action] = {}
-                for reserve_substance in self.settings['costs'][action]:
-                    self.costs[action][reserve_substance] = make_function(self.settings['costs'][action][reserve_substance])
-    
+            for action_name_with_tags in self.settings['costs']:
+                tags_list = get_tags_list(action_name_with_tags)
+                action_name = remove_tags(action_name_with_tags)
+                self.costs[action_name] = {'tags list': tags_list}
+                cost_settings = self.settings['costs'][action_name_with_tags]
+                for reserve_substance in cost_settings:
+                    self.costs[action_name][reserve_substance] = \
+                        self.function_maker.make_function_with_tags_dictionary(
+                            action_name_with_tags,
+                            cost_settings[reserve_substance],
+                            caller='#organism'
+                        )
+
     def initialize_constraints(self):
         print 'initialize_constraints'
         self.constraints = {}
-        if 'constraints' in self.settings:        
-            for action in self.settings['constraints']:
-                self.constraints[action] = make_function(self.settings['constraints'][action])        
-    
+        if 'constraints' in self.settings:
+            for constraint_name in self.settings['constraints']:
+                self.constraints[constraint_name] = \
+                    self.function_maker.read_function_settings(
+                        constraint_name,
+                        self.settings['constraints'][constraint_name]
+                )
+        if (
+            'constraints' not in self.settings
+            or (
+                'constraints' in self.settings
+                and 'die' not in self.settings['constraints']
+                )):
+            self.constraints['die'] = lambda *inputs: False
+
     def initialize_statistics(self):
         print 'initialize_statistics'
         self.statistics = {
@@ -101,88 +117,160 @@ class Ecosystem(object):
             'number of killed by a predator': 0,
             'number of births': 0}
         for category in self.settings['organisms']:
-            if 'category' in category:
-                self.statistics['number of births of ' + category['category']] = 0
-                self.statistics['number of natural deths of ' + category['category']] = 0
-                self.statistics['number of ' + category['category'] + ' killed by a predator'] = 0
-            if 'list of reserve substances' in category['genes']:
-                for reserve_substance in category['genes']['list of reserve substances']:
-                    self.statistics['total amount of ' + reserve_substance] = 0
-                    self.statistics['average amount of ' + reserve_substance] = 0
-                    if 'category' in category:                    
-                        self.statistics['total amount of ' + reserve_substance + ' in ' + category['category']] = 0
-                        self.statistics['average amount of ' + reserve_substance + ' in ' + category['category']] = 0             
-            for gene in extract_genes_names(category['genes']):
-                self.statistics['average ' + gene] = 0
-        
+            category_settings = self.settings['organisms'][category]
+            self.statistics['number of births of ' + category] = 0
+            self.statistics['number of natural deths of ' + category] = 0
+            self.statistics[
+                'number of ' + category + ' killed by a predator'
+            ] = 0
+            if 'list of reserve substances' in category_settings['genes']:
+                for reserve_substance in category_settings['genes'][
+                    'list of reserve substances'
+                ]:
+                    self.statistics[
+                        'total amount of ' + reserve_substance
+                    ] = 0
+                    self.statistics[
+                        'average amount of ' + reserve_substance
+                    ] = 0
+                    self.statistics[
+                        'total amount of ' + reserve_substance
+                        + ' in ' + category
+                    ] = 0
+                    self.statistics[
+                        'average amount of ' + reserve_substance
+                        + ' in ' + category
+                    ] = 0
+        for gene in self.all_gene_names:
+            self.statistics['average ' + gene] = 0
+        for action in self.costs:
+            self.statistics['average cost ' + action] = {'total': 0}
+            for substance in self.costs[action]:
+                self.statistics['average cost ' + action][substance] = 0
+        # print "statistics finished" # ***
+
     def add_organism(self, organism):
-        #print 'add organism'
+        # print 'add organism' # ***
         self.biotope.add_organism(organism)
-        self.newborns.append(organism)  
-        
+        self.newborns.append(organism)
+
     def delete_organism(self, organism):
-        #print 'delete organism'
+        # print 'delete organism' # ***
         self.biotope.delete_organism(organism['location'])
         if organism in self.newborns:
-            del self.newborns[self.newborns.index(organism)]
+            self.newborns.remove(organism)
         if organism in self.organisms_list:
-            del self.organisms_list[self.organisms_list.index(organism)]
-            # warning: list.index() can be very slow. We should use a double chain list            
-        
+            self.organisms_list.remove(organism)
+
     def size_x(self):
         return self.biotope['size'][0]
 
     def size_y(self):
         return self.biotope['size'][1]
 
-    
     def initialize_organisms(self):
         print 'initialize_organisms'
-        """ 
+        """
         PRE-CONDITIONS:
-            This initialization must be called AFTER self.initialize_biotope, 
+            This initialization must be called AFTER self.initialize_biotope,
             because we use here Biotope.seek_free_location
         """
-        for category in self.settings['organisms']:  # in Ecosystem.load_settings we make sure that self.settings['organisms'] is a list of (one or more) categories
-            genes_settings = category['genes']
-            all_genes = genes_settings.keys()
-            for _ in range(category['number of organisms']):                
-                new_organism = Organism(self, {'mutating genes': {}, 'variable genes': {}, 'list of reserve substances': []})
-                # Load genes:
-                for gene in genes_settings:
-                    new_organism.add_gene(gene, genes_settings[gene], all_genes)
-                # Load decisions:
-                if 'decisions' in category:
-                    for decision in category['decisions']:
-                        new_organism.add_decision(decision, category['decisions'][decision])
-                self.add_organism(new_organism) # This adds new_organism to self.newborns and to self.biotope in a random location
-        self.organisms_list = self.newborns
+        for category_name in self.settings['organisms']:
+            category_settings = self.settings['organisms'][category_name]
+            number_of_organisms = category_settings[
+                'initial number of organisms']
+            for _ in range(number_of_organisms):
+                new_organism = Organism(parent_ecosystem=self)
+                new_organism.configure_with_category_settings(
+                    category_settings)
+                # This adds new_organism to self.newborns and to self.biotope
+                # in a random location:
+                self.add_organism(new_organism)
+        self.organisms_list += self.newborns
+        self.newborns = []
+
+    def create_new_organisms(self, number_of_organisms):
+        # Chose the number of new organisms of each category proportionally
+        # to the initial number of organisms of each category:
+        total = 0
+        for category_name in self.settings['organisms']:
+            total += self.settings['organisms'][category_name][
+                'initial number of organisms']
+        for category_name in self.settings['organisms']:
+            n = (
+                self.settings['organisms'][category_name][
+                    'initial number of organisms']
+                * number_of_organisms
+            ) / total
+            for _ in range(n):
+                new_organism = Organism(parent_ecosystem=self)
+                new_organism.configure_with_category_settings(
+                    self.settings['organisms'][category_name]
+                )
+                # This adds new_organism to self.newborns and to self.biotope
+                # in a random location:
+                self.add_organism(new_organism)
+        self.organisms_list += self.newborns
         self.newborns = []
 
     def evolve(self):
-        #print 'evolve'
+        # This sentence stores data in the buffer of self.data_storer, and
+        # if it's time, it also flushes the buffer into the file:
+        self.data_storer.store_data()
         # Biotope actions:
         self.biotope.evolve()
+        # Ecosystem actions:
+        for feature in self.ecosystem_features:
+            self.ecosystem_features[feature].update()
         # Organisms actions:
-        i = 0        
+        i = 0
+        self.number_of_new_deths = 0
         while i < len(self.organisms_list):
-            self.organisms_list[i].act()
+            self.organisms_list[i].evolve()
             i += 1
             for dead_organism in self.new_deads:
-                # the organism may be in self.organisms_list or in self.newborns:
-                if dead_organism in self.organisms_list and self.organisms_list.index(dead_organism) < i:
+                # the organism may be in self.organisms_list or
+                # in self.newborns:
+                if (
+                    dead_organism in self.organisms_list and
+                    self.organisms_list.index(dead_organism) < i
+                ):
                     i -= 1
-                self.delete_organism(dead_organism) # this erases the organism from the biotope too
-                #print "number of organisms", len(self.organisms_list)
+                # this erases the organism from the biotope too:
+                self.delete_organism(dead_organism)
+                # print "number of organisms", len(self.organisms_list) # ***
+            self.number_of_new_deths += len(self.new_deads)
             self.new_deads = []
         self.organisms_list += self.newborns
+        self.number_of_new_births = len(self.newborns)
         self.newborns = []
-        
-        # print 'Num of organisms + newborns: %d' % len(self.organisms)
+        self.time += 1
 
-    def count(self, item, value):
+        # print 'Num of organisms + newborns: %d' % len(self.organisms) # ***
+
+    def count(self, gene, value):
+        # Counts how many organisms have that gene with that value
         N = 0
         for organism in self.organisms_list:
-            if item in organism and organism[item] == value:
+            if gene in organism and organism[gene] == value:
                 N += 1
         return N
+
+    def count_between(self, gene, value1, value2):
+        # Counts how many organisms have that gene with that value
+        N = 0
+        for organism in self.organisms_list:
+            if (
+                gene in organism and
+                value1 <= organism[gene] and
+                organism[gene] <= value2
+            ):
+                N += 1
+        return N
+
+    def population(self):
+        return len(self.organisms_list) + len(self.newborns)
+
+    def get_random_organisms(self, number_of_random_organisms):
+        return sample(self.organisms_list, number_of_random_organisms)
+        

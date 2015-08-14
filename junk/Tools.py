@@ -4,7 +4,7 @@ from math import *
 from copy import *
 #from Ecosystem_settings import *
 from types import FunctionType
-
+from Basic_tools import *
 
 # THIS IS ONLY FOR TESTING:
 test_organism = {'strength': 2.0,
@@ -27,78 +27,7 @@ print_ages = False
 print_organisms = False
 
 
-# NUMERIC FUNCTIONS:
-
-def is_number(x):
-    try:
-        x + 1
-        return True
-    except TypeError:
-        return False
-
-
-def is_function(x):
-    return isinstance(x, FunctionType)
-
-
-def is_dict(x):
-    return isinstance(x, dict)
-
-
-def is_iterable(x):
-    return hasattr(x, '__iter__')
-
-
-# Calculates the product of all the elements in the iterable
-def prod(iterable):
-    return reduce((lambda x, y: x * y), iterable, 1)
-
-
-def signed_random():
-    return 2*random() - 1
-
-
-# equivalent to range( ) but with float parameters
-def float_range(start, stop=0.0, step=1.0):
-    result = []
-    if step * (stop - start) < 0:
-        start, stop = stop, start
-    x = start
-    if step > 0:
-        while x < stop:
-            result.append(x)
-            x += step
-    elif step < 0:
-        while x > stop:
-            result.append(x)
-            x += step
-    return result
-
-
-def bounded_value(value, a, b):  # a and b could be infinity
-    """ This function returns value if a <= value <= b,  returns a if value < a and returns b if value > b """
-    if a in {'- infinity', '-infinity'} and b in {'+ infinity', '+infinity', 'infinity'}:  # this means no constraints
-        return value
-    elif a in {'- infinity', '-infinity'}:
-        if value in {'- infinity', '-infinity'}:
-            return value
-        else:
-            return min(value, b)
-    elif b in {'+ infinity', '+infinity', 'infinity'}:
-        if value in {'+ infinity', '+infinity', 'infinity'}:
-            return value
-        else:
-            return max(value, a)
-    else:
-        return max(a, min(value, b))
-
-
-def sigmoid(x):
-    t = bounded_value(x, -50, 50)
-    return exp(t)/(1+exp(t))
-
 # GENE FUNCTIONS:
-
 
 def extract_genes_names(genes_settings):
     if isinstance(genes_settings, str):
@@ -152,11 +81,11 @@ def unpack_genes(genes_settings):
                 }}
    """
     def merge_gene_settings(A, B):
-        if is_dictionary(A):
+        if is_dict(A):
             dict_A = deep_copy_of_a_dictionary(A)
         else:
             dict_A = deep_copy_of_a_dictionary({'initial value': A})
-        if is_dictionary(B):
+        if is_dict(B):
             dict_B = deep_copy_of_a_dictionary(B)
         else:
             dict_B = deep_copy_of_a_dictionary({'initial value': B})
@@ -184,27 +113,6 @@ def unpack_genes(genes_settings):
     return settings_to_return
 
 
-class Matrix(object):
-
-    def __init__(self, size_x, size_y, value=None):
-        self.data = [[value] * size_y for i in range(size_x)]
-        # No usar [[None] * size_y] * size_x, ya que no hace copia profunda
-        self.size_x = size_x
-        self.size_y = size_y
-
-    def __getitem__(self, coordinates):
-        x, y = coordinates
-        return self.data[x % self.size_x][y % self.size_y]
-
-    def __setitem__(self, coordinates, value):
-        x, y = coordinates
-        self.data[x % self.size_x][y % self.size_y] = value
-
-    def __str__(self, traspose=False):
-        if traspose:
-            return "\n".join(str(self.data[i]) for i in range(len(self.data)))
-        else:
-            return "\n".join(str([self.data[i][j] for i in range(self.size_x)]) for j in range(self.size_y))
 
 """ this method returns a random function that accept no arguments: """  # This method is unused by the moment, but it may will. And it works!
 
@@ -236,60 +144,6 @@ def random_function_with_no_argument_maker(function_settings):
             return lambda: coefficient * math.fsum(gauss(0, 1)**2 for i in range(k))
     return lambda: random()
 
-
-def shuffle_function(list_object):
-    shuffle(list_object)
-    return list_object
-
-Binary_operators_dictionary = {
-    'op': lambda x, y: 'op(' + x + ', ' + y + ')',
-    'op_': lambda x, y: '(' + x + ' op ' + y + ')',
-    '+': lambda x, y: x + y,
-    '-': lambda x, y: x - y,
-    '*': lambda x, y: x * y,
-    '/': lambda x, y: x / y,
-    '**': lambda x, y: x ** y,
-    '//': lambda x, y: x // y,
-    '%': lambda x, y: x % y,
-    'mod': lambda x, y: x % y,
-    '>': lambda x, y: x > y,
-    '<': lambda x, y: x < y,
-    '>=': lambda x, y: x >= y,
-    '<=': lambda x, y: x <= y,
-    '==': lambda x, y: x == y,
-    '!=': lambda x, y: x != y,
-    'in': lambda x, y: x in y,
-    'randint': randint,  # random integer between x and y
-    'gauss': gauss,
-    'uniform': uniform
-}
-# Este bucle for es por ahorrarme escribir lineas repetitivas. Lo dejamos
-# asi o lo cambiamos?
-for operator in {'and', 'AND', '&', '&&'}:
-    Binary_operators_dictionary[operator] = lambda x, y: x and y
-for operator in {'or', 'OR', '|', '||'}:
-    Binary_operators_dictionary[operator] = lambda x, y: x or y
-for operator in {'xor', 'XOR'}:
-    Binary_operators_dictionary[operator] = lambda x, y: (
-        x and not y) or (y and not x)
-
-Unary_operators_dictionary = {
-    'abs': abs,
-    'sqrt': sqrt,
-    'log': log,
-    'exp': exp,
-    'sigmoid': sigmoid,
-    'sin': sin,
-    'cos': cos,
-    'tan': tan,
-    'tg':  tan,
-    'round': lambda x: round(x, 0),
-    'int': lambda x: int(x),
-    'roundint': lambda x: int(round(x, 0)),
-    'randbool': lambda probability_of_True: (probability_of_True > random()),
-    'chi-squared': lambda k: math.fsum(gauss(0, 1)**2 for i in range(k)),
-    'shuffle': shuffle_function,
-    'not': lambda x: not x}
 
 
 def make_function(function_settings, number_of_organisms=1, arguments=[]):
@@ -416,11 +270,10 @@ def make_function(function_settings, number_of_organisms=1, arguments=[]):
         elif 'constraint' in function_settings:
             action = function_settings['constraint']
             if number_of_organisms == 1:
-                function_to_return = lambda organism: organism.parent_ecosystem.constraints[
-                    action](organism)
+                function_to_return = lambda organism: organism.parent_ecosystem.constraints[action]
             if number_of_organisms == 2:
                 function_to_return = lambda predator, prey: predator.parent_ecosystem.constraints[
-                    action](predator, prey)
+                    action]
         elif 'function' in function_settings:
             if function_settings['function'] == 'sigmoid':
                 if 'homothety' in function_settings:
@@ -527,7 +380,7 @@ def make_function(function_settings, number_of_organisms=1, arguments=[]):
 
     if is_dict(function_settings) and 'allowed interval' in function_settings:
         interval_settings = function_settings['interval']
-        if hasattr(interval_settings, '__iter__') and not is_dictionary(interval_settings):
+        if hasattr(interval_settings, '__iter__') and not is_dict(interval_settings):
             lower_bound = make_function(
                 interval_settings[0], number_of_organisms)
             upper_bound = make_function(
@@ -544,53 +397,3 @@ def make_function(function_settings, number_of_organisms=1, arguments=[]):
     else:
         return function_to_return
 
-# DICTIONARIES:
-
-
-def dictionary_to_string(dictionary, indent_level=0):
-    dict_string = ""
-    tabulator = " "*4
-    if is_dict(dictionary):
-        # This line could be removed
-        dict_string += tabulator*indent_level + '{\n'
-        for key in dictionary.keys():
-            if hasattr(dictionary[key], '__iter__'):
-                dict_string += tabulator*indent_level + str(key)+":\n"
-                dict_string += dictionary_to_string(
-                    dictionary[key], indent_level + 1)
-            else:
-                dict_string += tabulator*indent_level + \
-                    str(key) + ": " + str(dictionary[key]) + "\n"
-        # This line also could be removed
-        dict_string += tabulator*indent_level + '}\n'
-    elif hasattr(dictionary, '__iter__'):
-        for element in dictionary:
-            dict_string += dictionary_to_string(element, indent_level + 1)
-    else:
-        dict_string += tabulator*indent_level + str(dictionary) + "\n"
-    return dict_string
-
-
-def print_dictionary(dictionary):
-    print dictionary_to_string(dictionary)
-
-
-def merge_dicts(x, y):
-    '''Given two dicts, merge them into a new dict as a shallow copy.'''
-    z = x.copy()
-    z.update(y)
-    return z
-
-
-def deep_copy_of_a_dictionary(dictionary):
-    if is_dict(dictionary):
-        copy_to_return = {}
-        for item in dictionary:
-            copy_to_return[item] = deep_copy_of_a_dictionary(dictionary[item])
-    elif hasattr(dictionary, '__iter__'):
-        copy_to_return = []
-        for item in dictionary:
-            copy_to_return.append(deep_copy_of_a_dictionary(item))
-    else:
-        copy_to_return = copy(dictionary)
-    return copy_to_return
