@@ -9,8 +9,8 @@ def get_skeleton_of_settings(settings, final_element):
         for item in settings:
             if item in (
                 All_operators +
-                Auxiliar_commands +
-                Commands_that_comunicate_an_organism_with_the_environment +
+                Auxiliar_directives +
+                Directives_that_comunicate_an_organism_with_the_environment +
                 [
                     'literal',
                     'infinity',
@@ -31,7 +31,7 @@ def get_skeleton_of_settings(settings, final_element):
                 ]
                     ):
                 return final_element
-            elif item not in No_effect_commands:
+            elif item not in No_effect_directives:
                 result[item] = get_skeleton_of_settings(
                     settings[item],
                     final_element)

@@ -1,7 +1,7 @@
 from GUI import GUI
 from Basic_tools import *
 from Biotope import *
-from Geology_example import *
+from Settings import *
 from Organism import *
 from time import sleep
 from Ecosystem import *
@@ -55,22 +55,22 @@ def main():
     # all_gene_names = extract_all_gene_names(my_example_of_ecosystem_settings)
     # all_strings = extract_all_strings(
     #    my_example_of_ecosystem_settings,
-    #    exceptions = No_effect_commands + All_action_names)
+    #    exceptions = No_effect_directives + All_action_names)
     # print 'ALL GENES:', all_gene_names
     # print 'ALL STRINGS:', all_strings
     # print 'DIFFERENCE:', [
     #    item
     #    for item in all_strings
     #    if not item in all_gene_names and \
-    #        not item in All_allowed_commands_in_expression]
+    #        not item in All_allowed_directives_in_expression]
     enable_graphics = True
     make_sleeps = False
-    time_lapse = 1
-    Total_time = 5
+    time_lapse = 4
+    Total_time = 5000
 
-    ecosystem = Ecosystem(ecosystem_settings)
+    ecosystem = Ecosystem(my_example_of_ecosystem_settings)
 
-    ecosystem.minimum_population_allowed = 1
+    ecosystem.minimum_population_allowed = 200
 
     """ ***********************  TRIAL ZONE ****************************
 
