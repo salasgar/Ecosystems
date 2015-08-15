@@ -104,7 +104,8 @@ def main():
     time_lapse = 4
     Total_time = 5000
 
-    ecosystem = Ecosystem(my_example_of_ecosystem_settings)
+    ecosystem = Ecosystem(my_example_of_ecosystem_settings,
+                          Elements_to_store)
 
     ecosystem.minimum_population_allowed = 200
 
@@ -207,6 +208,7 @@ def main():
             print_ecosystem_status(ecosystem)
             # organism1, organism2 = ecosystem.get_random_organisms(
             #    number_of_random_organisms = 2)
+        Store_data = True
         if Store_data:
             ecosystem.data_storer.store_data()
         # Evolve:

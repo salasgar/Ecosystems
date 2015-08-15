@@ -29,7 +29,7 @@ def get_skeleton_of_settings(settings, final_element):
                     'check inputs',
                     'matrix size'
                 ]
-                    ):
+            ):
                 return final_element
             elif item not in No_effect_directives:
                 result[item] = get_skeleton_of_settings(
@@ -59,10 +59,10 @@ def store(element, file):
 
 
 class Data_storer:
+
     def __init__(self, parent_ecosystem, elements_to_store):
         self.parent_ecosystem = parent_ecosystem
         self.elements_to_store = elements_to_store
-        self.data = []
 
     def store_data(self):
 
@@ -83,11 +83,10 @@ class Data_storer:
                 ) or
                 (
                     is_number(code) and
-                    round(self.parent_ecosystem.time / code)
-                    == self.parent_ecosystem.time / code
+                    (self.parent_ecosystem.time % code == 0)
                 )
             )
-
+        data_is_empty = True
         current_data = {
             'biotope': {
                 'biotope features': {}
@@ -96,56 +95,46 @@ class Data_storer:
             'organisms list': [],
         }
         if check('biotope', 'size'):
+            data_is_empty = False
             current_data['biotope']['size'] = deepcopy(
                 self.parent_ecosystem.biotope['size'])
         if (
             'biotope' in self.elements_to_store and
             'biotope features' in self.elements_to_store['biotope']
-                ):
+        ):
             for feature in (
                 self.elements_to_store['biotope']['biotope features']
-                    ):
+            ):
                 if check('biotope', 'biotope features', feature):
+                    data_is_empty = False
                     current_data['biotope']['biotope features'][
                         feature] = deepcopy(
                             self.parent_ecosystem.biotope.biotope_features[
                                 feature].current_value
-                            )
+                    )
         if 'ecosystem features' in self.elements_to_store:
             for feature in self.elements_to_store['ecosystem features']:
                 if check('ecosystem features', feature):
+                    data_is_empty = False
                     current_data['ecosystem features'][feature] = deepcopy(
                         self.parent_ecosystem.ecosystem_features[
                             feature].current_value
-                        )
+                    )
         for organism in self.parent_ecosystem.organisms_list:
             data = {}
+            organisms_list_is_empty = True
             if 'genes' in self.elements_to_store:
                 for gene in self.elements_to_store['genes']:
                     if check('genes', gene):
+                        data_is_empty = False
+                        organisms_list_is_empty = False
                         data[gene] = deepcopy(organism[gene])
-            current_data['organisms list'].append(data)
+            if not organisms_list_is_empty:
+                current_data['organisms list'].append(data)
 
-        self.data.append(current_data)
+        if data_is_empty:
+            returned_data = None
+        else:
+            returned_data = current_data
 
-        # TODO:
-        # Check if it's time to flush self.data into a file, and do it.
-
-        return current_data
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        return returned_data
