@@ -460,7 +460,7 @@ class HistogramObserver(GenericObserver):
         self.matplotlib_axes = self.matplotlib_fig.add_subplot(
             111, aspect='auto')
         self.matplotlib_fig.set_tight_layout(True)
-        # plt, = self.matplotlib_axes.plot([], [])
+        self.plot, = self.matplotlib_axes.plot([], [])
         self.canvas = FigureCanvasTkAgg(self.matplotlib_fig,
                                         master=self.frame)
         self.canvas._tkcanvas.config(highlightthickness=0)
@@ -505,6 +505,22 @@ class HistogramObserver(GenericObserver):
         # Scale
         self.scale1.place(x=10, y=self.height - 50, width=300, height=40)
 
+    def update_data(self):
+        # Temporary implementation for debug
+        dr = self.subject.data_reader
+        time_vector = dr.get_time_vector()
+
+        # JUST FOR DEBUG!
+        def pr_d(data):
+            return len(data['organisms list'])
+        x, y = dr.get_processed_data(time_vector, pr_d)
+        self.plot.set_xdata(x)
+        self.matplotlib_axes.set_xlim([min(x), max(x)])
+        self.plot.set_ydata(y)
+        self.matplotlib_axes.set_ylim([min(y), max(y)])
+        self.canvas.draw()
+        print 'UPDATING'
+
     # LOCAL CALLBACKS:
 
     def callback_scale1(self, value):
@@ -512,6 +528,7 @@ class HistogramObserver(GenericObserver):
 
 
 class DataReader:
+
     """
         Class for reading from experiment history folder. Last retrieved data
         is stored in memory, in order to avoid reading from the hard disk in
@@ -612,6 +629,10 @@ class Subject:
         """
             Creates the Tk main window of our application
         """
+        # Initialize reader
+        history_path = '../experiments_histories/experiment_template/'
+        self.data_reader = DataReader(history_path)
+
         # Initialize Tk
         self.root = tk.Tk()
         self.root.resizable(0, 0)
@@ -718,6 +739,8 @@ class Subject:
         for observer in self.observers:
             if type(observer) == MapObserver:
                 observer.update_map()
+            if type(observer) == HistogramObserver:
+                observer.update_data()
         self.root.after(time_interval, self.timer_update_data, time_interval)
 
     # CALLBACKS

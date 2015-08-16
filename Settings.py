@@ -59,11 +59,11 @@ Elements_to_store = {
     },
     'biotope': {
         'biotope features': {
-            'nutrient B': 100,
-            'nutrient A': 100,
-            'sunlight': 'Once',
-            'temperature': 'Once',
-            'seasons speed': 'Once'
+            'nutrient B': None,
+            'nutrient A': None,
+            'sunlight': None,
+            'temperature': None,
+            'seasons speed': None
             },
         'size': 'Once'
         },
