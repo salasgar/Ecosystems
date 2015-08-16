@@ -17,6 +17,7 @@ logger = logging.getLogger('ecosystems')
 class Ecosystem(object):
 
     def __init__(self, ecosystem_settings, elements_to_store={}):
+        self.name = ecosystem_settings['name']
         self.settings = ecosystem_settings
         self.all_gene_names = extract_all_gene_names(self.settings)
         self.function_maker = Function_maker(self, ecosystem_settings)

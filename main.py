@@ -210,7 +210,7 @@ def main():
             #    number_of_random_organisms = 2)
         Store_data = True
         if Store_data:
-            ecosystem.data_storer.store_data()
+            ecosystem.data_storer.store_data('./experiments_histories')
         # Evolve:
         ecosystem.evolve()
         if enable_graphics:

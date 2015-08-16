@@ -1571,6 +1571,7 @@ _organisms_category_b['genes']['speed'] = {'initial value': 0}
 # _organisms_category_b['genes']['metabolic speed'] = {'initial value': 1}
 
 my_example_of_ecosystem_settings = {
+    'name': 'experiment_template',
     'help': ''' This is an example of ecosystem settings ''',
     'new operators': _operator_definitions,
     'biotope': _biotope,

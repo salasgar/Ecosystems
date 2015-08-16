@@ -1,7 +1,8 @@
 from Basic_tools import *
 from SYNTAX import *
 from copy import *
-
+import yaml
+import os
 
 def get_skeleton_of_settings(settings, final_element):
     if is_dict(settings):
@@ -64,7 +65,7 @@ class Data_storer:
         self.parent_ecosystem = parent_ecosystem
         self.elements_to_store = elements_to_store
 
-    def store_data(self):
+    def store_data(self, history_path):
 
         # print "Storing data..."
 
@@ -132,9 +133,16 @@ class Data_storer:
             if not organisms_list_is_empty:
                 current_data['organisms list'].append(data)
 
-        if data_is_empty:
-            returned_data = None
-        else:
-            returned_data = current_data
-
-        return returned_data
+        if not data_is_empty:
+            if not os.path.exists(history_path):
+                os.mkdir(history_path)
+            if not os.path.exists(os.path.join(history_path,
+                                               self.parent_ecosystem.name)):
+                os.mkdir(os.path.join(history_path,
+                                      self.parent_ecosystem.name))
+            data_file = os.path.join(
+                history_path,
+                self.parent_ecosystem.name,
+                'cycle_' + str(self.parent_ecosystem.time) + '.yaml')
+            with open(data_file, 'w') as f:
+                f.write(yaml.dump(current_data))
