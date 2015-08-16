@@ -7,7 +7,8 @@ from matplotlib.patches import Rectangle
 # from matplotlib.backends.backend_tkagg import NavigationToolbar2TkAgg
 from matplotlib.figure import Figure
 import flufl.lock
-
+import os
+import yaml
 lock = flufl.lock.Lock('./map.lock')  # JUST FOR DEBUG
 
 
@@ -510,6 +511,101 @@ class HistogramObserver(GenericObserver):
         self.subject.callback_scale1(self, value)
 
 
+class DataReader:
+    """
+        Class for reading from experiment history folder. Last retrieved data
+        is stored in memory, in order to avoid reading from the hard disk in
+        every query. It provides an API to avoid the user handle the details
+        about the stored data.
+    """
+
+    def __init__(self, history_path):
+        self.buffer_size = 10
+        self.buffer_index = 0
+        self.data_buffer = [{}] * self.buffer_size
+        self.time_to_bufferindex = {}
+        self.bufferindex_to_time = {}
+        self.history_path = history_path
+
+    def save_in_buffer(self, time, data):
+        if time not in self.time_to_bufferindex.keys():
+            self.data_buffer[self.buffer_index] = data
+            self.time_to_bufferindex[time] = self.buffer_index
+            if self.buffer_index in self.bufferindex_to_time.keys():
+                old_time = self.bufferindex_to_time[self.buffer_index]
+                self.time_to_bufferindex.pop(old_time)
+            self.bufferindex_to_time[self.buffer_index] = time
+            self.buffer_index = (self.buffer_index + 1) % self.buffer_size
+
+    def _read_data_from_buffer(self, time):
+        if time in self.time_to_bufferindex.keys():
+            buffer_index = self.time_to_bufferindex[time]
+            return self.data_buffer[buffer_index]
+        else:
+            return None
+
+    def _read_data_from_disk(self, time):
+        cycle_file = os.path.join(self.history_path,
+                                  'cycle_' + str(time) + '.yaml')
+        if os.path.exists(cycle_file):
+            with open(cycle_file, 'r') as f:
+                data = yaml.load(f, Loader=yaml.CLoader)  # TODO: CLoader
+            self.save_in_buffer(time, data)
+            return data
+        else:
+            return None
+
+    def get_time_vector(self):
+        """
+            Return all time values where some data have been stored.
+            Note that some fields might be missing at some time values.
+        """
+        list_cycle_files = os.listdir(self.history_path)
+        time_vector = []
+        for cycle_file in list_cycle_files:
+            # TODO: More elegant string cutting
+            time = int(cycle_file.split('.yaml')[0].split('cycle_')[-1])
+            time_vector.append(time)
+        return sorted(time_vector)
+
+    def read_data(self, time):
+        """
+            Read data for a specific time value
+        """
+        data = self._read_data_from_buffer(time)
+        if data is None:  # Might be missing in buffer
+            data = self._read_data_from_disk(time)
+        return data
+
+    def get_processed_data(self, time_vector, processing_function):
+        """
+            Apply a generic processing_function to the data
+            in order to get specific statistics.
+
+            Args:
+                time vector: Time vector where data will be retrieved.
+                processing_function: Function producing the desired statistic.
+
+            Returns:
+                x: valid time vector
+                y: returned statistic for such time vector
+        """
+
+        y = []
+        x = []
+        for time in time_vector:
+            data = self.read_data(time)
+            if data is None:  # No data for such time value
+                continue
+            try:
+                processed_data = processing_function(data)
+                y.append(processed_data)
+                x.append(time)
+            except:
+                pass
+        return x, y
+
+
 class Subject:
 
     def __init__(self):
@@ -606,8 +702,8 @@ class Subject:
         """
             Add a observer to the main window
         """
-        #aux_observer = MapObserver(self, title, x, y, width, height)
-        aux_observer = NavigationObserver(self, title, x, y, width, height, '../ecosystem.commands')
+        aux_observer = HistogramObserver(self, title, x, y, width, height)
+        #aux_observer = NavigationObserver(self, title, x, y, width, height, '../ecosystem.commands')
         self.observers.append(aux_observer)
         self.update_minimized_positions()
 

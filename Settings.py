@@ -36,7 +36,7 @@ Elements_to_store = {
         'photosynthesis capacity': None,
         'defense capacity': None,
         'minimum energy reserve for procreating': None,
-        'speed': None,
+        'speed': 20,
         'minimum nutrient B reserve for procreating': None,
         'species': None,
         'actions sequence': None,
@@ -51,7 +51,7 @@ Elements_to_store = {
         'procreation frequency': None,
         'species identity mutation frequency': None,
         'basal defense capacity': None,
-        'age': 2000,
+        'age': 20,
         'minimum nutrient A reserve for procreating': None,
         'nutrient A storage capacity': None,
         'radius of procreation': None,
@@ -59,8 +59,8 @@ Elements_to_store = {
     },
     'biotope': {
         'biotope features': {
-            'nutrient B': 'Once',
-            'nutrient A': 'Once',
+            'nutrient B': 100,
+            'nutrient A': 100,
             'sunlight': 'Once',
             'temperature': 'Once',
             'seasons speed': 'Once'
@@ -71,7 +71,7 @@ Elements_to_store = {
         'general costs level': None,
         'maximum population allowed': 100,
         'autotrophs productivity': 'Once',
-        'population': 2000
+        'population': 30
         }
     }
 
