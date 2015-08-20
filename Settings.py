@@ -6,7 +6,7 @@ from Basic_tools import *
 """                                                         """
 """ ******************************************************* """
 
-_biotope_size = (400, 200)
+_biotope_size = (300, 150)
 
 Store_data = False
 
@@ -175,13 +175,13 @@ _sunlight = {
                 {'cos': {'*': (2, pi, '#y')}}
             )},
             {'*': (
-                5,
+                3,
                 {'sin': {'*': ('seasons speed', 'time')}}
             )}
         )},
 
     # The values of the matrix of sunlight is updated every 1 cycle.
-    'update once every': 1
+    'update once every': 10
 }
 
 _temperature = {
@@ -194,9 +194,9 @@ _temperature = {
             cent of the accumulated heat is lost in every cycle.
         """,
         '*': (
-            # this is the proportion (85 per cent) of the heat that remains in
+            # this is the proportion of the heat that remains in
             # the biotope:
-            0.75,
+            0.8,
             {'+': (
                 # the new value depends on the previous value:
                 {'#biotope temperature': ('#x', '#y')},
@@ -364,7 +364,7 @@ _biotope = {
         'nutrient A': _nutrient_A,
         'nutrient B': _nutrient_B,
         'seasons speed': {
-            'initial value': 0.37,
+            'initial value': 0.3,
             'value after updating': {
                 '+': (
                     'seasons speed',
@@ -859,6 +859,65 @@ _organisms_category_a = {
                             {
                                 'curve from 0 to 1': {
                                     '*': (
+                                        0.002,
+                                        {
+                                            '-': (
+                                                'energy reserve',
+                                                'minimum energy reserve for procreating')
+                                        }
+                                        )
+                                    }
+                            }
+                            ),
+                        'allowed interval': [0, 255]
+                    }
+                },
+                {  # GREEN:
+                    'round': {
+                        '*': (
+                            255,
+                            {
+                                'curve from 0 to 1': {
+                                    '*': (
+                                        0.02,
+                                        'nutrient A surplus'
+                                        )
+                                    }
+                            }
+                            )
+                    }
+                },
+                {  # BLUE:
+                    'round': {
+                        '*': (
+                            255,
+                            {
+                                'curve from 0 to 1': {
+                                    '*': (
+                                        0.02,
+                                        'nutrient B surplus'
+                                        )
+                                    }
+                            }
+                            )
+                    }
+                },
+            ]
+        },
+        'color 4': {
+            'initial value': [
+                {'round': 'red'},
+                {'round': 'green'},
+                {'round': 'blue'},
+                ],
+            'value after mutation': [
+                {  # RED:
+                    'round': {
+                        '*': (
+                            255,
+                            {
+                                'curve from 0 to 1': {
+                                    '*': (
                                         1.2,
                                         'metabolic speed'
                                         )
@@ -899,19 +958,87 @@ _organisms_category_a = {
                 },
             ]
         },
+        'color 5': {
+            'initial value': [
+                {'round': 'red'},
+                {'round': 'green'},
+                {'round': 'blue'},
+                ],
+            'value after mutation': [
+                {  # RED:
+                    'round': {
+                        '*': (
+                            255,
+                            {
+                                'curve from 0 to 1': {
+                                    '*': (
+                                        0.5,
+                                        {
+                                            '+': (
+                                                'fake price energy / nutr A',
+                                                'fake price energy / nutr B')
+                                        }
+                                        )
+                                    }
+                            }
+                            )
+                    }
+                },
+                {  # GREEN:
+                    'round': {
+                        '*': (
+                            255,
+                            {
+                                'curve from 0 to 1': {
+                                    '*': (
+                                        0.5,
+                                        {
+                                            '+': (
+                                                'fake price nutr A / energy',
+                                                'fake price nutr A / nutr B')
+                                        }
+                                        )
+                                    }
+                            }
+                            )
+                    }
+                },
+                {  # BLUE:
+                    'round': {
+                        '*': (
+                            255,
+                            {
+                                'curve from 0 to 1': {
+                                    '*': (
+                                        0.5,
+                                        {
+                                            '+': (
+                                                'fake price nutr B / nutr A',
+                                                'fake price nutr B / energy')
+                                        }
+                                        )
+                                    }
+                            }
+                            )
+                    }
+                },
+            ]
+        },
         'color': {
             'initial value': 'color 1',
             'value in next cycle': {
                 'choice': (
                     {
                         '%': (
-                            {'/': ('time', 20)},
-                            3
+                            {'/': ('time', 25)},
+                            5
                             )
                         },
                     (0, 'color 1'),
                     (1, 'color 2'),
-                    (2, 'color 3')
+                    (2, 'color 3'),
+                    (3, 'color 4'),
+                    (4, 'color 5'),
                 )
             }
         },
@@ -996,6 +1123,14 @@ _organisms_category_a = {
         'price nutr B / nutr A': _gene_creator('price nutr B / nutr A'),
         'price energy / nutr A': _gene_creator('price energy / nutr A'),
         'price energy / nutr B': _gene_creator('price energy / nutr B'),
+
+        'fake price nutr A / energy': _gene_creator('fake price nutr A / energy'),
+        'fake price nutr B / energy': _gene_creator('fake price nutr B / energy'),
+        'fake price nutr A / nutr B': _gene_creator('fake price nutr A / nutr B'),
+        'fake price nutr B / nutr A': _gene_creator('fake price nutr B / nutr A'),
+        'fake price energy / nutr A': _gene_creator('fake price energy / nutr A'),
+        'fake price energy / nutr B': _gene_creator('fake price energy / nutr B'),
+
         'energy storage capacity': {
             'help':
             """

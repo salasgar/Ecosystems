@@ -66,7 +66,7 @@ def main():
     enable_graphics = True
     make_sleeps = False
     time_lapse = 4
-    Total_time = 5000
+    Total_time = 500000
 
     ecosystem = Ecosystem(my_example_of_ecosystem_settings)
 
