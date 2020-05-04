@@ -1272,6 +1272,15 @@ _decisions_category_a = {
 
 _organisms_category_a['decisions'] = _decisions_category_a
 
+"""
+_organisms_category_a['actions'] = {
+    'transform nutrient A into nutrient B #proportion': {'do': (
+        {'asign value': ('nutrient B reserve', ...........)}
+    )}
+
+}
+"""
+
 _constraints = {
     'can kill #prey': {
         '>': (
