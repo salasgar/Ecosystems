@@ -41,16 +41,19 @@ class Biotope {
 };
 
 class Ecosystem {
-  void _delete_dead_organisms();
+  void _clear_ghost_organisms();
  public:
-  Organism* first_organism;
+  Organism* first_organism_node;
+  Organism* last_organism_node;
   RandomNumbersGenerator random_nums_gen;
   OrganismsPool organisms_pool;
   int time;
-  std::vector<Organism*> dead_organisms_ptrs;
+  std::vector<Organism*> ghost_organisms_ptrs;
   Biotope biotope;
   Ecosystem();
+  void append_organisms(Organism* organisms);
   void evolve();
+  void kill_and_remove_organism(Organism* organism);
   int get_num_organisms();
 };
 
