@@ -130,7 +130,7 @@ void Ecosystem::kill_and_remove_organism(Organism* organism) {
 }
 
 int Ecosystem::get_num_organisms() {
-  return this->biotope.organisms_map.size();
+  return (int)this->biotope.organisms_map.size();
 }
 
 void Organism::reset(pair<int, int> location,

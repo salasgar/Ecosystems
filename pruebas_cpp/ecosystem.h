@@ -11,6 +11,7 @@
 class Organism;
 class Ecosystem;
 
+
 class OrganismsPool {
   void _create_more_organisms();
  public:
