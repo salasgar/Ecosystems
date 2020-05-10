@@ -7,9 +7,70 @@
 #include <stack>
 #include <vector>
 
+typedef std::pair<int, int> tLocation;
 
 class Organism;
 class Ecosystem;
+template <class T> class Feature;
+template <class T> class Feature2D;
+class Biotope;
+class OrganismsPool;
+class RandomNumbersGenerator;
+
+template <class T>
+class Feature {
+ public:
+  T value;
+  Feature();
+  T get_value();
+  void set_value(T new_value);
+  void update();
+  void mutate();
+};
+
+template <class T>
+class Feature2D : Feature<T**> {
+ public:
+  Feature2D();
+  T get_value(tLocation location);
+  void set_value(T new_value, tLocation location);
+};
+
+namespace biotope {
+
+  class Sun_light : Feature2D<float> {
+    float get_value(tLocation location);
+    Sun_light();
+    void set_value(float new_value, tLocation location);
+  };
+
+};
+
+namespace plant_A {
+
+  class Energy_reserve : Feature <float> {
+    Energy_reserve();
+    void update();
+  };
+
+};
+
+namespace plant_B {
+
+  class Energy_reserve : Feature <float> {
+    Energy_reserve();
+    void update();
+  };
+
+};
+
+typedef float tipo_gordo[1000];
+
+class feature_de_tipo_gordo : Feature<tipo_gordo*> {  // Como el tipo ocupa mucho, usamos un puntero al tipo ese
+ public:
+  tipo_gordo* get_value();
+};
+
 
 
 class OrganismsPool {

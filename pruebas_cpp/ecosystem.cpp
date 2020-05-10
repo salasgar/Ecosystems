@@ -18,6 +18,35 @@ using std::iota;
 using std::begin;
 using std::end;
 
+template <class T>
+Feature<T>::Feature() {};
+
+template <class T>
+T Feature<T>::get_value() { return value; };
+
+template <class T>
+void Feature<T>::set_value(T new_value) {
+  value = new_value;
+};
+
+template <class T>
+Feature2D<T>::Feature2D() {};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 void OrganismsPool::_create_more_organisms() {
   this->organisms_pool.push_back(vector<Organism>(this->buffer_size));
