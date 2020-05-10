@@ -77,37 +77,39 @@ void Ecosystem::_delete_dead_organisms() {
 
 void Ecosystem::evolve() {
   this->_delete_dead_organisms();
-  // Create a vector of current organisms (needed because biotope is a map)
-  vector<Organism*> organisms_to_act(this->get_num_organisms(), nullptr);
-  int i = 0;
-  for (auto &kv : this->biotope.organisms_map) {
-    organisms_to_act[i] = kv.second;
-    i += 1;
-  }
-  // For each organism, act
-  for (auto &organism : organisms_to_act) {
-    if (organism->is_alive) {;
+  Organism* organism = this->first_organism;
+  while (organism != nullptr) {
+    if (organism->is_alive) {
       organism->act();
     }
+    organism = organism->next;
   }
   this->time += 1;
 }
 
 Ecosystem::Ecosystem() {
-  //this->random_nums_gen.set_seed(0);
+  this->random_nums_gen.set_seed(0);
   const int INITIAL_NUM_ORGANISMS = 200000;
   vector<int> free_locs(this->biotope.size_x * this->biotope.size_y);
   iota (begin(free_locs), end(free_locs), 0);
   shuffle(free_locs.begin(), free_locs.end(),
           this->random_nums_gen.eng);
   int free_loc_int, loc_x, loc_y;
+  Organism* last_o = nullptr;
   for (int i=0; i < INITIAL_NUM_ORGANISMS; i++) {
     free_loc_int = free_locs.back();
     free_locs.pop_back();
     loc_x = free_loc_int / this->biotope.size_y;
     loc_y = free_loc_int % this->biotope.size_y;
     Organism* o = this->organisms_pool.get_new(make_pair(loc_x, loc_y), this);
-    this->add_organism(o);
+    o->prev = last_o;
+    if (last_o == nullptr) {
+      this->first_organism = o;
+    } else {
+      last_o->next = o;
+    }
+    this->biotope.organisms_map[o->location] = o;
+    last_o = o;
   }
 }
 
@@ -115,22 +117,15 @@ int Ecosystem::get_num_organisms() {
   return this->biotope.organisms_map.size();
 }
 
-void Ecosystem::add_organism(Organism* organism_ptr) {
-    this->biotope.organisms_map[organism_ptr->location] = organism_ptr;
-}
-
-void Ecosystem::remove_organism(Organism* organism_ptr) {
-    this->biotope.organisms_map.erase(organism_ptr->location);
-    this->dead_organisms_ptrs.push_back(organism_ptr);
-}
-
 void Organism::reset(pair<int, int> location,
                      Ecosystem* parent_ecosystem_ptr) {
+  this->next = nullptr;
+  this->prev = nullptr;
   this->location = location;
   this->parent_ecosystem_ptr = parent_ecosystem_ptr;
   this->is_alive = true;
   this->age = 0;
-  const int MAX_AGE = 1000;
+  const int MAX_AGE = 2000;
   uniform_int_distribution<int> distribution(1, MAX_AGE);
   this->death_age =
     this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_int(
@@ -150,5 +145,14 @@ void Organism::do_age() {
 
 void Organism::do_die() {
     this->is_alive = false;
-    this->parent_ecosystem_ptr->remove_organism(this);
+    this->parent_ecosystem_ptr->biotope.organisms_map.erase(this->location);
+    this->unlink();
+    this->parent_ecosystem_ptr->dead_organisms_ptrs.push_back(this);
+}
+
+void Organism::unlink() {
+  if (this->next != nullptr)
+    this->next->prev = this->prev;
+  if (this->prev != nullptr)
+    this->prev->next = this->next;
 }

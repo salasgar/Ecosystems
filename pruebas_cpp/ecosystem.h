@@ -43,6 +43,7 @@ class Biotope {
 class Ecosystem {
   void _delete_dead_organisms();
  public:
+  Organism* first_organism;
   RandomNumbersGenerator random_nums_gen;
   OrganismsPool organisms_pool;
   int time;
@@ -51,12 +52,12 @@ class Ecosystem {
   Ecosystem();
   void evolve();
   int get_num_organisms();
-  void add_organism(Organism* organism_ptr);
-  void remove_organism(Organism* organism_ptr);
 };
 
 class Organism {
  public:
+  Organism* prev;
+  Organism* next;
   bool is_alive;
   Ecosystem* parent_ecosystem_ptr;
   std::pair<int, int> location;
@@ -67,6 +68,7 @@ class Organism {
   void act();
   void do_age();
   void do_die();
+  void unlink();
 };
 
 #endif  // ECOSYSTEM_H_INCLUDED
