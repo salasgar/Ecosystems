@@ -11,67 +11,44 @@ typedef std::pair<int, int> tLocation;
 
 class Organism;
 class Ecosystem;
-template <class T> class Feature;
-template <class T> class Feature2D;
+class clBaseFeature;
+template <class clParent, class T> class Feature;
+template <class clParent, class T> class Feature2D;
 class Biotope;
 class OrganismsPool;
 class RandomNumbersGenerator;
 
-template <class T>
-class Feature {
+class clBaseFeature {
  public:
-  T value;
-  Feature();
-  T get_value();
-  void set_value(T new_value);
+  clBaseFeature();
   void update();
   void mutate();
 };
 
-template <class T>
-class Feature2D : Feature<T**> {
+template <class clParent, class T>
+class Feature : clBaseFeature {
+ protected:
+  clParent parent;
+  T value;
  public:
-  Feature2D();
+  Feature(clParent parent_, T initial_value);
+  T get_value();
+  void set_value(T new_value);
+};
+
+template <class clParent, class T>
+class Feature2D : clBaseFeature {
+ protected:
+  clParent parent;
+  tLocation size; // matrix's dimensions
+  T **matrix;
+ public:
+  Feature2D(clParent parent_, tLocation size_);
+  ~Feature2D();
   T get_value(tLocation location);
-  void set_value(T new_value, tLocation location);
 };
 
-namespace biotope {
-
-  class Sun_light : Feature2D<float> {
-    float get_value(tLocation location);
-    Sun_light();
-    void set_value(float new_value, tLocation location);
-  };
-
-};
-
-namespace plant_A {
-
-  class Energy_reserve : Feature <float> {
-    Energy_reserve();
-    void update();
-  };
-
-};
-
-namespace plant_B {
-
-  class Energy_reserve : Feature <float> {
-    Energy_reserve();
-    void update();
-  };
-
-};
-
-typedef float tipo_gordo[1000];
-
-class feature_de_tipo_gordo : Feature<tipo_gordo*> {  // Como el tipo ocupa mucho, usamos un puntero al tipo ese
- public:
-  tipo_gordo* get_value();
-};
-
-
+ 
 
 class OrganismsPool {
   void _create_more_organisms();
@@ -137,3 +114,37 @@ class Organism {
 };
 
 #endif  // ECOSYSTEM_H_INCLUDED
+
+namespace biotope {
+
+  class Sun_light : Feature2D<Biotope, float> {
+   public:
+    float get_value(tLocation location);
+    Sun_light(Biotope parent_, tLocation size_);
+  };
+
+  class Temperature : Feature2D<Biotope, float> {
+   public:
+    Temperature(Biotope parent_, tLocation size_);
+    void update();
+  };
+
+};
+
+namespace plant_A {
+
+  class Energy_reserve : Feature <Organism, float> {
+    Energy_reserve(Organism parent_, float initial_value);
+    void update();
+  };
+
+};
+
+namespace plant_B {
+
+  class Energy_reserve : Feature <Organism, float> {
+    Energy_reserve(Organism parent_, float initial_value);
+    void update();
+  };
+
+};
