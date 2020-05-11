@@ -22,43 +22,33 @@ void clBaseFeature::update() {};
   
 void clBaseFeature::mutate() {};
 
-template <class clParent, class T>
-Feature<clParent, T>::Feature(
-                              clParent parent_,
-                              T initial_value) :
-  parent(parent_),
-  value(initial_value) {};
+template <class T>
+Feature<T>::Feature(T initial_value) : value(initial_value) {};
   
-template <class clParent, class T>
-T Feature<clParent, T>::get_value() {
-  return value;
-};
+template <class T>
+T Feature<T>::get_value() { return value; };
 
-template <class clParent, class T>
-void Feature<clParent, T>::set_value(T new_value) {
-  value = new_value;
-};
+template <class T>
+void Feature<T>::set_value(T new_value) { value = new_value; };
 
-template <class clParent, class T>
-Feature2D<clParent, T>::Feature2D(
-                clParent parent_,
-                tLocation size_) : parent(parent_), size(size_) {
-  matrix = new(T*[size.first]);
+template <class T>
+Feature2D<T>::Feature2D(tLocation size_) : size(size_) {
+  matrix = new T*[size.first];
   for(int x = 0; x < size.first; x++) {
-    matrix[x] = new(T[size.second]);
+    matrix[x] = new T[size.second];
   };
 };
   
-template <class clParent, class T>
-Feature2D<clParent, T>::~Feature2D() {
+template <class T>
+Feature2D<T>::~Feature2D() {
   for(int x = 0; x < size.first; x++) {
-    delete(matrix[x]);
+    delete[] matrix[x];
   };
-  delete(matrix);
+  delete[] matrix;
 };
   
-template <class clParent, class T>
-T Feature2D<clParent, T>::get_value(tLocation location) {
+template <class T>
+T Feature2D<T>::get_value(tLocation location) {
   return matrix[location.first][location.second];
 };
 
