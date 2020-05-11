@@ -18,9 +18,13 @@ using std::iota;
 using std::begin;
 using std::end;
 
+// ***************** clBaseFeature ******************
+
 void clBaseFeature::update() {};
   
 void clBaseFeature::mutate() {};
+
+// ************ Feature ****** Feature2D **************
 
 template <class T>
 Feature<T>::Feature(T initial_value) : value(initial_value) {};
@@ -52,43 +56,41 @@ T Feature2D<T>::get_value(tLocation location) {
   return matrix[location.first][location.second];
 };
 
+
+// *************** custom features ****************
+
 namespace biotope {
 
-  Sun_light::Sun_light(Biotope parent_, tLocation size_)
-    : Feature2D<Biotope, float>(parent_, size_){}; // De alguna manera determinamos que el tamaño de la matriz es 0x0, es decir, que no hay matriz.
+  Sun_light::Sun_light(Biotope parentBiotope, tLocation size_)
+    : BiotopeFeature2D<float>(parentBiotope, tLocation(0, 0)) {}; // El tamaño de la matriz es 0x0, es decir, que no hay matriz.
 
-  float Sun_light::get_value(tLocation location) {
-    return 0;
-    // return (1 + abs(sin(ecosystem.time/365))) * (1 + abs(sin(location.second/biotope.size.y)))
+  float Sun_light::get_value(Biotope parentBiotope, tLocation location) {
+    return 0; // En realidad habría que poner: return (1 + abs(sin(2 * pi * ecosystem.time/365))) * (1 + abs(sin(pi * location.second/biotope.size.y)))
   };
     
-  Temperature::Temperature(Biotope parent_, tLocation size_)
-    : Feature2D<Biotope, float>(parent_, size_){}; // De alguna manera determinamos que el tamaño de la matriz es 0x5, es decir, que hay 5 zonas climáticas que dependen únicamente de la latitud y no de la longitud.
+  Temperature::Temperature(Biotope parentBiotope, tLocation size_) : BiotopeFeature2D<float>(parentBiotope, tLocation(0, 5)){}; // El tamaño de la matriz es 0x5, es decir, que hay 5 zonas climáticas que dependen únicamente de la latitud y no de la longitud.
 
-  void Temperature::update() {
+  void Temperature::update(Biotope parentBiotope) {
     for(int y=0; y<size.second; y++) {
-      // matrix[0][y] += parent.Features['Sun light'].get_value(0, y) - 0.05 * matrix[0][y];
+      // matrix[0][y] += parentBiotope.Features['Sun light'].get_value(0, y) - 0.05 * matrix[0][y];
       // Es decir, que en cada ciclo se pierde un 5% de la temperatura y se gana tanta temperatura como luz solar haya en cada franja climática.
     }
   };
-    
-
-
 };
 
 namespace plant_A { // plantas que viven en sitios con POCA luz
   
-  Energy_reserve::Energy_reserve(Organism parent_, float initial_value) : Feature<Organism, float>(parent_, initial_value) {};
+  Energy_reserve::Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value) : OrganismFeature<float>(parentOrganism, initial_value) {};
 
-  void Energy_reserve::update() {
-    // value += -10 + 20 * Sun_light.get_value(parent.location);
+  void Energy_reserve::update(Biotope parentBiotope, Organism parentOrganism) {
+    // value += -10 + 20 * parentBiotope.Features['Sun light'].get_value(parentBiotope, parentOrganism.location);
   };
 
 };
 
 namespace plant_B { // plantas que viven en sitio con MUCHA luz
    
-  Energy_reserve::Energy_reserve(Organism parent_, float initial_value) : Feature<Organism, float>(parent_, initial_value) {};
+  Energy_reserve::Energy_reserve(Organism parentOrnagism, float initial_value) : Feature<Organism, float>(parent_, initial_value) {};
 
   void Energy_reserve::update() {
     // value += -25 + 34 * Sun_light.get_value(parent.location);
