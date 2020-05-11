@@ -159,8 +159,8 @@ namespace plant_A {
 namespace plant_B {
 
   class Energy_reserve : OrganismFeature <float> {
-    Energy_reserve(Organism parentOrganism, float initial_value);
-    void update(Organism parentOrganism);
+    Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value);
+    void update(Biotope parentBiotope, Organism parentOrganism);
   };
 
 };

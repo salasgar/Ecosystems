@@ -90,10 +90,10 @@ namespace plant_A { // plantas que viven en sitios con POCA luz
 
 namespace plant_B { // plantas que viven en sitio con MUCHA luz
    
-  Energy_reserve::Energy_reserve(Organism parentOrnagism, float initial_value) : Feature<Organism, float>(parent_, initial_value) {};
+  Energy_reserve::Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value) : OrganismFeature<float>(parentOrganism, initial_value) {};
 
-  void Energy_reserve::update() {
-    // value += -25 + 34 * Sun_light.get_value(parent.location);
+  void Energy_reserve::update(Biotope parentBiotope, Organism parentOrganism) {
+    // value += -25 + 34 * parentBiotope.Features['Sun light'].get_value(parentBiotope, parentOrganism.location);
   };
 
 };
