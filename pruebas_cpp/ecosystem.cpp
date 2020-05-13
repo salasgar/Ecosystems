@@ -18,46 +18,29 @@ using std::iota;
 using std::begin;
 using std::end;
 
-// ***************** clBaseFeature ******************
+// ***************** Base class Feature ******************
 
-void clBaseFeature::update() {};
-  
-void clBaseFeature::mutate() {};
+Feature::Feature(
+    Biotope &parent_biotope,
+    Ecosystem &parent_ecosystem) {
+  parent_biotope_ptr = &parent_biotope;
+  parent_ecosystem_ptr = &parent_ecosystem;
+  set_initial_value();
+};
 
-// ************ Feature ****** Feature2D **************
-
-template <class T>
-Feature<T>::Feature(T initial_value) : value(initial_value) {};
-  
-template <class T>
-T Feature<T>::get_value() { return value; };
-
-template <class T>
-void Feature<T>::set_value(T new_value) { value = new_value; };
-
-template <class T>
-Feature2D<T>::Feature2D(tLocation size_) : size(size_) {
-  matrix = new T*[size.first];
-  for(int x = 0; x < size.first; x++) {
-    matrix[x] = new T[size.second];
+void Feature::update() {
+  if(cicle_of_next_update >= parent_biotope_ptr->cicle) {
+    // Update feature's value.
   };
+  cicle_of_next_update += update_once_every();
 };
   
-template <class T>
-Feature2D<T>::~Feature2D() {
-  for(int x = 0; x < size.first; x++) {
-    delete[] matrix[x];
-  };
-  delete[] matrix;
-};
-  
-template <class T>
-T Feature2D<T>::get_value(tLocation location) {
-  return matrix[location.first][location.second];
-};
+void Feature::mutate() {};
 
 
 // *************** custom features ****************
+
+
 
 namespace biotope {
 
@@ -105,12 +88,12 @@ void OrganismsPool::_create_more_organisms() {
   for (auto &o : this->organisms_pool.back()) {
     this->available_organisms.push(&o);
   }
-}
+};
 
 OrganismsPool::OrganismsPool() {
   this->buffer_size = 100000;
   this->_create_more_organisms();
-}
+};
 
 Organism* OrganismsPool::get_new(pair<int, int> location,
                                  Ecosystem* parent_ecosystem_ptr) {
@@ -121,42 +104,70 @@ Organism* OrganismsPool::get_new(pair<int, int> location,
   this->available_organisms.pop();
   o->reset(location, parent_ecosystem_ptr);
   return o;
-}
+};
 
 void OrganismsPool::set_available(Organism *o) {
   this->available_organisms.push(o);
-}
+};
 
 RandomNumbersGenerator::RandomNumbersGenerator() :
     eng((random_device())()) {
-}
+};
 
 
 void RandomNumbersGenerator::set_seed(int seed) {
   this->eng.seed(seed);
-}
+};
 
 int RandomNumbersGenerator::get_uniform_rand_int(int min, int max) {
   uniform_int_distribution<int> distribution(min, max);
   return distribution(this->eng);
-}
+};
 
-Biotope::Biotope() {
+Biotope::Biotope(Ecosystem* parent_ecosystem) {
   int BIOTOPE_SIZE_X = 500;
   int BIOTOPE_SIZE_Y = 500;
   size_x = BIOTOPE_SIZE_X;
   size_y = BIOTOPE_SIZE_Y;
-}
+  cicle = 0;
+  parent_ecosystem_ptr = parent_ecosystem;
+};
 
+void Biotope::add_feature(Feature new_feature) {
+  Features_list.push_back(new_feature);
+};
+
+ErrorType Biotope::evolve() {
+  for(int i=0; i<Features_list.size(); i++) {
+    Features_list[i].update();
+  };
+  return No_error;
+};
+
+Organism* Biotope::get_organism(tLocation location) {
+  return organisms_map[location];
+};
+
+ErrorType Biotope::add_organism(Organism* new_organism_ptr, tLocation location) {
+  organisms_map[location] = new_organism_ptr;
+  return No_error;
+};
+
+ErrorType Biotope::move_organism(tLocation old_location, tLocation new_location) {
+  organisms_map[new_location] = organisms_map[old_location];
+  organisms_map[old_location] = nullptr;
+  organisms_map[new_location]->change_location(old_location, new_location);
+  return No_error;
+};
 
 void Ecosystem::_clear_ghost_organisms() {
   for (auto &ghost_organism_ptr : this->ghost_organisms_ptrs) {
     this->organisms_pool.set_available(ghost_organism_ptr);
-  }
+  };
   this->ghost_organisms_ptrs.clear();
-}
+};
 
-Ecosystem::Ecosystem() {
+Ecosystem::Ecosystem() : biotope(this) {
   this->random_nums_gen.set_seed(0);
   const int INITIAL_NUM_ORGANISMS = 200000;
   this->first_organism_node = nullptr;
@@ -192,6 +203,10 @@ void Ecosystem::append_organisms(Organism* organism) {
 
 void Ecosystem::evolve() {
   this->_clear_ghost_organisms();
+  this->biotope.evolve();
+  for(int i=0; i < featuresList.length; i++){
+    featuresList[i].update();
+  }
   Organism* organism = this->first_organism_node;
   while (organism != nullptr) {
     if (organism->is_alive) {

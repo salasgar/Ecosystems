@@ -607,7 +607,7 @@ class Organism(dict):
             """
             newborn['location'] = new_location
             if 'age' in newborn:
-                newborn['age'] = 0
+                newborn['age'] = 0  # Esto no es necesario hacerlo si ya se pone en los settings.
             # Trigger mutations:
             newborn.mutate()
             # The parent and the child share reserves:

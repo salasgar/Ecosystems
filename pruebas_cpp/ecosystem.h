@@ -8,162 +8,31 @@
 #include <vector>
 
 typedef std::pair<int, int> tLocation;
+typedef enum {No_error, Error_Organism_not_found, Error_no_free_location_found} ErrorType;
 
 class Organism;
 class Ecosystem;
-class clBaseFeature;
 class Biotope;
+class Feature;
 class OrganismsPool;
 class RandomNumbersGenerator;
-template <class T> class Feature;
-template <class T> class Feature2D;
-template <class T> class EcosystemFeature;
-template <class T> class EcosystemFeature2D;
-template <class T> class BiotopeFeature;
-template <class T> class BiotopeFeature2D;
-template <class T> class OrganismFeature;
-template <class T> class OrganismFeature2D;
 
-// ***************** clBaseFeature ******************
+// ***************** Base class Feature ******************
 
-class clBaseFeature {
+class Feature { // Base class
  public:
-  clBaseFeature();
-  void update();
-  void mutate();
-};
-
-// ************ Feature ****** Feature2D **************
-
-template <class T>
-class Feature : clBaseFeature {
- protected:
-  T value;
+  Biotope *parent_biotope_ptr;
+  Ecosystem *parent_ecosystem_ptr;
+  float cicle_of_next_update; // It doesn't have to be always integer
  public:
-  Feature(T initial_value);
-  T get_value();
-  void set_value(T new_value);
+  Feature(Biotope &parent_biotope, Ecosystem &parent_ecosystem);
+  virtual void set_initial_value();
+  virtual void update();
+  virtual float update_once_every();
+  virtual void mutate();
+  virtual void confine_into_boundaries();
 };
 
-template <class T>
-class Feature2D : clBaseFeature {
- protected:
-  tLocation size; // matrix's dimensions
-  T **matrix;
- public:
-  Feature2D(tLocation size_);
-  ~Feature2D();
-  T get_value(tLocation location);
-};
-
-// ******* EcosystemFeature ****** EcosystemFeature2D *******
-
-template <class T>
-class EcosystemFeature : public Feature<T> {
- public:
-  EcosystemFeature(Ecosystem parentEcosystem, T initial_value);
-  T get_value(Ecosystem parentEcosystem);
-  void set_value(T new_value);
-  void update(Ecosystem parentEcosystem);
-};
-
-template <class T>
-class EcosystemFeature2D : public Feature2D<T> {
- protected:
-  tLocation size; // matrix's dimensions
-  T **matrix;
- public:
-  EcosystemFeature2D(Ecosystem parentEcosystem, tLocation size_);
-  ~EcosystemFeature2D();
-  T get_value(Ecosystem parentEcosystem, tLocation location);
-  void update(Ecosystem parentEcosystem);
-};
-
-// ******** BiotopeFeature ****** BiotopeFeature2D *********
-
-template <class T>
-class BiotopeFeature : public Feature<T> {
- protected:
-  T value;
- public:
-  BiotopeFeature(Biotope parentBiotope, T initial_value);
-  T get_value(Biotope parentBiotope);
-  void set_value(T new_value);
-  void update(Biotope parentBiotope);
-};
-
-template <class T>
-class BiotopeFeature2D : public Feature2D<T> {
- protected:
-  tLocation size; // matrix's dimensions
-  T **matrix;
- public:
-  BiotopeFeature2D(Biotope parentBiotope, tLocation size_);
-  ~BiotopeFeature2D();
-  T get_value(Biotope parentBiotope, tLocation location);
-  void update(Biotope parentBiotope);
-};
-
-// ******** OrganismFeature ****** OrganismFeature2D *********
-
-template <class T>
-class OrganismFeature : public Feature<T> {
- protected:
-  T value;
- public:
-  OrganismFeature(Organism parentOrganism, T initial_value);
-  T get_value(Organism parentOrganism);
-  void set_value(T new_value);
-  void update(Organism parentOrganism);
-};
-
-template <class T>
-class OrganismFeature2D : public Feature2D<T> {
- protected:
-  tLocation size; // matrix's dimensions
-  T **matrix;
- public:
-  OrganismFeature2D(Organism parentOrganism, tLocation size_);
-  ~OrganismFeature2D();
-  T get_value(Organism parentOrganism, tLocation location);
-  void update(Organism parentOrganism);
-};
-
-// *************** custom features ****************
-
-namespace biotope {
-
-  class Sun_light : BiotopeFeature2D<float> {
-   public:
-    float get_value(Biotope parentBiotope, tLocation location);
-    Sun_light(Biotope parentBiotope, tLocation size_);
-  };
-
-  class Temperature : BiotopeFeature2D<float> {
-   public:
-    Temperature(Biotope parentBiotope, tLocation size_);
-    void update(Biotope parentBiotope);
-  };
-
-};
-
-namespace plant_A {
-
-  class Energy_reserve : OrganismFeature <float> {
-    Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value);
-    void update(Biotope parentBiotope, Organism parentOrganism);
-  };
-
-};
-
-namespace plant_B {
-
-  class Energy_reserve : OrganismFeature <float> {
-    Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value);
-    void update(Biotope parentBiotope, Organism parentOrganism);
-  };
-
-};
 
 
 class OrganismsPool {
@@ -189,10 +58,18 @@ class RandomNumbersGenerator {
 class Biotope {
  public:
   Ecosystem* parent_ecosystem_ptr;
+  long int cicle;
   int size_x;
   int size_y;
   std::map<std::pair<int, int>, Organism*> organisms_map;
-  Biotope();
+  std::vector<Feature> Features_list;
+ public:
+  Biotope(Ecosystem* parent_ecosystem_ptr);
+  void add_feature(Feature new_feature);
+  ErrorType evolve();
+  Organism* get_organism(tLocation location);
+  ErrorType add_organism(Organism* new_organism_ptr, tLocation location);
+  ErrorType move_organism(tLocation old_location, tLocation new_location);
 };
 
 class Ecosystem {
@@ -227,7 +104,60 @@ class Organism {
   void do_age();
   void do_die();
   void unlink();
+  void change_location(tLocation old_location, tLocation new_location);
 };
 
 #endif  // ECOSYSTEM_H_INCLUDED
 
+// *************** custom features ****************
+
+int Photosynthesis_capacity::get_value() {
+  return Ph_capacity;
+};
+
+namespace biotope {
+
+  class Sun_light : Feature {
+   public:
+    std::vector<float> data;
+    Biotope *parent_biotope_ptr;
+   public:
+    float get_value(tLocation location);
+    Sun_light(tLocation size_);
+  };
+
+  class Temperature : Feature {
+   public:
+    std::vector<float> data;
+    Biotope *parent_biotope_ptr;
+   public:
+    Temperature(tLocation size_);
+    void update();
+  };
+
+};
+
+namespace plant_A {
+  // Example of feature:
+
+  class Photosynthesis_capacity : Feature {
+   public:
+    static const int Ph_capacity = 100;
+    int get_value();
+  };
+
+  class Energy_reserve : OrganismFeature <float> {
+    Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value);
+    void update(Biotope parentBiotope, Organism parentOrganism);
+  };
+
+};
+
+namespace plant_B {
+
+  class Energy_reserve : OrganismFeature <float> {
+    Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value);
+    void update(Biotope parentBiotope, Organism parentOrganism);
+  };
+
+};
