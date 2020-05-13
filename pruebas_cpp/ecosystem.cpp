@@ -29,10 +29,10 @@ Feature::Feature(
 };
 
 void Feature::update() {
-  if(cicle_of_next_update >= parent_biotope_ptr->cicle) {
+  if(cycle_of_next_update >= parent_ecosystem_ptr->cycle) {
     // Update feature's value.
   };
-  cicle_of_next_update += update_once_every();
+  cycle_of_next_update += update_once_every();
 };
   
 void Feature::mutate() {};
@@ -44,8 +44,10 @@ void Feature::mutate() {};
 
 namespace biotope {
 
+// TO DO: fix these examples:
+
   Sun_light::Sun_light(Biotope parentBiotope, tLocation size_)
-    : BiotopeFeature2D<float>(parentBiotope, tLocation(0, 0)) {}; // El tamaño de la matriz es 0x0, es decir, que no hay matriz.
+    : Feature (parentBiotope,) {}; // El tamaño de la matriz es 0x0, es decir, que no hay matriz.
 
   float Sun_light::get_value(Biotope parentBiotope, tLocation location) {
     return 0; // En realidad habría que poner: return (1 + abs(sin(2 * pi * ecosystem.time/365))) * (1 + abs(sin(pi * location.second/biotope.size.y)))
@@ -69,6 +71,9 @@ namespace plant_A { // plantas que viven en sitios con POCA luz
     // value += -10 + 20 * parentBiotope.Features['Sun light'].get_value(parentBiotope, parentOrganism.location);
   };
 
+  int Photosynthesis_capacity::get_value() {
+    return Ph_capacity;
+  };
 };
 
 namespace plant_B { // plantas que viven en sitio con MUCHA luz
@@ -129,17 +134,16 @@ Biotope::Biotope(Ecosystem* parent_ecosystem) {
   int BIOTOPE_SIZE_Y = 500;
   size_x = BIOTOPE_SIZE_X;
   size_y = BIOTOPE_SIZE_Y;
-  cicle = 0;
   parent_ecosystem_ptr = parent_ecosystem;
 };
 
 void Biotope::add_feature(Feature new_feature) {
-  Features_list.push_back(new_feature);
+  biotope_features_list.push_back(new_feature);
 };
 
 ErrorType Biotope::evolve() {
-  for(int i=0; i<Features_list.size(); i++) {
-    Features_list[i].update();
+  for(int i=0; i<biotope_features_list.size(); i++) {
+    biotope_features_list[i].update();
   };
   return No_error;
 };
@@ -169,6 +173,7 @@ void Ecosystem::_clear_ghost_organisms() {
 
 Ecosystem::Ecosystem() : biotope(this) {
   this->random_nums_gen.set_seed(0);
+  this->cycle = 0;
   const int INITIAL_NUM_ORGANISMS = 200000;
   this->first_organism_node = nullptr;
   this->last_organism_node = nullptr;
@@ -187,6 +192,10 @@ Ecosystem::Ecosystem() : biotope(this) {
   }
 }
 
+void Ecosystem::add_feature(Feature new_feature) {
+  ecosystem_features_list.push_back(new_feature);
+};
+
 void Ecosystem::append_organisms(Organism* organism) {
   if (this->first_organism_node == nullptr) {
     this->first_organism_node = organism;
@@ -204,8 +213,8 @@ void Ecosystem::append_organisms(Organism* organism) {
 void Ecosystem::evolve() {
   this->_clear_ghost_organisms();
   this->biotope.evolve();
-  for(int i=0; i < featuresList.length; i++){
-    featuresList[i].update();
+  for(int i=0; i < ecosystem_features_list.size(); i++){
+    ecosystem_features_list[i].update();
   }
   Organism* organism = this->first_organism_node;
   while (organism != nullptr) {
@@ -214,7 +223,7 @@ void Ecosystem::evolve() {
     }
     organism = organism->next;
   }
-  this->time += 1;
+  this->cycle += 1;
 }
 
 

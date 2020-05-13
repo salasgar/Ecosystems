@@ -23,7 +23,7 @@ class Feature { // Base class
  public:
   Biotope *parent_biotope_ptr;
   Ecosystem *parent_ecosystem_ptr;
-  float cicle_of_next_update; // It doesn't have to be always integer
+  float cycle_of_next_update; // It doesn't have to be always integer
  public:
   Feature(Biotope &parent_biotope, Ecosystem &parent_ecosystem);
   virtual void set_initial_value();
@@ -58,11 +58,10 @@ class RandomNumbersGenerator {
 class Biotope {
  public:
   Ecosystem* parent_ecosystem_ptr;
-  long int cicle;
   int size_x;
   int size_y;
   std::map<std::pair<int, int>, Organism*> organisms_map;
-  std::vector<Feature> Features_list;
+  std::vector<Feature> biotope_features_list;
  public:
   Biotope(Ecosystem* parent_ecosystem_ptr);
   void add_feature(Feature new_feature);
@@ -79,10 +78,13 @@ class Ecosystem {
   Organism* last_organism_node;
   RandomNumbersGenerator random_nums_gen;
   OrganismsPool organisms_pool;
-  int time;
+  long int cycle;
   std::vector<Organism*> ghost_organisms_ptrs;
   Biotope biotope;
+  std::vector<Feature> ecosystem_features_list;
+ public:
   Ecosystem();
+  void add_feature(Feature new_feature);
   void append_organisms(Organism* organisms);
   void evolve();
   void kill_and_remove_organism(Organism* organism);
@@ -98,6 +100,8 @@ class Organism {
   std::pair<int, int> location;
   int age;
   int death_age;
+  std::vector<Feature> ecosystem_features_list;
+ public:
   void reset(std::pair<int, int> location,
              Ecosystem* parent_ecosystem_ptr);
   void act();
@@ -111,9 +115,6 @@ class Organism {
 
 // *************** custom features ****************
 
-int Photosynthesis_capacity::get_value() {
-  return Ph_capacity;
-};
 
 namespace biotope {
 
@@ -146,7 +147,7 @@ namespace plant_A {
     int get_value();
   };
 
-  class Energy_reserve : OrganismFeature <float> {
+  class Energy_reserve : Feature {
     Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value);
     void update(Biotope parentBiotope, Organism parentOrganism);
   };
@@ -155,7 +156,7 @@ namespace plant_A {
 
 namespace plant_B {
 
-  class Energy_reserve : OrganismFeature <float> {
+  class Energy_reserve : Feature {
     Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value);
     void update(Biotope parentBiotope, Organism parentOrganism);
   };
