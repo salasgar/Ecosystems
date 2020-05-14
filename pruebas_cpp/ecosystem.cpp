@@ -2,7 +2,7 @@
 #include <random>
 #include <iostream>
 #include <numeric>
-#include "ecosystem.h"
+#include "ecosystem.hpp"
 #include "math.h"
 #define _USE_MATH_DEFINES
 

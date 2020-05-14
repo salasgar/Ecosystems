@@ -19,7 +19,10 @@ class Organism;
 class OrganismsPool;
 class RandomNumbersGenerator;
 
-
+/*******************************
+  Utils classes
+ ********************************
+ */
 class OrganismsPool {
   void _create_more_organisms();
  public:

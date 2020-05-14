@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		07868AEE24684F6F00C60627 /* test_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 07868AEC24684F6F00C60627 /* test_main.cpp */; };
 		07868AEF24684F6F00C60627 /* ecosystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 07868AED24684F6F00C60627 /* ecosystem.cpp */; };
+		07868AFA246DF8AB00C60627 /* pool_of_organisms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 07868AF8246DF8AB00C60627 /* pool_of_organisms.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,9 +26,11 @@
 
 /* Begin PBXFileReference section */
 		07868AE124684F0800C60627 /* Ecosystem */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Ecosystem; sourceTree = BUILT_PRODUCTS_DIR; };
-		07868AEB24684F6F00C60627 /* ecosystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ecosystem.h; path = ../../ecosystem.h; sourceTree = "<group>"; };
+		07868AEB24684F6F00C60627 /* ecosystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ecosystem.hpp; path = ../../ecosystem.hpp; sourceTree = "<group>"; };
 		07868AEC24684F6F00C60627 /* test_main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_main.cpp; path = ../../test_main.cpp; sourceTree = "<group>"; };
 		07868AED24684F6F00C60627 /* ecosystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ecosystem.cpp; path = ../../ecosystem.cpp; sourceTree = "<group>"; };
+		07868AF8246DF8AB00C60627 /* pool_of_organisms.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = pool_of_organisms.cpp; path = ../../pool_of_organisms.cpp; sourceTree = "<group>"; };
+		07868AF9246DF8AB00C60627 /* pool_of_organisms.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = pool_of_organisms.hpp; path = ../../pool_of_organisms.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -61,8 +64,10 @@
 			isa = PBXGroup;
 			children = (
 				07868AED24684F6F00C60627 /* ecosystem.cpp */,
-				07868AEB24684F6F00C60627 /* ecosystem.h */,
+				07868AEB24684F6F00C60627 /* ecosystem.hpp */,
 				07868AEC24684F6F00C60627 /* test_main.cpp */,
+				07868AF8246DF8AB00C60627 /* pool_of_organisms.cpp */,
+				07868AF9246DF8AB00C60627 /* pool_of_organisms.hpp */,
 			);
 			path = Ecosystem;
 			sourceTree = "<group>";
@@ -126,6 +131,7 @@
 			files = (
 				07868AEF24684F6F00C60627 /* ecosystem.cpp in Sources */,
 				07868AEE24684F6F00C60627 /* test_main.cpp in Sources */,
+				07868AFA246DF8AB00C60627 /* pool_of_organisms.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
