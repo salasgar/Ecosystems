@@ -20,22 +20,28 @@ using std::end;
 
 // ***************** Base class Feature ******************
 
-Feature::Feature(
+template <class T>
+Feature<T>::Feature(
     Biotope &parent_biotope,
     Ecosystem &parent_ecosystem) {
-  parent_biotope_ptr = &parent_biotope;
-  parent_ecosystem_ptr = &parent_ecosystem;
-  set_initial_value();
+  this->parent_biotope_ptr = &parent_biotope;
+  this->parent_ecosystem_ptr = &parent_ecosystem;
+  this->set_initial_value();
 };
 
-void Feature::update() {
-  if(cycle_of_next_update >= parent_ecosystem_ptr->cycle) {
+void Base_class_feature::update() {
+  if(this->cycle_of_next_update >= this->parent_ecosystem_ptr->cycle) {
     // Update feature's value.
   };
-  cycle_of_next_update += update_once_every();
+  this->cycle_of_next_update += this->update_once_every();
 };
   
-void Feature::mutate() {};
+template <class T>
+void OrganismFeature<T>::mutate() {};
+
+template <class T>
+OrganismFeature<T>::OrganismFeature(Organism &parent_organism, Biotope &parent_biotope, Ecosystem &parent_ecosystem)
+: Feature<T>(parent_biotope, parent_ecosystem), parent_organism_ptr(&parent_organism) {};
 
 
 // *************** custom features ****************
@@ -46,17 +52,26 @@ namespace biotope {
 
 // TO DO: fix these examples:
 
-  Sun_light::Sun_light(Biotope parentBiotope, tLocation size_)
-    : Feature (parentBiotope,) {}; // El tamaño de la matriz es 0x0, es decir, que no hay matriz.
+  Sun_light::Sun_light(Biotope &parent_biotope, Ecosystem &parent_ecosystem)
+    : Feature<float> (parent_biotope, parent_ecosystem) {}; // El tamaño de la matriz es 0x0, es decir, que no hay matriz.
 
-  float Sun_light::get_value(Biotope parentBiotope, tLocation location) {
-    return 0; // En realidad habría que poner: return (1 + abs(sin(2 * pi * ecosystem.time/365))) * (1 + abs(sin(pi * location.second/biotope.size.y)))
+  float Sun_light::get_value(tLocation location) {
+    return 0; // En realidad habría que poner: return (1 + abs(sin(2 * pi * ecosystem->cycle/365))) * (1 + abs(sin(pi * location.second/biotope.size.y)))
   };
     
-  Temperature::Temperature(Biotope parentBiotope, tLocation size_) : BiotopeFeature2D<float>(parentBiotope, tLocation(0, 5)){}; // El tamaño de la matriz es 0x5, es decir, que hay 5 zonas climáticas que dependen únicamente de la latitud y no de la longitud.
+  Temperature::Temperature(Biotope &parent_biotope, Ecosystem &parent_ecosystem) : Feature (parent_biotope, parent_ecosystem) {
+    data = {0, 0, 0, 0, 0}; // El tamaño de la matriz es 0x5, es decir, que hay 5 zonas climáticas que dependen únicamente de la latitud y no de la longitud.
+  };
 
-  void Temperature::update(Biotope parentBiotope) {
-    for(int y=0; y<size.second; y++) {
+  float Temperature::get_value(tLocation location) {
+    int y = int(std::trunc(float(location.second)/this->parent_biotope_ptr->size_y));
+    return y;
+  };
+
+  void Temperature::update() {
+    for(int y=0; y<5; y++) {
+      data[y] += parent_biotope_ptr->biotope_features_list["sun light"].get_value(tLocation(0, int(y * parent_biotope_ptr->size_y / 5)));
+    
       // matrix[0][y] += parentBiotope.Features['Sun light'].get_value(0, y) - 0.05 * matrix[0][y];
       // Es decir, que en cada ciclo se pierde un 5% de la temperatura y se gana tanta temperatura como luz solar haya en cada franja climática.
     }
@@ -132,28 +147,28 @@ int RandomNumbersGenerator::get_uniform_rand_int(int min, int max) {
 Biotope::Biotope(Ecosystem* parent_ecosystem) {
   int BIOTOPE_SIZE_X = 500;
   int BIOTOPE_SIZE_Y = 500;
-  size_x = BIOTOPE_SIZE_X;
-  size_y = BIOTOPE_SIZE_Y;
-  parent_ecosystem_ptr = parent_ecosystem;
+  this->size_x = BIOTOPE_SIZE_X;
+  this->size_y = BIOTOPE_SIZE_Y;
+  this->parent_ecosystem_ptr = parent_ecosystem;
 };
 
 void Biotope::add_feature(Feature new_feature) {
-  biotope_features_list.push_back(new_feature);
+  this->biotope_features_list.push_back(new_feature);
 };
 
 ErrorType Biotope::evolve() {
-  for(int i=0; i<biotope_features_list.size(); i++) {
-    biotope_features_list[i].update();
+  for(int i=0; i<this->biotope_features_list.size(); i++) {
+    this->biotope_features_list[i].update();
   };
   return No_error;
 };
 
 Organism* Biotope::get_organism(tLocation location) {
-  return organisms_map[location];
+  return this->organisms_map[location];
 };
 
 ErrorType Biotope::add_organism(Organism* new_organism_ptr, tLocation location) {
-  organisms_map[location] = new_organism_ptr;
+  this->organisms_map[location] = new_organism_ptr;
   return No_error;
 };
 
@@ -193,7 +208,7 @@ Ecosystem::Ecosystem() : biotope(this) {
 }
 
 void Ecosystem::add_feature(Feature new_feature) {
-  ecosystem_features_list.push_back(new_feature);
+  this->ecosystem_features_list.push_back(new_feature);
 };
 
 void Ecosystem::append_organisms(Organism* organism) {
@@ -250,6 +265,8 @@ void Organism::reset(pair<int, int> location,
   this->death_age =
     this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_int(
       1, MAX_AGE);
+  
+  // To do: reset organism features
 }
 
 void Organism::act() {
