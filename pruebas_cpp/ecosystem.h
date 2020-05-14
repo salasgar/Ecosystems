@@ -66,7 +66,7 @@ class Ecosystem {
   long int cycle;
   std::vector<Organism*> ghost_organisms_ptrs;
   Biotope biotope;
- public:
+ // methods:
   Ecosystem();
   void append_organisms(Organism* organisms);
   void evolve();
@@ -82,7 +82,7 @@ class Organism {
   Ecosystem* parent_ecosystem_ptr;
   Biotope* parent_biotope_ptr;
   std::pair<int, int> location;
- public:
+ // methods:
   void reset(std::pair<int, int> location,
              Ecosystem* parent_ecosystem_ptr);
   void act();
@@ -119,7 +119,7 @@ class Plant_A : public Organism {
     float data;
     Organism *parent_organism_ptr;
     Biotope *parent_biotope_ptr;
-    Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value);
+    Energy_reserve(Biotope *parentBiotope, Organism *parentOrganism, float initial_value);
     void update();
     float get_value();
   };
@@ -142,7 +142,7 @@ class Plant_B : public Organism {
     float data;
     Organism *parent_organism_ptr;
     Biotope *parent_biotope_ptr;
-    Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value);
+    Energy_reserve(Biotope *parentBiotope, Organism *parentOrganism, float initial_value);
     void update();
   };
 
@@ -153,7 +153,7 @@ class Plant_B : public Organism {
   Energy_reserve energy_reserve;
   int age;
  public:
-  Plant_B(Biotope parentBiotope);
+  Plant_B(Biotope *parentBiotope);
   void do_photosynthesis();
   void do_age();
   void do_procreate();
@@ -164,7 +164,7 @@ class Herbivore : public Organism {
  public:
   float energy_reserve;
  public:
-  Herbivore(Biotope parentBiotope);
+  Herbivore(Biotope *parentBiotope);
   void do_move();
   void do_hunt();
   void do_eat(Plant_A plant_a);
@@ -175,7 +175,7 @@ class Carnivore : public Organism {
   public:
    float energy_reserve;
   public:
-   Carnivore(Biotope parentBiotope);
+   Carnivore(Biotope *parentBiotope);
    void do_move();
    void do_hunt();
    void do_eat(Herbivore hervibore);

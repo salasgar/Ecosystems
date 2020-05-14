@@ -53,7 +53,9 @@ void Temperature::update() {
 
 // plant_A: plantas que viven en sitios con POCA luz
   
-Plant_A::Energy_reserve::Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value) : parent_organism_ptr(&parentOrganism), parent_biotope_ptr(&parentBiotope), data(initial_value) {};
+Plant_A::Energy_reserve::Energy_reserve(Biotope *parentBiotope, Organism *parentOrganism, float initial_value) : parent_organism_ptr(parentOrganism), parent_biotope_ptr(parentBiotope),
+  data(initial_value)
+{};
 
 void Plant_A::Energy_reserve::update() {
   this->data += -10 + 20 * (this->parent_biotope_ptr->sun_light->get_value(parent_organism_ptr->location));
@@ -65,13 +67,13 @@ bool Plant_A::decide_procreate() {
 
 // plant_B: plantas que viven en sitio con MUCHA luz
    
-Plant_B::Energy_reserve::Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value) : parent_organism_ptr(&parentOrganism), parent_biotope_ptr(&parentBiotope), data(initial_value) {};
+Plant_B::Energy_reserve::Energy_reserve(Biotope *parentBiotope, Organism *parentOrganism, float initial_value) : parent_organism_ptr(parentOrganism), parent_biotope_ptr(parentBiotope), data(initial_value) {};
 
 void Plant_B::Energy_reserve::update() {
   this->data += -25 + 34 * (this->parent_biotope_ptr->sun_light->get_value(parent_organism_ptr->location));
 };
 
-Plant_B::Plant_B(Biotope parentBiotope) : energy_reserve(parentBiotope, *this, 1000.0), age(0) {};
+Plant_B::Plant_B(Biotope *parentBiotope) : energy_reserve(parentBiotope, this, 1000.0), age(0) {};
 
 void Plant_B::do_age() {
   this->age += 1;
@@ -85,9 +87,13 @@ void Plant_B::act() {
   if(this->energy_reserve.data < 100) do_die(); // Constraint
 };
 
-Herbivore::Herbivore(Biotope parentBiotope) : parent_biotope_ptr(&parentBiotope) {
+Herbivore::Herbivore(Biotope *parentBiotope) {
+  parent_biotope_ptr = parentBiotope;
 };
 
+Carnivore::Carnivore(Biotope *parentBiotope) {
+  parent_biotope_ptr = parentBiotope;
+};
 
 
 
@@ -109,7 +115,7 @@ Organism* OrganismsPool::get_new(pair<int, int> location,
                                  Ecosystem* parent_ecosystem_ptr) {
   if (this->available_organisms.empty()) {
     this->_create_more_organisms();
-  }
+  };
   Organism* o = this->available_organisms.top();
   this->available_organisms.pop();
   o->reset(location, parent_ecosystem_ptr);
@@ -188,13 +194,13 @@ Ecosystem::Ecosystem() : biotope(this) {
     loc_y = free_loc_int % this->biotope.size_y;
     Organism* o = this->organisms_pool.get_new(make_pair(loc_x, loc_y), this);
     this->append_organisms(o);
-  }
-}
+  };
+};
 
 void Ecosystem::append_organisms(Organism* organism) {
   if (this->first_organism_node == nullptr) {
     this->first_organism_node = organism;
-  }
+  };
   while (organism != nullptr) {
     organism->prev = this->last_organism_node;
     if (this->last_organism_node != nullptr)
@@ -202,8 +208,8 @@ void Ecosystem::append_organisms(Organism* organism) {
     this->last_organism_node = organism;
     this->biotope.organisms_map[organism->location] = organism;
     organism = organism->next;
-  }
-}
+  };
+};
 
 void Ecosystem::evolve() {
   this->_clear_ghost_organisms();
@@ -212,11 +218,11 @@ void Ecosystem::evolve() {
   while (organism != nullptr) {
     if (organism->is_alive) {
       organism->act();
-    }
+    };
     organism = organism->next;
-  }
+  };
   this->cycle += 1;
-}
+};
 
 
 void Ecosystem::kill_and_remove_organism(Organism* organism) {
@@ -224,11 +230,11 @@ void Ecosystem::kill_and_remove_organism(Organism* organism) {
     biotope.organisms_map.erase(organism->location);
     organism->unlink();
     this->ghost_organisms_ptrs.push_back(organism);
-}
+};
 
 int Ecosystem::get_num_organisms() {
   return (int)this->biotope.organisms_map.size();
-}
+};
 
 void Organism::reset(pair<int, int> location,
                      Ecosystem* parent_ecosystem_ptr) {
@@ -244,11 +250,11 @@ void Organism::act() {};
 
 void Organism::do_die() {
     this->parent_ecosystem_ptr->kill_and_remove_organism(this);
-}
+};
 
 void Organism::unlink() {
   if (this->next != nullptr)
     this->next->prev = this->prev;
   if (this->prev != nullptr)
     this->prev->next = this->next;
-}
+};
