@@ -3,6 +3,8 @@
 #include <iostream>
 #include <numeric>
 #include "ecosystem.h"
+#include "math.h"
+#define _USE_MATH_DEFINES
 
 using std::pair;
 using std::get;
@@ -18,13 +20,11 @@ using std::iota;
 using std::begin;
 using std::end;
 
-// TO DO: fix these examples:
-
 Sun_light::Sun_light(Biotope &parent_biotope, Ecosystem &parent_ecosystem)
   : parent_biotope_ptr(&parent_biotope), parent_ecosystem_ptr(&parent_ecosystem) {}; // El tamaño de la matriz es 0x0, es decir, que no hay matriz.
 
 float Sun_light::get_value(fLocation location) {
-  return 0; // En realidad habría que poner: return (1 + abs(sin(2 * pi * ecosystem->cycle/365))) * (1 + abs(sin(pi * location.second/biotope.size.y)))
+  return (1 + abs(sin(2 * M_PI * parent_ecosystem_ptr->cycle / 365.0))) * (1 + abs(sin(M_PI * location.second / float(parent_biotope_ptr->size_y))));
 };
   
 Temperature::Temperature(Biotope &parent_biotope, Ecosystem &parent_ecosystem)
@@ -77,13 +77,22 @@ void Plant_B::do_age() {
   this->age += 1;
   if (this->age > this->death_age) {
     this->do_die();
-  }
+  };
 };
 
 void Plant_B::act() {
   this->do_age();
+  if(this->energy_reserve.data < 100) do_die(); // Constraint
 };
 
+Herbivore::Herbivore(Biotope parentBiotope) : parent_biotope_ptr(&parentBiotope) {
+};
+
+
+
+
+
+// ****************** OrganismsPool *********************
 void OrganismsPool::_create_more_organisms() {
   this->organisms_pool.push_back(vector<Organism>(this->buffer_size));
   for (auto &o : this->organisms_pool.back()) {

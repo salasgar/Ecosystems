@@ -13,9 +13,9 @@ typedef enum {No_error, Error_Organism_not_found, Error_no_free_location_found} 
 
 class Sun_light;
 class Temperature;
-class Organism;
 class Ecosystem;
 class Biotope;
+class Organism;
 class OrganismsPool;
 class RandomNumbersGenerator;
 
@@ -91,8 +91,6 @@ class Organism {
   void change_location(tLocation old_location, tLocation new_location);
 };
 
-#endif  // ECOSYSTEM_H_INCLUDED
-
 class Sun_light {
  public:
   std::vector<float> data;
@@ -126,6 +124,7 @@ class Plant_A : public Organism {
     float get_value();
   };
 
+ // class Plant_A:
 public:
  static const int photosynthesis_capacity = 100;
  Energy_reserve energy_reserve;
@@ -147,7 +146,7 @@ class Plant_B : public Organism {
     void update();
   };
 
-  // class Plant_B
+  // class Plant_B:
  public:
   static const int photosynthesis_capacity = 120;
   static const int death_age = 1000;
@@ -161,4 +160,26 @@ class Plant_B : public Organism {
   void act();
 };  // *************** class Plant_B ***************
 
+class Herbivore : public Organism {
+ public:
+  float energy_reserve;
+ public:
+  Herbivore(Biotope parentBiotope);
+  void do_move();
+  void do_hunt();
+  void do_eat(Plant_A plant_a);
+  void do_eat(Plant_B plant_b);
+};
 
+class Carnivore : public Organism {
+  public:
+   float energy_reserve;
+  public:
+   Carnivore(Biotope parentBiotope);
+   void do_move();
+   void do_hunt();
+   void do_eat(Herbivore hervibore);
+};
+
+
+#endif  // ECOSYSTEM_H_INCLUDED
