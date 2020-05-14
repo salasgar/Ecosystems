@@ -80,6 +80,7 @@ class Organism {
   Organism* next;
   bool is_alive;
   Ecosystem* parent_ecosystem_ptr;
+  Biotope* parent_biotope_ptr;
   std::pair<int, int> location;
  public:
   void reset(std::pair<int, int> location,
@@ -113,14 +114,15 @@ class Temperature {
   void update();
 };
 
-class Plant_A : Organism {
+class Plant_A : public Organism {
 
   class Energy_reserve {
    public:
     float data;
     Organism *parent_organism_ptr;
+    Biotope *parent_biotope_ptr;
     Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value);
-    void update(Biotope parentBiotope, Organism parentOrganism);
+    void update();
     float get_value();
   };
 
@@ -134,28 +136,29 @@ public:
  bool decide_procreate();
 }; // *************** class Plant_A ***************
 
-class Plant_B : Organism {
-
-  class Photosynthesis_capacity {
-   public:
-    static const int Ph_capacity = 100;
-    float get_value();
-  };
+class Plant_B : public Organism {
 
   class Energy_reserve {
    public:
     float data;
     Organism *parent_organism_ptr;
+    Biotope *parent_biotope_ptr;
     Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value);
-    void update(Biotope parentBiotope, Organism parentOrganism);
+    void update();
   };
 
   // class Plant_B
  public:
   static const int photosynthesis_capacity = 120;
+  static const int death_age = 1000;
   Energy_reserve energy_reserve;
+  int age;
+ public:
+  Plant_B(Biotope parentBiotope);
   void do_photosynthesis();
-  void procreate();
+  void do_age();
+  void do_procreate();
+  void act();
 };  // *************** class Plant_B ***************
 
 

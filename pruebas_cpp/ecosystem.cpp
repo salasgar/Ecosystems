@@ -53,10 +53,10 @@ void Temperature::update() {
 
 // plant_A: plantas que viven en sitios con POCA luz
   
-Plant_A::Energy_reserve::Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value) : parent_organism_ptr(&parentOrganism), data(initial_value) {};
+Plant_A::Energy_reserve::Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value) : parent_organism_ptr(&parentOrganism), parent_biotope_ptr(&parentBiotope), data(initial_value) {};
 
-void Plant_A::Energy_reserve::update(Biotope parentBiotope, Organism parentOrganism) {
-  // value += -10 + 20 * parentBiotope.Features['Sun light'].get_value(parentBiotope, parentOrganism.location);
+void Plant_A::Energy_reserve::update() {
+  this->data += -10 + 20 * (this->parent_biotope_ptr->sun_light->get_value(parent_organism_ptr->location));
 };
 
 bool Plant_A::decide_procreate() {
@@ -65,12 +65,24 @@ bool Plant_A::decide_procreate() {
 
 // plant_B: plantas que viven en sitio con MUCHA luz
    
-Plant_B::Energy_reserve::Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value) : parent_organism_ptr(&parentOrganism), data(initial_value) {};
+Plant_B::Energy_reserve::Energy_reserve(Biotope parentBiotope, Organism parentOrganism, float initial_value) : parent_organism_ptr(&parentOrganism), parent_biotope_ptr(&parentBiotope), data(initial_value) {};
 
-void Plant_B::Energy_reserve::update(Biotope parentBiotope, Organism parentOrganism) {
-    // value += -25 + 34 * parentBiotope.Features['Sun light'].get_value(parentBiotope, parentOrganism.location);
-  };
+void Plant_B::Energy_reserve::update() {
+  this->data += -25 + 34 * (this->parent_biotope_ptr->sun_light->get_value(parent_organism_ptr->location));
+};
 
+Plant_B::Plant_B(Biotope parentBiotope) : energy_reserve(parentBiotope, *this, 1000.0), age(0) {};
+
+void Plant_B::do_age() {
+  this->age += 1;
+  if (this->age > this->death_age) {
+    this->do_die();
+  }
+};
+
+void Plant_B::act() {
+  this->do_age();
+};
 
 void OrganismsPool::_create_more_organisms() {
   this->organisms_pool.push_back(vector<Organism>(this->buffer_size));
@@ -121,14 +133,8 @@ Biotope::Biotope(Ecosystem* parent_ecosystem) {
   this->parent_ecosystem_ptr = parent_ecosystem;
 };
 
-void Biotope::add_feature(Feature new_feature) {
-  this->biotope_features_list.push_back(new_feature);
-};
-
 ErrorType Biotope::evolve() {
-  for(int i=0; i<this->biotope_features_list.size(); i++) {
-    this->biotope_features_list[i].update();
-  };
+  this->temperature->update();
   return No_error;
 };
 
@@ -176,10 +182,6 @@ Ecosystem::Ecosystem() : biotope(this) {
   }
 }
 
-void Ecosystem::add_feature(Feature new_feature) {
-  this->ecosystem_features_list.push_back(new_feature);
-};
-
 void Ecosystem::append_organisms(Organism* organism) {
   if (this->first_organism_node == nullptr) {
     this->first_organism_node = organism;
@@ -197,9 +199,6 @@ void Ecosystem::append_organisms(Organism* organism) {
 void Ecosystem::evolve() {
   this->_clear_ghost_organisms();
   this->biotope.evolve();
-  for(int i=0; i < ecosystem_features_list.size(); i++){
-    ecosystem_features_list[i].update();
-  }
   Organism* organism = this->first_organism_node;
   while (organism != nullptr) {
     if (organism->is_alive) {
@@ -229,25 +228,10 @@ void Organism::reset(pair<int, int> location,
   this->location = location;
   this->parent_ecosystem_ptr = parent_ecosystem_ptr;
   this->is_alive = true;
-  this->age = 0;
   const int MAX_AGE = 2000;
-  this->death_age =
-    this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_int(
-      1, MAX_AGE);
-  
-  // To do: reset organism features
-}
+};
 
-void Organism::act() {
-  this->do_age();
-}
-
-void Organism::do_age() {
-  this->age += 1;
-  if (this->age > this->death_age) {
-    this->do_die();
-  }
-}
+void Organism::act() {};
 
 void Organism::do_die() {
     this->parent_ecosystem_ptr->kill_and_remove_organism(this);
