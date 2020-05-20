@@ -102,4 +102,4 @@ class Carnivore : public Organism {
 };
 
 
-#endif  // ECOSYSTEM_H_INCLUDED
+#endif  // ORGANISM_H_INCLUDED

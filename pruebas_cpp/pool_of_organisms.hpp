@@ -15,7 +15,7 @@
 #include <random>
 #include <stack>
 #include <vector>
-#include "Organism.hpp"
+#include "organism.hpp"
 
 typedef std::pair<int, int> tLocation;
 typedef std::pair<float, float> fLocation;

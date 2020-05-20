@@ -38,3 +38,12 @@ class Ecosystem {
 };
 
 #endif  // ECOSYSTEM_H_INCLUDED
+
+/*
+ COMANDOS GIT:
+ 
+ git add -u
+ git commit -m "Rename few files"
+ git push origin pruebas_cpp
+ 
+ */

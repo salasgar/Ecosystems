@@ -37,7 +37,7 @@ void OrganismsPool::set_available(Organism *o) {
 };
 
 RandomNumbersGenerator::RandomNumbersGenerator() :
-eng((random_device())()) {
+eng((std::random_device())()) {
 };
 
 
@@ -46,6 +46,6 @@ void RandomNumbersGenerator::set_seed(int seed) {
 };
 
 int RandomNumbersGenerator::get_uniform_rand_int(int min, int max) {
-  uniform_int_distribution<int> distribution(min, max);
+  std::uniform_int_distribution<int> distribution(min, max);
   return distribution(this->eng);
 };
