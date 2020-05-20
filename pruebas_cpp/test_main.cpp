@@ -11,7 +11,7 @@ void test_1() {
   for (int i=0; i<1000; i++) {
     e.evolve();
   }
-  std::cout << e.get_num_organisms() << std::endl;
+  //assert (e.get_num_organisms() == 108739);
 }
 
 int main(int argc, char* argv[]) {

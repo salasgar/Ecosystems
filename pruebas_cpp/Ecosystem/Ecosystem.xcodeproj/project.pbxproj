@@ -25,6 +25,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0713003E24714A4100B3CF9A /* pruebas_cpp */ = {isa = PBXFileReference; lastKnownFileType = folder; name = pruebas_cpp; path = ../..; sourceTree = "<group>"; };
 		07868AE124684F0800C60627 /* Ecosystem */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Ecosystem; sourceTree = BUILT_PRODUCTS_DIR; };
 		07868AEB24684F6F00C60627 /* ecosystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ecosystem.hpp; path = ../../ecosystem.hpp; sourceTree = "<group>"; };
 		07868AEC24684F6F00C60627 /* test_main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_main.cpp; path = ../../test_main.cpp; sourceTree = "<group>"; };
@@ -66,6 +67,7 @@
 				07868AED24684F6F00C60627 /* ecosystem.cpp */,
 				07868AEB24684F6F00C60627 /* ecosystem.hpp */,
 				07868AEC24684F6F00C60627 /* test_main.cpp */,
+				0713003E24714A4100B3CF9A /* pruebas_cpp */,
 				07868AF8246DF8AB00C60627 /* pool_of_organisms.cpp */,
 				07868AF9246DF8AB00C60627 /* pool_of_organisms.hpp */,
 			);
