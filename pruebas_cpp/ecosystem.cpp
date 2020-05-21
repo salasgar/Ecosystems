@@ -1,5 +1,5 @@
 #include <chrono>
-#include <random>
+//#include <random>
 #include <iostream>
 #include <numeric>
 #include "ecosystem.hpp"
@@ -39,7 +39,7 @@ Ecosystem::Ecosystem() : biotope(this) {
           this->random_nums_gen.eng);
   int free_loc_int, loc_x, loc_y;
   for (int i=0; i < INITIAL_NUM_ORGANISMS; i++) {
-    free_loc_int = free_locs.back();
+    free_loc_int = free_locs.back(); // to do: use Biotope::get_free_locations()
     free_locs.pop_back();
     loc_x = free_loc_int / this->biotope.size_y;
     loc_y = free_loc_int % this->biotope.size_y;
@@ -50,7 +50,7 @@ Ecosystem::Ecosystem() : biotope(this) {
 
 void Ecosystem::add_new_organisms(int number_of_new_organisms) {
    for (int i=0; i < number_of_new_organisms; i++) {
-     tLocation new_location = this->biotope.get_free_location();
+     tLocation new_location = this->biotope.get_one_free_location();
      Organism* o = this->organisms_pool.get_new(new_location, this);
     this->append_organisms(o);
   };

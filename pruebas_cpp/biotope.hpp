@@ -3,7 +3,7 @@
 #include <map>
 #include <utility>
 #include <set>
-#include <random>
+//#include <random>
 #include <stack>
 #include <vector>
 #include "pool_of_organisms.hpp"
@@ -34,6 +34,7 @@ class Biotope {
   ErrorType add_organism(Organism* new_organism_ptr, tLocation location);
   ErrorType move_organism(tLocation old_location, tLocation new_location);
   tLocation get_random_location();
+  tLocation get_one_free_location();
   vector<tLocation> get_free_locations(int number_of_locations);
   int get_num_organisms();
 };

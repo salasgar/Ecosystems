@@ -9,6 +9,8 @@
 #ifndef pool_of_organisms_hpp
 #define pool_of_organisms_hpp
 
+#include "basic_tools.hpp"
+
 
 class Organism;
 class Ecosystem;

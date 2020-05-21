@@ -1,5 +1,5 @@
 #include <chrono>
-#include <random>
+//#include <random>
 #include <iostream>
 #include <numeric>
 #include "biotope.hpp"
@@ -111,14 +111,24 @@ tLocation Biotope::get_random_location() {
 };
 
 vector<tLocation> Biotope::get_free_locations(int number_of_locations) {
-  if(number_of_locations + this->get_num_organisms() > this->area)
+  if(number_of_locations + this->get_num_organisms() > this->area)   // should it return error ??
     number_of_locations = this->area - this->get;
-  vector<tLocation> free_locations; // to do: reserve memory for number_of_locations locations
+  vector<tLocation> free_locations;
+  free_locations.reserve(number_of_locations); // reserve memory for number_of_locations locations
   for(int i=0; i<number_of_locations; i++) {
     tLocation loc = this->get_random_location();
     while(organisms_map[loc]) != nullptr)
       loc = this->get_random_location();
-    free_locations.back(loc);
+    free_locations.push_back(loc);
   };
   return free_locations;
 };
+
+tLocation Biotope::get_one_free_location() {
+  if(this->get_num_organisms() >= this->area) return Error;
+  tLocation loc = this->get_random_location();
+  while(organisms_map[loc]) != nullptr)
+    loc = this->get_random_location();
+  return loc;
+};
+
