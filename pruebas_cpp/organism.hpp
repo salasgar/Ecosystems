@@ -6,6 +6,7 @@
 #include <random>
 #include <stack>
 #include <vector>
+#include "basic_tools.hpp"
 
 class Sun_light;
 class Temperature;
@@ -26,10 +27,10 @@ class Organism {
  // methods:
   void reset(std::pair<int, int> location,
              Ecosystem* parent_ecosystem_ptr);
-  void act();
+  virtual void act();
   void do_die();
   void unlink();
-  void change_location(tLocation old_location, tLocation new_location);
+  void change_location_to(tLocation new_location);
 };
 
 class Plant_A : public Organism {
@@ -39,20 +40,24 @@ class Plant_A : public Organism {
     float data;
     Organism *parent_organism_ptr;
     Biotope *parent_biotope_ptr;
+    //methods:
     Energy_reserve(Biotope *parentBiotope, Organism *parentOrganism, float initial_value);
     void update();
-    float get_value();
+    float get_value(); // Is this method necessary?
   };
 
  // class Plant_A:
-public:
- static const int photosynthesis_capacity = 100;
- Energy_reserve energy_reserve;
-public:
- void do_photosynthesis();
- void procreate();
- // decisions:
- bool decide_procreate();
+ public:
+  static const int photosynthesis_capacity = 100;
+  static const float initial_minimum_energy_reserve_for_procreating = 200;
+  Energy_reserve energy_reserve;
+  float minimum_energy_reserve_for_procreating;
+ public:
+  Plant_A();
+  void do_photosynthesis();
+  void procreate();
+  // decisions:
+  bool decide_procreate();
 }; // *************** class Plant_A ***************
 
 class Plant_B : public Organism {

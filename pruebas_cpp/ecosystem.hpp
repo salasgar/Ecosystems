@@ -34,6 +34,7 @@ class Ecosystem {
   void append_organisms(Organism* organisms);
   void evolve();
   void kill_and_remove_organism(Organism* organism);
+  void add_new_organisms(int number_of_new_organisms);
   int get_num_organisms();
 };
 

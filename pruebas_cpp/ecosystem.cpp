@@ -48,6 +48,14 @@ Ecosystem::Ecosystem() : biotope(this) {
   };
 };
 
+void Ecosystem::add_new_organisms(int number_of_new_organisms) {
+   for (int i=0; i < number_of_new_organisms; i++) {
+     tLocation new_location = this->biotope.get_free_location();
+     Organism* o = this->organisms_pool.get_new(new_location, this);
+    this->append_organisms(o);
+  };
+};
+
 void Ecosystem::append_organisms(Organism* organism) {
   if (this->first_organism_node == nullptr) {
     this->first_organism_node = organism;
@@ -74,7 +82,6 @@ void Ecosystem::evolve() {
   };
   this->cycle += 1;
 };
-
 
 void Ecosystem::kill_and_remove_organism(Organism* organism) {
     organism->is_alive = false;

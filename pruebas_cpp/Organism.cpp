@@ -20,21 +20,60 @@ using std::iota;
 using std::begin;
 using std::end;
 
-// plant_A: plantas que viven en sitios con POCA luz
+// class Organism:
 
+void Organism::reset(pair<int, int> location,
+                     Ecosystem* parent_ecosystem_ptr) {
+  this->next = nullptr;
+  this->prev = nullptr;
+  this->location = location;
+  this->parent_ecosystem_ptr = parent_ecosystem_ptr;
+  this->is_alive = true;
+  // const int MAX_AGE = 2000;
+};
+
+void Organism::act() {};
+
+void Organism::do_die() {
+  this->parent_ecosystem_ptr->kill_and_remove_organism(this);
+};
+
+void Organism::unlink() {
+  if (this->next != nullptr)
+    this->next->prev = this->prev;
+  if (this->prev != nullptr)
+    this->prev->next = this->next;
+};
+
+void Organism::change_location_to(tLocation new_location) {
+  this->location = new_location;
+};
+
+// plant_A: plants that can live with little sunlight
+
+// class Plant_A::Energy_reserve
 Plant_A::Energy_reserve::Energy_reserve(Biotope *parentBiotope, Organism *parentOrganism, float initial_value) : parent_organism_ptr(parentOrganism), parent_biotope_ptr(parentBiotope),
 data(initial_value)
 {};
 
+Plant_A::Energy_reserve::get_value() {
+  return data;
+}
+
 void Plant_A::Energy_reserve::update() {
   this->data += -10 + 20 * (this->parent_biotope_ptr->sun_light->get_value(parent_organism_ptr->location));
 };
+// end of definition of Plant_A::Energy_reserve
+
+Plant_A::Plant_A() {
+  this->minimum_energy_reserve_for_procreating = initial_minimum_energy_reserve_for_procreating;
+}
 
 bool Plant_A::decide_procreate() {
-  return this->energy_reserve.get_value() > 200;
+  return this->energy_reserve.get_value() > this->minimum_energy_reserve_for_procreating;
 };
 
-// plant_B: plantas que viven en sitio con MUCHA luz
+// plant_B: plants that need much sunlight
 
 Plant_B::Energy_reserve::Energy_reserve(Biotope *parentBiotope, Organism *parentOrganism, float initial_value) : parent_organism_ptr(parentOrganism), parent_biotope_ptr(parentBiotope), data(initial_value) {};
 
@@ -56,28 +95,6 @@ void Plant_B::act() {
   if(this->energy_reserve.data < 100) do_die(); // Constraint
 };
 
-void Organism::reset(pair<int, int> location,
-                     Ecosystem* parent_ecosystem_ptr) {
-  this->next = nullptr;
-  this->prev = nullptr;
-  this->location = location;
-  this->parent_ecosystem_ptr = parent_ecosystem_ptr;
-  this->is_alive = true;
-  const int MAX_AGE = 2000;
-};
-
-void Organism::act() {};
-
-void Organism::do_die() {
-  this->parent_ecosystem_ptr->kill_and_remove_organism(this);
-};
-
-void Organism::unlink() {
-  if (this->next != nullptr)
-    this->next->prev = this->prev;
-  if (this->prev != nullptr)
-    this->prev->next = this->next;
-};
 
 Herbivore::Herbivore(Biotope *parentBiotope) {
   parent_biotope_ptr = parentBiotope;

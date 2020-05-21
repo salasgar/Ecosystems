@@ -9,17 +9,6 @@
 #ifndef pool_of_organisms_hpp
 #define pool_of_organisms_hpp
 
-#include <map>
-#include <utility>
-#include <set>
-#include <random>
-#include <stack>
-#include <vector>
-#include "organism.hpp"
-
-typedef std::pair<int, int> tLocation;
-typedef std::pair<float, float> fLocation;
-typedef enum {No_error, Error_Organism_not_found, Error_no_free_location_found} ErrorType;
 
 class Organism;
 class Ecosystem;

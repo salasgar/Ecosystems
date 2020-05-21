@@ -21,6 +21,9 @@ class Biotope {
   Ecosystem* parent_ecosystem_ptr;
   int size_x;
   int size_y;
+  int area;
+  vector<int> free_locs;
+  int free_locs_counter;
   std::map<std::pair<int, int>, Organism*> organisms_map;
   Sun_light *sun_light;
   Temperature *temperature;
@@ -30,6 +33,9 @@ class Biotope {
   Organism* get_organism(tLocation location);
   ErrorType add_organism(Organism* new_organism_ptr, tLocation location);
   ErrorType move_organism(tLocation old_location, tLocation new_location);
+  tLocation get_random_location();
+  vector<tLocation> get_free_locations(int number_of_locations);
+  int get_num_organisms();
 };
 
 class Sun_light {

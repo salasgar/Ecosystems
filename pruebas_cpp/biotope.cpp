@@ -55,14 +55,21 @@ void Temperature::update() {
 };
 
 Biotope::Biotope(Ecosystem* parent_ecosystem) {
+  this->parent_ecosystem_ptr = parent_ecosystem;
   int BIOTOPE_SIZE_X = 500;
   int BIOTOPE_SIZE_Y = 500;
   this->size_x = BIOTOPE_SIZE_X;
   this->size_y = BIOTOPE_SIZE_Y;
-  this->parent_ecosystem_ptr = parent_ecosystem;
+  this->area = this->size_x * this->size_y;
+  this->free_locs = vector<int> (this->biotope.size_x * this->biotope.size_y);
+  iota (begin(free_locs), end(free_locs), 0);
+  shuffle(free_locs.begin(), free_locs.end(),
+          parent_ecosystem->random_nums_gen.eng);
+  this->free_locs_counter = 0;
 };
 
 ErrorType Biotope::evolve() {
+  // Update those biotope features that need to be updated:
   this->temperature->update();
   return No_error;
 };
@@ -72,14 +79,46 @@ Organism* Biotope::get_organism(tLocation location) {
 };
 
 ErrorType Biotope::add_organism(Organism* new_organism_ptr, tLocation location) {
+  // if(his->organisms_map[location] = null) ???
   this->organisms_map[location] = new_organism_ptr;
   return No_error;
 };
 
 ErrorType Biotope::move_organism(tLocation old_location, tLocation new_location) {
+  // if(his->organisms_map[new_location] = null) ???
+  // if(his->organisms_map[old_location] != null) ???
   organisms_map[new_location] = organisms_map[old_location];
   organisms_map[old_location] = nullptr;
-  organisms_map[new_location]->change_location(old_location, new_location);
+  organisms_map[new_location]->change_location_to(new_location);
   return No_error;
 };
 
+int Biotope::get_num_organisms() {
+  return (int)this->organisms_map.size();
+};
+
+tLocation Biotope::get_random_location() {
+  this->free_locs_counter++;
+  this->free_locs_counter %= this->area;
+  if(this->free_locs_counter = 0)
+    shuffle(this->free_locs.begin(), this->free_locs.end(),
+            parent_ecosystem->random_nums_gen.eng);
+  int location_int = this->free_locs[this->free_locs_counter];
+  return tLocation(
+    location_int / this->biotope.size_y;
+    location_int % this->biotope.size_y;
+  );
+};
+
+vector<tLocation> Biotope::get_free_locations(int number_of_locations) {
+  if(number_of_locations + this->get_num_organisms() > this->area)
+    number_of_locations = this->area - this->get;
+  vector<tLocation> free_locations; // to do: reserve memory for number_of_locations locations
+  for(int i=0; i<number_of_locations; i++) {
+    tLocation loc = this->get_random_location();
+    while(organisms_map[loc]) != nullptr)
+      loc = this->get_random_location();
+    free_locations.back(loc);
+  };
+  return free_locations;
+};
