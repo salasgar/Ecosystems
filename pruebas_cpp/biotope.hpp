@@ -24,18 +24,23 @@ class Biotope {
   int area;
   std::vector<int> free_locs;
   int free_locs_counter;
+  std::vector<intLocation> adjacent_locations;
   std::map<std::pair<int, int>, Organism*> organisms_map;
   Sun_light *sun_light;
   Temperature *temperature;
- public:
+ 
+ // methods:
   Biotope(Ecosystem* parent_ecosystem_ptr);
   ErrorType evolve();
-  Organism* get_organism(tLocation location);
-  ErrorType add_organism(Organism* new_organism_ptr, tLocation location);
-  ErrorType move_organism(tLocation old_location, tLocation new_location);
-  tLocation get_random_location();
-  tLocation get_one_free_location();
-  std::vector<tLocation> get_free_locations(int number_of_locations);
+  Organism* get_organism(intLocation location);
+  ErrorType add_organism(Organism* new_organism_ptr, intLocation location);
+  ErrorType move_organism(intLocation old_location, intLocation new_location);
+  intLocation get_random_location();
+  intLocation get_one_free_location();
+  std::vector<intLocation> get_free_locations(int number_of_locations);
+  ErrorType get_free_location_close_to(intLocation &free_location, intLocation center, float radius);
+  ErrorType get_free_location_close_to(intLocation &free_location, intLocation center, float radius, int number_of_attempts);
+  ErrorType get_free_location_touching(intLocation &free_location, intLocation center);
   int get_num_organisms();
 };
 
@@ -45,7 +50,7 @@ class Sun_light {
   Biotope *parent_biotope_ptr;
   Ecosystem *parent_ecosystem_ptr;
  public:
-  float get_value(fLocation location);
+  float get_value(floatLocation location);
   Sun_light(Biotope &parent_biotope, Ecosystem &parent_ecosystem);
 };
 
@@ -56,7 +61,7 @@ class Temperature {
   Ecosystem *parent_ecosystem_ptr;
  public:
   Temperature(Biotope &parent_biotope, Ecosystem &parent_ecosystem);
-  float get_value(tLocation location);
+  float get_value(intLocation location);
   void update();
 };
 

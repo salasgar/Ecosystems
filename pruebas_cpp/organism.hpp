@@ -30,8 +30,10 @@ class Organism {
   virtual void act();
   void do_die();
   void unlink();
-  void change_location_to(tLocation new_location);
+  void change_location_to(intLocation new_location);
   void do_procreate();
+  virtual void decide_procreate();
+  void mutate();
 };
 
 class Plant_A : public Organism {

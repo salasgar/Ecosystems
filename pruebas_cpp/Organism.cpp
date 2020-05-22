@@ -45,9 +45,19 @@ void Organism::unlink() {
     this->prev->next = this->next;
 };
 
-void Organism::change_location_to(tLocation new_location) {
+void Organism::change_location_to(intLocation new_location) {
   this->location = new_location;
 };
+
+void Organism::do_procreate() {
+  if decide_procreate() {
+    // get location
+  }
+  Organism* offspring = this->parent_ecosystem_ptr->organisms_pool.get_new(new_location, this->parent_ecosystem_ptr);
+  offspring.mutate();
+  // to do: add offspring to ecosystem
+};
+
 
 // plant_A: plants that can live with little sunlight
 

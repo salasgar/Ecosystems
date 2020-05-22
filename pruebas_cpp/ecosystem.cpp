@@ -50,7 +50,7 @@ Ecosystem::Ecosystem() : biotope(this) {
 
 void Ecosystem::add_new_organisms(int number_of_new_organisms) {
    for (int i=0; i < number_of_new_organisms; i++) {
-     tLocation new_location = this->biotope.get_one_free_location();
+     intLocation new_location = this->biotope.get_one_free_location();
      Organism* o = this->organisms_pool.get_new(new_location, this);
     this->append_organisms(o);
   };

@@ -29,6 +29,7 @@ class Ecosystem {
   long int cycle;
   std::vector<Organism*> ghost_organisms_ptrs;
   Biotope biotope;
+  
  // methods:
   Ecosystem();
   void append_organisms(Organism* organisms);
