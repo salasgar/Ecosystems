@@ -31,6 +31,7 @@ class Organism {
   void do_die();
   void unlink();
   void change_location_to(tLocation new_location);
+  void do_procreate();
 };
 
 class Plant_A : public Organism {
@@ -49,13 +50,12 @@ class Plant_A : public Organism {
  // class Plant_A:
  public:
   static const int photosynthesis_capacity = 100;
-  static const float initial_minimum_energy_reserve_for_procreating = 200;
+  constexpr static const float initial_minimum_energy_reserve_for_procreating = 200;
   Energy_reserve energy_reserve;
   float minimum_energy_reserve_for_procreating;
  public:
   Plant_A();
   void do_photosynthesis();
-  void procreate();
   // decisions:
   bool decide_procreate();
 }; // *************** class Plant_A ***************

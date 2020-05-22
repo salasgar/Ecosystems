@@ -22,7 +22,7 @@ class Biotope {
   int size_x;
   int size_y;
   int area;
-  vector<int> free_locs;
+  std::vector<int> free_locs;
   int free_locs_counter;
   std::map<std::pair<int, int>, Organism*> organisms_map;
   Sun_light *sun_light;
@@ -35,7 +35,7 @@ class Biotope {
   ErrorType move_organism(tLocation old_location, tLocation new_location);
   tLocation get_random_location();
   tLocation get_one_free_location();
-  vector<tLocation> get_free_locations(int number_of_locations);
+  std::vector<tLocation> get_free_locations(int number_of_locations);
   int get_num_organisms();
 };
 
