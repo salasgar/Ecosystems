@@ -36,16 +36,3 @@ void OrganismsPool::set_available(Organism *o) {
   this->available_organisms.push(o);
 };
 
-RandomNumbersGenerator::RandomNumbersGenerator() :
-eng((std::random_device())()) {
-};
-
-
-void RandomNumbersGenerator::set_seed(int seed) {
-  this->eng.seed(seed);
-};
-
-int RandomNumbersGenerator::get_uniform_rand_int(int min, int max) {
-  std::uniform_int_distribution<int> distribution(min, max);
-  return distribution(this->eng);
-};

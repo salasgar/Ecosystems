@@ -22,6 +22,15 @@ class Location : public std::pair<T, T> {
 typedef Location<int> intLocation;
 typedef Location<float> floatLocation;
 
+class RandomNumbersGenerator {
+public:
+  std::default_random_engine eng;
+  RandomNumbersGenerator();
+  void set_seed(int seed);
+  int get_uniform_rand_int(int min, int max);
+  intLocation get_rand_intLocation(int radius);
+};
+
 #endif  // BASIC_TOOLS_H_INCLUDED
 
 

@@ -142,14 +142,39 @@ intLocation Biotope::get_one_free_location() {
   return loc;
 };
 
-ErrorType Biotope::get_free_location_close_to(intLocation &free_location, intLocation center, float radius) {
-  
+ErrorType Biotope::get_free_location_close_to(intLocation &free_location, intLocation center, int radius) {
+  // Use this method only with small radiuses. Otherwise, it's very time-consuming.
+  std::vector<intLocation> free_locations_found = {};
+  for(int x = center.x() - radius,
+      x <= center.x() + radius,
+      x++) {
+    for(int y = center.y() - radius,
+        y <= center.y() + radius,
+        y++) {
+      if(this->organisms_map[intLocation(x, y)] = nullptr)
+        free_locations_found.push_back(intLocation(x, y));
+    };
+  };
+  if(free_locations_found.size() = 0) {
+    return Error_No_free_location_found;
+  } else {
+    free_location = free_locations_found[
+      this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_int(0, free_locations_found.size())
+    ];
+    return NoError;
+  };
 };
 
-ErrorType Biotope::get_free_location_close_to(intLocation &free_location, intLocation center, float radius, int number_of_attempts) {
+ErrorType Biotope::get_free_location_close_to(intLocation &free_location, intLocation center, int radius, int number_of_attempts) {
+  // This method is assumed to be used by some organisms in order to move themselves to another nearby location. For organisms that jump very far away each time, it's very time-consuming to collect every single empty location within such a large radius, just to randomly chose one of them. That's why they should try a number of times and resign from moving if they don't find a place to do it in those attempts:
   for(int i=0; i<number_of_attempts; i++) {
-    int x = center.first + int(radius*
+    intLocation new_location = center + this->parent_ecosystem_ptr->random_nums_gen.get_rand_intLocation(radius);
+    if(this->organisms_map[new_location] = nullptr) {
+      free_location = new_location;
+      return NoError;
+    };
   };
+  return Error_No_free_location_found;
 };
 
 ErrorType Biotope::get_free_location_touching(intLocation &free_location, intLocation center) {

@@ -33,19 +33,6 @@ public:
   OrganismsPool();
 };
 
-class RandomNumbersGenerator {
-public:
-  std::default_random_engine eng;
-  RandomNumbersGenerator();
-  void set_seed(int seed);
-  int get_uniform_rand_int(int min, int max);
-};
-
-
-
-
-
-
 #include <stdio.h>
 
 #endif /* pool_of_organisms_hpp */
