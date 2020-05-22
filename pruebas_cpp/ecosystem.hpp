@@ -32,6 +32,7 @@ class Ecosystem {
   
  // methods:
   Ecosystem();
+  void insert_new_organism_before(Organism* new_organism, Organism* reference_organism);
   void append_organisms(Organism* organisms);
   void evolve();
   void kill_and_remove_organism(Organism* organism);

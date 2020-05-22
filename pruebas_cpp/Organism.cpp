@@ -51,11 +51,15 @@ void Organism::change_location_to(intLocation new_location) {
 
 void Organism::do_procreate() {
   if decide_procreate() {
-    // get location
-  }
-  Organism* offspring = this->parent_ecosystem_ptr->organisms_pool.get_new(new_location, this->parent_ecosystem_ptr);
-  offspring.mutate();
-  // to do: add offspring to ecosystem
+    // get location:
+    intLocation free_location;
+    if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, center = this->location) = NoError) {
+      Organism* offspring = this->parent_ecosystem_ptr->organisms_pool.get_new(free_location, this->parent_ecosystem_ptr);
+      offspring->mutate();
+      // Add offspring to ecosystem:
+      this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this);
+    };
+  };
 };
 
 

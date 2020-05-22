@@ -85,6 +85,7 @@ ErrorType Biotope::evolve() {
 };
 
 Organism* Biotope::get_organism(intLocation location) {
+  // TO DO: Check whether location belongs to this world or not
   return this->organisms_map[location];
 };
 
@@ -166,7 +167,7 @@ ErrorType Biotope::get_free_location_close_to(intLocation &free_location, intLoc
 };
 
 ErrorType Biotope::get_free_location_close_to(intLocation &free_location, intLocation center, int radius, int number_of_attempts) {
-  // This method is assumed to be used by some organisms in order to move themselves to another nearby location. For organisms that jump very far away each time, it's very time-consuming to collect every single empty location within such a large radius, just to randomly chose one of them. That's why they should try a number of times and resign from moving if they don't find a place to do it in those attempts:
+  // This method is assumed to be used by some organisms in order to move themselves to another location. For organisms that jump very far away each time, it's very time-consuming to collect every single empty location within such a large radius, just to randomly chose one of them. That's why they should try a number of times and resign from moving if they don't find a place to do it in those attempts:
   for(int i=0; i<number_of_attempts; i++) {
     intLocation new_location = center + this->parent_ecosystem_ptr->random_nums_gen.get_rand_intLocation(radius);
     if(this->organisms_map[new_location] = nullptr) {
@@ -177,7 +178,7 @@ ErrorType Biotope::get_free_location_close_to(intLocation &free_location, intLoc
   return Error_No_free_location_found;
 };
 
-ErrorType Biotope::get_free_location_touching(intLocation &free_location, intLocation center) {
+ErrorType Biotope::get_free_adjacent_location(intLocation &free_location, intLocation center) {
   shuffle(
     this->adjacent_locations.begin(),
     this->adjacent_locations.end(),

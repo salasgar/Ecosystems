@@ -40,7 +40,7 @@ class Biotope {
   std::vector<intLocation> get_free_locations(int number_of_locations);
   ErrorType get_free_location_close_to(intLocation &free_location, intLocation center, int radius);
   ErrorType get_free_location_close_to(intLocation &free_location, intLocation center, int radius, int number_of_attempts);
-  ErrorType get_free_location_touching(intLocation &free_location, intLocation center);
+  ErrorType get_free_adjacent_location(intLocation &free_location, intLocation center);
   int get_num_organisms();
 };
 

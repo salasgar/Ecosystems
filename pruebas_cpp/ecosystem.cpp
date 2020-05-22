@@ -48,6 +48,14 @@ Ecosystem::Ecosystem() : biotope(this) {
   };
 };
 
+void Ecosystem::insert_new_organism_before(Organism* new_organism, Organism* reference_organism) {
+  new_organism->prev = reference_organism->prev;
+  new_organism->next = reference_organism;
+  reference_organism->prev = new_organism;
+  new_organism->prev->next = new_organism;
+  this->biotope.organisms_map[new_organism->location] = new_organism;
+};
+
 void Ecosystem::add_new_organisms(int number_of_new_organisms) {
    for (int i=0; i < number_of_new_organisms; i++) {
      intLocation new_location = this->biotope.get_one_free_location();
