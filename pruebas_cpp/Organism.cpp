@@ -62,6 +62,9 @@ void Organism::do_procreate() {
   };
 };
 
+void Organism::mutate() {
+  
+};
 
 // plant_A: plants that can live with little sunlight
 

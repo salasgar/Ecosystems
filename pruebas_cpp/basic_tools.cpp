@@ -19,6 +19,31 @@ T Location<T>::x() { return this->first; }
 template <T>
 T Location<T>::y() { return this->second; }
 
+template <class T>
+T chess_distance(Location<T> A, Location<T> B) {
+  return std::max(
+    std::abs(A.first - B.first),
+    std::abs(A.second - B.second)
+  );
+};
+
+template <class T>
+float euclidean_distance(Location<T> A, Location<T> B) {
+  return std::sqrt(
+    (A.first - B.first)**2
+    +
+    (A.second - B.second)**2
+  );
+};
+
+template <class T>
+T taxi_distance(Location<T> A, Location<T> B) {
+  return
+    std::abs(A.first - B.first)
+    +
+    std::abs(A.second - B.second);
+};
+
 RandomNumbersGenerator::RandomNumbersGenerator() :
 eng((std::random_device())()) {
 };

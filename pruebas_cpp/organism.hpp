@@ -23,16 +23,16 @@ class Organism {
   bool is_alive;
   Ecosystem* parent_ecosystem_ptr;
   Biotope* parent_biotope_ptr;
-  std::pair<int, int> location;
+  intLocation location;
  // methods:
-  void reset(std::pair<int, int> location,
+  void reset(intLocation location,
              Ecosystem* parent_ecosystem_ptr);
   virtual void act();
   void do_die();
   void unlink();
   void change_location_to(intLocation new_location);
   void do_procreate();
-  virtual void decide_procreate();
+  virtual bool decide_procreate();
   void mutate();
 };
 
