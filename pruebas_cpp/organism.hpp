@@ -27,6 +27,7 @@ class Organism {
  // methods:
   void reset(intLocation location,
              Ecosystem* parent_ecosystem_ptr);
+  virtual void copy(Organism* model_organism);
   virtual void act();
   void do_die();
   void unlink();
@@ -52,9 +53,11 @@ class Plant_A : public Organism {
  // class Plant_A:
  public:
   static const int photosynthesis_capacity = 100;
-  constexpr static const float initial_minimum_energy_reserve_for_procreating = 200;
   Energy_reserve energy_reserve;
+  constexpr static const float initial_minimum_energy_reserve_for_procreating = 300;
   float minimum_energy_reserve_for_procreating;
+  float energy_reserve_at_birth;
+  constexpr static const float initial_energy_reserve_at_birth = 100;
  public:
   Plant_A();
   void do_photosynthesis();
@@ -77,6 +80,7 @@ class Plant_B : public Organism {
  public:
   static const int photosynthesis_capacity = 120;
   static const int death_age = 1000;
+  static const float minimum_energy_reserve_for_procreating = 300;
   Energy_reserve energy_reserve;
   int age;
  public:

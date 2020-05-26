@@ -50,20 +50,26 @@ void Organism::change_location_to(intLocation new_location) {
 };
 
 void Organism::do_procreate() {
-  if decide_procreate() {
+  // if decide_procreate() {
     // get location:
     intLocation free_location;
     if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, center = this->location) = NoError) {
       Organism* offspring = this->parent_ecosystem_ptr->organisms_pool.get_new(free_location, this->parent_ecosystem_ptr);
+      offspring->copy(this);
       offspring->mutate();
       // Add offspring to ecosystem:
       this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this);
+      this->parent_ecosystem_ptr->subtract_costs_procreate(this, offspring);
     };
-  };
+  // };
+};
+
+void Organism::copy(Organism* model_organism) {
+  // nothing to do here yet
 };
 
 void Organism::mutate() {
-  
+  // nothing to do here yet
 };
 
 // plant_A: plants that can live with little sunlight
@@ -84,7 +90,34 @@ void Plant_A::Energy_reserve::update() {
 
 Plant_A::Plant_A() {
   this->minimum_energy_reserve_for_procreating = initial_minimum_energy_reserve_for_procreating;
-}
+  this->energy_reserve_at_birth = initial_energy_reserve_at_birth;
+};
+
+void Plant_A::do_procreate() {
+  // if decide_procreate() {
+    // get location:
+    intLocation free_location;
+    if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, center = this->location) = NoError) {
+      Organism* offspring = this->parent_ecosystem_ptr->organisms_pool.get_new(free_location, this->parent_ecosystem_ptr);
+      offspring->copy(this);
+      offspring->mutate();
+      // Add offspring to ecosystem:
+      this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this);
+      this->parent_ecosystem_ptr->subtract_costs_procreate(this, offspring);
+    };
+  // };
+};
+
+void Plant_A::copy(Organism* model_organism) {
+  this->minimum_energy_reserve_for_procreating = model_organism->minimum_energy_reserve_for_procreating;
+  this->energy_reserve_at_birth = model_organism->energy_reserve_at_birth;
+};
+
+void Plant_A::mutate() {
+  this->energy_reserve.set_value(this->energy_reserve_at_birth);
+  this->energy_reserve_at_birth = this->parent_ecosystem_ptr->random_nums_gen.proportional_mutation(this->energy_reserve_at_birth, maximum_proportion = 0.015);
+  this->minimum_energy_reserve_for_procreating = this->parent_ecosystem_ptr->random_nums_gen.uniform_mutation(this->minimum_energ_reserve_for_procreating, maximum_increment = 7.5, minimum_value = this->energy_reserve_at_birth);
+};
 
 bool Plant_A::decide_procreate() {
   return this->energy_reserve.get_value() > this->minimum_energy_reserve_for_procreating;
@@ -107,11 +140,17 @@ void Plant_B::do_age() {
   };
 };
 
-void Plant_B::act() {
-  this->do_age();
-  if(this->energy_reserve.data < 100) do_die(); // Constraint
+bool Plant_B::decide_procreate() {
+  return this->energy_reserve.get_value() > this->minimum_energy_reserve_for_procreating;
 };
 
+void Plant_B::act() {
+  this->do_age();
+  if(not this->is_alive) break;
+  this->energy_reserve.update(); // do photosynthesis
+  if(this->decide_procreate()) this->do_procreate();
+  if(this->energy_reserve.data < 100) do_die(); // Constraint
+};
 
 Herbivore::Herbivore(Biotope *parentBiotope) {
   parent_biotope_ptr = parentBiotope;

@@ -1,6 +1,8 @@
 
 #include "basic_tools.hpp"
 
+using namespace std;
+
 template <T>
 Location<T>& Location<T>::operator+=(const Location<T>& B) {
     this->first += B.first;
@@ -63,3 +65,78 @@ intLocation RandomNumbersGenerator::get_rand_intLocation(int radius) {
     this->get_uniform_rand_int(-radius, radius)
   );
 };
+
+int RandomNumberGenerator::proportional_mutation(int base_value) {
+  return this->proportional_mutation(base_value, maximum_proportion = 10.0);
+};
+
+int RandomNumberGenerator::proportional_mutation(int base_value, float maximum_proportion) {
+  return std::lround(this->proportional_mutation((float) base_value, maximum_proportion));
+};
+
+int RandomNumberGenerator::proportional_mutation(int base_value, float maximum_proportion, int minimum_value) {
+  return std::max(minimum_value, this->proportional_mutation(base_value, maximum_proportion));
+};
+
+int RandomNumberGenerator::proportional_mutation(int base_value, float maximum_proportion, int minimum_value, int maximum_value) {
+  return std::min(maximum_value, this->proportional_mutation(base_value, maximum_proportion, minimum_value));
+};
+
+float RandomNumberGenerator::proportional_mutation(float base_value){
+  return this->proportional_mutation(base_value, maximum_proportion = 10.0);
+};
+
+float RandomNumberGenerator::proportional_mutation(float base_value, float maximum_proportion) {
+  std::uniform_distribution<float> distribution(
+    base_value / (1 + maximum_proportion),
+    base_value * (1 + maximum_proportion)
+  );
+  return distribution(this->eng);
+};
+
+float RandomNumberGenerator::proportional_mutation(float base_value, float maximum_proportion, float minimum_value) {
+  return std::max(minimum_value, this->proportional_mutation(base_value, maximum_proportion));
+};
+
+float RandomNumberGenerator::proportional_mutation(float base_value, float maximum_proportion, float minimum_value, float maximum_value)
+{
+  return std::min(maximum_value, this->proportional_mutation(base_value, maximum_proportion, minimum_value));
+};
+
+int RandomNumberGenerator::uniform_mutation(int base_value) {
+  return this->uniform_mutation(base_value, maximum_increment = 1);
+};
+
+int RandomNumberGenerator::uniform_mutation(int base_value, float maximum_increment) {
+  return this->get_uniform_rand_int(base_value - maximum_increment, maximum_increment);
+};
+
+int RandomNumberGenerator::uniform_mutation(int base_value, float maximum_increment, int minimum_value) {
+  return std::max(minimum_value, this->uniform_mutation(base_value, maximum_increment));
+};
+
+int RandomNumberGenerator::uniform_mutation(int base_value, float maximum_increment, int minimum_value, int maximum_value) {
+  return std::min(maximum_value, this->uniform_mutation(base_value, maximum_increment, minimum_value));
+};
+
+float RandomNumberGenerator::uniform_mutation(float base_value){
+  return this->uniform_mutation(base_value, maximum_increment = 1.0);
+};
+
+float RandomNumberGenerator::uniform_mutation(float base_value, float maximum_increment) {
+  std::uniform_distribution<float> distribution(
+    base_value - maximum_increment,
+    base_value + maximum_increment
+  );
+  return distribution(this->eng);
+};
+
+float RandomNumberGenerator::uniform_mutation(float base_value, float maximum_increment, float minimum_value) {
+  return std::max(minimum_value, this->uniform_mutation(base_value, maximum_increment));
+};
+
+float RandomNumberGenerator::uniform_mutation(float base_value, float maximum_increment, float minimum_value, float maximum_value)
+{
+  return std::min(maximum_value, this->uniform_mutation(base_value, maximum_increment, minimum_value));
+};
+
