@@ -48,6 +48,7 @@ class Plant_A : public Organism {
     Energy_reserve(Biotope *parentBiotope, Organism *parentOrganism, float initial_value);
     void update();
     float get_value(); // Is this method necessary?
+    void set_value(float new_value);
   };
 
  // class Plant_A:
@@ -60,7 +61,7 @@ class Plant_A : public Organism {
   constexpr static const float initial_energy_reserve_at_birth = 100;
  public:
   Plant_A();
-  void do_photosynthesis();
+  // void do_photosynthesis();
   // decisions:
   bool decide_procreate();
 }; // *************** class Plant_A ***************

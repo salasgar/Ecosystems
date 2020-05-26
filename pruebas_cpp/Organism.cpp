@@ -83,8 +83,12 @@ Plant_A::Energy_reserve::get_value() {
   return data;
 }
 
-void Plant_A::Energy_reserve::update() {
+void Plant_A::Energy_reserve::update() { // do photosynthesis:
   this->data += -10 + 20 * (this->parent_biotope_ptr->sun_light->get_value(parent_organism_ptr->location));
+};
+
+void Plant_A::Energy_reserve::set_value(float new_value) {
+  this->data = new_value;
 };
 // end of definition of Plant_A::Energy_reserve
 
@@ -121,6 +125,12 @@ void Plant_A::mutate() {
 
 bool Plant_A::decide_procreate() {
   return this->energy_reserve.get_value() > this->minimum_energy_reserve_for_procreating;
+};
+
+void Plant_A::act() {
+  this->energy_reserve.update(); // do photosynthesis
+  if(this->decide_procreate()) this->do_procreate();
+  if(this->energy_reserve.data < 100) do_die(); // Constraint
 };
 
 // plant_B: plants that need much sunlight
