@@ -87,8 +87,35 @@ float RandomNumberGenerator::proportional_mutation(float base_value){
 };
 
 float RandomNumberGenerator::proportional_mutation(float base_value, float maximum_proportion) {
+  
+  float auxiliary_function(float x) {
+   if (x<0) {
+      return base_value / (1 - x);
+    } else {
+      return base_value * (1 + x);
+    };
+  };
+  
+  std::uniform_distribution<float> distribution(
+    - maximum_proportion,
+    maximum_proportion
+  );
+  return auxiliary_function(distribution(this->eng));
+};
+
+// alternative ways of changing a value:
+
+float RandomNumberGenerator::proportional_mutation_2(float base_value, float maximum_proportion) {
   std::uniform_distribution<float> distribution(
     base_value / (1 + maximum_proportion),
+    base_value * (1 + maximum_proportion)
+  );
+  return distribution(this->eng);
+};
+
+float RandomNumberGenerator::proportional_mutation_3(float base_value, float maximum_proportion) {
+  std::uniform_distribution<float> distribution(
+    base_value * (1 - maximum_proportion),
     base_value * (1 + maximum_proportion)
   );
   return distribution(this->eng);

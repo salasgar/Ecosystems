@@ -44,6 +44,8 @@ public:
   int proportional_mutation(int base_value, float maximum_proportion, int minimum_value, int maximum_value);
   float proportional_mutation(float base_value);
   float proportional_mutation(float base_value, float maximum_proportion);
+  float proportional_mutation_2(float base_value, float maximum_proportion);
+  float proportional_mutation_3(float base_value, float maximum_proportion);
   float proportional_mutation(float base_value, float maximum_proportion, float minimum_value);
   float proportional_mutation(float base_value, float maximum_proportion, float minimum_value, float maximum_value);
   int uniform_mutation(int base_value);
