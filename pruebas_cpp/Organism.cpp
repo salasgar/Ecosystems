@@ -22,8 +22,8 @@ using std::end;
 
 // class Organism:
 
-void Organism::reset(pair<int, int> location,
-                     Ecosystem* parent_ecosystem_ptr) {
+void Organism::reset(intLocation location,
+                     Base_ecosystem* parent_ecosystem_ptr) {
   this->next = nullptr;
   this->prev = nullptr;
   this->location = location;
@@ -35,7 +35,8 @@ void Organism::reset(pair<int, int> location,
 void Organism::act() {};
 
 void Organism::do_die() {
-  this->parent_ecosystem_ptr->kill_and_remove_organism(this);
+  this->is_alive = false;
+  this->parent_ecosystem_ptr->kill_and_remove_organism(this->location);
 };
 
 void Organism::unlink() {
@@ -52,8 +53,8 @@ void Organism::change_location_to(intLocation new_location) {
 void Organism::do_procreate() {
   // if decide_procreate() {
     // get location:
-    intLocation free_location;
-    if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, center = this->location) = NoError) {
+    intLocation free_location(0, 0);
+    if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, this->location) == NoError) {
       Organism* offspring = this->parent_ecosystem_ptr->organisms_pool.get_new(free_location, this->parent_ecosystem_ptr);
       offspring->copy(this);
       offspring->mutate();
@@ -101,7 +102,7 @@ void Plant_A::do_procreate() {
   // if decide_procreate() {
     // get location:
     intLocation free_location;
-    if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, center = this->location) = NoError) {
+    if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, center = this->location) == NoError) {
       Organism* offspring = this->parent_ecosystem_ptr->organisms_pool.get_new(free_location, this->parent_ecosystem_ptr);
       offspring->copy(this);
       offspring->mutate();
@@ -166,6 +167,85 @@ Herbivore::Herbivore(Biotope *parentBiotope) {
   parent_biotope_ptr = parentBiotope;
 };
 
+Herbivore::do_move() {
+  
+};
+
 Carnivore::Carnivore(Biotope *parentBiotope) {
   parent_biotope_ptr = parentBiotope;
+};
+
+void Carnivore::act() {
+  this->do_hunt();
+  if(this->decide_move()) {
+    this->do_move();
+  };
+  this->do_hunt(); // yes, again
+  if(this->decide_procreate()) {
+    this->do_procreate();
+  }
+};
+
+void Carnivore::do_move() {
+  intLocation new_location();
+  if(
+     this->parent_biotope_ptr->get_free_location_close_to(
+        new_location,
+        this->location,
+        4.5,
+        2) == No_error
+     ) {
+    this->parent_ecosystem_ptr->subtract_costs_of_moving(this, new_location);
+    this->change_location_to(new_location);
+  };
+};
+
+void Carnivore::do_hunt() {
+  intLocation prey_location();
+  if(this->parent_biotope_ptr->get_adjacent_organism_of_type(
+                                                          prey_location,
+                                                          this->location,
+                                                          typeid(Herbivore)
+                                                             ) == No_error) {
+    this->do_eat(this->parent_biotope_ptr->organisms_map[prey_location]);
+  };
+};
+
+void Carnivore::do_eat(Herbivore *hervibore) {
+  this->energy_reserve += herbivore->energy_reserve;
+  hervibore->do_die();
+};
+
+void Carnivore::mutate() {
+  this->energy_reserve /= 2;
+  this->moving_frequency = parent_ecosystem_ptr->random_nums_gen.proportional_mutation(this->moving_frequency, 0.1, 0.01, 1.0);
+  this->moving_time = 0;
+};
+
+bool Carnivore::decide_move() {
+  this->moving_time += this->moving_frequency;
+  if(this->moving_time > 1) {
+    this->moving_time -= 1;
+    if(this->energy_reserve > 1000) {
+      return true;
+    }
+    else {
+      return false;
+  }
+  else {
+    return false;
+  };
+};
+
+bool Carnivore::decide_procreate() {
+  return (this->energy_reserve > 5000);
+};
+
+bool Carnivore::can_eat(Organism *organism) {
+  if(typeid(*organism) == typeid(Herbivore)) {
+    return true;
+  }
+  else {
+    return false;
+  }
 };

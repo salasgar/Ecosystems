@@ -11,26 +11,20 @@
 
 #include "basic_tools.hpp"
 
-
-class Organism;
-class Ecosystem;
-
-
-
 /*******************************
  Utils classes
  ********************************
  */
-class OrganismsPool {
+class Organisms_pool : public Base_organisms_pool {
   void _create_more_organisms();
 public:
   int buffer_size;
-  std::vector<std::vector<Organism> > organisms_pool;
-  std::stack<Organism*> available_organisms;
-  Organism* get_new(std::pair<int, int> location,
-                    Ecosystem* parent_ecosystem_ptr);
-  void set_available(Organism* organism);
-  OrganismsPool();
+  std::vector<std::vector<Base_organism> > organisms_pool;
+  std::stack<Base_organism*> available_organisms;
+  Base_organism* get_new(intLocation location,
+                    Base_ecosystem* parent_ecosystem_ptr);
+  void set_available(Base_organism* organism);
+  Organisms_pool();
 };
 
 #include <stdio.h>

@@ -19,23 +19,20 @@ class Organism;
 class OrganismsPool;
 class RandomNumbersGenerator;
 
-class Ecosystem {
+class Ecosystem : public Base_ecosystem {
   void _clear_ghost_organisms();
  public:
   Organism* first_organism_node;
   Organism* last_organism_node;
-  RandomNumbersGenerator random_nums_gen;
   OrganismsPool organisms_pool;
-  long int cycle;
   std::vector<Organism*> ghost_organisms_ptrs;
-  Biotope biotope;
   
  // methods:
   Ecosystem();
   void insert_new_organism_before(Organism* new_organism, Organism* reference_organism);
   void append_organisms(Organism* organisms);
   void evolve();
-  void kill_and_remove_organism(Organism* organism);
+  void kill_and_remove_organism(intLocation location);
   void add_new_organisms(int number_of_new_organisms);
   int get_num_organisms();
 };

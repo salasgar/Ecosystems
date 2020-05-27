@@ -7,26 +7,21 @@
 #include <stack>
 #include <vector>
 #include "basic_tools.hpp"
+#include "pool_of_organisms.hpp"
+#include "biotope.hpp"
 
 class Sun_light;
 class Temperature;
-class Ecosystem;
-class Biotope;
-class Organism;
-class OrganismsPool;
-class RandomNumbersGenerator;
 
-class Organism {
+class Organism : public Base_organism {
  public:
   Organism* prev;
   Organism* next;
   bool is_alive;
-  Ecosystem* parent_ecosystem_ptr;
-  Biotope* parent_biotope_ptr;
   intLocation location;
  // methods:
   void reset(intLocation location,
-             Ecosystem* parent_ecosystem_ptr);
+             Base_ecosystem* parent_ecosystem_ptr);
   virtual void copy(Organism* model_organism);
   virtual void act();
   void do_die();
@@ -81,7 +76,7 @@ class Plant_B : public Organism {
  public:
   static const int photosynthesis_capacity = 120;
   static const int death_age = 1000;
-  static const float minimum_energy_reserve_for_procreating = 300;
+  constexpr static const float minimum_energy_reserve_for_procreating = 300;
   Energy_reserve energy_reserve;
   int age;
  public:
@@ -106,11 +101,20 @@ class Herbivore : public Organism {
 class Carnivore : public Organism {
   public:
    float energy_reserve;
-  public:
+   float moving_frequency;
+   float moving_time;
+  // methods:
    Carnivore(Biotope *parentBiotope);
    void do_move();
    void do_hunt();
-   void do_eat(Herbivore hervibore);
+   void do_eat(Herbivore *hervibore);
+   void do_procreate();
+   void mutate();
+   // decisions:
+   bool decide_move();
+   bool decide_procreate();
+   // constraints:
+   bool can_eat(Organism *organism);
 };
 
 

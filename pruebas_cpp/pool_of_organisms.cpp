@@ -9,30 +9,29 @@
 #include "pool_of_organisms.hpp"
 
 // ****************** OrganismsPool *********************
-void OrganismsPool::_create_more_organisms() {
-  this->organisms_pool.push_back(std::vector<Organism>(this->buffer_size));
+void Organisms_pool::_create_more_organisms() {
+  this->organisms_pool.push_back(std::vector<Base_organism>(this->buffer_size));
   for (auto &o : this->organisms_pool.back()) {
     this->available_organisms.push(&o);
   }
 };
 
-OrganismsPool::OrganismsPool() {
+Organisms_pool::Organisms_pool() {
   this->buffer_size = 100000;
   this->_create_more_organisms();
 };
 
-Organism* OrganismsPool::get_new(std::pair<int, int> location,
-                                 Ecosystem* parent_ecosystem_ptr) {
+Base_organism* Organisms_pool::get_new(intLocation location, Base_ecosystem* parent_ecosystem_ptr) {
   if (this->available_organisms.empty()) {
     this->_create_more_organisms();
   };
-  Organism* o = this->available_organisms.top();
+  Base_organism* o = this->available_organisms.top();
   this->available_organisms.pop();
   o->reset(location, parent_ecosystem_ptr);
   return o;
 };
 
-void OrganismsPool::set_available(Organism *o) {
+void Organisms_pool::set_available(Base_organism *o) {
   this->available_organisms.push(o);
 };
 
