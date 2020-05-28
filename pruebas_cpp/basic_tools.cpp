@@ -204,6 +204,9 @@ float RandomNumbersGenerator::uniform_mutation(float base_value, float maximum_i
   return std::min(maximum_value, this->uniform_mutation(base_value, maximum_increment, minimum_value));
 };
 
-
+bool RandomNumbersGenerator::true_with_probability(float probability) {
+  std::uniform_real_distribution<float> distribution(0.0, 1.0);
+  return (distribution(this->eng) < probability);
+};
 
 

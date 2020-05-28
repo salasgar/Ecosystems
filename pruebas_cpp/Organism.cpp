@@ -167,10 +167,83 @@ Herbivore::Herbivore(Biotope *parentBiotope) {
   parent_biotope_ptr = parentBiotope;
 };
 
-Herbivore::do_move() {
-  
+void Herbivore::act() {
+  this->do_hunt();
+  this->do_move();
+  if(this->can_procreate()) {
+    this->do_procreate();
+  };
+  this->substract_costs_of_being_alive();
+  if(this->energy_reserve<10) {
+    this->do_die();
+  };
 };
 
+void Herbivore::do_move() {
+  intLocation new_location();
+  if(
+     this->parent_biotope_ptr->get_free_location_close_to(
+        new_location,
+        this->location,
+        4.5,
+        2) == No_error
+     ) {
+    this->change_location_to(new_location);
+  };
+};
+
+void Herbivore::do_hunt() {
+  intLocation prey_location();
+  if(
+    this->parent_biotope_ptr
+      ->get_adjacent_organism_of_type(
+          prey_location,
+          this->location,
+          this->favorite_food
+      ) == No_error) {
+    this->do_eat(this->parent_biotope_ptr->organisms_map[prey_location]);
+  };
+};
+
+void Herbivore::do_eat(Plant_A *plant_a) {
+  this->energy_reserve += plant_a->energy_reserve;
+  plant_a->do_die();
+};
+
+void Herbivore::do_eat(Plant_B *plant_b) {
+  this->energy_reserve += plant_b->energy_reserve;
+  plant_b->do_die();
+};
+
+void Herbivore::mutate() {
+  this->energy_reserve = 500;
+  this->strength =
+    parent_ecosystem_ptr->random_nums_gen
+    .proportional_mutation(this->strength, 0.05, 0.01);
+  if(typeid(this->favorite_food) == typeid(Plant_A)) {
+    if(this->parent_ecosystem_ptr->random_nums_gen
+       .true_with_probability(0.1)) {
+      this->favorite_food = typeid(Plant_B);
+    }
+  }
+  else {
+    if(this->parent_ecosystem_ptr->random_nums_gen
+       .true_with_probability(0.25))
+    {
+      this->favorite_food = typeid(Plant_A);
+    };
+  };
+};
+
+bool Herbivore::can_procreate() {
+  return (this->energy_reserve > 2000);
+};
+
+void Herbivore::substract_costs_of_being_alive() {
+  this->energy_reserve -= this->strength;
+  this->energy_reserve -= 5;
+}
+  
 Carnivore::Carnivore(Biotope *parentBiotope) {
   parent_biotope_ptr = parentBiotope;
 };
@@ -183,7 +256,11 @@ void Carnivore::act() {
   this->do_hunt(); // yes, again
   if(this->decide_procreate()) {
     this->do_procreate();
-  }
+  };
+  this->substract_costs_of_being_alive();
+  if(this->energy_reserve<10) {
+    this->do_die();
+  };
 };
 
 void Carnivore::do_move() {
@@ -195,7 +272,7 @@ void Carnivore::do_move() {
         4.5,
         2) == No_error
      ) {
-    this->parent_ecosystem_ptr->subtract_costs_of_moving(this, new_location);
+    this->subtract_costs_of_moving(new_location);
     this->change_location_to(new_location);
   };
 };
@@ -211,27 +288,40 @@ void Carnivore::do_hunt() {
   };
 };
 
-void Carnivore::do_eat(Herbivore *hervibore) {
+void Carnivore::do_try_to_eat(Herbivore *herbivore) {
+  if(this->parent_ecosystem_ptr->random_nums_gen
+     .true_with_probability(this->strength / (this->strength + herbivore->strength))) {
+    this->do_eat(herbivore);
+  };
+};
+  
+void Carnivore::do_eat(Herbivore *herbivore) {
   this->energy_reserve += herbivore->energy_reserve;
   hervibore->do_die();
 };
 
 void Carnivore::mutate() {
   this->energy_reserve /= 2;
+  this->strength =
+    parent_ecosystem_ptr->random_nums_gen
+    .proportional_mutation(this->strength, 0.05, 0.01);
   this->moving_frequency = parent_ecosystem_ptr->random_nums_gen.proportional_mutation(this->moving_frequency, 0.1, 0.01, 1.0);
   this->moving_time = 0;
 };
 
 bool Carnivore::decide_move() {
   this->moving_time += this->moving_frequency;
-  if(this->moving_time > 1) {
+  if(this->moving_time > 1)
+    {
     this->moving_time -= 1;
-    if(this->energy_reserve > 1000) {
-      return true;
-    }
+    if(this->energy_reserve > 1000)
+      {
+        return true;
+      }
     else {
-      return false;
-  }
+        return false;
+      }
+    }
   else {
     return false;
   };
@@ -248,4 +338,13 @@ bool Carnivore::can_eat(Organism *organism) {
   else {
     return false;
   }
+};
+
+void Carnivore::substract_costs_of_being_alive() {
+  this->energy_reserve -= this->strength;
+  this->energy_reserve -= 5;
+}
+
+void Carnivore::substract_costs_of_moving(intLocation new_location) {
+  this->energy_reserve -= 2.5 * taxi_distance(this->location, new_location);
 };

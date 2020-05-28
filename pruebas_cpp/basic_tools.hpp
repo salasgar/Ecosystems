@@ -78,6 +78,7 @@ public:
   float uniform_mutation(float base_value, float maximum_proportion);
   float uniform_mutation(float base_value, float maximum_proportion, float minimum_value);
   float uniform_mutation(float base_value, float maximum_proportion, float minimum_value, float maximum_value);
+  bool true_with_probability(float probability);
 };
 
 class Base_biotope {

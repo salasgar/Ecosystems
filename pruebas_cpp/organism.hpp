@@ -90,31 +90,43 @@ class Plant_B : public Organism {
 class Herbivore : public Organism {
  public:
   float energy_reserve;
+  float strength;
+  std::type_info favorite_food;
  public:
   Herbivore(Biotope *parentBiotope);
   void do_move();
   void do_hunt();
-  void do_eat(Plant_A plant_a);
-  void do_eat(Plant_B plant_b);
+  void do_eat(Plant_A *plant_a);
+  void do_eat(Plant_B *plant_b);
+  void mutate();
+  // constraints:
+  bool can_procreate();
+  // costs:
+  void substract_costs_of_being_alive();
 };
 
 class Carnivore : public Organism {
-  public:
-   float energy_reserve;
-   float moving_frequency;
-   float moving_time;
+ public:
+  float energy_reserve;
+  float strength;
+  float moving_frequency;
+  float moving_time;
   // methods:
-   Carnivore(Biotope *parentBiotope);
-   void do_move();
-   void do_hunt();
-   void do_eat(Herbivore *hervibore);
-   void do_procreate();
-   void mutate();
-   // decisions:
-   bool decide_move();
-   bool decide_procreate();
-   // constraints:
-   bool can_eat(Organism *organism);
+  Carnivore(Biotope *parentBiotope);
+  void do_move();
+  void do_hunt();
+  void do_try_to_eat(Herbivore *herbivore);
+  void do_eat(Herbivore *herbivore);
+  void do_procreate();
+  void mutate();
+  // decisions:
+  bool decide_move();
+  bool decide_procreate();
+  // constraints:
+  bool can_eat(Organism *organism);
+  // costs:
+  void substract_costs_of_being_alive();
+  void substract_costs_of_moving(intLocation new_location);
 };
 
 
