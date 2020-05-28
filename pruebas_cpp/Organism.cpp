@@ -32,7 +32,34 @@ void Organism::reset(intLocation location,
   // const int MAX_AGE = 2000;
 };
 
+void Organism::copy(Organism* model_organism) {
+  // nothing to do here yet
+};
+
 void Organism::act() {};
+
+void Organism::change_location_to(intLocation new_location) {
+  this->location = new_location;
+};
+
+void Organism::do_procreate() {
+  // if decide_procreate() {
+  // get location:
+  intLocation free_location(0, 0);
+  if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, this->location) == NoError) {
+    Organism* offspring = this->parent_ecosystem_ptr->organisms_pool.get_new(free_location, this->parent_ecosystem_ptr);
+    offspring->copy(this);
+    offspring->mutate();
+    // Add offspring to ecosystem:
+    this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this);
+    // this->subtract_costs_of_procreating(offspring);
+  };
+  // };
+};
+
+void Organism::mutate() {
+  // nothing to do here yet
+};
 
 void Organism::do_die() {
   this->is_alive = false;
@@ -46,32 +73,11 @@ void Organism::unlink() {
     this->prev->next = this->next;
 };
 
-void Organism::change_location_to(intLocation new_location) {
-  this->location = new_location;
-};
 
-void Organism::do_procreate() {
-  // if decide_procreate() {
-    // get location:
-    intLocation free_location(0, 0);
-    if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, this->location) == NoError) {
-      Organism* offspring = this->parent_ecosystem_ptr->organisms_pool.get_new(free_location, this->parent_ecosystem_ptr);
-      offspring->copy(this);
-      offspring->mutate();
-      // Add offspring to ecosystem:
-      this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this);
-      this->parent_ecosystem_ptr->subtract_costs_procreate(this, offspring);
-    };
-  // };
-};
 
-void Organism::copy(Organism* model_organism) {
-  // nothing to do here yet
-};
-
-void Organism::mutate() {
-  // nothing to do here yet
-};
+// ******************************************************************
+//                           P L A N T S
+// ******************************************************************
 
 // plant_A: plants that can live with little sunlight
 
@@ -80,12 +86,12 @@ Plant_A::Energy_reserve::Energy_reserve(Biotope *parentBiotope, Organism *parent
 data(initial_value)
 {};
 
-Plant_A::Energy_reserve::get_value() {
+float Plant_A::Energy_reserve::get_value() {
   return data;
 }
 
 void Plant_A::Energy_reserve::update() { // do photosynthesis:
-  this->data += -10 + 20 * (this->parent_biotope_ptr->sun_light->get_value(parent_organism_ptr->location));
+  this->data += -10 + 20 * (this->parent_biotope_ptr->sun_light->get_value(make_float_location(parent_organism_ptr->location)));
 };
 
 void Plant_A::Energy_reserve::set_value(float new_value) {
@@ -93,7 +99,7 @@ void Plant_A::Energy_reserve::set_value(float new_value) {
 };
 // end of definition of Plant_A::Energy_reserve
 
-Plant_A::Plant_A() {
+Plant_A::Plant_A() : energy_reserve(this->parent_biotope_ptr, this, this->initial_energy_reserve_at_birth){
   this->minimum_energy_reserve_for_procreating = initial_minimum_energy_reserve_for_procreating;
   this->energy_reserve_at_birth = initial_energy_reserve_at_birth;
 };
@@ -103,12 +109,12 @@ void Plant_A::do_procreate() {
     // get location:
     intLocation free_location;
     if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, center = this->location) == NoError) {
-      Organism* offspring = this->parent_ecosystem_ptr->organisms_pool.get_new(free_location, this->parent_ecosystem_ptr);
+      Plant_A* offspring = this->parent_ecosystem_ptr->organisms_pool.get_new(free_location, this->parent_ecosystem_ptr);
       offspring->copy(this);
       offspring->mutate();
       // Add offspring to ecosystem:
       this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this);
-      this->parent_ecosystem_ptr->subtract_costs_procreate(this, offspring);
+      this->subtract_costs_of_procreating(offspring);
     };
   // };
 };
@@ -134,6 +140,14 @@ void Plant_A::act() {
   if(this->energy_reserve.data < 100) do_die(); // Constraint
 };
 
+void Plant_A::subtract_costs_of_procreating(Plant_A *offspring) {
+  // proportional cost:
+  this->energy_reserve -= 1.1 * offspring->energy_reserve;
+  // fixed cost:
+  this->energy_reserve -= 50;
+};
+
+
 // plant_B: plants that need much sunlight
 
 Plant_B::Energy_reserve::Energy_reserve(Biotope *parentBiotope, Organism *parentOrganism, float initial_value) : parent_organism_ptr(parentOrganism), parent_biotope_ptr(parentBiotope), data(initial_value) {};
@@ -151,6 +165,21 @@ void Plant_B::do_age() {
   };
 };
 
+void Plant_B::do_procreate() {
+  // if decide_procreate() {
+    // get location:
+    intLocation free_location;
+    if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, center = this->location) == NoError) {
+      Plant_B* offspring = this->parent_ecosystem_ptr->organisms_pool.get_new(free_location, this->parent_ecosystem_ptr);
+      offspring->copy(this);
+      offspring->mutate();
+      // Add offspring to ecosystem:
+      this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this);
+      this->subtract_costs_of_procreating(offspring);
+    };
+  // };
+};
+
 bool Plant_B::decide_procreate() {
   return this->energy_reserve.get_value() > this->minimum_energy_reserve_for_procreating;
 };
@@ -161,6 +190,11 @@ void Plant_B::act() {
   this->energy_reserve.update(); // do photosynthesis
   if(this->decide_procreate()) this->do_procreate();
   if(this->energy_reserve.data < 100) do_die(); // Constraint
+};
+
+void Plant_B::subtract_costs_of_procreating(Plant_B *offspring) {
+  // proportional cost:
+  this->energy_reserve -= 1.1 * offspring->energy_reserve;
 };
 
 Herbivore::Herbivore(Biotope *parentBiotope) {
@@ -215,6 +249,21 @@ void Herbivore::do_eat(Plant_B *plant_b) {
   plant_b->do_die();
 };
 
+void Herbivore::do_procreate() {
+  // if decide_procreate() {
+    // get location:
+    intLocation free_location;
+    if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, center = this->location) == NoError) {
+      Herbivore* offspring = this->parent_ecosystem_ptr->organisms_pool.get_new(free_location, this->parent_ecosystem_ptr);
+      offspring->copy(this);
+      offspring->mutate();
+      // Add offspring to ecosystem:
+      this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this);
+      this->subtract_costs_of_procreating(offspring);
+    };
+  // };
+};
+
 void Herbivore::mutate() {
   this->energy_reserve = 500;
   this->strength =
@@ -244,6 +293,13 @@ void Herbivore::substract_costs_of_being_alive() {
   this->energy_reserve -= 5;
 }
   
+void Herbivore::substract_costs_of_procreating(Herbivore *offspring) {
+  // fixed cost:
+  this->energy_reserve -= 600;
+};
+
+
+// *****************  C A R N I V O R E  ******************
 Carnivore::Carnivore(Biotope *parentBiotope) {
   parent_biotope_ptr = parentBiotope;
 };
@@ -269,8 +325,8 @@ void Carnivore::do_move() {
      this->parent_biotope_ptr->get_free_location_close_to(
         new_location,
         this->location,
-        4.5,
-        2) == No_error
+        6.5,
+        4) == No_error
      ) {
     this->subtract_costs_of_moving(new_location);
     this->change_location_to(new_location);
@@ -284,7 +340,7 @@ void Carnivore::do_hunt() {
                                                           this->location,
                                                           typeid(Herbivore)
                                                              ) == No_error) {
-    this->do_eat(this->parent_biotope_ptr->organisms_map[prey_location]);
+    this->do_try_to_eat(this->parent_biotope_ptr->organisms_map[prey_location]);
   };
 };
 
@@ -300,8 +356,23 @@ void Carnivore::do_eat(Herbivore *herbivore) {
   hervibore->do_die();
 };
 
+void Carnivore::do_procreate() {
+  // if decide_procreate() {
+    // get location:
+    intLocation free_location;
+    if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, center = this->location) == NoError) {
+      Carnivore* offspring = this->parent_ecosystem_ptr->organisms_pool.get_new(free_location, this->parent_ecosystem_ptr);
+      offspring->copy(this);
+      offspring->mutate();
+      // Add offspring to ecosystem:
+      this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this);
+      this->subtract_costs_of_procreating(offspring);
+    };
+  // };
+};
+
 void Carnivore::mutate() {
-  this->energy_reserve /= 2;
+  this->energy_reserve *= 0.25;
   this->strength =
     parent_ecosystem_ptr->random_nums_gen
     .proportional_mutation(this->strength, 0.05, 0.01);
@@ -331,7 +402,8 @@ bool Carnivore::decide_procreate() {
   return (this->energy_reserve > 5000);
 };
 
-bool Carnivore::can_eat(Organism *organism) {
+/*
+ bool Carnivore::can_eat(Organism *organism) {
   if(typeid(*organism) == typeid(Herbivore)) {
     return true;
   }
@@ -339,6 +411,7 @@ bool Carnivore::can_eat(Organism *organism) {
     return false;
   }
 };
+*/
 
 void Carnivore::substract_costs_of_being_alive() {
   this->energy_reserve -= this->strength;
@@ -347,4 +420,11 @@ void Carnivore::substract_costs_of_being_alive() {
 
 void Carnivore::substract_costs_of_moving(intLocation new_location) {
   this->energy_reserve -= 2.5 * taxi_distance(this->location, new_location);
+};
+
+void Carnivore::substract_costs_of_procreating(Carnivore *offspring) {
+  // proportional cost:
+  this->energy_reserve -= 1.5 * offspring->energy_reserve;
+  // fixed cost:
+  this->energy_reserve -= 100;
 };

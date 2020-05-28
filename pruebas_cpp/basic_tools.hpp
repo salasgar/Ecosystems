@@ -15,6 +15,10 @@ class Base_ecosystem;
 class Base_organisms_pool;
 class RandomNumbersGenerator;
 
+class Organism;
+class Biotope;
+class Ecosystem;
+
 template <class T>
 class Location : public std::pair<T, T> {
 public:
@@ -37,6 +41,16 @@ intLocation make_int_location(int x, int y) {
 
 floatLocation make_float_location(float x, float y) {
   floatLocation loc(x, y);
+  return loc;
+};
+
+intLocation make_int_location(floatLocation fLoc) {
+  intLocation loc(std::lround(fLoc.x()), std::lround(fLoc.y()));
+  return loc;
+};
+
+floatLocation make_float_location(intLocation iLoc) {
+  floatLocation loc(iLoc.x(), iLoc.y());
   return loc;
 };
 

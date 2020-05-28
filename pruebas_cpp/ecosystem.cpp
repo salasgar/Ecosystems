@@ -27,7 +27,8 @@ void Ecosystem::_clear_ghost_organisms() {
   this->ghost_organisms_ptrs.clear();
 };
 
-Ecosystem::Ecosystem() : biotope(this) {
+Ecosystem::Ecosystem() {
+  this->biotope_ptr = Biotope(this);
   this->random_nums_gen.set_seed(0);
   this->cycle = 0;
   const int INITIAL_NUM_ORGANISMS = 200000;

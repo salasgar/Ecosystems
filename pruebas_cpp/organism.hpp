@@ -19,17 +19,20 @@ class Organism : public Base_organism {
   Organism* next;
   bool is_alive;
   intLocation location;
+  Biotope* parent_biotope_ptr;
+  Ecosystem* parent_ecosystem_ptr;
  // methods:
+  Organism() : Base_organism() {};
   void reset(intLocation location,
              Base_ecosystem* parent_ecosystem_ptr);
   virtual void copy(Organism* model_organism);
   virtual void act();
-  void do_die();
-  void unlink();
   void change_location_to(intLocation new_location);
   void do_procreate();
-  virtual bool decide_procreate();
   void mutate();
+  void do_die();
+  void unlink();
+  // virtual bool decide_procreate();
 };
 
 class Plant_A : public Organism {
@@ -56,9 +59,10 @@ class Plant_A : public Organism {
   constexpr static const float initial_energy_reserve_at_birth = 100;
  public:
   Plant_A();
-  // void do_photosynthesis();
   // decisions:
   bool decide_procreate();
+  // costs:
+  void subtract_costs_of_procreating(Plant_A *offspring);
 }; // *************** class Plant_A ***************
 
 class Plant_B : public Organism {
@@ -85,6 +89,8 @@ class Plant_B : public Organism {
   void do_age();
   void do_procreate();
   void act();
+  // costs:
+  void subtract_costs_of_procreating(Plant_B *offspring);
 };  // *************** class Plant_B ***************
 
 class Herbivore : public Organism {
@@ -98,10 +104,12 @@ class Herbivore : public Organism {
   void do_hunt();
   void do_eat(Plant_A *plant_a);
   void do_eat(Plant_B *plant_b);
+  void do_procreate();
   void mutate();
   // constraints:
   bool can_procreate();
   // costs:
+  void subtract_costs_of_procreating(Herbivore *offspring);
   void substract_costs_of_being_alive();
 };
 
@@ -113,6 +121,7 @@ class Carnivore : public Organism {
   float moving_time;
   // methods:
   Carnivore(Biotope *parentBiotope);
+  void do_act();
   void do_move();
   void do_hunt();
   void do_try_to_eat(Herbivore *herbivore);
@@ -122,11 +131,10 @@ class Carnivore : public Organism {
   // decisions:
   bool decide_move();
   bool decide_procreate();
-  // constraints:
-  bool can_eat(Organism *organism);
   // costs:
-  void substract_costs_of_being_alive();
   void substract_costs_of_moving(intLocation new_location);
+  void subtract_costs_of_procreating(Carnivore *offspring);
+  void substract_costs_of_being_alive();
 };
 
 

@@ -189,7 +189,7 @@ ErrorType Biotope::get_free_adjacent_location(intLocation &free_location, intLoc
     this->adjacent_locations.end(),
     this->parent_ecosystem_ptr->random_nums_gen.eng
   );
-  for(intLocation location :this->adjacent_locations) {
+  for(intLocation location : this->adjacent_locations) {
     if(this->organisms_map[center + location] == nullptr) {
       free_location = center + location;
       return No_error;
@@ -198,4 +198,20 @@ ErrorType Biotope::get_free_adjacent_location(intLocation &free_location, intLoc
   return Error_No_free_location_found;
 };
 
+ErrorType Biotope::get_adjacent_organism_of_type(intLocation &org_loc, intLocation center, std::type_info org_type) {
+  shuffle(
+    this->adjacent_locations.begin(),
+    this->adjacent_locations.end(),
+    this->parent_ecosystem_ptr->random_nums_gen.eng
+  );
+  for(intLocation location : this->adjacent_locations) {
+    if(this->organisms_map[center + location] != nullptr) {
+      if(typeid(*(this->organisms_map[center + location])) == org_type) {
+        org_loc = center + location;
+        return No_error;
+      };
+    };
+  };
+  return Error_No_free_location_found;
+};
 

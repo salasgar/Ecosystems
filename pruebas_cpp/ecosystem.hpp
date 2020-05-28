@@ -16,7 +16,7 @@ class Temperature;
 class Ecosystem;
 class Biotope;
 class Organism;
-class OrganismsPool;
+//class Organisms_pool;
 class RandomNumbersGenerator;
 
 class Ecosystem : public Base_ecosystem {
@@ -24,7 +24,7 @@ class Ecosystem : public Base_ecosystem {
  public:
   Organism* first_organism_node;
   Organism* last_organism_node;
-  OrganismsPool organisms_pool;
+  Organisms_pool organisms_pool;
   std::vector<Organism*> ghost_organisms_ptrs;
   
  // methods:
