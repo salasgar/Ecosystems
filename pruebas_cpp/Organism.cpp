@@ -86,10 +86,6 @@ Plant_A::Energy_reserve::Energy_reserve(Biotope *parentBiotope, Organism *parent
 data(initial_value)
 {};
 
-float Plant_A::Energy_reserve::get_value() {
-  return data;
-}
-
 void Plant_A::Energy_reserve::update() { // do photosynthesis:
   this->data += -10 + 20 * (this->parent_biotope_ptr->sun_light->get_value(make_float_location(parent_organism_ptr->location)));
 };
@@ -97,18 +93,27 @@ void Plant_A::Energy_reserve::update() { // do photosynthesis:
 void Plant_A::Energy_reserve::set_value(float new_value) {
   this->data = new_value;
 };
-// end of definition of Plant_A::Energy_reserve
+
+float Plant_A::Energy_reserve::get_value() {
+  return data;
+}
 
 Plant_A::Plant_A() : energy_reserve(this->parent_biotope_ptr, this, this->initial_energy_reserve_at_birth){
   this->minimum_energy_reserve_for_procreating = initial_minimum_energy_reserve_for_procreating;
   this->energy_reserve_at_birth = initial_energy_reserve_at_birth;
 };
 
+void Plant_A::act() {
+  this->energy_reserve.update(); // do photosynthesis
+  if(this->decide_procreate()) this->do_procreate();
+  if(this->energy_reserve.data < 100) do_die(); // Constraint
+};
+
 void Plant_A::do_procreate() {
   // if decide_procreate() {
     // get location:
-    intLocation free_location;
-    if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, center = this->location) == NoError) {
+  intLocation free_location;
+  if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, this->location) == No_error) {
       Plant_A* offspring = this->parent_ecosystem_ptr->organisms_pool.get_new(free_location, this->parent_ecosystem_ptr);
       offspring->copy(this);
       offspring->mutate();
@@ -119,9 +124,9 @@ void Plant_A::do_procreate() {
   // };
 };
 
-void Plant_A::copy(Organism* model_organism) {
-  this->minimum_energy_reserve_for_procreating = model_organism->minimum_energy_reserve_for_procreating;
-  this->energy_reserve_at_birth = model_organism->energy_reserve_at_birth;
+void Plant_A::copy(Plant_A *parent) {
+  this->minimum_energy_reserve_for_procreating = parent->minimum_energy_reserve_for_procreating;
+  this->energy_reserve_at_birth = parent->energy_reserve_at_birth;
 };
 
 void Plant_A::mutate() {
@@ -132,12 +137,6 @@ void Plant_A::mutate() {
 
 bool Plant_A::decide_procreate() {
   return this->energy_reserve.get_value() > this->minimum_energy_reserve_for_procreating;
-};
-
-void Plant_A::act() {
-  this->energy_reserve.update(); // do photosynthesis
-  if(this->decide_procreate()) this->do_procreate();
-  if(this->energy_reserve.data < 100) do_die(); // Constraint
 };
 
 void Plant_A::subtract_costs_of_procreating(Plant_A *offspring) {
@@ -156,13 +155,22 @@ void Plant_B::Energy_reserve::update() {
   this->data += -25 + 34 * (this->parent_biotope_ptr->sun_light->get_value(parent_organism_ptr->location));
 };
 
+void Plant_B::Energy_reserve::set_value(float new_value) {
+  this->data = new_value;
+};
+
+float Plant_B::Energy_reserve::get_value() {
+  return data;
+}
+
 Plant_B::Plant_B(Biotope *parentBiotope) : energy_reserve(parentBiotope, this, 1000.0), age(0) {};
 
-void Plant_B::do_age() {
-  this->age += 1;
-  if (this->age > this->death_age) {
-    this->do_die();
-  };
+void Plant_B::act() {
+  this->energy_reserve.update(); // do photosynthesis
+  if(this->decide_procreate()) this->do_procreate();
+  if(this->energy_reserve.data < 100) do_die(); // Constraint
+  // if(not this->is_alive) break;
+  this->do_age();
 };
 
 void Plant_B::do_procreate() {
@@ -171,7 +179,7 @@ void Plant_B::do_procreate() {
     intLocation free_location;
     if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, center = this->location) == NoError) {
       Plant_B* offspring = this->parent_ecosystem_ptr->organisms_pool.get_new(free_location, this->parent_ecosystem_ptr);
-      offspring->copy(this);
+      // offspring->copy(this);  // this isn't necessary
       offspring->mutate();
       // Add offspring to ecosystem:
       this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this);
@@ -180,16 +188,15 @@ void Plant_B::do_procreate() {
   // };
 };
 
-bool Plant_B::decide_procreate() {
-  return this->energy_reserve.get_value() > this->minimum_energy_reserve_for_procreating;
+void Plant_B::do_age() {
+  this->age += 1;
+  if (this->age > this->death_age) {
+    this->do_die();
+  };
 };
 
-void Plant_B::act() {
-  this->do_age();
-  if(not this->is_alive) break;
-  this->energy_reserve.update(); // do photosynthesis
-  if(this->decide_procreate()) this->do_procreate();
-  if(this->energy_reserve.data < 100) do_die(); // Constraint
+bool Plant_B::decide_procreate() {
+  return this->energy_reserve.get_value() > this->minimum_energy_reserve_for_procreating;
 };
 
 void Plant_B::subtract_costs_of_procreating(Plant_B *offspring) {

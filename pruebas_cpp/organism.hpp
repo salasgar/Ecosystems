@@ -45,8 +45,8 @@ class Plant_A : public Organism {
     //methods:
     Energy_reserve(Biotope *parentBiotope, Organism *parentOrganism, float initial_value);
     void update();
-    float get_value(); // Is this method necessary?
     void set_value(float new_value);
+    float get_value();
   };
 
  // class Plant_A:
@@ -57,8 +57,12 @@ class Plant_A : public Organism {
   float minimum_energy_reserve_for_procreating;
   float energy_reserve_at_birth;
   constexpr static const float initial_energy_reserve_at_birth = 100;
- public:
+  // methods:
   Plant_A();
+  void act();
+  void do_procreate();
+  void copy(Plant_A *parent);
+  void mutate();
   // decisions:
   bool decide_procreate();
   // costs:
@@ -74,7 +78,9 @@ class Plant_B : public Organism {
     Biotope *parent_biotope_ptr;
     Energy_reserve(Biotope *parentBiotope, Organism *parentOrganism, float initial_value);
     void update();
-  };
+    void set_value(float new_value);
+    float get_value();
+};
 
   // class Plant_B:
  public:
@@ -85,10 +91,11 @@ class Plant_B : public Organism {
   int age;
  public:
   Plant_B(Biotope *parentBiotope);
-  void do_photosynthesis();
-  void do_age();
-  void do_procreate();
   void act();
+  void do_procreate();
+  void do_age();
+  // decisions:
+  bool decide_procreate();
   // costs:
   void subtract_costs_of_procreating(Plant_B *offspring);
 };  // *************** class Plant_B ***************
@@ -121,7 +128,7 @@ class Carnivore : public Organism {
   float moving_time;
   // methods:
   Carnivore(Biotope *parentBiotope);
-  void do_act();
+  void act();
   void do_move();
   void do_hunt();
   void do_try_to_eat(Herbivore *herbivore);

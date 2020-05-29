@@ -25,13 +25,13 @@ Base_organism* Organisms_pool::get_new(intLocation location, Base_ecosystem* par
   if (this->available_organisms.empty()) {
     this->_create_more_organisms();
   };
-  Base_organism* o = this->available_organisms.top();
+  Base_organism* organism_ptr = this->available_organisms.top();
   this->available_organisms.pop();
-  o->reset(location, parent_ecosystem_ptr);
-  return o;
+  organism_ptr->reset(location, parent_ecosystem_ptr);
+  return organism_ptr;
 };
 
-void Organisms_pool::set_available(Base_organism *o) {
-  this->available_organisms.push(o);
+void Organisms_pool::set_available(Base_organism *organism_ptr) {
+  this->available_organisms.push(organism_ptr);
 };
 

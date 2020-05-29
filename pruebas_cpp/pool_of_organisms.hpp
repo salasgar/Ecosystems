@@ -23,10 +23,8 @@ public:
   std::stack<Base_organism*> available_organisms;
   Base_organism* get_new(intLocation location,
                     Base_ecosystem* parent_ecosystem_ptr);
-  void set_available(Base_organism* organism);
+  void set_available(Base_organism* organism_ptr);
   Organisms_pool();
 };
-
-#include <stdio.h>
 
 #endif /* pool_of_organisms_hpp */

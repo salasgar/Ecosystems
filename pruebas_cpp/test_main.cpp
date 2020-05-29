@@ -1,5 +1,5 @@
 #include <iostream>
-#include "ecosystem.hpp"
+#include "classes.hpp"
 
 void test_organism() {
   Organism o;

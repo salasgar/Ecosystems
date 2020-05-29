@@ -86,6 +86,11 @@ long RandomNumbersGenerator::get_uniform_rand_long(long min, long max) {
   return distribution(this->eng);
 };
 
+float RandomNumbersGenerator::get_uniform_rand_float(float min, float max) {
+  std::uniform_real_distribution<float> distribution(min, max);
+  return distribution(this->eng);
+};
+
 intLocation RandomNumbersGenerator::get_rand_intLocation(int radius) {
   return intLocation(
     this->get_uniform_rand_int(-radius, radius),

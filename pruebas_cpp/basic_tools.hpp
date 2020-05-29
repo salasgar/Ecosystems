@@ -19,6 +19,11 @@ class Organism;
 class Biotope;
 class Ecosystem;
 
+void Error(std::string error_name = "Unknown error") {
+  // print error_name;
+  int err = 1/0;
+};
+
 template <class T>
 class Location : public std::pair<T, T> {
 public:
@@ -73,6 +78,7 @@ public:
   void set_seed(int seed);
   int get_uniform_rand_int(int min, int max);
   long get_uniform_rand_long(long min, long max);
+  float get_uniform_rand_float(float min, float max);
   intLocation get_rand_intLocation(int radius);
   //long proportional_mutation(long base_value);
   long proportional_mutation(long base_value, float maximum_proportion);
@@ -103,7 +109,7 @@ class Base_biotope {
 
 class Base_ecosystem {
  public:
-  Base_biotope* biotope_ptr;
+  Base_biotope biotope_ptr;
   long int cycle;
   RandomNumbersGenerator random_nums_gen;
   Base_ecosystem() {};
