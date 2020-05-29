@@ -65,6 +65,8 @@ class Organism_node {
   };
   void set_location(intLocation new_location);
   intLocation get_location();
+  void unlink();
+  void insert_before(Organism_node* reference_organism);
 };
 
 template <class T>
@@ -133,7 +135,7 @@ class Biotope {
   ErrorType get_free_location_close_to(intLocation &free_location, intLocation center, int radius);
   ErrorType get_free_location_close_to(intLocation &free_location, intLocation center, int radius, int number_of_attempts);
   ErrorType get_free_adjacent_location(intLocation &free_location, intLocation center);
-  ErrorType get_adjacent_organism_of_type(intLocation &org_loc, intLocation center, std::type_info org_type);
+  Organism_node* get_adjacent_organism_of_type(intLocation center, OrganismType org_type);
   int get_num_organisms();
 };
 
@@ -199,7 +201,7 @@ public:
   float energy_reserve_at_birth;
   constexpr static const float initial_energy_reserve_at_birth = 100;
   // methods:
-  Plant_A();
+  Plant_A() {};
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   // void reset(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);   // No es necesaria de momento
   void act();
@@ -223,7 +225,7 @@ public:
   float energy_reserve;
   int age;
   // methods:
-  Plant_B();
+  Plant_B() {};
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void act();
   void do_procreate();
@@ -238,15 +240,14 @@ class Herbivore : public Organism {
 public:
   float energy_reserve;
   float strength;
-  char can_eat_plant_type;
+  OrganismType eatable_plant_type;
 public:
   Herbivore() {};
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void act();
   void do_move();
   void do_hunt();
-  void do_eat(Plant_A *plant_a);
-  void do_eat(Plant_B *plant_b);
+  void do_eat(Organism_node* food);
   void do_procreate();
   void reset(intLocation location,
              Ecosystem* parent_ecosystem_ptr);
@@ -261,22 +262,29 @@ public:
 
 class Carnivore : public Organism {
 public:
+  // attributes:
   float energy_reserve;
   float strength;
+  float ideal_temperature;
+  float max_temperature_deviation;
   float moving_frequency;
   float moving_time;
   // methods:
-  Carnivore(Biotope *parentBiotope);
+  Carnivore() {};
+  void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void act();
   void do_move();
   void do_hunt();
   void do_try_to_eat(Herbivore *herbivore);
   void do_eat(Herbivore *herbivore);
   void do_procreate();
+  void copy(Carnivore* parent);
   void mutate();
   // decisions:
   bool decide_move();
   bool decide_procreate();
+  // constraints:
+  bool can_procreate();
   // costs:
   void substract_costs_of_moving(intLocation new_location);
   void subtract_costs_of_procreating(Carnivore *offspring);
@@ -302,7 +310,7 @@ public:
   
   // methods:
   Ecosystem();
-  void insert_new_organism_before(Organism* new_organism, Organism* reference_organism);
+  void insert_new_organism_before(Organism_node* new_organism, Organism_node* reference_organism);
   void append_organism(Organism_node* new_node);
   void append_organisms(Organism* organisms);
   void evolve();

@@ -8,12 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		075E19C724802E5700FCDD37 /* classes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 075E19C524802E5700FCDD37 /* classes.cpp */; };
-		07A5017E247DD921006210D4 /* biotope.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 07A50175247DD920006210D4 /* biotope.cpp */; };
 		07A5017F247DD921006210D4 /* test_main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 07A50177247DD920006210D4 /* test_main.cpp */; };
-		07A50180247DD921006210D4 /* ecosystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 07A50179247DD921006210D4 /* ecosystem.cpp */; };
-		07A50181247DD921006210D4 /* organism.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 07A5017A247DD921006210D4 /* organism.cpp */; };
 		07A50182247DD921006210D4 /* basic_tools.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 07A5017B247DD921006210D4 /* basic_tools.cpp */; };
-		07A50183247DD921006210D4 /* pool_of_organisms.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 07A5017C247DD921006210D4 /* pool_of_organisms.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -32,17 +28,9 @@
 		075E19C524802E5700FCDD37 /* classes.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = classes.cpp; path = ../../classes.cpp; sourceTree = "<group>"; };
 		075E19C624802E5700FCDD37 /* classes.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; name = classes.hpp; path = ../../classes.hpp; sourceTree = "<group>"; };
 		07A50169247DD8DB006210D4 /* Ecosystems */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Ecosystems; sourceTree = BUILT_PRODUCTS_DIR; };
-		07A50173247DD920006210D4 /* organism.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = organism.hpp; path = ../../organism.hpp; sourceTree = "<group>"; };
-		07A50174247DD920006210D4 /* ecosystem.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = ecosystem.hpp; path = ../../ecosystem.hpp; sourceTree = "<group>"; };
-		07A50175247DD920006210D4 /* biotope.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = biotope.cpp; path = ../../biotope.cpp; sourceTree = "<group>"; };
-		07A50176247DD920006210D4 /* biotope.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = biotope.hpp; path = ../../biotope.hpp; sourceTree = "<group>"; };
 		07A50177247DD920006210D4 /* test_main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = test_main.cpp; path = ../../test_main.cpp; sourceTree = "<group>"; };
 		07A50178247DD920006210D4 /* basic_tools.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = basic_tools.hpp; path = ../../basic_tools.hpp; sourceTree = "<group>"; };
-		07A50179247DD921006210D4 /* ecosystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ecosystem.cpp; path = ../../ecosystem.cpp; sourceTree = "<group>"; };
-		07A5017A247DD921006210D4 /* organism.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = organism.cpp; path = ../../organism.cpp; sourceTree = "<group>"; };
 		07A5017B247DD921006210D4 /* basic_tools.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = basic_tools.cpp; path = ../../basic_tools.cpp; sourceTree = "<group>"; };
-		07A5017C247DD921006210D4 /* pool_of_organisms.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = pool_of_organisms.cpp; path = ../../pool_of_organisms.cpp; sourceTree = "<group>"; };
-		07A5017D247DD921006210D4 /* pool_of_organisms.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = pool_of_organisms.hpp; path = ../../pool_of_organisms.hpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -77,16 +65,8 @@
 			children = (
 				07A5017B247DD921006210D4 /* basic_tools.cpp */,
 				07A50178247DD920006210D4 /* basic_tools.hpp */,
-				07A50175247DD920006210D4 /* biotope.cpp */,
 				075E19C524802E5700FCDD37 /* classes.cpp */,
 				075E19C624802E5700FCDD37 /* classes.hpp */,
-				07A50176247DD920006210D4 /* biotope.hpp */,
-				07A50179247DD921006210D4 /* ecosystem.cpp */,
-				07A50174247DD920006210D4 /* ecosystem.hpp */,
-				07A5017A247DD921006210D4 /* organism.cpp */,
-				07A50173247DD920006210D4 /* organism.hpp */,
-				07A5017C247DD921006210D4 /* pool_of_organisms.cpp */,
-				07A5017D247DD921006210D4 /* pool_of_organisms.hpp */,
 				07A50177247DD920006210D4 /* test_main.cpp */,
 			);
 			path = Ecosystems;
@@ -150,12 +130,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				07A5017F247DD921006210D4 /* test_main.cpp in Sources */,
-				07A50181247DD921006210D4 /* organism.cpp in Sources */,
-				07A50183247DD921006210D4 /* pool_of_organisms.cpp in Sources */,
 				075E19C724802E5700FCDD37 /* classes.cpp in Sources */,
 				07A50182247DD921006210D4 /* basic_tools.cpp in Sources */,
-				07A5017E247DD921006210D4 /* biotope.cpp in Sources */,
-				07A50180247DD921006210D4 /* ecosystem.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
