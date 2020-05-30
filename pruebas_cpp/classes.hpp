@@ -63,8 +63,11 @@ class Organism_node {
     Herbivore* herbivore_ptr;
     Carnivore* carnivore_ptr;
   };
+  void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void set_location(intLocation new_location);
   intLocation get_location();
+  bool is_alive();
+  void act_if_alive();
   void unlink();
   void insert_before(Organism_node* reference_organism);
 };
@@ -111,6 +114,8 @@ class Sun_light;
 class Temperature;
 
 class Biotope {
+ private:
+  std::map<intLocation, Organism_node*> organisms_map;
  public:
   int size_x;
   int size_y;
@@ -118,7 +123,6 @@ class Biotope {
   std::vector<int> free_locs;
   int free_locs_counter;
   std::vector<intLocation> adjacent_locations;
-  std::map<intLocation, Organism_node*> organisms_map;
   Sun_light *sun_light;
   Temperature *temperature;
   Ecosystem* parent_ecosystem_ptr;
@@ -127,34 +131,41 @@ class Biotope {
   Biotope(Ecosystem* parent_ecosystem_ptr);
   ErrorType evolve();
   Organism_node* get_organism(intLocation location);
-  ErrorType add_organism(Organism_node* new_organism_ptr, intLocation location);
+  void set_organism(intLocation location, Organism_node* new_organism_ptr);
+  void set_organism(Organism_node* new_organism_ptr);
+  void remove_organism(Organism_node* organism_node);
   ErrorType move_organism(intLocation old_location, intLocation new_location);
   intLocation get_random_location();
   intLocation get_one_free_location();
   std::vector<intLocation> get_free_locations(int number_of_locations);
-  ErrorType get_free_location_close_to(intLocation &free_location, intLocation center, int radius);
-  ErrorType get_free_location_close_to(intLocation &free_location, intLocation center, int radius, int number_of_attempts);
-  ErrorType get_free_adjacent_location(intLocation &free_location, intLocation center);
+  intLocation get_free_location_close_to(intLocation center, int radius);
+  intLocation get_free_location_close_to(intLocation center, int radius, int number_of_attempts);
+  intLocation get_free_adjacent_location(intLocation center);
   Organism_node* get_adjacent_organism_of_type(intLocation center, OrganismType org_type);
   int get_num_organisms();
+  intLocation normalize(intLocation location);
 };
 
 class Sun_light {
  public:
+  // attributes:
   std::vector<float> data;
+  // connections:
   Biotope *parent_biotope_ptr;
   Ecosystem *parent_ecosystem_ptr;
- public:
-  float get_value(floatLocation location);
+  // methods:
   Sun_light(Biotope &parent_biotope, Ecosystem &parent_ecosystem);
+  float get_value(floatLocation location);
 };
 
 class Temperature {
  public:
+  // attributes:
   std::vector<float> data;
+  // connections:
   Biotope *parent_biotope_ptr;
   Ecosystem *parent_ecosystem_ptr;
- public:
+  // methods:
   Temperature(Biotope &parent_biotope, Ecosystem &parent_ecosystem);
   float get_value(intLocation location);
   void update();
@@ -177,8 +188,6 @@ public:
   // methods:
   Organism() {};
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
-  void reset(intLocation location, Ecosystem* ecos_ptr);
-  void reset(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   virtual void copy(Organism* parent);
   virtual void act();
   void set_location(intLocation new_location);
@@ -203,7 +212,6 @@ public:
   // methods:
   Plant_A() {};
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
-  // void reset(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);   // No es necesaria de momento
   void act();
   void do_procreate();
   void copy(Plant_A *parent);
@@ -241,7 +249,7 @@ public:
   float energy_reserve;
   float strength;
   OrganismType eatable_plant_type;
-public:
+  //methods:
   Herbivore() {};
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void act();
@@ -249,15 +257,13 @@ public:
   void do_hunt();
   void do_eat(Organism_node* food);
   void do_procreate();
-  void reset(intLocation location,
-             Ecosystem* parent_ecosystem_ptr);
   void copy(Herbivore* parent);
   void mutate();
   // constraints:
   bool can_procreate();
   // costs:
   void subtract_costs_of_procreating(Herbivore *offspring);
-  void substract_costs_of_being_alive();
+  void subtract_costs_of_being_alive();
 };
 
 class Carnivore : public Organism {
@@ -286,9 +292,9 @@ public:
   // constraints:
   bool can_procreate();
   // costs:
-  void substract_costs_of_moving(intLocation new_location);
+  void subtract_costs_of_moving(intLocation new_location);
   void subtract_costs_of_procreating(Carnivore *offspring);
-  void substract_costs_of_being_alive();
+  void subtract_costs_of_being_alive();
 };
 
 
@@ -310,15 +316,17 @@ public:
   
   // methods:
   Ecosystem();
+  void create_new_organisms(OrganismType organism_type, int number_of_new_organisms);
+  void create_one_new_organism(OrganismType organism_type);
+  void append_first_organism(Organism_node* first_organism);
+  void append_organism(Organism_node* new_organism);
   void insert_new_organism_before(Organism_node* new_organism, Organism_node* reference_organism);
-  void append_organism(Organism_node* new_node);
-  void append_organisms(Organism* organisms);
-  void evolve();
-  void kill_and_remove_organism(intLocation location);
-  void kill_and_remove_organism(Organism_node* organism_node);
-  void add_new_organisms(OrganismType organism_type, int number_of_new_organisms);
-  Organism_node* create_new_organism(OrganismType organism_type);
+  void append_organisms_list(Organism_node* organisms);
   int get_num_organisms();
+  void evolve();
+  void move_dead_organism_to_ghost_list(intLocation location);
+  void move_dead_organism_to_ghost_list(Organism* org);
+  void move_dead_organism_to_ghost_list(Organism_node* organism_node);
   void clear_ghost_organisms();
 };
 

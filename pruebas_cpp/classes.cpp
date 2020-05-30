@@ -13,44 +13,104 @@
 //                        N O D E   M A K E R
 // ***********************************************************************
 
-void Organism_node::set_location(intLocation new_location) {
+void Organism_node::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {
   switch (this->org_type) {
     case PLANT_A:
-      plant_A_ptr->set_location(new_location);
+      this->plant_A_ptr->initialize(location, biot_ptr, ecos_ptr);
       break;
     case PLANT_B:
-      plant_B_ptr->set_location(new_location);
+      this->plant_B_ptr->initialize(location, biot_ptr, ecos_ptr);
       break;
     case HERBIVORE:
-      herbivore_ptr->set_location(new_location);
+      this->herbivore_ptr->initialize(location, biot_ptr, ecos_ptr);
       break;
     case CARNIVORE:
-      carnivore_ptr->set_location(new_location);
+      this->carnivore_ptr->initialize(location, biot_ptr, ecos_ptr);
       break;
     default:
       Error("Unknown organism type");
       break;
-  }
+  };
+};
+
+void Organism_node::set_location(intLocation new_location) {
+  switch (this->org_type) {
+    case PLANT_A:
+      this->plant_A_ptr->location = new_location;
+      break;
+    case PLANT_B:
+      this->plant_B_ptr->location = new_location;
+      break;
+    case HERBIVORE:
+      this->herbivore_ptr->location = new_location;
+      break;
+    case CARNIVORE:
+      this->carnivore_ptr->location = new_location;
+      break;
+    default:
+      Error("Unknown organism type");
+      break;
+  };
 };
 
 intLocation Organism_node::get_location() {
   switch (this->org_type) {
     case PLANT_A:
-      return plant_A_ptr->location;
+      return this->plant_A_ptr->location;
       break;
     case PLANT_B:
-      return plant_B_ptr->location;
+      return this->plant_B_ptr->location;
       break;
     case HERBIVORE:
-      return herbivore_ptr->location;
+      return this->herbivore_ptr->location;
       break;
     case CARNIVORE:
-      return carnivore_ptr->location;
+      return this->carnivore_ptr->location;
       break;
     default:
       Error("Unknown organism type");
       break;
-  }
+  };
+};
+
+bool Organism_node::is_alive() {
+  switch (this->org_type) {
+    case PLANT_A:
+      return this->plant_A_ptr->is_alive;
+      break;
+    case PLANT_B:
+      return this->plant_B_ptr->is_alive;
+      break;
+    case HERBIVORE:
+      return this->herbivore_ptr->is_alive;
+      break;
+    case CARNIVORE:
+      return this->carnivore_ptr->is_alive;
+      break;
+    default:
+      Error("Unknown organism type");
+      break;
+  };
+};
+
+void Organism_node::act_if_alive() {
+  switch (this->org_type) {
+    case PLANT_A:
+      if(this->plant_A_ptr->is_alive) this->plant_A_ptr->act();
+      break;
+    case PLANT_B:
+      if(this->plant_B_ptr->is_alive) this->plant_B_ptr->act();
+      break;
+    case HERBIVORE:
+      if(this->herbivore_ptr->is_alive) this->herbivore_ptr->act();
+      break;
+    case CARNIVORE:
+      if(this->carnivore_ptr->is_alive) this->carnivore_ptr->act();
+      break;
+    default:
+      Error("Unknown organism type");
+      break;
+  };
 };
 
 void Organism_node::unlink() {
@@ -64,7 +124,7 @@ void Organism_node::insert_before(Organism_node* reference_organism) {
   this->prev = reference_organism->prev;
   this->next = reference_organism;
   reference_organism->prev = this;
-  this->prev->next = this;
+  if(this->prev != nullptr) this->prev->next = this;
 };
 
 template <class T>
@@ -159,8 +219,8 @@ float Sun_light::get_value(floatLocation location) {
 };
 
 Temperature::Temperature(Biotope &parent_biotope, Ecosystem &parent_ecosystem)
-: parent_biotope_ptr(&parent_biotope), parent_ecosystem_ptr(&parent_ecosystem),
-data({-10, 10, 30, 30, 10, -10})
+    : parent_biotope_ptr(&parent_biotope), parent_ecosystem_ptr(&parent_ecosystem),
+      data({-10, 10, 30, 30, 10, -10})
 {
   // El tamaño de la matriz es 0x6, es decir, que hay 5 zonas climáticas que dependen únicamente de la latitud y no de la longitud.
 };
@@ -173,8 +233,6 @@ float Temperature::get_value(intLocation location) {
 };
 
 void Temperature::update() {
-  floatLocation loc(3.2, 3.3);
-  
   for(int y=0; y<data.size(); y++) {
     data[y] *= 0.95; // cada ciclo se pierde un 5% de la temperatura
     floatLocation loc(
@@ -187,10 +245,8 @@ void Temperature::update() {
 
 Biotope::Biotope(Ecosystem* parent_ecosystem) {
   this->parent_ecosystem_ptr = parent_ecosystem;
-  int BIOTOPE_SIZE_X = 500;
-  int BIOTOPE_SIZE_Y = 500;
-  this->size_x = BIOTOPE_SIZE_X;
-  this->size_y = BIOTOPE_SIZE_Y;
+  this->size_x = 500;
+  this->size_y = 500;
   this->area = this->size_x * this->size_y;
   this->free_locs = std::vector<int> (this->size_x * this->size_y);
   iota (begin(free_locs), end(free_locs), 0);
@@ -217,13 +273,19 @@ ErrorType Biotope::evolve() {
 
 Organism_node* Biotope::get_organism(intLocation location) {
   // TO DO: Check whether location belongs to this world or not
-  return this->organisms_map[location];
+  return this->organisms_map[this->normalize(location)];
 };
 
-ErrorType Biotope::add_organism(Organism_node* new_organism_ptr, intLocation location) {
-  // if(his->organisms_map[location] == nullptr) ???
-  this->organisms_map[location] = new_organism_ptr;
-  return No_error;
+void Biotope::set_organism(intLocation location, Organism_node* new_organism_ptr) {
+  this->organisms_map[this->normalize(location)] = new_organism_ptr;
+};
+
+void Biotope::set_organism(Organism_node* new_organism_ptr) {
+  this->set_organism(new_organism_ptr->get_location(), new_organism_ptr);
+};
+
+void Biotope::remove_organism(Organism_node *organism_node) {
+  this->organisms_map.erase(this->normalize(organism_node->get_location()));
 };
 
 ErrorType Biotope::move_organism(intLocation old_location, intLocation new_location) {
@@ -239,6 +301,7 @@ int Biotope::get_num_organisms() {
   return (int)this->organisms_map.size();
 };
 
+// get random location in the biotope, NOT NECESSRAY AN EMPTY LOCATION:
 intLocation Biotope::get_random_location() {
   this->free_locs_counter++;
   this->free_locs_counter %= this->area;
@@ -278,7 +341,7 @@ intLocation Biotope::get_one_free_location() {
   };
 };
 
-ErrorType Biotope::get_free_location_close_to(intLocation &free_location, intLocation center, int radius) {
+intLocation Biotope::get_free_location_close_to(intLocation center, int radius) {
   // Use this method only with small radiuses. Otherwise, it's very time-consuming.
   std::vector<intLocation> free_locations_found = {};
   for(int x = center.x() - radius;
@@ -287,45 +350,44 @@ ErrorType Biotope::get_free_location_close_to(intLocation &free_location, intLoc
     for(int y = center.y() - radius;
         y <= center.y() + radius;
         y++) {
-      if(this->organisms_map[intLocation(x, y)] == nullptr)
-        free_locations_found.push_back(intLocation(x, y));
+      intLocation new_loc = this->normalize(intLocation(x, y));
+      if(this->organisms_map[new_loc] == nullptr)
+        free_locations_found.push_back(new_loc);
     };
   };
   if(free_locations_found.size() == 0) {
-    return Error_No_free_location_found;
+    return NULL_LOCATION;
   } else {
-    free_location = free_locations_found[
-      this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_int(0, free_locations_found.size())
-    ];
-    return No_error;
+    return this->normalize(free_locations_found[
+      this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_int(0, (int) free_locations_found.size())
+    ]);
   };
 };
 
-ErrorType Biotope::get_free_location_close_to(intLocation &free_location, intLocation center, int radius, int number_of_attempts) {
+intLocation Biotope::get_free_location_close_to(intLocation center, int radius, int number_of_attempts) {
   // This method is assumed to be used by some organisms in order to move themselves to another location. For organisms that jump very far away each time, it's very time-consuming to collect every single empty location within such a large radius, just to randomly chose one of them. That's why they should try a number of times and resign from moving if they don't find a place to do it in those attempts:
   for(int i=0; i<number_of_attempts; i++) {
-    intLocation new_location = center + this->parent_ecosystem_ptr->random_nums_gen.get_rand_intLocation(radius);
+    intLocation new_location = this->normalize(center + this->parent_ecosystem_ptr->random_nums_gen.get_rand_intLocation(radius));
     if(this->organisms_map[new_location] == nullptr) {
-      free_location = new_location;
-      return No_error;
+      return new_location;
     };
   };
-  return Error_No_free_location_found;
+  return NULL_LOCATION;
 };
 
-ErrorType Biotope::get_free_adjacent_location(intLocation &free_location, intLocation center) {
+intLocation Biotope::get_free_adjacent_location(intLocation center) {
   shuffle(
           this->adjacent_locations.begin(),
           this->adjacent_locations.end(),
           this->parent_ecosystem_ptr->random_nums_gen.eng
           );
   for(intLocation location : this->adjacent_locations) {
-    if(this->organisms_map[center + location] == nullptr) {
-      free_location = center + location;
-      return No_error;
+    intLocation new_loc = this->normalize(center + location);
+    if(this->organisms_map[new_loc] == nullptr) {
+      return new_loc;
     };
   };
-  return Error_No_free_location_found;
+  return NULL_LOCATION;
 };
 
 Organism_node* Biotope::get_adjacent_organism_of_type(intLocation center, OrganismType org_type) {
@@ -335,15 +397,22 @@ Organism_node* Biotope::get_adjacent_organism_of_type(intLocation center, Organi
           this->parent_ecosystem_ptr->random_nums_gen.eng
           );
   for(intLocation location : this->adjacent_locations) {
-    if(this->organisms_map[center + location] != nullptr) {
-      if(this->organisms_map[center + location]->org_type == org_type) {
-        return this->organisms_map[center + location];
+    intLocation new_loc = this->normalize(center + location);
+    if(this->organisms_map[new_loc] != nullptr) {
+      if(this->organisms_map[new_loc]->org_type == org_type) {
+        return this->organisms_map[new_loc];
       };
     };
   };
   return nullptr;
 };
 
+intLocation Biotope::normalize(intLocation location) {
+  return intLocation(
+    location.x() % this->size_x,
+    location.y() % this->size_y
+  );
+};
 
 
 // ***********************************************************************
@@ -355,17 +424,7 @@ void Organism::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ec
   
   // This function is called when an organism is created from scratch,
   // not by procreation of another organism.
-
-  this->reset(location, biot_ptr, ecos_ptr);
-};
-
-void Organism::reset(intLocation location, Ecosystem* ecos_ptr) {
-  this->reset(location, &(ecos_ptr->biotope), ecos_ptr);
-};
-
-void Organism::reset(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {
-  this->node->next = nullptr;
-  this->node->prev = nullptr;
+  
   this->location = location;
   this->parent_ecosystem_ptr = ecos_ptr;
   this->parent_biotope_ptr = biot_ptr;
@@ -390,7 +449,7 @@ void Organism::mutate() {
 
 void Organism::do_die() {
   this->is_alive = false;
-  this->parent_ecosystem_ptr->kill_and_remove_organism(this->location);
+  this->parent_ecosystem_ptr->move_dead_organism_to_ghost_list(this);
 };
 
 void Organism::unlink() {
@@ -411,12 +470,6 @@ void Plant_A::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* eco
   this->energy_reserve = this->initial_energy_reserve_at_birth;
 };
 
-/*
-void Plant_A::reset(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {
-  Organism::reset(location, biot_ptr, ecos_ptr);
-};
-*/
-
 void Plant_A::act() {
   // do photosynthesis:
   this->energy_reserve += -10 + 20 * (this->parent_biotope_ptr->sun_light->get_value(make_float_location(this->location)));
@@ -428,8 +481,8 @@ void Plant_A::act() {
 
 void Plant_A::do_procreate() {
   // get location:
-  intLocation free_location;
-  if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, this->location) == No_error) {
+  intLocation free_location = this->parent_biotope_ptr->get_free_adjacent_location(this->location);
+  if(free_location != NULL_LOCATION) {
     Organism_node* offspring = this->parent_ecosystem_ptr->node_maker.get_new(PLANT_A);
     offspring->plant_A_ptr->copy(this);
     offspring->plant_A_ptr->mutate();
@@ -486,8 +539,8 @@ void Plant_B::act() {
 
 void Plant_B::do_procreate() {
   // get location:
-  intLocation free_location;
-  if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, this->location) == No_error) {
+  intLocation free_location = this->parent_biotope_ptr->get_free_adjacent_location(this->location);
+  if(free_location != NULL_LOCATION) {
     Organism_node* offspring = this->parent_ecosystem_ptr->node_maker.get_new(PLANT_B);
     // offspring->plant_B_ptr->copy(this);  // this isn't necessary
     // offspring->plant_B_ptr->mutate();    // this isn't necessary
@@ -531,22 +584,17 @@ void Herbivore::act() {
   if(this->can_procreate()) {
     this->do_procreate();
   };
-  this->substract_costs_of_being_alive();
+  this->subtract_costs_of_being_alive();
   if(this->energy_reserve<10) {
     this->do_die();
   };
 };
 
 void Herbivore::do_move() {
-  intLocation new_location;
-  if(
-     this->parent_biotope_ptr->get_free_location_close_to(
-                                                          new_location,
-                                                          this->location,
-                                                          4.5,
-                                                          2) == No_error
-     ) {
-    this->set_location(new_location);
+  intLocation new_location = this->parent_biotope_ptr
+    ->get_free_location_close_to(this->location, 4.5, 2);
+  if(new_location != NULL_LOCATION) {
+    this->parent_biotope_ptr->move_organism(this->location, new_location);
   };
 };
 
@@ -575,45 +623,39 @@ void Herbivore::do_eat(Organism_node* food) {
 };
 
 void Herbivore::do_procreate() {
-  // if decide_procreate() {
   // get location:
-  intLocation free_location;
-  if(this->parent_biotope_ptr->get_free_adjacent_location(this->location) == NoError) {
-    Herbivore* offspring = this->parent_ecosystem_ptr->herbivores_pool.get_new(free_location, this->parent_ecosystem_ptr);
-    offspring->copy(this);
-    offspring->mutate();
+  intLocation free_location = this->parent_biotope_ptr->get_free_adjacent_location(this->location);
+  if(free_location != NULL_LOCATION) {
+    Organism_node* offspring = this->parent_ecosystem_ptr->node_maker.get_new(HERBIVORE);
+    offspring->herbivore_ptr->copy(this);
+    offspring->herbivore_ptr->mutate();
     // Add offspring to ecosystem:
-    this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this);
-    this->subtract_costs_of_procreating(offspring);
+    this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this->node);
+    this->subtract_costs_of_procreating(offspring->herbivore_ptr);
   };
-  // };
 };
 
-void Herbivore::reset(intLocation location, Ecosystem* parent_ecosystem_ptr) {
-  Organism::reset(location, parent_ecosystem_ptr);
+void Herbivore::copy(Herbivore* parent) {
+  this->strength = parent->strength;
+  this->eatable_plant_type = parent->eatable_plant_type;
 };
-
-
-
-void Herbivore::copy(Herbivore* parent);
-
 
 void Herbivore::mutate() {
   this->energy_reserve = 500;
   this->strength =
   parent_ecosystem_ptr->random_nums_gen
   .proportional_mutation(this->strength, 0.05, 0.01);
-  if(typeid(this->favorite_food) == typeid(Plant_A)) {
+  if(this->eatable_plant_type == PLANT_A) {
     if(this->parent_ecosystem_ptr->random_nums_gen
        .true_with_probability(0.1)) {
-      this->favorite_food = typeid(Plant_B);
+      this->eatable_plant_type = PLANT_B;
     }
   }
   else {
     if(this->parent_ecosystem_ptr->random_nums_gen
        .true_with_probability(0.25))
     {
-      this->favorite_food = typeid(Plant_A);
+      this->eatable_plant_type = PLANT_A;
     };
   };
 };
@@ -622,12 +664,12 @@ bool Herbivore::can_procreate() {
   return (this->energy_reserve > 2000);
 };
 
-void Herbivore::substract_costs_of_being_alive() {
+void Herbivore::subtract_costs_of_being_alive() {
   this->energy_reserve -= this->strength;
   this->energy_reserve -= 5;
 }
 
-void Herbivore::substract_costs_of_procreating(Herbivore *offspring) {
+void Herbivore::subtract_costs_of_procreating(Herbivore *offspring) {
   // fixed cost:
   this->energy_reserve -= 600;
 };
@@ -641,7 +683,7 @@ void Carnivore::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* e
   Organism::initialize(location, biot_ptr, ecos_ptr);
   this->energy_reserve = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(1500, 4000);
   this->strength = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(0.5, 20);
-  this->ideal_temperature = biot_ptr->temperature.get_value(location);
+  this->ideal_temperature = biot_ptr->temperature->get_value(location);
   this->max_temperature_deviation = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(0.5, 40);
   this->moving_frequency = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(0.2, 1);
   this->moving_time = 0.0;
@@ -657,34 +699,26 @@ void Carnivore::act() {
   if(this->decide_procreate() and this->can_procreate()) {
     this->do_procreate();
   };
-  this->substract_costs_of_being_alive();
+  this->subtract_costs_of_being_alive();
   if(this->energy_reserve<10) {
     this->do_die();
   };
 };
 
 void Carnivore::do_move() {
-  intLocation new_location();
-  if(
-     this->parent_biotope_ptr->get_free_location_close_to(
-                                                          new_location,
-                                                          this->location,
-                                                          6.5,
-                                                          4) == No_error
-     ) {
+  intLocation new_location = this->parent_biotope_ptr
+  ->get_free_location_close_to(this->location, 6.5, 4);
+  if(new_location != NULL_LOCATION) {
     this->subtract_costs_of_moving(new_location);
-    this->change_location_to(new_location);
+    this->parent_biotope_ptr->move_organism(this->location, new_location);
   };
 };
 
 void Carnivore::do_hunt() {
-  intLocation prey_location();
-  if(this->parent_biotope_ptr->get_adjacent_organism_of_type(
-                                                             prey_location,
-                                                             this->location,
-                                                             typeid(Herbivore)
-                                                             ) == No_error) {
-    this->do_try_to_eat(this->parent_biotope_ptr->organisms_map[prey_location]);
+  Organism_node* food = this->parent_biotope_ptr
+  ->get_adjacent_organism_of_type(this->location, HERBIVORE);
+  if(food != nullptr) {
+    this->do_try_to_eat(food->herbivore_ptr);
   };
 };
 
@@ -697,22 +731,20 @@ void Carnivore::do_try_to_eat(Herbivore *herbivore) {
 
 void Carnivore::do_eat(Herbivore *herbivore) {
   this->energy_reserve += herbivore->energy_reserve;
-  hervibore->do_die();
+  herbivore->do_die();
 };
 
 void Carnivore::do_procreate() {
-  // if decide_procreate() {
   // get location:
-  intLocation free_location;
-  if(this->parent_biotope_ptr->get_free_adjacent_location(free_location, center = this->location) == NoError) {
-    Carnivore* offspring = this->parent_ecosystem_ptr->carnivores_pool.get_new(free_location, this->parent_ecosystem_ptr);
-    offspring->copy(this);
-    offspring->mutate();
+  intLocation free_location = this->parent_biotope_ptr->get_free_adjacent_location(this->location);
+  if(free_location != NULL_LOCATION) {
+    Organism_node* offspring = this->parent_ecosystem_ptr->node_maker.get_new(CARNIVORE);
+    offspring->carnivore_ptr->copy(this);
+    offspring->carnivore_ptr->mutate();
     // Add offspring to ecosystem:
-    this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this);
-    this->subtract_costs_of_procreating(offspring);
+    this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this->node);
+    this->subtract_costs_of_procreating(offspring->carnivore_ptr);
   };
-  // };
 };
 
 void Carnivore::copy(Carnivore* parent) {
@@ -778,29 +810,29 @@ bool Carnivore::decide_procreate() {
 bool Carnivore::can_procreate() {
   return (
     std::abs(
-      this->parent_biotope_ptr->temperature.get_value(this->location)
+      this->parent_biotope_ptr->temperature->get_value(this->location)
       - this->ideal_temperature
     ) <= this->max_temperature_deviation
   );
 };
 
-void Carnivore::substract_costs_of_being_alive() {
-  this->energy_reserve -= this->strength;
-  this->energy_reserve -= 5;
-  this->energy_reserve -= 0.1 * this->max_temperature_deviation;
-};
-
-void Carnivore::substract_costs_of_moving(intLocation new_location) {
+void Carnivore::subtract_costs_of_moving(intLocation new_location) {
   this->energy_reserve -= 2.5 * taxi_distance(this->location, new_location);
   this->energy_reserve -= 0.2 * this->max_temperature_deviation;
 };
 
-void Carnivore::substract_costs_of_procreating(Carnivore *offspring) {
+void Carnivore::subtract_costs_of_procreating(Carnivore *offspring) {
   // proportional cost:
   this->energy_reserve -= 1.5 * offspring->energy_reserve;
   this->energy_reserve -= this->max_temperature_deviation;
   // fixed cost:
   this->energy_reserve -= 100;
+};
+
+void Carnivore::subtract_costs_of_being_alive() {
+  this->energy_reserve -= this->strength;
+  this->energy_reserve -= 5;
+  this->energy_reserve -= 0.1 * this->max_temperature_deviation;
 };
 
 
@@ -809,51 +841,58 @@ void Carnivore::substract_costs_of_procreating(Carnivore *offspring) {
 //                           E C O S Y S T E M
 // ******************************************************************
 
-
-void Ecosystem::clear_ghost_organisms() {
-  for (auto &ghost_organism_ptr : this->ghost_organisms_ptrs) {
-    this->node_maker.set_available(ghost_organism_ptr);
-  };
-  this->ghost_organisms_ptrs.clear();
-};
-
-Ecosystem::Ecosystem() {
-  this->biotope_ptr = Biotope(this);
+Ecosystem::Ecosystem() : biotope(this) {
   this->random_nums_gen.set_seed(0);
   this->cycle = 0;
-  const int INITIAL_NUM_ORGANISMS = 200000;
   this->first_organism_node = nullptr;
   this->last_organism_node = nullptr;
   this->ghost_organisms_ptrs = {};
-  vector<int> free_locs(this->biotope.size_x * this->biotope.size_y);
-  iota (begin(free_locs), end(free_locs), 0);
-  shuffle(free_locs.begin(), free_locs.end(),
-          this->random_nums_gen.eng);
-  int free_loc_int, loc_x, loc_y;
-  for (int i=0; i < INITIAL_NUM_ORGANISMS; i++) {
-    free_loc_int = free_locs.back(); // to do: use Biotope::get_free_locations()
-    free_locs.pop_back();
-    loc_x = free_loc_int / this->biotope.size_y;
-    loc_y = free_loc_int % this->biotope.size_y;
-    Organism* o = this->organisms_pool.get_new(make_pair(loc_x, loc_y), this);
-    this->append_organisms(o);
+};
+
+void Ecosystem::create_new_organisms(OrganismType organism_type, int number_of_new_organisms) {
+  for(int i = 0; i < number_of_new_organisms; i++) {
+    this->create_one_new_organism(organism_type);
+  };
+};
+
+void Ecosystem::create_one_new_organism(OrganismType organism_type) {
+  Organism_node* new_organism = this->node_maker.get_new(organism_type);
+  intLocation location = this->biotope.get_one_free_location();
+  new_organism->initialize(location, &(this->biotope), this);
+  this->biotope.set_organism(location, new_organism);
+  this->append_organism(new_organism);
+};
+
+void Ecosystem::append_first_organism(Organism_node *first_organism) {
+  this->first_organism_node = first_organism;
+  this->last_organism_node = first_organism;
+  first_organism->prev = nullptr;
+  first_organism->next = nullptr;
+  this->biotope.set_organism(first_organism);
+};
+
+void Ecosystem::append_organism(Organism_node* new_organism) {
+  if(this->first_organism_node == nullptr) {
+    this->append_first_organism(new_organism);
+  }
+  else {
+    this->insert_new_organism_before(new_organism, this->first_organism_node);
+    this->first_organism_node = new_organism;
   };
 };
 
 void Ecosystem::insert_new_organism_before(Organism_node* new_organism, Organism_node* reference_organism) {
-  new_organism->insert_before(reference_organism);
-  this->biotope.organisms_map[new_organism->location] = new_organism;
-};
-
-void Ecosystem::add_new_organisms(int number_of_new_organisms) {
-  for (int i=0; i < number_of_new_organisms; i++) {
-    intLocation new_location = this->biotope.get_one_free_location();
-    Organism* o = this->organisms_pool.get_new(new_location, this);
-    this->append_organisms(o);
+  // We assume that:
+  //    this->first_organism_node != nullptr
+  //    reference_organism != nullptr
+  this->biotope.set_organism(new_organism);
+  if(reference_organism == this->first_organism_node) {
+    this->first_organism_node = new_organism;
   };
+  new_organism->insert_before(reference_organism);
 };
 
-void Ecosystem::append_organisms(Organism* organism) {
+void Ecosystem::append_organisms_list(Organism_node* organism) {
   if (this->first_organism_node == nullptr) {
     this->first_organism_node = organism;
   };
@@ -862,59 +901,45 @@ void Ecosystem::append_organisms(Organism* organism) {
     if (this->last_organism_node != nullptr)
       this->last_organism_node->next = organism;
     this->last_organism_node = organism;
-    this->biotope.organisms_map[organism->location] = organism;
+    this->biotope.set_organism(organism);
     organism = organism->next;
   };
+};
+
+int Ecosystem::get_num_organisms() {
+  return (int)this->biotope.get_num_organisms();
 };
 
 void Ecosystem::evolve() {
   this->clear_ghost_organisms();
-  this->biotope.evolve();
-  Organism* organism = this->first_organism_node;
+  Organism_node* organism = this->first_organism_node;
   while (organism != nullptr) {
-    if (organism->is_alive) {
-      organism->act();
-    };
+    organism->act_if_alive();
     organism = organism->next;
   };
+  this->biotope.evolve();
   this->cycle += 1;
 };
 
-void Ecosystem::kill_and_remove_organism(Organism_node* organism_node) {
-  organism_node->kill();
-  biotope.organisms_map.erase(organism_node->get_location());
+void Ecosystem::move_dead_organism_to_ghost_list(intLocation location) {
+  this->move_dead_organism_to_ghost_list(this->biotope.get_organism(location));
+};
+
+void Ecosystem::move_dead_organism_to_ghost_list(Organism* org) {
+  this->move_dead_organism_to_ghost_list(org->node);
+};
+
+void Ecosystem::move_dead_organism_to_ghost_list(Organism_node* organism_node) {
+  this->biotope.remove_organism(organism_node);
   organism_node->unlink();
   this->ghost_organisms_ptrs.push_back(organism_node);
 };
 
-void Ecosystem::add_new_organisms(OrganismType organism_type, int number_of_new_organisms) {
-  for(int i = 0; i < number_of_new_organisms; i++) {
-    intLocation location = this->biotope.get_one_free_location();
-    Organism_node* new_node = this->create_new_organism(organism_type);
-    switch (organism_type) {
-      case PLANT_A:
-        new_node->plant_A_ptr->initialize(location, &(this->biotope), this);
-        break;
-      case PLANT_B:
-        new_node->plant_B_ptr->initialize(location, &(this->biotope), this);
-        break;
-      case HERBIVORE:
-        new_node->herbivore_ptr->initialize(location, &(this->biotope), this);
-        break;
-      case CARNIVORE:
-        new_node->carnivore_ptr->initialize(location, &(this->biotope), this);
-        break;
-    };
-    this->append_organism(new_node);
+void Ecosystem::clear_ghost_organisms() {
+  for (auto &ghost_organism_ptr : this->ghost_organisms_ptrs) {
+    this->node_maker.set_available(ghost_organism_ptr);
   };
-};
-
-Organism_node* Ecosystem::create_new_organism(OrganismType organism_type) {
-  return this->node_maker.get_new(organism_type);
-};
-
-int Ecosystem::get_num_organisms() {
-  return (int)this->biotope.organisms_map.size();
+  this->ghost_organisms_ptrs.clear();
 };
 
 

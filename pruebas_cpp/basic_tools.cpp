@@ -2,23 +2,6 @@
 #include "basic_tools.hpp"
 
 using namespace std;
-/*
-template <T>
-Location<T>& Location<T>::operator+=(const Location<T>& B) {
-    this->first += B.first;
-    this->second += B.second;
-    return *this;
-};
-
-template <T>
-Location<T> Location<T>::operator+(Location<T>& A, const Location<T>& B) {
-    return A += B;
-};
-*/
-
-//Base_ecosystem::Base_ecosystem() {};
-
-void Base_ecosystem::kill_and_remove_organism(Base_organism* organism) {};
 
 template <class T>
 Location<T>::Location(T x, T y) {
@@ -36,6 +19,12 @@ template <class T>
 Location<T>& operator+(const Location<T>& A, const Location<T>& B) {
   return Location<T>(A.first + B.first, A.second + B.second);
 };
+/*
+template <>
+Location<int>& operator+(const Location<int>& A, const Location<int>& B) {
+  return Location<int>(A.first + B.first, A.second + B.second);
+};
+*/
 
 template <class T>
 T Location<T>::x() { return this->first; }
@@ -43,16 +32,20 @@ T Location<T>::x() { return this->first; }
 template <class T>
 T Location<T>::y() { return this->second; }
 
-template <class T>
-T chess_distance(Location<T> A, Location<T> B) {
+template <>
+Location<int>::Location() {};
+
+template <>
+Location<float>::Location() {};
+
+int chess_distance(intLocation A, intLocation B) {
   return std::max(
     std::abs(A.first - B.first),
     std::abs(A.second - B.second)
   );
 };
 
-template <class T>
-float euclidean_distance(Location<T> A, Location<T> B) {
+float euclidean_distance(intLocation A, intLocation B) {
   return std::sqrt(
     pow(A.first - B.first, 2)
     +
@@ -60,12 +53,8 @@ float euclidean_distance(Location<T> A, Location<T> B) {
   );
 };
 
-template <class T>
-T taxi_distance(Location<T> A, Location<T> B) {
-  return
-    std::abs(A.first - B.first)
-    +
-    std::abs(A.second - B.second);
+int taxi_distance(intLocation A, intLocation B) {
+  return (std::abs(A.x() - B.x()) + std::abs(A.y() - B.y()));
 };
 
 RandomNumbersGenerator::RandomNumbersGenerator() :

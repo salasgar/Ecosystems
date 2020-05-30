@@ -19,9 +19,9 @@ class Organism;
 class Biotope;
 class Ecosystem;
 
-void Error(std::string error_name = "Unknown error") {
+int Error(std::string error_name = "Unknown error") {
   // print error_name;
-  int err = 1/0;
+  return 1/0;
 };
 
 template <class T>
@@ -39,6 +39,8 @@ Location<T>& operator+(const Location<T> &A, const Location<T> &B);
 typedef Location<int> intLocation;
 typedef Location<float> floatLocation;
 
+const intLocation NULL_LOCATION = intLocation(-1000000, -1000000);
+
 intLocation make_int_location(int x, int y) {
   intLocation loc(x, y);
   return loc;
@@ -50,7 +52,7 @@ floatLocation make_float_location(float x, float y) {
 };
 
 intLocation make_int_location(floatLocation fLoc) {
-  intLocation loc(std::lround(fLoc.x()), std::lround(fLoc.y()));
+  intLocation loc((int)std::lround(fLoc.x()), (int)std::lround(fLoc.y()));
   return loc;
 };
 
@@ -62,14 +64,11 @@ floatLocation make_float_location(intLocation iLoc) {
 typedef enum {No_error, Error_Organism_not_found, Error_No_free_location_found} ErrorType;
 
 
-template <class T>
-T chess_distance(Location<T> A, Location<T> B);
+int chess_distance(intLocation A, intLocation B);
 
-template <class T>
-float euclidean_distance(Location<T> A, Location<T> B);
+float euclidean_distance(intLocation A, intLocation B);
 
-template <class T>
-T taxi_distance(Location<T> A, Location<T> B);
+int taxi_distance(intLocation A, intLocation B);
 
 class RandomNumbersGenerator {
 public:
@@ -100,32 +99,6 @@ public:
   float uniform_mutation(float base_value, float maximum_proportion, float minimum_value, float maximum_value);
   bool true_with_probability(float probability);
 };
-
-class Base_biotope {
- public:
-  Base_biotope() {};
-  Base_ecosystem* parent_ecosystem_ptr;
-};
-
-class Base_ecosystem {
- public:
-  Base_biotope biotope_ptr;
-  long int cycle;
-  RandomNumbersGenerator random_nums_gen;
-  Base_ecosystem() {};
-  void kill_and_remove_organism(Base_organism* organism);
-};
-
-class Base_organism {
- public:
-  Base_biotope* parent_biotope_ptr;
-  Base_ecosystem* parent_ecosystem_ptr;
-  Base_organism() {};
-  void reset(intLocation location, Base_ecosystem* parent_ecosystem_ptr);
-  void change_location_to(intLocation new_location);
-};
-
-class Base_organisms_pool {};
 
 #endif  // BASIC_TOOLS_H_INCLUDED
 
