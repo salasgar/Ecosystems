@@ -882,6 +882,7 @@ Ecosystem::Ecosystem() : biotope(this) {
   this->first_organism_node = nullptr;
   this->last_organism_node = nullptr;
   this->ghost_organisms_ptrs = {};
+  this->biotope.initialize();
 };
 
 void Ecosystem::initialize() {

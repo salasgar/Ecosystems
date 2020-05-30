@@ -32,6 +32,7 @@ void test_1() {
 
 void test_2() {
   Ecosystem ecosystem;
+  ecosystem.initialize();
   ecosystem.create_new_organisms(PLANT_A, 5);
   ecosystem.create_new_organisms(PLANT_B, 5);
   ecosystem.create_new_organisms(HERBIVORE, 5);
@@ -43,4 +44,6 @@ int main(int argc, char* argv[]) {
   //test_location();
   test_2();
   //test_organism();
+  //Ecosystem ecosystem;
+  //ecosystem.initialize();
 };
