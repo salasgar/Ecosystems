@@ -6,6 +6,114 @@
 
 using namespace std;
 
+int Error(std::string error_name = "Unknown error") {
+  cout << error_name;
+  int d = 0;
+  return 1/d;
+};
+
+// ************************************************************************
+//         i n t L o c a t i o n           f l o a t L o c a t i o n
+// ************************************************************************
+
+
+intLocation::intLocation() {
+  this->first = 0;
+  this->second = 0;
+};
+
+intLocation::intLocation(int x, int y) {
+  this->first = x;
+  this->second = y;
+};
+
+int intLocation::x()  { return this->first; };
+
+int intLocation::y()  { return this->second; };
+
+intLocation::operator floatLocation() {
+  return floatLocation(this->x(), this->y());
+};
+
+intLocation::operator string()  {
+   return "(" + std::to_string(this->first) + ", " + std::to_string(this->second) + ")";
+};
+
+floatLocation::floatLocation() {
+  this->first = 0;
+  this->second = 0;
+};
+
+floatLocation::floatLocation(float x, float y) {
+  this->first = x;
+  this->second = y;
+};
+
+float floatLocation::x()  { return this->first; };
+
+float floatLocation::y()  { return this->second; };
+
+floatLocation::operator intLocation() {
+  return intLocation((int)std::lround(this->x()), (int)std::lround(this->y()));
+};
+
+floatLocation::operator string()  {
+   return "(" + std::to_string(this->first) + ", " + std::to_string(this->second) + ")";
+};
+
+string operator +(string a, intLocation B)  {
+  return a + string(B);
+};
+
+string operator +(intLocation A, string b)  {
+  return string(A) + b;
+};
+
+intLocation operator +(intLocation a, intLocation b)  {
+  return intLocation(a.x()+b.x(), a.y()+b.y());
+};
+
+
+intLocation operator -(intLocation a, intLocation b)  {
+  return intLocation(a.x()-b.x(), a.y()-b.y());
+};
+
+intLocation operator *(int k, intLocation A)  {
+  return intLocation(k * A.x(), k * A.y());
+};
+
+intLocation operator *(intLocation A, int k)  {
+  return k * A;
+};
+
+int operator *(intLocation a, intLocation b)  {
+  return a.x() * b.x() + a.y() * b.y();
+};
+
+int chess_module(intLocation A) {
+  return A.x() + A.y();
+};
+
+int taxi_module(intLocation A) {
+  return std::max(A.x(), A.y());
+};
+
+float euclidean_module(intLocation A) {
+  return std::sqrt(A * A);
+};
+
+int chess_distance(intLocation A, intLocation B) {
+  return chess_module(A - B);
+};
+
+int taxi_distance(intLocation A, intLocation B) {
+  return taxi_module(A - B);
+};
+
+float euclidean_distance(intLocation A, intLocation B) {
+  return euclidean_module(A - B);
+};
+
 // ************************************************************************
 //              R A N D O M   N U M B E R S   G E N E R A T O R
 // ************************************************************************

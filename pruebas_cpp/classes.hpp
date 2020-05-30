@@ -1,3 +1,5 @@
+/*
+
 //
 //  classes.hpp
 //  Ecosystems
@@ -329,5 +331,7 @@ public:
  git push origin pruebas_cpp
  
  */
+
+/*
 
 #endif /* classes_hpp */

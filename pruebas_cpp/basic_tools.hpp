@@ -19,11 +19,7 @@
 
 using namespace std;
 
-int Error(std::string error_name = "Unknown error") {
-  cout << error_name;
-  int d = 0;
-  return 1/d;
-};
+int Error(std::string error_name);
 
 typedef enum {No_error, Error_Organism_not_found, Error_No_free_location_found} ErrorType;
 
@@ -31,132 +27,56 @@ typedef enum {No_error, Error_Organism_not_found, Error_No_free_location_found} 
 //         i n t L o c a t i o n           f l o a t L o c a t i o n
 // ------------------------------------------------------------------------
 
+class floatLocation;
+
 class intLocation : public std::pair<int, int> {
 public:
   intLocation();
   intLocation(int x, int y);
-  int x() { return this->first; };
-  int y() { return this->second; };
-  operator string() {
-    return "(" + std::to_string(this->first) + ", " + std::to_string(this->second) + ")";
-    
-  };
-};
-
-intLocation::intLocation() {
-  this->first = 0;
-  this->second = 0;
-};
-
-intLocation::intLocation(int x, int y) {
-  this->first = x;
-  this->second = y;
+  int x();
+  int y();
+  operator floatLocation();
+  operator string();
 };
 
 class floatLocation : public std::pair<float, float> {
 public:
   floatLocation();
   floatLocation(float x, float y);
-  float x() { return this->first; };
-  float y() { return this->second; };
-  operator string() {
-    return "(" + std::to_string(this->first) + ", " + std::to_string(this->second) + ")";
-    
-  };
+  float x();
+  float y();
+  operator intLocation();
+  operator string();
 };
 
-floatLocation::floatLocation() {
-  this->first = 0;
-  this->second = 0;
-};
+string operator +(string a, intLocation B);
 
-floatLocation::floatLocation(float x, float y) {
-  this->first = x;
-  this->second = y;
-};
+string operator +(intLocation A, string b);
 
-std::string to_string(intLocation A) {
-  return string(A);
-};
-
-string operator +(string a, intLocation B)  {
-  return a + string(B);
-};
-
-string operator +(intLocation A, string b)  {
-  return string(A) + b;
-};
-
-intLocation operator +(intLocation a, intLocation b)  {
-  intLocation temp = intLocation(a.x()+b.x(), a.y()+b.y());
-  return temp;
-};
+intLocation operator +(intLocation a, intLocation b);
 
 
-intLocation operator -(intLocation a, intLocation b)  {
-  intLocation temp = intLocation(a.x()-b.x(), a.y()-b.y());
-  return temp;
-};
+intLocation operator -(intLocation a, intLocation b);
 
-intLocation operator *(int k, intLocation A)  {
-  intLocation temp = intLocation(k * A.x(), k * A.y());
-  return temp;
-};
+intLocation operator *(int k, intLocation A);
 
-intLocation operator *(intLocation A, int k)  {
-  return k * A;
-};
+intLocation operator *(intLocation A, int k);
 
-int operator *(intLocation a, intLocation b)  {
-  int temp = a.x() * b.x() + a.y() * b.y();
-  return temp;
-};
+int operator *(intLocation a, intLocation b);
 
-int chess_module(intLocation A) {
-  return A.x() + A.y();
-};
+int chess_module(intLocation A);
 
-int taxi_module(intLocation A) {
-  return std::max(A.x(), A.y());
-};
+int taxi_module(intLocation A);
 
-float euclidean_module(intLocation A) {
-  return std::sqrt(A * A);
-};
+float euclidean_module(intLocation A);
 
-int chess_distance(intLocation A, intLocation B) {
-  return chess_module(A - B);
-};
+int chess_distance(intLocation A, intLocation B);
 
-int taxi_distance(intLocation A, intLocation B) {
-  return taxi_module(A - B);
-};
+int taxi_distance(intLocation A, intLocation B);
 
-float euclidean_distance(intLocation A, intLocation B) {
-  return euclidean_module(A - B);
-};
+float euclidean_distance(intLocation A, intLocation B);
 
 const intLocation NULL_LOCATION = intLocation(-1000000, -1000000);
-
-intLocation make_int_location(int x, int y) {
-  intLocation loc(x, y);
-  return loc;
-};
-
-floatLocation make_float_location(float x, float y) {
-  floatLocation loc(x, y);
-  return loc;
-};
-
-intLocation make_int_location(floatLocation fLoc) {
-  intLocation loc((int)std::lround(fLoc.x()), (int)std::lround(fLoc.y()));
-  return loc;
-};
-
-floatLocation make_float_location(intLocation iLoc) {
-  floatLocation loc(iLoc.x(), iLoc.y());
-  return loc;
-};
 
 
 // ------------------------------------------------------------------------

@@ -1,7 +1,22 @@
-#include "classes.hpp"
+//#include "classes.hpp"
+#include "basic_tools.hpp"
 
+void test_location () {
+  intLocation A(3, 5), B(6, 9), C;
+  floatLocation D(6, 9);
+  
+  cout << "C" << string(C) << "\n";
+  cout << "C" + C + "\n";
+  cout << "D" + D + "\n";
+  cout << "A" + floatLocation(A) + "\n";
+  cout << "B - A = " << string(B - A) << "\n";
+  cout << "B - A = " + (B - A) + "\n";
+  cout << "d(A, B) = " << euclidean_distance(A, B) << "\n";
+};
+
+/*
 void test_organism() {
-  Organism o;
+  //Organism o;
   
 };
 
@@ -20,8 +35,10 @@ void test_2() {
   ecosystem.create_new_organisms(HERBIVORE, 5000);
   ecosystem.create_new_organisms(CARNIVORE, 5000);
 };
+*/
 
 int main(int argc, char* argv[]) {
+  test_location();
   //test_1();
-  test_organism();
+  //test_organism();
 };

@@ -1,3 +1,4 @@
+/*
 //
 //  classes.cpp
 //  Ecosystems
@@ -811,6 +812,12 @@ bool Carnivore::decide_procreate() {
  };
  */
 
+
+
+/*
+
+
+
 bool Carnivore::can_procreate() {
   return (
     std::abs(
@@ -950,3 +957,4 @@ void Ecosystem::clear_ghost_organisms() {
 
 
 #endif /* classes_cpp */
+
