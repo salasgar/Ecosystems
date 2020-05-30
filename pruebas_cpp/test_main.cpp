@@ -1,5 +1,6 @@
-//#include "classes.hpp"
+
 #include "basic_tools.hpp"
+#include "classes.hpp"
 
 void test_location () {
   intLocation A(3, 5), B(6, 9), C;
@@ -27,18 +28,19 @@ void test_1() {
   };
   //assert (e.get_num_organisms() == 108739);
 };
+*/
 
 void test_2() {
   Ecosystem ecosystem;
-  ecosystem.create_new_organisms(PLANT_A, 5000);
-  ecosystem.create_new_organisms(PLANT_B, 5000);
-  ecosystem.create_new_organisms(HERBIVORE, 5000);
-  ecosystem.create_new_organisms(CARNIVORE, 5000);
+  ecosystem.create_new_organisms(PLANT_A, 5);
+  ecosystem.create_new_organisms(PLANT_B, 5);
+  ecosystem.create_new_organisms(HERBIVORE, 5);
+  ecosystem.create_new_organisms(CARNIVORE, 5);
 };
-*/
+
 
 int main(int argc, char* argv[]) {
-  test_location();
-  //test_1();
+  //test_location();
+  test_2();
   //test_organism();
 };

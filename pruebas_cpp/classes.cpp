@@ -1,4 +1,3 @@
-/*
 //
 //  classes.cpp
 //  Ecosystems
@@ -10,12 +9,15 @@
 #ifndef classes_cpp
 #define classes_cpp
 
+#include "basic_tools.hpp"
 #include "classes.hpp"
 
 
 // ***********************************************************************
 //                        N O D E   M A K E R
 // ***********************************************************************
+
+Organism_node::Organism_node() {};
 
 void Organism_node::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {
   switch (this->org_type) {
@@ -131,6 +133,9 @@ void Organism_node::insert_before(Organism_node* reference_organism) {
   if(this->prev != nullptr) this->prev->next = this;
 };
 
+
+// class Objects_pool:
+
 template <class T>
 void Objects_pool<T>::create_more_objects() {
   this->objects_pool.push_back(std::vector<T>(this->buffer_size));
@@ -159,6 +164,16 @@ template <class T>
 void Objects_pool<T>::set_available(T *object_ptr) {
   this->available_objects.push(object_ptr);
 };
+
+
+// class Node_maker:
+
+Node_maker::Node_maker()
+  : plants_A_pool(),
+    plants_B_pool(),
+    herbivores_pool(),
+    carnivores_pool(),
+    organism_nodes_pool() {};
 
 Organism_node* Node_maker::get_new(OrganismType org_type_) {
   Organism_node* new_node = organism_nodes_pool.get_new();
@@ -215,18 +230,22 @@ void Node_maker::set_available(Organism_node* org_node) {
 // ***********************************************************************
 
 
-Sun_light::Sun_light(Biotope &parent_biotope, Ecosystem &parent_ecosystem)
-: parent_biotope_ptr(&parent_biotope), parent_ecosystem_ptr(&parent_ecosystem) {}; // El tamaño de la matriz es 0x0, es decir, que no hay matriz.
+Sun_light::Sun_light(Biotope* parent_biotope, Ecosystem* parent_ecosystem)
+: parent_biotope_ptr(parent_biotope), parent_ecosystem_ptr(parent_ecosystem) {}; // El tamaño de la matriz es 0x0, es decir, que no hay matriz.
 
 float Sun_light::get_value(floatLocation location) {
   return (1 + abs(sin(2 * M_PI * parent_ecosystem_ptr->cycle / 365.0))) * (1 + abs(sin(M_PI * location.second / float(parent_biotope_ptr->size_y))));
 };
 
-Temperature::Temperature(Biotope &parent_biotope, Ecosystem &parent_ecosystem)
-    : parent_biotope_ptr(&parent_biotope), parent_ecosystem_ptr(&parent_ecosystem),
-      data({-10, 10, 30, 30, 10, -10})
+Temperature::Temperature(Biotope* parent_biotope, Ecosystem* parent_ecosystem)
+    : parent_biotope_ptr(parent_biotope), parent_ecosystem_ptr(parent_ecosystem),
+      data({})
 {
   // El tamaño de la matriz es 0x6, es decir, que hay 5 zonas climáticas que dependen únicamente de la latitud y no de la longitud.
+};
+
+void Temperature::initialize() {
+  this->data = {-10, 10, 30, 30, 10, -10};
 };
 
 float Temperature::get_value(intLocation location) {
@@ -249,24 +268,33 @@ void Temperature::update() {
 
 Biotope::Biotope(Ecosystem* parent_ecosystem) {
   this->parent_ecosystem_ptr = parent_ecosystem;
+};
+
+void Biotope::initialize() {
+  // This function has to be called AFTER parent_ecosystem_ptr->random_nums_gen has been initialized
   this->size_x = 500;
   this->size_y = 500;
   this->area = this->size_x * this->size_y;
   this->free_locs = std::vector<int> (this->size_x * this->size_y);
+  cout << "Biotope constructor: Free locs created\n";
   iota (begin(free_locs), end(free_locs), 0);
+  cout << "Biotope constructor: Free locs numbered\n";
   shuffle(free_locs.begin(), free_locs.end(),
           this->parent_ecosystem_ptr->random_nums_gen.eng);
+  cout << "Biotope constructor: Free locs shuffled\n";
   this->free_locs_counter = 0;
   this->adjacent_locations = std::vector<intLocation> {
-    make_int_location(-1, -1),
-    make_int_location(-1,  0),
-    make_int_location(-1,  1),
-    make_int_location( 0, -1),
-    make_int_location( 0,  1),
-    make_int_location( 1, -1),
-    make_int_location( 1,  0),
-    make_int_location( 1,  1)
+    intLocation(-1, -1),
+    intLocation(-1,  0),
+    intLocation(-1,  1),
+    intLocation( 0, -1),
+    intLocation( 0,  1),
+    intLocation( 1, -1),
+    intLocation( 1,  0),
+    intLocation( 1,  1)
   };
+  this->temperature = new Temperature(this, this->parent_ecosystem_ptr);
+  this->temperature->initialize();
 };
 
 ErrorType Biotope::evolve() {
@@ -313,7 +341,7 @@ intLocation Biotope::get_random_location() {
     shuffle(this->free_locs.begin(), this->free_locs.end(),
             parent_ecosystem_ptr->random_nums_gen.eng);
   int packed_location = this->free_locs[this->free_locs_counter];
-  return make_int_location(
+  return intLocation(
                            packed_location / this->size_y,
                            packed_location % this->size_y
                            );
@@ -424,6 +452,7 @@ intLocation Biotope::normalize(intLocation location) {
 //                           O R G A N I S M
 // ***********************************************************************
 
+Organism::Organism() {};
 
 void Organism::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {
   
@@ -468,6 +497,8 @@ void Organism::unlink() {
 // ******************************************************************
 // plant_A: plants that can live with little sunlight
 
+Plant_A::Plant_A() {};
+
 void Plant_A::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {
   Organism::initialize(location, biot_ptr, ecos_ptr);
   this->minimum_energy_reserve_for_procreating = initial_minimum_energy_reserve_for_procreating;
@@ -477,7 +508,7 @@ void Plant_A::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* eco
 
 void Plant_A::act() {
   // do photosynthesis:
-  this->energy_reserve += -10 + 20 * (this->parent_biotope_ptr->sun_light->get_value(make_float_location(this->location)));
+  this->energy_reserve += -10 + 20 * (this->parent_biotope_ptr->sun_light->get_value(floatLocation(this->location)));
   // procreate:
   if(this->decide_procreate()) this->do_procreate();
   // constraint:
@@ -525,6 +556,12 @@ void Plant_A::subtract_costs_of_procreating(Plant_A *offspring) {
 // ******************************************************************
 // plant_B: plants that need much sunlight
 
+float Plant_B::photosynthesis_capacity() {
+  return sqrt(this->age + this->energy_reserve);
+};
+
+Plant_B::Plant_B() {};
+
 void Plant_B::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {
   Organism::initialize(location, biot_ptr, ecos_ptr);
   this->energy_reserve = ecos_ptr->random_nums_gen.get_uniform_rand_float(100, 1000);
@@ -532,7 +569,7 @@ void Plant_B::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* eco
 
 void Plant_B::act() {
   // do photosynthesis:
-  this->energy_reserve += -25 + 34 * (this->parent_biotope_ptr->sun_light->get_value(make_float_location(this->location)));
+  this->energy_reserve += -25 + 34 * (this->parent_biotope_ptr->sun_light->get_value(floatLocation(this->location)));
   // procreate:
   if(this->decide_procreate()) this->do_procreate();
   // constraint:
@@ -575,6 +612,8 @@ void Plant_B::subtract_costs_of_procreating(Plant_B *offspring) {
 // ******************************************************************
 //                       H E R B I V O R E
 // ******************************************************************
+
+Herbivore::Herbivore() {};
 
 void Herbivore::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {
   Organism::initialize(location, biot_ptr, ecos_ptr);
@@ -683,6 +722,8 @@ void Herbivore::subtract_costs_of_procreating(Herbivore *offspring) {
 // ******************************************************************
 //                       C A R N I V O R E
 // ******************************************************************
+
+Carnivore::Carnivore() {};
 
 void Carnivore::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {
   Organism::initialize(location, biot_ptr, ecos_ptr);
@@ -801,23 +842,6 @@ bool Carnivore::decide_procreate() {
   return (this->energy_reserve > 5000);
 };
 
-/*
- bool Carnivore::can_eat(Organism *organism) {
- if(typeid(*organism) == typeid(Herbivore)) {
- return true;
- }
- else {
- return false;
- }
- };
- */
-
-
-
-/*
-
-
-
 bool Carnivore::can_procreate() {
   return (
     std::abs(
@@ -858,6 +882,10 @@ Ecosystem::Ecosystem() : biotope(this) {
   this->first_organism_node = nullptr;
   this->last_organism_node = nullptr;
   this->ghost_organisms_ptrs = {};
+};
+
+void Ecosystem::initialize() {
+  
 };
 
 void Ecosystem::create_new_organisms(OrganismType organism_type, int number_of_new_organisms) {

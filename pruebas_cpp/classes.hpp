@@ -1,4 +1,3 @@
-/*
 
 //
 //  classes.hpp
@@ -56,6 +55,7 @@ class Organism_node {
     Herbivore* herbivore_ptr;
     Carnivore* carnivore_ptr;
   };
+  Organism_node();
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void set_location(intLocation new_location);
   intLocation get_location();
@@ -88,12 +88,7 @@ class Node_maker {
   // and the nodes:
   Objects_pool<Organism_node> organism_nodes_pool;
   // methods:
-  Node_maker()
-    : plants_A_pool(),
-      plants_B_pool(),
-      herbivores_pool(),
-      carnivores_pool(),
-      organism_nodes_pool() {};
+  Node_maker();
   Organism_node* get_new(OrganismType org_type_);
   void set_available(Organism_node* org_node);
 };
@@ -122,6 +117,7 @@ class Biotope {
  
  // methods:
   Biotope(Ecosystem* parent_ecosystem_ptr);
+  void initialize();
   ErrorType evolve();
   Organism_node* get_organism(intLocation location);
   void set_organism(intLocation location, Organism_node* new_organism_ptr);
@@ -141,13 +137,11 @@ class Biotope {
 
 class Sun_light {
  public:
-  // attributes:
-  std::vector<float> data;
   // connections:
   Biotope *parent_biotope_ptr;
   Ecosystem *parent_ecosystem_ptr;
   // methods:
-  Sun_light(Biotope &parent_biotope, Ecosystem &parent_ecosystem);
+  Sun_light(Biotope* parent_biotope, Ecosystem* parent_ecosystem);
   float get_value(floatLocation location);
 };
 
@@ -159,7 +153,8 @@ class Temperature {
   Biotope *parent_biotope_ptr;
   Ecosystem *parent_ecosystem_ptr;
   // methods:
-  Temperature(Biotope &parent_biotope, Ecosystem &parent_ecosystem);
+  Temperature(Biotope* parent_biotope, Ecosystem* parent_ecosystem);
+  void initialize();
   float get_value(intLocation location);
   void update();
 };
@@ -179,7 +174,7 @@ public:
   Biotope* parent_biotope_ptr;
   Ecosystem* parent_ecosystem_ptr;
   // methods:
-  Organism() {};
+  Organism();
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   virtual void copy(Organism* parent);
   virtual void act();
@@ -203,7 +198,7 @@ public:
   float energy_reserve_at_birth;
   constexpr static const float initial_energy_reserve_at_birth = 100;
   // methods:
-  Plant_A() {};
+  Plant_A();
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void act();
   void do_procreate();
@@ -220,13 +215,13 @@ class Plant_B : public Organism {
   // class Plant_B:
 public:
   // attributes:
-  float photosynthesis_capacity() { return sqrt(this->age + this->energy_reserve); };
+  float photosynthesis_capacity();
   static const int death_age = 1000;
   constexpr static const float minimum_energy_reserve_for_procreating = 300;
   float energy_reserve;
   int age;
   // methods:
-  Plant_B() {};
+  Plant_B();
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void act();
   void do_procreate();
@@ -243,7 +238,7 @@ public:
   float strength;
   OrganismType eatable_plant_type;
   //methods:
-  Herbivore() {};
+  Herbivore();
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void act();
   void do_move();
@@ -269,7 +264,7 @@ public:
   float moving_frequency;
   float moving_time;
   // methods:
-  Carnivore() {};
+  Carnivore();
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void act();
   void do_move();
@@ -309,6 +304,7 @@ public:
   
   // methods:
   Ecosystem();
+  void initialize();
   void create_new_organisms(OrganismType organism_type, int number_of_new_organisms);
   void create_one_new_organism(OrganismType organism_type);
   void append_first_organism(Organism_node* first_organism);
@@ -332,6 +328,5 @@ public:
  
  */
 
-/*
 
 #endif /* classes_hpp */
