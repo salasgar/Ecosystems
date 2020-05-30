@@ -1,61 +1,14 @@
 
+#ifndef BASIC_TOOLS_CPP_INCLUDED
+#define BASIC_TOOLS_CPP_INCLUDED
+
 #include "basic_tools.hpp"
 
 using namespace std;
 
-template <class T>
-Location<T>::Location(T x, T y) {
-  this->first = x;
-  this->second = y;
-};
-
-template <class T>
-Location<T>::Location() {
-  this->first = 0;
-  this->second = 0;
-};
-
-template <class T>
-Location<T>& operator+(const Location<T>& A, const Location<T>& B) {
-  return Location<T>(A.first + B.first, A.second + B.second);
-};
-/*
-template <>
-Location<int>& operator+(const Location<int>& A, const Location<int>& B) {
-  return Location<int>(A.first + B.first, A.second + B.second);
-};
-*/
-
-template <class T>
-T Location<T>::x() { return this->first; }
-
-template <class T>
-T Location<T>::y() { return this->second; }
-
-template <>
-Location<int>::Location() {};
-
-template <>
-Location<float>::Location() {};
-
-int chess_distance(intLocation A, intLocation B) {
-  return std::max(
-    std::abs(A.first - B.first),
-    std::abs(A.second - B.second)
-  );
-};
-
-float euclidean_distance(intLocation A, intLocation B) {
-  return std::sqrt(
-    pow(A.first - B.first, 2)
-    +
-    pow(A.second - B.second, 2)
-  );
-};
-
-int taxi_distance(intLocation A, intLocation B) {
-  return (std::abs(A.x() - B.x()) + std::abs(A.y() - B.y()));
-};
+// ************************************************************************
+//              R A N D O M   N U M B E R S   G E N E R A T O R
+// ************************************************************************
 
 RandomNumbersGenerator::RandomNumbersGenerator() :
 eng((std::random_device())()) {
@@ -204,3 +157,4 @@ bool RandomNumbersGenerator::true_with_probability(float probability) {
 };
 
 
+#endif  // BASIC_TOOLS_CPP_INCLUDED

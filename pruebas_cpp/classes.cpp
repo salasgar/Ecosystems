@@ -6,6 +6,9 @@
 //  Copyright © 2020 Juan Luis Salas García. All rights reserved.
 //
 
+#ifndef classes_cpp
+#define classes_cpp
+
 #include "classes.hpp"
 
 
@@ -337,7 +340,8 @@ intLocation Biotope::get_one_free_location() {
     return loc;
   }
   else {
-    return make_int_location(1/0, 1/0); // return Error;
+    Error("No free locations found"); // return Error;
+    return NULL_LOCATION;
   };
 };
 
@@ -945,3 +949,4 @@ void Ecosystem::clear_ghost_organisms() {
 
 
 
+#endif /* classes_cpp */

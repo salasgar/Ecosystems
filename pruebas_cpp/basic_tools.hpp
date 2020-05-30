@@ -1,5 +1,7 @@
-#ifndef BASIC_TOOLS_H_INCLUDED
-#define BASIC_TOOLS_H_INCLUDED
+#ifndef BASIC_TOOLS_HPP_INCLUDED
+#define BASIC_TOOLS_HPP_INCLUDED
+
+#include <iostream>
 
 #include <map>
 #include <utility>
@@ -7,37 +9,132 @@
 #include <random>
 #include <stack>
 #include <vector>
-//#include "organism.hpp"
+#include <string>
+#include <stdio.h>
+#include <typeinfo>
+#include <chrono>
+#include "math.h"
+#define _USE_MATH_DEFINES
+#include <numeric>
 
-class Base_organism;
-class Base_biotope;
-class Base_ecosystem;
-class Base_organisms_pool;
-class RandomNumbersGenerator;
-
-class Organism;
-class Biotope;
-class Ecosystem;
+using namespace std;
 
 int Error(std::string error_name = "Unknown error") {
-  // print error_name;
-  return 1/0;
+  cout << error_name;
+  int d = 0;
+  return 1/d;
 };
 
-template <class T>
-class Location : public std::pair<T, T> {
+typedef enum {No_error, Error_Organism_not_found, Error_No_free_location_found} ErrorType;
+
+// ------------------------------------------------------------------------
+//         i n t L o c a t i o n           f l o a t L o c a t i o n
+// ------------------------------------------------------------------------
+
+class intLocation : public std::pair<int, int> {
 public:
-  Location();
-  Location(T x_, T y_);
-  T x();
-  T y();
+  intLocation();
+  intLocation(int x, int y);
+  int x() { return this->first; };
+  int y() { return this->second; };
+  operator string() {
+    return "(" + std::to_string(this->first) + ", " + std::to_string(this->second) + ")";
+    
+  };
 };
 
-template <class T>
-Location<T>& operator+(const Location<T> &A, const Location<T> &B);
+intLocation::intLocation() {
+  this->first = 0;
+  this->second = 0;
+};
 
-typedef Location<int> intLocation;
-typedef Location<float> floatLocation;
+intLocation::intLocation(int x, int y) {
+  this->first = x;
+  this->second = y;
+};
+
+class floatLocation : public std::pair<float, float> {
+public:
+  floatLocation();
+  floatLocation(float x, float y);
+  float x() { return this->first; };
+  float y() { return this->second; };
+  operator string() {
+    return "(" + std::to_string(this->first) + ", " + std::to_string(this->second) + ")";
+    
+  };
+};
+
+floatLocation::floatLocation() {
+  this->first = 0;
+  this->second = 0;
+};
+
+floatLocation::floatLocation(float x, float y) {
+  this->first = x;
+  this->second = y;
+};
+
+std::string to_string(intLocation A) {
+  return string(A);
+};
+
+string operator +(string a, intLocation B)  {
+  return a + string(B);
+};
+
+string operator +(intLocation A, string b)  {
+  return string(A) + b;
+};
+
+intLocation operator +(intLocation a, intLocation b)  {
+  intLocation temp = intLocation(a.x()+b.x(), a.y()+b.y());
+  return temp;
+};
+
+
+intLocation operator -(intLocation a, intLocation b)  {
+  intLocation temp = intLocation(a.x()-b.x(), a.y()-b.y());
+  return temp;
+};
+
+intLocation operator *(int k, intLocation A)  {
+  intLocation temp = intLocation(k * A.x(), k * A.y());
+  return temp;
+};
+
+intLocation operator *(intLocation A, int k)  {
+  return k * A;
+};
+
+int operator *(intLocation a, intLocation b)  {
+  int temp = a.x() * b.x() + a.y() * b.y();
+  return temp;
+};
+
+int chess_module(intLocation A) {
+  return A.x() + A.y();
+};
+
+int taxi_module(intLocation A) {
+  return std::max(A.x(), A.y());
+};
+
+float euclidean_module(intLocation A) {
+  return std::sqrt(A * A);
+};
+
+int chess_distance(intLocation A, intLocation B) {
+  return chess_module(A - B);
+};
+
+int taxi_distance(intLocation A, intLocation B) {
+  return taxi_module(A - B);
+};
+
+float euclidean_distance(intLocation A, intLocation B) {
+  return euclidean_module(A - B);
+};
 
 const intLocation NULL_LOCATION = intLocation(-1000000, -1000000);
 
@@ -61,14 +158,10 @@ floatLocation make_float_location(intLocation iLoc) {
   return loc;
 };
 
-typedef enum {No_error, Error_Organism_not_found, Error_No_free_location_found} ErrorType;
 
-
-int chess_distance(intLocation A, intLocation B);
-
-float euclidean_distance(intLocation A, intLocation B);
-
-int taxi_distance(intLocation A, intLocation B);
+// ------------------------------------------------------------------------
+//              R A N D O M   N U M B E R S   G E N E R A T O R
+// ------------------------------------------------------------------------
 
 class RandomNumbersGenerator {
 public:
@@ -100,9 +193,4 @@ public:
   bool true_with_probability(float probability);
 };
 
-#endif  // BASIC_TOOLS_H_INCLUDED
-
-
-/* TO DO:
- read http://www.cplusplus.com/doc/oldtutorial/polymorphism/
-*/
+#endif  // BASIC_TOOLS_HPP_INCLUDED

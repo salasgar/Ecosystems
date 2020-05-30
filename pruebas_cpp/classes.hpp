@@ -9,19 +9,7 @@
 #ifndef classes_hpp
 #define classes_hpp
 
-#include <stdio.h>
-#include <map>
-#include <utility>
-#include <set>
-#include <random>
-#include <stack>
-#include <vector>
-#include <typeinfo>
-#include <chrono>
-#include <iostream>
-#include "math.h"
-#define _USE_MATH_DEFINES
-#include <numeric>
+#include "basic_tools.hpp"
 
 using std::pair;
 using std::get;
@@ -37,7 +25,10 @@ using std::iota;
 using std::begin;
 using std::end;
 
-#include "basic_tools.hpp"
+
+class Organism;
+class Biotope;
+class Ecosystem;
 
 typedef enum OrganismType
 {
