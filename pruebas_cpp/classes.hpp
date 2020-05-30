@@ -44,10 +44,10 @@ class Plant_B;
 class Herbivore;
 class Carnivore;
 
-class Organism_node {
+class OrganismNode {
  public:
-  Organism_node* prev;
-  Organism_node* next;
+  OrganismNode* prev;
+  OrganismNode* next;
   OrganismType org_type;
   union {
     Plant_A* plant_A_ptr;
@@ -55,42 +55,42 @@ class Organism_node {
     Herbivore* herbivore_ptr;
     Carnivore* carnivore_ptr;
   };
-  Organism_node();
+  OrganismNode();
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void set_location(intLocation new_location);
   intLocation get_location();
   bool is_alive();
   void act_if_alive();
   void unlink();
-  void insert_before(Organism_node* reference_organism);
+  void insert_before(OrganismNode* reference_organism);
 };
 
 template <class T>
-class Objects_pool {
+class ObjectsPool {
  private:
   void create_more_objects();
   int buffer_size;
   std::vector<std::vector<T>> objects_pool;
   std::stack<T*> available_objects;
  public:
-  Objects_pool();
+  ObjectsPool();
   T* get_new();
   void set_available(T* object_ptr);
 };
 
-class Node_maker {
+class NodeMaker {
  public:
   // 4 different types of organisms:
-  Objects_pool<Plant_A> plants_A_pool;
-  Objects_pool<Plant_B> plants_B_pool;
-  Objects_pool<Herbivore> herbivores_pool;
-  Objects_pool<Carnivore> carnivores_pool;
+  ObjectsPool<Plant_A> plants_A_pool;
+  ObjectsPool<Plant_B> plants_B_pool;
+  ObjectsPool<Herbivore> herbivores_pool;
+  ObjectsPool<Carnivore> carnivores_pool;
   // and the nodes:
-  Objects_pool<Organism_node> organism_nodes_pool;
+  ObjectsPool<OrganismNode> organism_nodes_pool;
   // methods:
-  Node_maker();
-  Organism_node* get_new(OrganismType org_type_);
-  void set_available(Organism_node* org_node);
+  NodeMaker();
+  OrganismNode* get_new(OrganismType org_type_);
+  void set_available(OrganismNode* org_node);
 };
 
 
@@ -98,12 +98,12 @@ class Node_maker {
 //                           B I O T O P E
 // -----------------------------------------------------------------------
 
-class Sun_light;
+class SunLight;
 class Temperature;
 
 class Biotope {
  private:
-  std::map<intLocation, Organism_node*> organisms_map;
+  std::map<intLocation, OrganismNode*> organisms_map;
  public:
   int size_x;
   int size_y;
@@ -111,18 +111,18 @@ class Biotope {
   std::vector<int> free_locs;
   int free_locs_counter;
   std::vector<intLocation> adjacent_locations;
-  Sun_light *sun_light;
-  Temperature *temperature;
+  SunLight* sun_light;
+  Temperature* temperature;
   Ecosystem* parent_ecosystem_ptr;
  
  // methods:
   Biotope(Ecosystem* parent_ecosystem_ptr);
   void initialize();
   ErrorType evolve();
-  Organism_node* get_organism(intLocation location);
-  void set_organism(intLocation location, Organism_node* new_organism_ptr);
-  void set_organism(Organism_node* new_organism_ptr);
-  void remove_organism(Organism_node* organism_node);
+  OrganismNode* get_organism(intLocation location);
+  void set_organism(intLocation location, OrganismNode* new_organism_ptr);
+  void set_organism(OrganismNode* new_organism_ptr);
+  void remove_organism(OrganismNode* organism_node);
   ErrorType move_organism(intLocation old_location, intLocation new_location);
   intLocation get_random_location();
   intLocation get_one_free_location();
@@ -130,18 +130,18 @@ class Biotope {
   intLocation get_free_location_close_to(intLocation center, int radius);
   intLocation get_free_location_close_to(intLocation center, int radius, int number_of_attempts);
   intLocation get_free_adjacent_location(intLocation center);
-  Organism_node* get_adjacent_organism_of_type(intLocation center, OrganismType org_type);
+  OrganismNode* get_adjacent_organism_of_type(intLocation center, OrganismType org_type);
   int get_num_organisms();
   intLocation normalize(intLocation location);
 };
 
-class Sun_light {
+class SunLight {
  public:
   // connections:
   Biotope *parent_biotope_ptr;
   Ecosystem *parent_ecosystem_ptr;
   // methods:
-  Sun_light(Biotope* parent_biotope, Ecosystem* parent_ecosystem);
+  SunLight(Biotope* parent_biotope, Ecosystem* parent_ecosystem);
   float get_value(floatLocation location);
 };
 
@@ -170,7 +170,7 @@ public:
   bool is_alive;
   intLocation location;
   // connections:
-  Organism_node* node;
+  OrganismNode* node;
   Biotope* parent_biotope_ptr;
   Ecosystem* parent_ecosystem_ptr;
   // methods:
@@ -243,7 +243,7 @@ public:
   void act();
   void do_move();
   void do_hunt();
-  void do_eat(Organism_node* food);
+  void do_eat(OrganismNode* food);
   void do_procreate();
   void copy(Herbivore* parent);
   void mutate();
@@ -296,26 +296,26 @@ public:
   Biotope biotope;
   long int cycle;
   RandomNumbersGenerator random_nums_gen;
-  Organism_node* first_organism_node;
-  Organism_node* last_organism_node;
-  Node_maker node_maker;
+  OrganismNode* first_organism_node;
+  OrganismNode* last_organism_node;
+  NodeMaker node_maker;
 
-  std::vector<Organism_node*> ghost_organisms_ptrs;
+  std::vector<OrganismNode*> ghost_organisms_ptrs;
   
   // methods:
   Ecosystem();
   void initialize();
   void create_new_organisms(OrganismType organism_type, int number_of_new_organisms);
   void create_one_new_organism(OrganismType organism_type);
-  void append_first_organism(Organism_node* first_organism);
-  void append_organism(Organism_node* new_organism);
-  void insert_new_organism_before(Organism_node* new_organism, Organism_node* reference_organism);
-  void append_organisms_list(Organism_node* organisms);
+  void append_first_organism(OrganismNode* first_organism);
+  void append_organism(OrganismNode* new_organism);
+  void insert_new_organism_before(OrganismNode* new_organism, OrganismNode* reference_organism);
+  void append_organisms_list(OrganismNode* organisms);
   int get_num_organisms();
   void evolve();
   void move_dead_organism_to_ghost_list(intLocation location);
   void move_dead_organism_to_ghost_list(Organism* org);
-  void move_dead_organism_to_ghost_list(Organism_node* organism_node);
+  void move_dead_organism_to_ghost_list(OrganismNode* organism_node);
   void clear_ghost_organisms();
 };
 

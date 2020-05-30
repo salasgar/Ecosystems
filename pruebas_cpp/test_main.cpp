@@ -33,10 +33,14 @@ void test_1() {
 void test_2() {
   Ecosystem ecosystem;
   ecosystem.initialize();
-  ecosystem.create_new_organisms(PLANT_A, 5);
-  ecosystem.create_new_organisms(PLANT_B, 5);
-  ecosystem.create_new_organisms(HERBIVORE, 5);
-  ecosystem.create_new_organisms(CARNIVORE, 5);
+  ecosystem.create_new_organisms(PLANT_A, 5000);
+  ecosystem.create_new_organisms(PLANT_B, 5000);
+  ecosystem.create_new_organisms(HERBIVORE, 5000);
+  ecosystem.create_new_organisms(CARNIVORE, 5000);
+  for (int i=0; i<3; i++) {
+    cout << "cycle " << ecosystem.cycle << ENDL;
+    ecosystem.evolve();
+  };
 };
 
 
@@ -46,4 +50,10 @@ int main(int argc, char* argv[]) {
   //test_organism();
   //Ecosystem ecosystem;
   //ecosystem.initialize();
+  std::default_random_engine eng((std::random_device())());
+  std::uniform_real_distribution<float> distribution(- 0.01, 0.01);
+  cout << distribution(eng) << ENDL;
+  cout << distribution(eng) << ENDL;
+  cout << distribution(eng) << ENDL;
+  cout << distribution(eng) << ENDL;
 };

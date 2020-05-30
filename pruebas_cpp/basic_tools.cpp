@@ -6,7 +6,7 @@
 
 using namespace std;
 
-int Error(std::string error_name = "Unknown error") {
+int error(std::string error_name = "Unknown error") {
   cout << error_name;
   int d = 0;
   return 1/d;
@@ -188,7 +188,8 @@ float RandomNumbersGenerator::proportional_mutation(float base_value, float maxi
     - maximum_proportion,
     maximum_proportion
   );
-  return auxiliary_function_for_proportional_mutation(base_value, distribution(this->eng));
+  float x = distribution(this->eng);
+  return auxiliary_function_for_proportional_mutation(base_value, x);
 };
 
 // with this method of mutation, it's more probable for the value to increase than to decrease:

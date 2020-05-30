@@ -19,7 +19,7 @@
 
 using namespace std;
 
-int Error(std::string error_name);
+int error(std::string error_name);
 
 typedef enum {No_error, Error_Organism_not_found, Error_No_free_location_found} ErrorType;
 
@@ -78,6 +78,7 @@ float euclidean_distance(intLocation A, intLocation B);
 
 const intLocation NULL_LOCATION = intLocation(-1000000, -1000000);
 
+const string ENDL = "\n";
 
 // ------------------------------------------------------------------------
 //              R A N D O M   N U M B E R S   G E N E R A T O R
