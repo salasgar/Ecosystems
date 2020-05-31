@@ -38,7 +38,8 @@ void test_2() {
   ecosystem.create_new_organisms(HERBIVORE, 5000);
   ecosystem.create_new_organisms(CARNIVORE, 5000);
   for (int i=0; i<1000; i++) {
-    cout << "cycle " << ecosystem.cycle << ENDL;
+    cout << "cycle " << ecosystem.cycle << endl;
+    cout << "num organisms: " << ecosystem.get_num_organisms() << endl;
     ecosystem.evolve();
   };
 };
@@ -46,10 +47,10 @@ void test_2() {
 void test_random_engine() {
   std::default_random_engine eng((std::random_device())());
   std::uniform_real_distribution<float> distribution(- 0.01, 0.01);
-  cout << distribution(eng) << ENDL;
-  cout << distribution(eng) << ENDL;
-  cout << distribution(eng) << ENDL;
-  cout << distribution(eng) << ENDL;
+  cout << distribution(eng) << endl;
+  cout << distribution(eng) << endl;
+  cout << distribution(eng) << endl;
+  cout << distribution(eng) << endl;
 };
 
 class PruebaRandomEngine {
@@ -57,7 +58,7 @@ class PruebaRandomEngine {
   std::default_random_engine eng;
   std::uniform_real_distribution<float> distribution;
   PruebaRandomEngine() : eng((std::random_device())()), distribution(0, 100000000) {
-    cout << "Constructor of PruebaRandomEngine" << ENDL;
+    cout << "Constructor of PruebaRandomEngine" << endl;
     
   };
   float get() {

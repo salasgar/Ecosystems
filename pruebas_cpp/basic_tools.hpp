@@ -78,8 +78,6 @@ float euclidean_distance(intLocation A, intLocation B);
 
 const intLocation NULL_LOCATION = intLocation(-1000000, -1000000);
 
-const string ENDL = "\n";
-
 // ------------------------------------------------------------------------
 //              R A N D O M   N U M B E R S   G E N E R A T O R
 // ------------------------------------------------------------------------

@@ -103,8 +103,8 @@ class Temperature;
 
 class Biotope {
  private:
- public:
   std::vector<OrganismNode*> organisms_map;
+ public:
   int size_x;
   int size_y;
   int area;
@@ -126,7 +126,6 @@ class Biotope {
   void move_organism(intLocation old_location, intLocation new_location);
   intLocation get_random_location();
   intLocation get_one_free_location();
-  std::vector<intLocation> get_free_locations(int number_of_locations);
   intLocation get_free_location_close_to(intLocation center, int radius);
   intLocation get_free_location_close_to(intLocation center, int radius, int number_of_attempts);
   intLocation get_free_adjacent_location(intLocation center);
@@ -311,12 +310,9 @@ public:
   void append_first_organism(OrganismNode* first_organism);
   void append_organism(OrganismNode* new_organism);
   void insert_new_organism_before(OrganismNode* new_organism, OrganismNode* reference_organism);
-  void append_organisms_list(OrganismNode* organisms);
   int get_num_organisms();
   void evolve();
-  void move_dead_organism_to_ghost_list(intLocation location);
   void move_dead_organism_to_ghost_list(Organism* org);
-  void move_dead_organism_to_ghost_list(OrganismNode* organism_node);
   void clear_ghost_organisms();
 };
 

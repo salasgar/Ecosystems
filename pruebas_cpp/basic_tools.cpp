@@ -122,8 +122,8 @@ float euclidean_distance(intLocation A, intLocation B) {
 RandomNumbersGenerator::RandomNumbersGenerator() :
 eng((std::random_device())()) {
   std::uniform_real_distribution<float> distribution(- 0.01, 0.01);
-  cout << "Just after initializing eng: " << distribution(eng) << ENDL;
-  cout << "and after this: " << this->proportional_mutation_float(100.02, 0.5) << ENDL;
+  cout << "Just after initializing eng: " << distribution(eng) << endl;
+  cout << "and after this: " << this->proportional_mutation_float(100.02, 0.5) << endl;
 };
 
 void RandomNumbersGenerator::set_seed(int seed) {
@@ -194,21 +194,7 @@ float RandomNumbersGenerator::proportional_mutation_float(float base_value, floa
     - maximum_proportion,
     maximum_proportion
   );
-  
-  std::default_random_engine engine((std::random_device())());
-  std::uniform_real_distribution<float> distrib(- 0.01, 0.01);
-  // cout << distrib(engine) << ENDL;
-
-  /*
-  std::uniform_real_distribution<float> distribution(- 0.01, 0.01);
-  this->eng = std::default_random_engine((std::random_device())());
-  cout << distribution(this->eng) << ENDL;
-  */
-  
-  /* to do:
   float x = distribution(this->eng);
-  */
-  float x = distribution(engine);
   return auxiliary_function_for_proportional_mutation(base_value, x);
 };
 
@@ -231,13 +217,7 @@ float RandomNumbersGenerator::proportional_mutation_float_down(float base_value,
 };
 
 float RandomNumbersGenerator::proportional_mutation_float_min(float base_value, float maximum_proportion, float minimum_value) {
-  return 0;
-  
-  /* to do:
-  std::max(minimum_value, this->proportional_mutation_float(base_value, maximum_proportion));
-   
-   */
-  
+  return std::max(minimum_value, this->proportional_mutation_float(base_value, maximum_proportion));
 };
 
 float RandomNumbersGenerator::proportional_mutation_float_min_max(float base_value, float maximum_proportion, float minimum_value, float maximum_value)

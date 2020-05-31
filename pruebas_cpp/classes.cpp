@@ -311,7 +311,6 @@ ErrorType Biotope::evolve() {
 };
 
 OrganismNode* Biotope::get_organism(intLocation location) {
-  // TO DO: Check whether location belongs to this world or not
   return this->organisms_map[location.x() * this->size_y +
                              location.y()];
 };
@@ -356,20 +355,6 @@ intLocation Biotope::get_random_location() {
                            packed_location / this->size_y,
                            packed_location % this->size_y
                            );
-};
-
-vector<intLocation> Biotope::get_free_locations(int number_of_locations) {
-  if(number_of_locations + this->get_num_organisms() > this->area)   // should it return error ??
-    number_of_locations = this->area - this->get_num_organisms();
-  vector<intLocation> free_locations;
-  free_locations.reserve(number_of_locations); // reserve memory for number_of_locations locations
-  for(int i=0; i<number_of_locations; i++) {
-    intLocation loc = this->get_random_location();
-    while(this->get_organism(loc) != nullptr)
-      loc = this->get_random_location();
-    free_locations.push_back(loc);
-  };
-  return free_locations;
 };
 
 intLocation Biotope::get_one_free_location() {
@@ -420,13 +405,11 @@ intLocation Biotope::get_free_location_close_to(intLocation center, int radius, 
 };
 
 intLocation Biotope::get_free_adjacent_location(intLocation center) {
-  /* to do:
   shuffle(
           this->adjacent_locations.begin(),
           this->adjacent_locations.end(),
           this->parent_ecosystem_ptr->random_nums_gen.eng
           );
-   */
   for(intLocation location : this->adjacent_locations) {
     intLocation new_loc = this->normalize(center + location);
     if(this->get_organism(new_loc) == nullptr) {
@@ -437,13 +420,11 @@ intLocation Biotope::get_free_adjacent_location(intLocation center) {
 };
 
 OrganismNode* Biotope::get_adjacent_organism_of_type(intLocation center, OrganismType org_type) {
-  /* to do:
   shuffle(
           this->adjacent_locations.begin(),
           this->adjacent_locations.end(),
           this->parent_ecosystem_ptr->random_nums_gen.eng
           );
-   */
   for(intLocation location : this->adjacent_locations) {
     intLocation new_loc = this->normalize(center + location);
     OrganismNode* org_node = this->get_organism(new_loc);
@@ -960,6 +941,7 @@ void Ecosystem::insert_new_organism_before(OrganismNode* new_organism, OrganismN
   // We assume that:
   //    this->first_organism_node != nullptr
   //    reference_organism != nullptr
+  this->number_of_organisms++;
   this->biotope.set_organism(new_organism);
   if(reference_organism == this->first_organism_node) {
     this->first_organism_node = new_organism;
@@ -967,19 +949,6 @@ void Ecosystem::insert_new_organism_before(OrganismNode* new_organism, OrganismN
   new_organism->insert_before(reference_organism);
 };
 
-void Ecosystem::append_organisms_list(OrganismNode* organism) {
-  if (this->first_organism_node == nullptr) {
-    this->first_organism_node = organism;
-  };
-  while (organism != nullptr) {
-    organism->prev = this->last_organism_node;
-    if (this->last_organism_node != nullptr)
-      this->last_organism_node->next = organism;
-    this->last_organism_node = organism;
-    this->biotope.set_organism(organism);
-    organism = organism->next;
-  };
-};
 
 int Ecosystem::get_num_organisms() {
   return this->number_of_organisms;
@@ -996,18 +965,11 @@ void Ecosystem::evolve() {
   this->cycle += 1;
 };
 
-void Ecosystem::move_dead_organism_to_ghost_list(intLocation location) {
-  this->move_dead_organism_to_ghost_list(this->biotope.get_organism(location));
-};
-
 void Ecosystem::move_dead_organism_to_ghost_list(Organism* org) {
-  this->move_dead_organism_to_ghost_list(org->node);
-};
-
-void Ecosystem::move_dead_organism_to_ghost_list(OrganismNode* organism_node) {
-  this->biotope.remove_organism(organism_node);
-  organism_node->unlink();
-  this->ghost_organisms_ptrs.push_back(organism_node);
+  this->biotope.remove_organism(org->node);
+  this->number_of_organisms--;
+  org->node->unlink();
+  this->ghost_organisms_ptrs.push_back(org->node);
 };
 
 void Ecosystem::clear_ghost_organisms() {
