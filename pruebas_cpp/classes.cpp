@@ -260,9 +260,6 @@ float Temperature::get_value(intLocation location) {
   float y_float = float((data.size() - 1) * loc_y)/this->parent_biotope_ptr->size_y;
   int y_int = int(std::trunc(y_float));
   y_float -= y_int;
-  
-  cout << "y = " << y_int << " location = " << loc_y << ENDL;
-  
   return data[y_int]*(1-y_float) + data[y_int + 1] * y_float;
 };
 
@@ -330,6 +327,7 @@ void Biotope::set_organism(OrganismNode* new_organism_ptr) {
 };
 
 void Biotope::remove_organism(OrganismNode *organism_node) {
+
   this->set_organism(organism_node->get_location(), nullptr);
 };
 
@@ -537,6 +535,9 @@ void Plant_A::do_procreate() {
   intLocation free_location = this->parent_biotope_ptr->get_free_adjacent_location(this->location);
   if(free_location != NULL_LOCATION) {
     OrganismNode* offspring = this->parent_ecosystem_ptr->node_maker.get_new(PLANT_A);
+    offspring->plant_A_ptr->initialize(free_location,
+                                       this->parent_biotope_ptr,
+                                       this->parent_ecosystem_ptr);
     offspring->plant_A_ptr->copy(this);
     offspring->plant_A_ptr->mutate();
     // Add offspring to ecosystem:
@@ -546,8 +547,6 @@ void Plant_A::do_procreate() {
 };
 
 void Plant_A::copy(Plant_A *parent) {
-  this->parent_biotope_ptr = parent->parent_biotope_ptr;
-  this->parent_ecosystem_ptr = parent->parent_ecosystem_ptr;
   this->minimum_energy_reserve_for_procreating = parent->minimum_energy_reserve_for_procreating;
   this->energy_reserve_at_birth = parent->energy_reserve_at_birth;
 };
@@ -603,6 +602,9 @@ void Plant_B::do_procreate() {
   intLocation free_location = this->parent_biotope_ptr->get_free_adjacent_location(this->location);
   if(free_location != NULL_LOCATION) {
     OrganismNode* offspring = this->parent_ecosystem_ptr->node_maker.get_new(PLANT_B);
+    offspring->plant_B_ptr->initialize(free_location,
+                                       this->parent_biotope_ptr,
+                                       this->parent_ecosystem_ptr);
     // offspring->plant_B_ptr->copy(this);  // this isn't necessary
     // offspring->plant_B_ptr->mutate();    // this isn't necessary
     // Add offspring to ecosystem:
@@ -688,8 +690,12 @@ void Herbivore::do_eat(OrganismNode* food) {
 void Herbivore::do_procreate() {
   // get location:
   intLocation free_location = this->parent_biotope_ptr->get_free_adjacent_location(this->location);
+
   if(free_location != NULL_LOCATION) {
     OrganismNode* offspring = this->parent_ecosystem_ptr->node_maker.get_new(HERBIVORE);
+    offspring->herbivore_ptr->initialize(free_location,
+                                         this->parent_biotope_ptr,
+                                         this->parent_ecosystem_ptr);
     offspring->herbivore_ptr->copy(this);
     offspring->herbivore_ptr->mutate();
     // Add offspring to ecosystem:
@@ -699,8 +705,6 @@ void Herbivore::do_procreate() {
 };
 
 void Herbivore::copy(Herbivore* parent) {
-  this->parent_biotope_ptr = parent->parent_biotope_ptr;
-  this->parent_ecosystem_ptr = parent->parent_ecosystem_ptr;
   this->strength = parent->strength;
   this->eatable_plant_type = parent->eatable_plant_type;
 };
@@ -806,6 +810,9 @@ void Carnivore::do_procreate() {
   intLocation free_location = this->parent_biotope_ptr->get_free_adjacent_location(this->location);
   if(free_location != NULL_LOCATION) {
     OrganismNode* offspring = this->parent_ecosystem_ptr->node_maker.get_new(CARNIVORE);
+    offspring->carnivore_ptr->initialize(free_location,
+                                         this->parent_biotope_ptr,
+                                         this->parent_ecosystem_ptr);
     offspring->carnivore_ptr->copy(this);
     offspring->carnivore_ptr->mutate();
     // Add offspring to ecosystem:
@@ -815,8 +822,6 @@ void Carnivore::do_procreate() {
 };
 
 void Carnivore::copy(Carnivore* parent) {
-  this->parent_ecosystem_ptr = parent->parent_ecosystem_ptr;
-  this->parent_biotope_ptr = parent->parent_biotope_ptr;
   this->strength = parent->strength;
   this->ideal_temperature = parent->ideal_temperature;
   this->max_temperature_deviation = parent->max_temperature_deviation;

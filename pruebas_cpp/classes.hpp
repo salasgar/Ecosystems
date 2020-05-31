@@ -103,8 +103,8 @@ class Temperature;
 
 class Biotope {
  private:
-  std::vector<OrganismNode*> organisms_map;
  public:
+  std::vector<OrganismNode*> organisms_map;
   int size_x;
   int size_y;
   int area;
