@@ -120,6 +120,9 @@ float euclidean_distance(intLocation A, intLocation B) {
 
 RandomNumbersGenerator::RandomNumbersGenerator() :
 eng((std::random_device())()) {
+  std::uniform_real_distribution<float> distribution(- 0.01, 0.01);
+  cout << "Just after initializing eng: " << distribution(eng) << ENDL;
+  cout << "and after this: " << this->proportional_mutation_float(100.02, 0.5) << ENDL;
 };
 
 void RandomNumbersGenerator::set_seed(int seed) {
@@ -156,16 +159,16 @@ int RandomNumbersGenerator::proportional_mutation(int base_value) {
 };
 */
 
-long RandomNumbersGenerator::proportional_mutation(long base_value, float maximum_proportion = 0.01) {
-  return std::lround(this->proportional_mutation((float) base_value, maximum_proportion));
+long RandomNumbersGenerator::proportional_mutation_long(long base_value, float maximum_proportion = 0.01) {
+  return std::lround(this->proportional_mutation_float((float) base_value, maximum_proportion));
 };
 
-long RandomNumbersGenerator::proportional_mutation(long base_value, float maximum_proportion, long minimum_value) {
-  return std::max(minimum_value, this->proportional_mutation(base_value, maximum_proportion));
+long RandomNumbersGenerator::proportional_mutation_long_min(long base_value, float maximum_proportion, long minimum_value) {
+  return std::max(minimum_value, this->proportional_mutation_long(base_value, maximum_proportion));
 };
 
-long RandomNumbersGenerator::proportional_mutation(long base_value, float maximum_proportion, long minimum_value, long maximum_value) {
-  return std::min(maximum_value, this->proportional_mutation(base_value, maximum_proportion, minimum_value));
+long RandomNumbersGenerator::proportional_mutation_long_min_max(long base_value, float maximum_proportion, long minimum_value, long maximum_value) {
+  return std::min(maximum_value, this->proportional_mutation_long_min(base_value, maximum_proportion, minimum_value));
 };
 
 /*
@@ -183,17 +186,33 @@ float auxiliary_function_for_proportional_mutation(float base_value, float x) {
 };
 
 // with this method of mutation, it's equally probable for the value to increase or to decrease:
-float RandomNumbersGenerator::proportional_mutation(float base_value, float maximum_proportion = 0.01) {
+float RandomNumbersGenerator::proportional_mutation_float(float base_value, float maximum_proportion = 0.01) {
+  
+  
   std::uniform_real_distribution<float> distribution(
     - maximum_proportion,
     maximum_proportion
   );
+  
+  std::default_random_engine engine((std::random_device())());
+  std::uniform_real_distribution<float> distrib(- 0.01, 0.01);
+  // cout << distrib(engine) << ENDL;
+
+  /*
+  std::uniform_real_distribution<float> distribution(- 0.01, 0.01);
+  this->eng = std::default_random_engine((std::random_device())());
+  cout << distribution(this->eng) << ENDL;
+  */
+  
+  /* to do:
   float x = distribution(this->eng);
+  */
+  float x = distribution(engine);
   return auxiliary_function_for_proportional_mutation(base_value, x);
 };
 
 // with this method of mutation, it's more probable for the value to increase than to decrease:
-float RandomNumbersGenerator::proportional_mutation_up(float base_value, float maximum_proportion) {
+float RandomNumbersGenerator::proportional_mutation_float_up(float base_value, float maximum_proportion) {
   std::uniform_real_distribution<float> distribution(
     base_value / (1 + maximum_proportion),
     base_value * (1 + maximum_proportion)
@@ -202,7 +221,7 @@ float RandomNumbersGenerator::proportional_mutation_up(float base_value, float m
 };
 
 // with this method of mutation, it's more probable for the value to decrease than to increase:
-float RandomNumbersGenerator::proportional_mutation_down(float base_value, float maximum_proportion) {
+float RandomNumbersGenerator::proportional_mutation_float_down(float base_value, float maximum_proportion) {
   std::uniform_real_distribution<float> distribution(
     base_value * (1 - maximum_proportion),
     base_value * (1 + maximum_proportion)
@@ -210,13 +229,19 @@ float RandomNumbersGenerator::proportional_mutation_down(float base_value, float
   return distribution(this->eng);
 };
 
-float RandomNumbersGenerator::proportional_mutation(float base_value, float maximum_proportion, float minimum_value) {
-  return std::max(minimum_value, this->proportional_mutation(base_value, maximum_proportion));
+float RandomNumbersGenerator::proportional_mutation_float_min(float base_value, float maximum_proportion, float minimum_value) {
+  return 0;
+  
+  /* to do:
+  std::max(minimum_value, this->proportional_mutation_float(base_value, maximum_proportion));
+   
+   */
+  
 };
 
-float RandomNumbersGenerator::proportional_mutation(float base_value, float maximum_proportion, float minimum_value, float maximum_value)
+float RandomNumbersGenerator::proportional_mutation_float_min_max(float base_value, float maximum_proportion, float minimum_value, float maximum_value)
 {
-  return std::min(maximum_value, this->proportional_mutation(base_value, maximum_proportion, minimum_value));
+  return std::min(maximum_value, this->proportional_mutation_float_min(base_value, maximum_proportion, minimum_value));
 };
 
 /*
@@ -225,16 +250,16 @@ long RandomNumbersGenerator::uniform_mutation(long base_value) {
 };
 */
 
-long RandomNumbersGenerator::uniform_mutation(long base_value, float maximum_increment = 1) {
+long RandomNumbersGenerator::uniform_mutation_long(long base_value, float maximum_increment = 1) {
   return this->get_uniform_rand_long(base_value - maximum_increment, maximum_increment);
 };
 
-long RandomNumbersGenerator::uniform_mutation(long base_value, float maximum_increment, long minimum_value) {
-  return std::max(minimum_value, this->uniform_mutation(base_value, maximum_increment));
+long RandomNumbersGenerator::uniform_mutation_long_min(long base_value, float maximum_increment, long minimum_value) {
+  return std::max(minimum_value, this->uniform_mutation_long(base_value, maximum_increment));
 };
 
-long RandomNumbersGenerator::uniform_mutation(long base_value, float maximum_increment, long minimum_value, long maximum_value) {
-  return std::min(maximum_value, this->uniform_mutation(base_value, maximum_increment, minimum_value));
+long RandomNumbersGenerator::uniform_mutation_long_min_max(long base_value, float maximum_increment, long minimum_value, long maximum_value) {
+  return std::min(maximum_value, this->uniform_mutation_long_min(base_value, maximum_increment, minimum_value));
 };
 
 /*
@@ -243,26 +268,41 @@ float RandomNumbersGenerator::uniform_mutation(float base_value){
 };
 */
 
-float RandomNumbersGenerator::uniform_mutation(float base_value, float maximum_increment = 1.0) {
+float RandomNumbersGenerator::uniform_mutation_float(float base_value, float maximum_increment = 1.0) {
   std::uniform_real_distribution<float> distribution(
     base_value - maximum_increment,
     base_value + maximum_increment
   );
+
+  // to do: Erase this:      *** Emilio, esto hace que no pete:
+  std::default_random_engine engine((std::random_device())());
+  return distribution(engine);
+
+  /* to do:      *** Emilio, esto es lo que lo hace petar:
   return distribution(this->eng);
+  */
 };
 
-float RandomNumbersGenerator::uniform_mutation(float base_value, float maximum_increment, float minimum_value) {
-  return std::max(minimum_value, this->uniform_mutation(base_value, maximum_increment));
+float RandomNumbersGenerator::uniform_mutation_float_min(float base_value, float maximum_increment, float minimum_value) {
+  return std::max(minimum_value, this->uniform_mutation_float(base_value, maximum_increment));
 };
 
-float RandomNumbersGenerator::uniform_mutation(float base_value, float maximum_increment, float minimum_value, float maximum_value)
+float RandomNumbersGenerator::uniform_mutation_float_min_max(float base_value, float maximum_increment, float minimum_value, float maximum_value)
 {
-  return std::min(maximum_value, this->uniform_mutation(base_value, maximum_increment, minimum_value));
+  return std::min(maximum_value, this->uniform_mutation_float_min(base_value, maximum_increment, minimum_value));
 };
 
 bool RandomNumbersGenerator::true_with_probability(float probability) {
   std::uniform_real_distribution<float> distribution(0.0, 1.0);
+
+  // to do: Erase this:   *** Emilio, esto hace que no pete:
+  std::default_random_engine engine((std::random_device())());
+  return distribution(engine);
+  return (distribution(engine) < probability);
+
+  /* to do:     *** Emilio, esto es lo que lo hace petar:
   return (distribution(this->eng) < probability);
+  */
 };
 
 

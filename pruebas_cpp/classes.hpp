@@ -103,7 +103,7 @@ class Temperature;
 
 class Biotope {
  private:
-  std::map<intLocation, OrganismNode*> organisms_map;
+  std::vector<OrganismNode*> organisms_map;
  public:
   int size_x;
   int size_y;
@@ -123,7 +123,7 @@ class Biotope {
   void set_organism(intLocation location, OrganismNode* new_organism_ptr);
   void set_organism(OrganismNode* new_organism_ptr);
   void remove_organism(OrganismNode* organism_node);
-  ErrorType move_organism(intLocation old_location, intLocation new_location);
+  void move_organism(intLocation old_location, intLocation new_location);
   intLocation get_random_location();
   intLocation get_one_free_location();
   std::vector<intLocation> get_free_locations(int number_of_locations);
@@ -295,6 +295,7 @@ class Ecosystem {
 public:
   Biotope biotope;
   long int cycle;
+  int number_of_organisms;
   RandomNumbersGenerator random_nums_gen;
   OrganismNode* first_organism_node;
   OrganismNode* last_organism_node;
