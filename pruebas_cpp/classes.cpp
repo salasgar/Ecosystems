@@ -315,15 +315,18 @@ ErrorType Biotope::evolve() {
 
 OrganismNode* Biotope::get_organism(intLocation location) {
   // TO DO: Check whether location belongs to this world or not
-  return this->organisms_map[(location.x()%this->size_x)*this->size_y + (location.y()%this->size_y)];
+  return this->organisms_map[location.x() * this->size_y +
+                             location.y()];
 };
 
 void Biotope::set_organism(intLocation location, OrganismNode* new_organism_ptr) {
-  this->organisms_map[(location.x()%this->size_x)*this->size_y + (location.y()%this->size_y)] = new_organism_ptr;
+  this->organisms_map[location.x() * this->size_y +
+                      location.y()] = new_organism_ptr;
 };
 
 void Biotope::set_organism(OrganismNode* new_organism_ptr) {
-  this->set_organism(new_organism_ptr->get_location(), new_organism_ptr);
+  this->set_organism(new_organism_ptr->get_location(),
+                     new_organism_ptr);
 };
 
 void Biotope::remove_organism(OrganismNode *organism_node) {
@@ -456,25 +459,9 @@ OrganismNode* Biotope::get_adjacent_organism_of_type(intLocation center, Organis
 };
 
 intLocation Biotope::normalize(intLocation location) {
-  /* to do:
   return intLocation(
-    location.x() % this->size_x,
-    location.y() % this->size_y
-  );
-  */
-  intLocation norm_loc = intLocation(
-    location.x() % this->size_x,
-    location.y() % this->size_y
-  );
-  while(norm_loc.first < 0) {
-    cout << "Esto no es posible, ";
-    norm_loc.first += this->size_x;
-  };
-  while(norm_loc.second < 0) {
-    cout << "Esto no es posible, ";
-    norm_loc.second += this->size_x;
-  };
-  return norm_loc;
+    (location.x() % this->size_x + this->size_x) % this->size_x,
+    (location.y() % this->size_y + this->size_y) % this->size_y);
 };
 
 
