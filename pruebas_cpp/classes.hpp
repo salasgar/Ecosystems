@@ -175,10 +175,10 @@ public:
   // methods:
   Organism();
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
-  virtual void copy(Organism* parent);
   virtual void act();
   void set_location(intLocation new_location);
   void do_procreate();
+  virtual void copy(Organism* parent);
   void mutate();
   void do_die();
   void unlink();

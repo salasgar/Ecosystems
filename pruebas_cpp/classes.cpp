@@ -461,10 +461,6 @@ void Organism::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ec
   this->is_alive = true;
 };
 
-void Organism::copy(Organism* parent) {
-  // nothing to do here yet
-};
-
 void Organism::act() {};
 
 void Organism::set_location(intLocation new_location) {
@@ -472,6 +468,12 @@ void Organism::set_location(intLocation new_location) {
 };
 
 void Organism::do_procreate() {};
+
+void Organism::copy(Organism* parent) {
+  this->is_alive = parent->is_alive;
+  this->parent_ecosystem_ptr = parent->parent_ecosystem_ptr;
+  this->parent_biotope_ptr = parent->parent_biotope_ptr;
+};
 
 void Organism::mutate() {
   // nothing to do here yet
@@ -516,10 +518,8 @@ void Plant_A::do_procreate() {
   intLocation free_location = this->parent_biotope_ptr->get_free_adjacent_location(this->location);
   if(free_location != NULL_LOCATION) {
     OrganismNode* offspring = this->parent_ecosystem_ptr->node_maker.get_new(PLANT_A);
-    offspring->plant_A_ptr->initialize(free_location,
-                                       this->parent_biotope_ptr,
-                                       this->parent_ecosystem_ptr);
     offspring->plant_A_ptr->copy(this);
+    offspring->plant_A_ptr->set_location(free_location);
     offspring->plant_A_ptr->mutate();
     // Add offspring to ecosystem:
     this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this->node);
@@ -528,6 +528,7 @@ void Plant_A::do_procreate() {
 };
 
 void Plant_A::copy(Plant_A *parent) {
+  Organism::copy(parent);
   this->minimum_energy_reserve_for_procreating = parent->minimum_energy_reserve_for_procreating;
   this->energy_reserve_at_birth = parent->energy_reserve_at_birth;
 };
@@ -583,10 +584,8 @@ void Plant_B::do_procreate() {
   intLocation free_location = this->parent_biotope_ptr->get_free_adjacent_location(this->location);
   if(free_location != NULL_LOCATION) {
     OrganismNode* offspring = this->parent_ecosystem_ptr->node_maker.get_new(PLANT_B);
-    offspring->plant_B_ptr->initialize(free_location,
-                                       this->parent_biotope_ptr,
-                                       this->parent_ecosystem_ptr);
-    // offspring->plant_B_ptr->copy(this);  // this isn't necessary
+    offspring->plant_B_ptr->copy(this);
+    offspring->plant_B_ptr->set_location(free_location);
     // offspring->plant_B_ptr->mutate();    // this isn't necessary
     // Add offspring to ecosystem:
     this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this->node);
@@ -674,10 +673,8 @@ void Herbivore::do_procreate() {
 
   if(free_location != NULL_LOCATION) {
     OrganismNode* offspring = this->parent_ecosystem_ptr->node_maker.get_new(HERBIVORE);
-    offspring->herbivore_ptr->initialize(free_location,
-                                         this->parent_biotope_ptr,
-                                         this->parent_ecosystem_ptr);
     offspring->herbivore_ptr->copy(this);
+    offspring->herbivore_ptr->set_location(free_location);
     offspring->herbivore_ptr->mutate();
     // Add offspring to ecosystem:
     this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this->node);
@@ -686,6 +683,7 @@ void Herbivore::do_procreate() {
 };
 
 void Herbivore::copy(Herbivore* parent) {
+  Organism::copy(parent);
   this->strength = parent->strength;
   this->eatable_plant_type = parent->eatable_plant_type;
 };
@@ -791,10 +789,8 @@ void Carnivore::do_procreate() {
   intLocation free_location = this->parent_biotope_ptr->get_free_adjacent_location(this->location);
   if(free_location != NULL_LOCATION) {
     OrganismNode* offspring = this->parent_ecosystem_ptr->node_maker.get_new(CARNIVORE);
-    offspring->carnivore_ptr->initialize(free_location,
-                                         this->parent_biotope_ptr,
-                                         this->parent_ecosystem_ptr);
     offspring->carnivore_ptr->copy(this);
+    offspring->carnivore_ptr->set_location(free_location);
     offspring->carnivore_ptr->mutate();
     // Add offspring to ecosystem:
     this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this->node);
@@ -803,6 +799,7 @@ void Carnivore::do_procreate() {
 };
 
 void Carnivore::copy(Carnivore* parent) {
+  Organism::copy(parent);
   this->strength = parent->strength;
   this->ideal_temperature = parent->ideal_temperature;
   this->max_temperature_deviation = parent->max_temperature_deviation;
