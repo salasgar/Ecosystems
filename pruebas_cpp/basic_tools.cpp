@@ -118,6 +118,8 @@ float euclidean_distance(intLocation A, intLocation B) {
 //              R A N D O M   N U M B E R S   G E N E R A T O R
 // ************************************************************************
 
+
+// Emilioooo, aquí se inicializa eng:
 RandomNumbersGenerator::RandomNumbersGenerator() :
 eng((std::random_device())()) {
   std::uniform_real_distribution<float> distribution(- 0.01, 0.01);

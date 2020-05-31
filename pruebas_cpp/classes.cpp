@@ -910,6 +910,8 @@ void Carnivore::subtract_costs_of_being_alive() {
 //                           E C O S Y S T E M
 // ******************************************************************
 
+
+// Emilioooo, aquí se llama al constructor random_nums_gen(), donde se inicializa eng:
 Ecosystem::Ecosystem() : random_nums_gen(), biotope(this) {
   this->random_nums_gen.set_seed(0);
   this->cycle = 0;
