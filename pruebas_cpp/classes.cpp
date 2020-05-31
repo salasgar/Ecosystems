@@ -289,10 +289,8 @@ void Biotope::initialize() {
   organisms_map.resize(this->area);
   this->free_locs = std::vector<int> (this->size_x * this->size_y);
   iota (begin(free_locs), end(free_locs), 0);
-  /* to do:      *** Emilio, esto es lo que lo hace petar:
   shuffle(free_locs.begin(), free_locs.end(),
           this->parent_ecosystem_ptr->random_nums_gen.eng);
-   */
   this->free_locs_counter = 0;
   this->adjacent_locations = std::vector<intLocation> {
     intLocation(-1, -1),
@@ -349,11 +347,9 @@ int Biotope::get_num_organisms() {
 intLocation Biotope::get_random_location() {
   this->free_locs_counter++;
   this->free_locs_counter %= this->area;
-  /* to do:     *** Emilio, esto es lo que lo hace petar:
   if(this->free_locs_counter == 0)
     shuffle(this->free_locs.begin(), this->free_locs.end(),
             parent_ecosystem_ptr->random_nums_gen.eng);
-   */
   int packed_location = this->free_locs[this->free_locs_counter];
   return intLocation(
                            packed_location / this->size_y,
@@ -563,6 +559,8 @@ void Plant_A::do_procreate() {
 };
 
 void Plant_A::copy(Plant_A *parent) {
+  this->parent_biotope_ptr = parent->parent_biotope_ptr;
+  this->parent_ecosystem_ptr = parent->parent_ecosystem_ptr;
   this->minimum_energy_reserve_for_procreating = parent->minimum_energy_reserve_for_procreating;
   this->energy_reserve_at_birth = parent->energy_reserve_at_birth;
 };
@@ -714,6 +712,8 @@ void Herbivore::do_procreate() {
 };
 
 void Herbivore::copy(Herbivore* parent) {
+  this->parent_biotope_ptr = parent->parent_biotope_ptr;
+  this->parent_ecosystem_ptr = parent->parent_ecosystem_ptr;
   this->strength = parent->strength;
   this->eatable_plant_type = parent->eatable_plant_type;
 };
@@ -828,6 +828,8 @@ void Carnivore::do_procreate() {
 };
 
 void Carnivore::copy(Carnivore* parent) {
+  this->parent_ecosystem_ptr = parent->parent_ecosystem_ptr;
+  this->parent_biotope_ptr = parent->parent_biotope_ptr;
   this->strength = parent->strength;
   this->ideal_temperature = parent->ideal_temperature;
   this->max_temperature_deviation = parent->max_temperature_deviation;
@@ -911,7 +913,6 @@ void Carnivore::subtract_costs_of_being_alive() {
 // ******************************************************************
 
 
-// Emilioooo, aquí se llama al constructor random_nums_gen(), donde se inicializa eng:
 Ecosystem::Ecosystem() : random_nums_gen(), biotope(this) {
   this->random_nums_gen.set_seed(0);
   this->cycle = 0;

@@ -69,12 +69,14 @@ class PruebaRandomEngine {
   };
 };
 
+void test_ecosystem_initalize() {
+  Ecosystem ecosystem;
+  ecosystem.initialize();
+}
+
 int main(int argc, char* argv[]) {
   //test_location();
-  //test_2();
+  test_2();
   //test_organism();
-  //Ecosystem ecosystem;
-  //ecosystem.initialize();
-  PruebaRandomEngine r;
-  for(int i=0; i<40; i++) cout << r.get() << ENDL;
+  //test_ecosystem_initalize();
 };

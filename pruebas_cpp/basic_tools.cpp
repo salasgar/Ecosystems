@@ -119,7 +119,6 @@ float euclidean_distance(intLocation A, intLocation B) {
 // ************************************************************************
 
 
-// Emilioooo, aquí se inicializa eng:
 RandomNumbersGenerator::RandomNumbersGenerator() :
 eng((std::random_device())()) {
   std::uniform_real_distribution<float> distribution(- 0.01, 0.01);
@@ -276,13 +275,7 @@ float RandomNumbersGenerator::uniform_mutation_float(float base_value, float max
     base_value + maximum_increment
   );
 
-  // to do: Erase this:      *** Emilio, esto hace que no pete:
-  std::default_random_engine engine((std::random_device())());
-  return distribution(engine);
-
-  /* to do:      *** Emilio, esto es lo que lo hace petar:
   return distribution(this->eng);
-  */
 };
 
 float RandomNumbersGenerator::uniform_mutation_float_min(float base_value, float maximum_increment, float minimum_value) {
@@ -296,15 +289,7 @@ float RandomNumbersGenerator::uniform_mutation_float_min_max(float base_value, f
 
 bool RandomNumbersGenerator::true_with_probability(float probability) {
   std::uniform_real_distribution<float> distribution(0.0, 1.0);
-
-  // to do: Erase this:   *** Emilio, esto hace que no pete:
-  std::default_random_engine engine((std::random_device())());
-  return distribution(engine);
-  return (distribution(engine) < probability);
-
-  /* to do:     *** Emilio, esto es lo que lo hace petar:
   return (distribution(this->eng) < probability);
-  */
 };
 
 
