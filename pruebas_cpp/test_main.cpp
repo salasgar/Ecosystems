@@ -1,4 +1,5 @@
 
+#include <chrono>
 #include "basic_tools.hpp"
 #include "classes.hpp"
 
@@ -38,9 +39,14 @@ void test_2() {
   ecosystem.create_new_organisms(HERBIVORE, 5000);
   ecosystem.create_new_organisms(CARNIVORE, 5000);
   for (int i=0; i<1000; i++) {
+    std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     cout << "cycle " << ecosystem.cycle << endl;
     cout << "num organisms: " << ecosystem.get_num_organisms() << endl;
     ecosystem.evolve();
+    std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+    std::cout << "Elapsed time = " <<
+                 std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() <<
+                 "[ms]" << std::endl;
   };
 };
 
