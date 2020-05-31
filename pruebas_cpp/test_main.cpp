@@ -52,12 +52,29 @@ void test_random_engine() {
   cout << distribution(eng) << ENDL;
 };
 
+class PruebaRandomEngine {
+ public:
+  std::default_random_engine eng;
+  std::uniform_real_distribution<float> distribution;
+  PruebaRandomEngine() : eng((std::random_device())()), distribution(0, 100000000) {
+    cout << "Constructor of PruebaRandomEngine" << ENDL;
+    
+  };
+  float get() {
+    int arr[5] = {2, 7, 10, 300, 5000};
+    shuffle(begin(arr), end(arr), this->eng);
+    this->distribution = std::uniform_real_distribution<float>(arr[0], arr[1]);
+    cout << "[" << arr[0] << ", " << arr[1] << "] -> ";
+    return this->distribution(this->eng);
+  };
+};
 
 int main(int argc, char* argv[]) {
   //test_location();
-  test_2();
+  //test_2();
   //test_organism();
   //Ecosystem ecosystem;
   //ecosystem.initialize();
-
+  PruebaRandomEngine r;
+  for(int i=0; i<40; i++) cout << r.get() << ENDL;
 };
