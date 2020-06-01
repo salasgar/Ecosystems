@@ -39,6 +39,122 @@ void OrganismNode::initialize(intLocation location, Biotope* biot_ptr, Ecosystem
   };
 };
 
+float OrganismNode::get_float_attribute(OrganismAttribute org_attr) {
+  
+  switch (org_attr) {
+    case ENERGY_RESERVE:
+      switch (this->org_type) {
+        case PLANT_A:
+          return this->plant_A_ptr->energy_reserve;
+          break;
+        case PLANT_B:
+          return this->plant_B_ptr->energy_reserve;
+          break;
+        case HERBIVORE:
+          return this->herbivore_ptr->energy_reserve;
+          break;
+        case CARNIVORE:
+          return this->carnivore_ptr->energy_reserve;
+          break;
+        default:
+          return 0;
+          break;
+      };
+    break;
+      
+    case AGE:
+      switch (this->org_type) {
+        case PLANT_B:
+          return this->plant_B_ptr->age;
+          break;
+        default:
+          return 0;
+          break;
+      };
+    break;
+      
+    case PHOTOSYNTHESIS_CAPACITY:
+      switch (this->org_type) {
+        case PLANT_A:
+          return this->plant_A_ptr->photosynthesis_capacity;
+          break;
+        case PLANT_B:
+          return this->plant_B_ptr->photosynthesis_capacity();
+          break;
+        default:
+          return 0;
+          break;
+      };
+    break;
+
+    case STRENGTH:
+      switch (this->org_type) {
+        case HERBIVORE:
+          return this->herbivore_ptr->strength;
+          break;
+        case CARNIVORE:
+          return this->carnivore_ptr->strength;
+          break;
+        default:
+          return 0;
+          break;
+       };
+
+    break;
+      
+    case MINIMUM_ENERGY_RESERVE_FOR_PROCREATING:
+      switch (this->org_type) {
+        case PLANT_A:
+          return this->plant_A_ptr->minimum_energy_reserve_for_procreating;
+          break;
+        case PLANT_B:
+          return this->plant_B_ptr->minimum_energy_reserve_for_procreating;
+          break;
+        default:
+          return 0;
+          break;
+      };
+    break;
+
+    case ENERGY_RESERVE_AT_BIRTH:
+      switch (this->org_type) {
+        case PLANT_A:
+          return this->plant_A_ptr->energy_reserve_at_birth;
+          break;
+        default:
+          return 0;
+          break;
+      };
+    break;
+      
+    case IDEAL_TEMPERATURE:
+      switch (this->org_type) {
+        case CARNIVORE:
+          return this->carnivore_ptr->ideal_temperature;
+          break;
+        default:
+          return 0;
+          break;
+      };
+    break;
+      
+    case MAX_TEMPERATURE_DEVIATION:
+      switch (this->org_type) {
+        case CARNIVORE:
+          return this->carnivore_ptr->max_temperature_deviation;
+          break;
+        default:
+          return 0;
+          break;
+      };
+    break;
+
+    default:
+      return 0;
+      break;
+  };
+};
+
 void OrganismNode::set_location(intLocation new_location) {
   switch (this->org_type) {
     case PLANT_A:
@@ -75,6 +191,7 @@ intLocation OrganismNode::get_location() {
       break;
     default:
       error("Unknown organism type");
+      return NULL_LOCATION;
       break;
   };
 };
@@ -95,6 +212,7 @@ bool OrganismNode::is_alive() {
       break;
     default:
       error("Unknown organism type");
+      return false;
       break;
   };
 };
@@ -877,6 +995,103 @@ void Carnivore::subtract_costs_of_being_alive() {
 };
 
 
+// ******************************************************************
+//                           P A T H O G E N
+// ******************************************************************
+
+Pathogen::Pathogen() {};
+void Pathogen::set_host(Organism* new_host) {};
+// actions:
+void Pathogen::act() {};
+void Pathogen::kill_host() {};
+void Pathogen::infect_new_host(Organism* new_host) {};
+void Pathogen::spread() {}; // Look for new host closer than radius_of_contagion_possibility
+void Pathogen::steal_energy_reserve() {};
+void Pathogen::mutate() {};
+
+
+// ******************************************************************
+//                          S T A T I S T I C S
+// ******************************************************************
+
+Statistics::Statistics() {};
+
+void Statistics::initialize(Biotope* biot_ptr, Ecosystem* ecos_ptr) {
+  this->parent_biotope_ptr = biot_ptr;
+  this->parent_ecosystem_ptr = ecos_ptr;
+  
+  this->attributes_of_each_type[PLANT_A] = {
+    PHOTOSYNTHESIS_CAPACITY,
+    ENERGY_RESERVE,
+    MINIMUM_ENERGY_RESERVE_FOR_PROCREATING,
+    ENERGY_RESERVE_AT_BIRTH
+  };
+  
+  this->attributes_of_each_type[PLANT_B] = {
+    PHOTOSYNTHESIS_CAPACITY,
+    AGE,
+    DEATH_AGE,
+    ENERGY_RESERVE,
+    MINIMUM_ENERGY_RESERVE_FOR_PROCREATING
+  };
+  
+  this->attributes_of_each_type[HERBIVORE] = {
+    ENERGY_RESERVE,
+    STRENGTH,
+    EATABLE_PLANT_TYPE
+  };
+  
+  this->attributes_of_each_type[CARNIVORE] = {
+    ENERGY_RESERVE,
+    STRENGTH,
+    IDEAL_TEMPERATURE,
+    MAX_TEMPERATURE_DEVIATION,
+    MOVING_FREQUENCY
+  };
+  
+  this->types_that_have_each_attribute[PHOTOSYNTHESIS_CAPACITY] = {
+    PLANT_A,
+    PLANT_B
+  };
+
+  this->types_that_have_each_attribute[MINIMUM_ENERGY_RESERVE_FOR_PROCREATING] = {
+    PLANT_A,
+    PLANT_B
+  };
+
+  this->types_that_have_each_attribute[ENERGY_RESERVE] = {
+    PLANT_A,
+    PLANT_B,
+    HERBIVORE,
+    CARNIVORE
+  };
+  
+  this->types_that_have_each_attribute[STRENGTH] = {
+    HERBIVORE,
+    CARNIVORE
+  };
+};
+
+unsigned int Statistics::get_number_of_organisms(OrganismType org_type) {
+  return this->number_of_organisms_by_type[org_type];
+};
+
+void Statistics::calculate_number_of_organisms_by_type() {
+  
+  // setting all the counts to zero:
+  for(auto const& item : this->number_of_organisms_by_type) {
+    this->number_of_organisms_by_type[item.first] = 0;
+  };
+  
+  // counting:
+  OrganismNode* org_node = parent_ecosystem_ptr->first_organism_node;
+  while(org_node != nullptr) {
+    this->number_of_organisms_by_type[org_node->org_type]++;
+  };
+};
+
+float Statistics::mean_of_attribute(OrganismAttribute org_attr, OrganismType org_type) { return 0; };
+
 
 // ******************************************************************
 //                           E C O S Y S T E M
@@ -976,6 +1191,19 @@ void Ecosystem::clear_ghost_organisms() {
   this->ghost_organisms_ptrs.clear();
 };
 
+std::vector<float> Ecosystem::get_attribute_matrix(OrganismAttribute org_attr, OrganismType org_type) {
+  std::vector<float> matrix;
+  matrix.resize(this->biotope.area);
+  for(int x = 0; x<this->biotope.size_x; x++)
+    for(int y = 0; y<this->biotope.size_y; y++) {
+      OrganismNode* org_node = this->biotope.get_organism(intLocation(x, y));
+      if(org_node != nullptr) {
+        if(org_node->org_type == org_type) { matrix.push_back(org_node->get_float_attribute(org_attr));
+        } else { matrix.push_back(0); }
+      } else { matrix.push_back(0); };
+    };
+  return matrix;
+};
 
 
 
