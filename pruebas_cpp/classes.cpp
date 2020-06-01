@@ -407,16 +407,7 @@ void Biotope::initialize() {
   shuffle(free_locs.begin(), free_locs.end(),
           this->parent_ecosystem_ptr->random_nums_gen.eng);
   this->free_locs_counter = 0;
-  this->adjacent_locations = std::vector<intLocation> {
-    intLocation(-1, -1),
-    intLocation(-1,  0),
-    intLocation(-1,  1),
-    intLocation( 0, -1),
-    intLocation( 0,  1),
-    intLocation( 1, -1),
-    intLocation( 1,  0),
-    intLocation( 1,  1)
-  };
+  this->adjacent_locations_pool.initialize(this->parent_ecosystem_ptr->random_nums_gen.eng);
   this->temperature = new Temperature(this, this->parent_ecosystem_ptr);
   this->temperature->initialize();
   this->sun_light = new SunLight(this, this->parent_ecosystem_ptr);
@@ -488,6 +479,12 @@ intLocation Biotope::get_one_free_location() {
   };
 };
 
+OrganismNode* Biotope::get_random_organism() {
+  OrganismNode* node = nullptr;
+  while(node == nullptr) node = this->get_organism(get_random_location());
+  return node;
+};
+
 intLocation Biotope::get_free_location_close_to(intLocation center, int radius) {
   // Use this method only with small radiuses. Otherwise, it's very time-consuming.
   std::vector<intLocation> free_locations_found = {};
@@ -523,12 +520,15 @@ intLocation Biotope::get_free_location_close_to(intLocation center, int radius, 
 };
 
 intLocation Biotope::get_free_adjacent_location(intLocation center) {
-  shuffle(
+/*
+ shuffle(
           this->adjacent_locations.begin(),
           this->adjacent_locations.end(),
           this->parent_ecosystem_ptr->random_nums_gen.eng
           );
-  for(intLocation location : this->adjacent_locations) {
+ */
+  std::vector<intLocation>* adjacent_locations_ptr = this->adjacent_locations_pool.get_next();
+  for(intLocation location : *adjacent_locations_ptr) {
     intLocation new_loc = this->normalize(center + location);
     if(this->get_organism(new_loc) == nullptr) {
       return new_loc;
@@ -538,12 +538,15 @@ intLocation Biotope::get_free_adjacent_location(intLocation center) {
 };
 
 OrganismNode* Biotope::get_adjacent_organism_of_type(intLocation center, OrganismType org_type) {
-  shuffle(
+  /*
+   shuffle(
           this->adjacent_locations.begin(),
           this->adjacent_locations.end(),
           this->parent_ecosystem_ptr->random_nums_gen.eng
           );
-  for(intLocation location : this->adjacent_locations) {
+  */
+  std::vector<intLocation>* adjacent_locations_ptr = this->adjacent_locations_pool.get_next();
+  for(intLocation location : *adjacent_locations_ptr) {
     intLocation new_loc = this->normalize(center + location);
     OrganismNode* org_node = this->get_organism(new_loc);
     if(org_node != nullptr) {

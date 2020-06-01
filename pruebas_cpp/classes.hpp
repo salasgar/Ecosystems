@@ -129,7 +129,7 @@ class Biotope {
   int area;
   std::vector<int> free_locs;
   int free_locs_counter;
-  std::vector<intLocation> adjacent_locations;
+  AdjacentLocationsPool adjacent_locations_pool;
   SunLight* sun_light;
   Temperature* temperature;
   Ecosystem* parent_ecosystem_ptr;
@@ -144,6 +144,7 @@ class Biotope {
   void remove_organism(OrganismNode* organism_node);
   void move_organism(intLocation old_location, intLocation new_location);
   intLocation get_random_location();
+  OrganismNode* get_random_organism();
   intLocation get_one_free_location();
   intLocation get_free_location_close_to(intLocation center, int radius);
   intLocation get_free_location_close_to(intLocation center, int radius, int number_of_attempts);

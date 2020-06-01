@@ -112,4 +112,17 @@ public:
   bool true_with_probability(float probability);
 };
 
+class AdjacentLocationsPool {
+ public:
+  std::default_random_engine eng;
+  std::vector<std::vector<intLocation>> adjacent_locations;
+  int number_of_stored_permutations;
+  int counter;
+  // Methods:
+  AdjacentLocationsPool();
+  void initialize(std::default_random_engine engine);
+  std::vector<intLocation>* get_next();
+};
+
+
 #endif  // BASIC_TOOLS_HPP_INCLUDED

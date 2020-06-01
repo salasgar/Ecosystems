@@ -272,5 +272,32 @@ bool RandomNumbersGenerator::true_with_probability(float probability) {
   return (distribution(this->eng) < probability);
 };
 
+AdjacentLocationsPool::AdjacentLocationsPool() {};
+
+void AdjacentLocationsPool::initialize(std::default_random_engine engine) {
+  this->eng = engine;
+  this->number_of_stored_permutations = 50; // 50 is more than enough
+  this->counter = 0;
+  this->adjacent_locations.resize(this->number_of_stored_permutations);
+  std::vector<intLocation> locations = {
+    intLocation(-1, -1),
+    intLocation(-1,  0),
+    intLocation(-1,  1),
+    intLocation( 0, -1),
+    intLocation( 0,  1),
+    intLocation( 1, -1),
+    intLocation( 1,  0),
+    intLocation( 1,  1)
+  };
+  for(int i = 0; i < this->number_of_stored_permutations; i++) {
+    shuffle(locations.begin(), locations.end(), this->eng);
+    this->adjacent_locations.push_back(locations);
+  };
+};
+
+std::vector<intLocation>* AdjacentLocationsPool::get_next() {
+  this->counter = (this->counter + 1) % this->number_of_stored_permutations;
+  return &(this->adjacent_locations[this->counter]);
+};
 
 #endif  // BASIC_TOOLS_CPP_INCLUDED
