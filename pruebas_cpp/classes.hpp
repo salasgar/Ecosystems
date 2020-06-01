@@ -337,6 +337,7 @@ class Pathogen{
 // -----------------------------------------------------------------------
 
 class Statistics {
+ public:
   // Connections:
   Biotope* parent_biotope_ptr;
   Ecosystem* parent_ecosystem_ptr;
@@ -344,6 +345,7 @@ class Statistics {
   std::map<OrganismType, std::set<OrganismAttribute>> attributes_of_each_type;
   std::map<OrganismAttribute, std::set<OrganismType>> types_that_have_each_attribute;
   std::map<OrganismType, unsigned int> number_of_organisms_by_type;
+  long int last_cycle_when_calculated_the_number_of_organisms_by_type;
   // Methods:
   Statistics();
   void initialize(Biotope* biot_ptr, Ecosystem* ecos_ptr);
@@ -366,6 +368,7 @@ public:
   OrganismNode* first_organism_node;
   OrganismNode* last_organism_node;
   NodeMaker node_maker;
+  Statistics statistics;
 
   std::vector<OrganismNode*> ghost_organisms_ptrs;
   
@@ -382,14 +385,29 @@ public:
   void move_dead_organism_to_ghost_list(Organism* org);
   void clear_ghost_organisms();
   std::vector<float> get_attribute_matrix(OrganismAttribute org_attr, OrganismType org_type);
+  void keep_number_of_organism_above(OrganismType org_type, int num_orgs);
 };
 
 /*
  COMANDOS GIT:
  
+ // Send changes to repository:
  git add -u
  git commit -m "Rename few files"
  git push origin pruebas_cpp
+ 
+ // See status:
+ git status
+ 
+ // Temporary hide or show last changes (uncommited changes):
+ git stash
+ git stash pop
+ 
+ // Erase last changes in a file:
+ git checkout filename.cpp
+ 
+ // Update from repository:
+ git pull origin pruebas_cpp
  
  */
 

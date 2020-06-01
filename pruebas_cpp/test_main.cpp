@@ -79,11 +79,34 @@ class PruebaRandomEngine {
 void test_ecosystem_initalize() {
   Ecosystem ecosystem;
   ecosystem.initialize();
-}
+};
+
+void test_3() {
+  Ecosystem ecosystem;
+   ecosystem.initialize();
+   ecosystem.create_new_organisms(PLANT_A, 20);
+   ecosystem.create_new_organisms(PLANT_B, 20);
+   ecosystem.create_new_organisms(HERBIVORE, 20);
+   ecosystem.create_new_organisms(CARNIVORE, 20);
+   for (int i=0; i<1000; i++) {
+     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
+     cout << "cycle " << ecosystem.cycle << endl;
+     cout << "num organisms: " << ecosystem.get_num_organisms() << endl;
+     ecosystem.evolve();
+     ecosystem.keep_number_of_organism_above(PLANT_A, 100);
+     ecosystem.keep_number_of_organism_above(PLANT_B, 100);
+     ecosystem.keep_number_of_organism_above(HERBIVORE, 100);
+     ecosystem.keep_number_of_organism_above(CARNIVORE, 100);
+     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
+     std::cout << "Elapsed time = " <<
+                  std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() <<
+                  "[ms]" << std::endl;
+   };
+};
 
 int main(int argc, char* argv[]) {
   //test_location();
-  test_2();
+  test_3();
   //test_organism();
   //test_ecosystem_initalize();
 };

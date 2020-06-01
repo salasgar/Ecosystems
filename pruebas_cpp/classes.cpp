@@ -1073,20 +1073,22 @@ void Statistics::initialize(Biotope* biot_ptr, Ecosystem* ecos_ptr) {
 };
 
 unsigned int Statistics::get_number_of_organisms(OrganismType org_type) {
+  this->calculate_number_of_organisms_by_type();
   return this->number_of_organisms_by_type[org_type];
 };
 
 void Statistics::calculate_number_of_organisms_by_type() {
-  
-  // setting all the counts to zero:
-  for(auto const& item : this->number_of_organisms_by_type) {
-    this->number_of_organisms_by_type[item.first] = 0;
-  };
-  
-  // counting:
-  OrganismNode* org_node = parent_ecosystem_ptr->first_organism_node;
-  while(org_node != nullptr) {
-    this->number_of_organisms_by_type[org_node->org_type]++;
+  if(this->last_cycle_when_calculated_the_number_of_organisms_by_type < this->parent_ecosystem_ptr->cycle) {
+    // setting all the counts to zero:
+    for(auto const& item : this->number_of_organisms_by_type) {
+      this->number_of_organisms_by_type[item.first] = 0;
+    };
+    // counting:
+    OrganismNode* org_node = this->parent_ecosystem_ptr->first_organism_node;
+    while(org_node != nullptr) {
+      this->number_of_organisms_by_type[org_node->org_type]++;
+    };
+    this->last_cycle_when_calculated_the_number_of_organisms_by_type = this->parent_ecosystem_ptr->cycle;
   };
 };
 
@@ -1099,6 +1101,7 @@ float Statistics::mean_of_attribute(OrganismAttribute org_attr, OrganismType org
 
 
 Ecosystem::Ecosystem() : random_nums_gen(), biotope(this) {
+  this->statistics.initialize(&(this->biotope), this);
   this->random_nums_gen.set_seed(0);
   this->cycle = 0;
   this->first_organism_node = nullptr;
@@ -1205,7 +1208,10 @@ std::vector<float> Ecosystem::get_attribute_matrix(OrganismAttribute org_attr, O
   return matrix;
 };
 
-
+void Ecosystem::keep_number_of_organism_above(OrganismType org_type, int num_orgs) {
+  int n = num_orgs - this->statistics.get_number_of_organisms(org_type);
+  if(n>0) this->create_new_organisms(org_type, n);
+};
 
 #endif /* classes_cpp */
 
