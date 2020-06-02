@@ -51,10 +51,12 @@ void test_2() {
     };
     ecosystem.evolve();
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    if(ecosystem.cycle % 10 == 0)
+    if(ecosystem.cycle % 10 == 0) {
       std::cout << "Elapsed time = " <<
                  std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() <<
-                 "[ms]" << std::endl;
+                 "[ms]   number of ghosts: " <<
+                ecosystem.ghost_organisms_ptrs.size() << std::endl;
+    };
   };
 };
 

@@ -12,7 +12,7 @@
 #include "basic_tools.hpp"
 #include "classes.hpp"
 
-
+long int global_variable = 0;
 // ***********************************************************************
 //                        N O D E   M A K E R
 // ***********************************************************************
@@ -259,7 +259,10 @@ void ObjectsPool<T>::create_more_objects() {
   this->objects_pool.push_back(std::vector<T>(this->buffer_size));
   for (auto &o : this->objects_pool.back()) {
     this->available_objects.push(&o);
-  }
+  };
+  cout << std::endl << "ObjectsPool created " << (this->objects_pool.size() * this->buffer_size) << " objects" << std::endl;
+  global_variable = this->objects_pool.size();
+  
 };
 
 template <class T>
@@ -991,6 +994,9 @@ void Carnivore::subtract_costs_of_being_alive() {
 
 Pathogen::Pathogen() {};
 void Pathogen::initialize(RandomNumbersGenerator* random_nums_gen_ptr) {
+  this->antigen = random_nums_gen_ptr->get_uniform_rand_int(100, 200);
+  
+  
   
 };
 void Pathogen::set_host(OrganismNode* new_host) {};
