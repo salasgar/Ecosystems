@@ -291,13 +291,13 @@ void AdjacentLocationsPool::initialize(std::default_random_engine engine) {
   };
   for(int i = 0; i < this->number_of_stored_permutations; i++) {
     shuffle(locations.begin(), locations.end(), this->eng);
-    this->adjacent_locations.push_back(locations);
+    this->adjacent_locations[i] = locations;
   };
 };
 
-std::vector<intLocation>* AdjacentLocationsPool::get_next() {
+std::vector<intLocation> AdjacentLocationsPool::get_next() {
   this->counter = (this->counter + 1) % this->number_of_stored_permutations;
-  return &(this->adjacent_locations[this->counter]);
+  return this->adjacent_locations[this->counter];
 };
 
 #endif  // BASIC_TOOLS_CPP_INCLUDED

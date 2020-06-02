@@ -527,8 +527,8 @@ intLocation Biotope::get_free_adjacent_location(intLocation center) {
           this->parent_ecosystem_ptr->random_nums_gen.eng
           );
  */
-  std::vector<intLocation>* adjacent_locations_ptr = this->adjacent_locations_pool.get_next();
-  for(intLocation location : *adjacent_locations_ptr) {
+  std::vector<intLocation> adjacent_locations = this->adjacent_locations_pool.get_next();
+  for(intLocation location : adjacent_locations) {
     intLocation new_loc = this->normalize(center + location);
     if(this->get_organism(new_loc) == nullptr) {
       return new_loc;
@@ -545,8 +545,8 @@ OrganismNode* Biotope::get_adjacent_organism_of_type(intLocation center, Organis
           this->parent_ecosystem_ptr->random_nums_gen.eng
           );
   */
-  std::vector<intLocation>* adjacent_locations_ptr = this->adjacent_locations_pool.get_next();
-  for(intLocation location : *adjacent_locations_ptr) {
+  std::vector<intLocation> adjacent_locations = this->adjacent_locations_pool.get_next();
+  for(intLocation location : adjacent_locations) {
     intLocation new_loc = this->normalize(center + location);
     OrganismNode* org_node = this->get_organism(new_loc);
     if(org_node != nullptr) {

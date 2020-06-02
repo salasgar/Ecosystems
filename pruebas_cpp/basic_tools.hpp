@@ -121,7 +121,7 @@ class AdjacentLocationsPool {
   // Methods:
   AdjacentLocationsPool();
   void initialize(std::default_random_engine engine);
-  std::vector<intLocation>* get_next();
+  std::vector<intLocation> get_next();
 };
 
 

@@ -38,7 +38,7 @@ void test_2() {
   ecosystem.create_new_organisms(PLANT_B, 5000);
   ecosystem.create_new_organisms(HERBIVORE, 5000);
   ecosystem.create_new_organisms(CARNIVORE, 5000);
-  for (int i=0; i<1000; i++) {
+  for (int i=0; i<10000; i++) {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     cout << "cycle " << ecosystem.cycle << endl;
     cout << "num organisms: " << ecosystem.get_num_organisms() << endl;
@@ -106,7 +106,8 @@ void test_3() {
 
 int main(int argc, char* argv[]) {
   //test_location();
-  test_3();
+  test_2();
   //test_organism();
   //test_ecosystem_initalize();
+
 };
