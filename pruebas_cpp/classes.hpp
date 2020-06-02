@@ -367,7 +367,6 @@ public:
   int number_of_organisms;
   RandomNumbersGenerator random_nums_gen;
   OrganismNode* first_organism_node;
-  OrganismNode* last_organism_node;
   NodeMaker node_maker;
   Statistics statistics;
 

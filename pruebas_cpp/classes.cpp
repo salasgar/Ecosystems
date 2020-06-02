@@ -739,7 +739,7 @@ Herbivore::Herbivore() {};
 
 void Herbivore::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {
   Organism::initialize(location, biot_ptr, ecos_ptr);
-  this->energy_reserve = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(500, 2000);
+  this->energy_reserve = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(500, 5000);
   this->strength = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(0.5, 20);
   this->eatable_plant_type = this->parent_ecosystem_ptr->random_nums_gen.true_with_probability(0.5) ? PLANT_A : PLANT_B;
 };
@@ -830,17 +830,17 @@ void Herbivore::mutate() {
 };
 
 bool Herbivore::can_procreate() {
-  return (this->energy_reserve > 2000);
+  return (this->energy_reserve > 5000);
 };
 
 void Herbivore::subtract_costs_of_being_alive() {
-  this->energy_reserve -= this->strength;
-  this->energy_reserve -= 5;
+  this->energy_reserve -= 2 * this->strength;
+  this->energy_reserve -= 100;
 }
 
 void Herbivore::subtract_costs_of_procreating(Herbivore *offspring) {
   // fixed cost:
-  this->energy_reserve -= 600;
+  this->energy_reserve -= 3000;
 };
 
 
@@ -980,7 +980,7 @@ bool Carnivore::can_procreate() {
 
 void Carnivore::subtract_costs_of_moving(intLocation new_location) {
   this->energy_reserve -= 2.5 * taxi_distance(this->location, new_location);
-  this->energy_reserve -= 0.2 * this->max_temperature_deviation;
+  this->energy_reserve -= 0.3 * this->max_temperature_deviation;
 };
 
 void Carnivore::subtract_costs_of_procreating(Carnivore *offspring) {
@@ -992,9 +992,9 @@ void Carnivore::subtract_costs_of_procreating(Carnivore *offspring) {
 };
 
 void Carnivore::subtract_costs_of_being_alive() {
-  this->energy_reserve -= this->strength;
-  this->energy_reserve -= 5;
-  this->energy_reserve -= 0.1 * this->max_temperature_deviation;
+  this->energy_reserve -= 2 * this->strength;
+  this->energy_reserve -= 20;
+  this->energy_reserve -= 0.8 * this->max_temperature_deviation;
 };
 
 
@@ -1022,7 +1022,12 @@ Statistics::Statistics() {};
 void Statistics::initialize(Biotope* biot_ptr, Ecosystem* ecos_ptr) {
   this->parent_biotope_ptr = biot_ptr;
   this->parent_ecosystem_ptr = ecos_ptr;
-  
+  this->last_cycle_when_calculated_the_number_of_organisms_by_type = -1;
+  this->number_of_organisms_by_type[PLANT_A] = 0;
+  this->number_of_organisms_by_type[PLANT_B] = 0;
+  this->number_of_organisms_by_type[HERBIVORE] = 0;
+  this->number_of_organisms_by_type[CARNIVORE] = 0;
+
   this->attributes_of_each_type[PLANT_A] = {
     PHOTOSYNTHESIS_CAPACITY,
     ENERGY_RESERVE,
@@ -1090,6 +1095,7 @@ void Statistics::calculate_number_of_organisms_by_type() {
     OrganismNode* org_node = this->parent_ecosystem_ptr->first_organism_node;
     while(org_node != nullptr) {
       this->number_of_organisms_by_type[org_node->org_type]++;
+      org_node = org_node->next;
     };
     this->last_cycle_when_calculated_the_number_of_organisms_by_type = this->parent_ecosystem_ptr->cycle;
   };
@@ -1108,7 +1114,6 @@ Ecosystem::Ecosystem() : random_nums_gen(), biotope(this) {
   this->random_nums_gen.set_seed(0);
   this->cycle = 0;
   this->first_organism_node = nullptr;
-  this->last_organism_node = nullptr;
   this->ghost_organisms_ptrs = {};
   this->number_of_organisms = 0;
   this->biotope.initialize();
@@ -1118,7 +1123,6 @@ void Ecosystem::initialize() {
   this->random_nums_gen.set_seed(0);
   this->cycle = 0;
   this->first_organism_node = nullptr;
-  this->last_organism_node = nullptr;
   this->ghost_organisms_ptrs = {};
   this->biotope.initialize();
 };
@@ -1139,7 +1143,6 @@ void Ecosystem::create_one_new_organism(OrganismType organism_type) {
 
 void Ecosystem::append_first_organism(OrganismNode *first_organism) {
   this->first_organism_node = first_organism;
-  this->last_organism_node = first_organism;
   first_organism->prev = nullptr;
   first_organism->next = nullptr;
   this->biotope.set_organism(first_organism);
@@ -1186,6 +1189,7 @@ void Ecosystem::evolve() {
 void Ecosystem::move_dead_organism_to_ghost_list(Organism* org) {
   this->biotope.remove_organism(org->node);
   this->number_of_organisms--;
+  if(org->node == this->first_organism_node) this->first_organism_node = org->node->next;
   org->node->unlink();
   this->ghost_organisms_ptrs.push_back(org->node);
 };

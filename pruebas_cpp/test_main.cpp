@@ -40,11 +40,19 @@ void test_2() {
   ecosystem.create_new_organisms(CARNIVORE, 5000);
   for (int i=0; i<10000; i++) {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
-    cout << "cycle " << ecosystem.cycle << endl;
-    cout << "num organisms: " << ecosystem.get_num_organisms() << endl;
+    if(ecosystem.cycle % 10 == 0) {
+    cout << "cycle " << ecosystem.cycle << " ---> ";
+    cout << "num organisms: " << ecosystem.get_num_organisms() << std::endl;
+      cout << "Plant_A: " << ecosystem.statistics.get_number_of_organisms(PLANT_A) << "   ";
+      cout << "Plant_B: " << ecosystem.statistics.get_number_of_organisms(PLANT_B) << "   ";
+      cout << "HERBIVORE: " << ecosystem.statistics.get_number_of_organisms(HERBIVORE) << "   ";
+      cout << "CARNIVORE: " << ecosystem.statistics.get_number_of_organisms(CARNIVORE) << "   ";
+      cout << std::endl;
+    };
     ecosystem.evolve();
     std::chrono::steady_clock::time_point end = std::chrono::steady_clock::now();
-    std::cout << "Elapsed time = " <<
+    if(ecosystem.cycle % 10 == 0)
+      std::cout << "Elapsed time = " <<
                  std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() <<
                  "[ms]" << std::endl;
   };
