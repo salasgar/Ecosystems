@@ -274,8 +274,8 @@ bool RandomNumbersGenerator::true_with_probability(float probability) {
 
 AdjacentLocationsPool::AdjacentLocationsPool() {};
 
-void AdjacentLocationsPool::initialize(std::default_random_engine engine) {
-  this->eng = engine;
+void AdjacentLocationsPool::initialize(std::default_random_engine* engine_ptr) {
+  this->eng_ptr = engine_ptr;
   this->number_of_stored_permutations = 50; // 50 is more than enough
   this->counter = 0;
   this->adjacent_locations.resize(this->number_of_stored_permutations);
@@ -290,7 +290,7 @@ void AdjacentLocationsPool::initialize(std::default_random_engine engine) {
     intLocation( 1,  1)
   };
   for(int i = 0; i < this->number_of_stored_permutations; i++) {
-    shuffle(locations.begin(), locations.end(), this->eng);
+    shuffle(locations.begin(), locations.end(), *(this->eng_ptr));
     this->adjacent_locations[i] = locations;
   };
 };

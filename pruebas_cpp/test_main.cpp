@@ -37,7 +37,7 @@ void test_2() {
   ecosystem.create_new_organisms(PLANT_A, 5000);
   ecosystem.create_new_organisms(PLANT_B, 5000);
   ecosystem.create_new_organisms(HERBIVORE, 5000);
-  ecosystem.create_new_organisms(CARNIVORE, 5000);
+  ecosystem.create_new_organisms(CARNIVORE, 1600);
   for (int i=0; i<10000; i++) {
     std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
     if(ecosystem.cycle % 10 == 0) {

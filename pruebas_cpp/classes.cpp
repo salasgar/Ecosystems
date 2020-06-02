@@ -396,8 +396,9 @@ Biotope::Biotope(Ecosystem* parent_ecosystem) {
   this->parent_ecosystem_ptr = parent_ecosystem;
 };
 
-void Biotope::initialize() {
+void Biotope::initialize(RandomNumbersGenerator* random_nums_gen_ptr_) {
   // This function has to be called AFTER parent_ecosystem_ptr->random_nums_gen has been initialized
+  this->random_nums_gen_ptr = random_nums_gen_ptr_;
   this->size_x = 500;
   this->size_y = 500;
   this->area = this->size_x * this->size_y;
@@ -405,9 +406,9 @@ void Biotope::initialize() {
   this->free_locs = std::vector<int> (this->size_x * this->size_y);
   iota (begin(free_locs), end(free_locs), 0);
   shuffle(free_locs.begin(), free_locs.end(),
-          this->parent_ecosystem_ptr->random_nums_gen.eng);
+          this->random_nums_gen_ptr->eng);
   this->free_locs_counter = 0;
-  this->adjacent_locations_pool.initialize(this->parent_ecosystem_ptr->random_nums_gen.eng);
+  this->adjacent_locations_pool.initialize(&(this->random_nums_gen_ptr->eng));
   this->temperature = new Temperature(this, this->parent_ecosystem_ptr);
   this->temperature->initialize();
   this->sun_light = new SunLight(this, this->parent_ecosystem_ptr);
@@ -458,7 +459,7 @@ intLocation Biotope::get_random_location() {
   this->free_locs_counter %= this->area;
   if(this->free_locs_counter == 0)
     shuffle(this->free_locs.begin(), this->free_locs.end(),
-            parent_ecosystem_ptr->random_nums_gen.eng);
+            this->random_nums_gen_ptr->eng);
   int packed_location = this->free_locs[this->free_locs_counter];
   return intLocation(
                            packed_location / this->size_y,
@@ -503,7 +504,7 @@ intLocation Biotope::get_free_location_close_to(intLocation center, int radius) 
     return NULL_LOCATION;
   } else {
     return this->normalize(free_locations_found[
-      this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_int(0, (int) free_locations_found.size())
+      this->random_nums_gen_ptr->get_uniform_rand_int(0, (int) free_locations_found.size())
     ]);
   };
 };
@@ -511,7 +512,7 @@ intLocation Biotope::get_free_location_close_to(intLocation center, int radius) 
 intLocation Biotope::get_free_location_close_to(intLocation center, int radius, int number_of_attempts) {
   // This method is assumed to be used by some organisms in order to move themselves to another location. For organisms that jump very far away each time, it's very time-consuming to collect every single empty location within such a large radius, just to randomly chose one of them. That's why they should try a number of times and resign from moving if they don't find a place to do it in those attempts:
   for(int i=0; i<number_of_attempts; i++) {
-    intLocation new_location = this->normalize(center + this->parent_ecosystem_ptr->random_nums_gen.get_rand_intLocation(radius));
+    intLocation new_location = this->normalize(center + this->random_nums_gen_ptr->get_rand_intLocation(radius));
     if(this->get_organism(new_location) == nullptr) {
       return new_location;
     };
@@ -520,13 +521,6 @@ intLocation Biotope::get_free_location_close_to(intLocation center, int radius, 
 };
 
 intLocation Biotope::get_free_adjacent_location(intLocation center) {
-/*
- shuffle(
-          this->adjacent_locations.begin(),
-          this->adjacent_locations.end(),
-          this->parent_ecosystem_ptr->random_nums_gen.eng
-          );
- */
   std::vector<intLocation> adjacent_locations = this->adjacent_locations_pool.get_next();
   for(intLocation location : adjacent_locations) {
     intLocation new_loc = this->normalize(center + location);
@@ -538,13 +532,6 @@ intLocation Biotope::get_free_adjacent_location(intLocation center) {
 };
 
 OrganismNode* Biotope::get_adjacent_organism_of_type(intLocation center, OrganismType org_type) {
-  /*
-   shuffle(
-          this->adjacent_locations.begin(),
-          this->adjacent_locations.end(),
-          this->parent_ecosystem_ptr->random_nums_gen.eng
-          );
-  */
   std::vector<intLocation> adjacent_locations = this->adjacent_locations_pool.get_next();
   for(intLocation location : adjacent_locations) {
     intLocation new_loc = this->normalize(center + location);
@@ -739,7 +726,7 @@ Herbivore::Herbivore() {};
 
 void Herbivore::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {
   Organism::initialize(location, biot_ptr, ecos_ptr);
-  this->energy_reserve = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(500, 5000);
+  this->energy_reserve = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(5000, 20000);
   this->strength = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(0.5, 20);
   this->eatable_plant_type = this->parent_ecosystem_ptr->random_nums_gen.true_with_probability(0.5) ? PLANT_A : PLANT_B;
 };
@@ -1003,11 +990,14 @@ void Carnivore::subtract_costs_of_being_alive() {
 // ******************************************************************
 
 Pathogen::Pathogen() {};
-void Pathogen::set_host(Organism* new_host) {};
+void Pathogen::initialize(RandomNumbersGenerator* random_nums_gen_ptr) {
+  
+};
+void Pathogen::set_host(OrganismNode* new_host) {};
 // actions:
 void Pathogen::act() {};
 void Pathogen::kill_host() {};
-void Pathogen::infect_new_host(Organism* new_host) {};
+void Pathogen::infect_new_host(OrganismNode* new_host) {};
 void Pathogen::spread() {}; // Look for new host closer than radius_of_contagion_possibility
 void Pathogen::steal_energy_reserve() {};
 void Pathogen::mutate() {};
@@ -1116,7 +1106,7 @@ Ecosystem::Ecosystem() : random_nums_gen(), biotope(this) {
   this->first_organism_node = nullptr;
   this->ghost_organisms_ptrs = {};
   this->number_of_organisms = 0;
-  this->biotope.initialize();
+  this->biotope.initialize(&(this->random_nums_gen));
 };
 
 void Ecosystem::initialize() {
@@ -1124,7 +1114,7 @@ void Ecosystem::initialize() {
   this->cycle = 0;
   this->first_organism_node = nullptr;
   this->ghost_organisms_ptrs = {};
-  this->biotope.initialize();
+  this->biotope.initialize(&(this->random_nums_gen));
 };
 
 void Ecosystem::create_new_organisms(OrganismType organism_type, int number_of_new_organisms) {

@@ -121,9 +121,12 @@ class SunLight;
 class Temperature;
 
 class Biotope {
- private:
-  std::vector<OrganismNode*> organisms_map;
  public:
+  // Connections:
+  Ecosystem* parent_ecosystem_ptr;
+  RandomNumbersGenerator* random_nums_gen_ptr;
+  // Attributes:
+  std::vector<OrganismNode*> organisms_map;
   int size_x;
   int size_y;
   int area;
@@ -132,11 +135,10 @@ class Biotope {
   AdjacentLocationsPool adjacent_locations_pool;
   SunLight* sun_light;
   Temperature* temperature;
-  Ecosystem* parent_ecosystem_ptr;
- 
+
  // methods:
   Biotope(Ecosystem* parent_ecosystem_ptr);
-  void initialize();
+  void initialize(RandomNumbersGenerator* random_nums_gen_ptr_);
   ErrorType evolve();
   OrganismNode* get_organism(intLocation location);
   void set_organism(intLocation location, OrganismNode* new_organism_ptr);
@@ -310,10 +312,12 @@ public:
 // -----------------------------------------------------------------------
 
 class Pathogen{
+ public:
   // Connections:
-  Organism* host_ptr;
+  OrganismNode* host_ptr;
   // Attributes:
   int antigen; // This is the pathogen's ID
+  OrganismType target;
   float probability_of_contagion_each_cycle;
   float probability_of_killing_host_each_cycle;
   float probability_of_host_recovery_each_cycle;
@@ -323,11 +327,12 @@ class Pathogen{
   float percentage_of_energy_reserve_destroyed_by_desease_each_cycle;
   // Methods:
   Pathogen();
-  void set_host(Organism* new_host);
+  void initialize(RandomNumbersGenerator* random_nums_gen_ptr);
+  void set_host(OrganismNode* new_host);
   // actions:
   void act();
   void kill_host();
-  void infect_new_host(Organism* new_host);
+  void infect_new_host(OrganismNode* new_host);
   void spread(); // Look for new host closer than radius_of_contagion_possibility
   void steal_energy_reserve();
   void mutate();

@@ -114,13 +114,13 @@ public:
 
 class AdjacentLocationsPool {
  public:
-  std::default_random_engine eng;
+  std::default_random_engine* eng_ptr;
   std::vector<std::vector<intLocation>> adjacent_locations;
   int number_of_stored_permutations;
   int counter;
   // Methods:
   AdjacentLocationsPool();
-  void initialize(std::default_random_engine engine);
+  void initialize(std::default_random_engine* engine_ptr);
   std::vector<intLocation> get_next();
 };
 
