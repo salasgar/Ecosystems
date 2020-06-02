@@ -433,8 +433,8 @@ Biotope::Biotope(Ecosystem* parent_ecosystem) {
 void Biotope::initialize(RandomNumbersGenerator* random_nums_gen_ptr_) {
   // This function has to be called AFTER parent_ecosystem_ptr->random_nums_gen has been initialized
   this->random_nums_gen_ptr = random_nums_gen_ptr_;
-  this->size_x = 50;
-  this->size_y = 50;
+  this->size_x = 500;
+  this->size_y = 500;
   this->area = this->size_x * this->size_y;
   organisms_map.resize(this->area);
   this->free_locs = std::vector<int> (this->size_x * this->size_y);
@@ -728,6 +728,7 @@ void Plant_B::do_procreate() {
     OrganismNode* offspring = this->parent_ecosystem_ptr->node_maker.get_new(PLANT_B);
     offspring->plant_B_ptr->copy(this);
     offspring->plant_B_ptr->set_location(free_location);
+    offspring->plant_B_ptr->age = 0;
     offspring->plant_B_ptr->is_alive = true;
     // offspring->plant_B_ptr->mutate();    // this isn't necessary
     // Add offspring to ecosystem:

@@ -238,7 +238,7 @@ class Plant_B : public Organism {
 public:
   // attributes:
   float photosynthesis_capacity();
-  static const int death_age = 3500;
+  static const int death_age = 500;
   constexpr static const float minimum_energy_reserve_for_procreating = 300;
   float energy_reserve;
   int age;
