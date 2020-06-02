@@ -248,6 +248,10 @@ void OrganismNode::unlink() {
     this->next->prev = this->prev;
   if (this->prev != nullptr)
     this->prev->next = this->next;
+  
+  // This is for debugging:
+  // this->next = nullptr;
+  // this->prev = nullptr;
 };
 
 void OrganismNode::insert_before(OrganismNode* reference_organism) {
@@ -429,8 +433,8 @@ Biotope::Biotope(Ecosystem* parent_ecosystem) {
 void Biotope::initialize(RandomNumbersGenerator* random_nums_gen_ptr_) {
   // This function has to be called AFTER parent_ecosystem_ptr->random_nums_gen has been initialized
   this->random_nums_gen_ptr = random_nums_gen_ptr_;
-  this->size_x = 500;
-  this->size_y = 500;
+  this->size_x = 50;
+  this->size_y = 50;
   this->area = this->size_x * this->size_y;
   organisms_map.resize(this->area);
   this->free_locs = std::vector<int> (this->size_x * this->size_y);
@@ -608,12 +612,12 @@ void Organism::set_location(intLocation new_location) {
 void Organism::do_procreate() {};
 
 void Organism::copy(Organism* parent) {
-  this->is_alive = parent->is_alive;
   this->parent_ecosystem_ptr = parent->parent_ecosystem_ptr;
   this->parent_biotope_ptr = parent->parent_biotope_ptr;
 };
 
 void Organism::mutate() {
+  this->is_alive = true;
   // nothing to do here yet
 };
 
@@ -659,6 +663,7 @@ void Plant_A::do_procreate() {
     offspring->plant_A_ptr->copy(this);
     offspring->plant_A_ptr->set_location(free_location);
     offspring->plant_A_ptr->mutate();
+    offspring->plant_A_ptr->is_alive = true;
     // Add offspring to ecosystem:
     this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this->node);
     this->subtract_costs_of_procreating(offspring->plant_A_ptr);
@@ -712,9 +717,8 @@ void Plant_B::act() {
   if(this->decide_procreate()) this->do_procreate();
   // constraint:
   if(this->energy_reserve < 100) do_die();
-  // if(not this->is_alive) break;
   // age:
-  this->do_age();
+  if(this->is_alive) this->do_age();
 };
 
 void Plant_B::do_procreate() {
@@ -724,6 +728,7 @@ void Plant_B::do_procreate() {
     OrganismNode* offspring = this->parent_ecosystem_ptr->node_maker.get_new(PLANT_B);
     offspring->plant_B_ptr->copy(this);
     offspring->plant_B_ptr->set_location(free_location);
+    offspring->plant_B_ptr->is_alive = true;
     // offspring->plant_B_ptr->mutate();    // this isn't necessary
     // Add offspring to ecosystem:
     this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this->node);
@@ -735,6 +740,14 @@ void Plant_B::do_age() {
   this->age += 1;
   if (this->age > this->death_age) {
     this->do_die();
+    /*
+    // this is for debugging:
+    if((this->node->prev != nullptr) and (this->node->prev->next == this->node)) {
+      cout << "para el carrooooooooooooooooooooo!!!!" << std::endl;
+      cout << "para el carrooooooooooooooooooooo!!!!" << std::endl;
+      cout << "para el carrooooooooooooooooooooo!!!!" << std::endl;
+    };
+    */
   };
 };
 
@@ -814,6 +827,7 @@ void Herbivore::do_procreate() {
     offspring->herbivore_ptr->copy(this);
     offspring->herbivore_ptr->set_location(free_location);
     offspring->herbivore_ptr->mutate();
+    offspring->herbivore_ptr->is_alive = true;
     // Add offspring to ecosystem:
     this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this->node);
     this->subtract_costs_of_procreating(offspring->herbivore_ptr);
@@ -930,6 +944,7 @@ void Carnivore::do_procreate() {
     offspring->carnivore_ptr->copy(this);
     offspring->carnivore_ptr->set_location(free_location);
     offspring->carnivore_ptr->mutate();
+    offspring->carnivore_ptr->is_alive = true;
     // Add offspring to ecosystem:
     this->parent_ecosystem_ptr->insert_new_organism_before(offspring, this->node);
     this->subtract_costs_of_procreating(offspring->carnivore_ptr);
@@ -1169,6 +1184,7 @@ void Ecosystem::append_first_organism(OrganismNode *first_organism) {
   first_organism->prev = nullptr;
   first_organism->next = nullptr;
   this->biotope.set_organism(first_organism);
+  this->number_of_organisms++;
 };
 
 void Ecosystem::append_organism(OrganismNode* new_organism) {
@@ -1193,12 +1209,6 @@ void Ecosystem::insert_new_organism_before(OrganismNode* new_organism, OrganismN
   new_organism->insert_before(reference_organism);
 };
 
-void nothing() {
-  int a = 3;
-  a++;
-};
-
-
 int Ecosystem::get_num_organisms() {
   return this->number_of_organisms;
 };
@@ -1209,17 +1219,15 @@ void Ecosystem::evolve() {
   while (organism_node != nullptr) {
     
     if(not organism_node->is_alive()) {
-      cout << "WTF!!! ";
+      cout << "WTF!!! " << organism_node->org_type;
     };
     
     organism_node->act_if_alive();
     
-    nothing();
-    
     organism_node = organism_node->next;
     
-    if(this->node_maker.organism_nodes_pool.objects_pool.size()>3)
     // This is for debugging:
+    if(this->node_maker.organism_nodes_pool.objects_pool.size()>3)
     for(OrganismType org_type : {PLANT_A, PLANT_B, HERBIVORE, CARNIVORE}) {
       cout << "Type" << org_type << " acted "
         << this->number_of_organisms_that_acted[org_type]
