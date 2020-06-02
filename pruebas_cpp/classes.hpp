@@ -10,6 +10,8 @@
 #ifndef classes_hpp
 #define classes_hpp
 
+void nothing();
+
 #include "basic_tools.hpp"
 
 using std::pair;
@@ -82,16 +84,17 @@ class OrganismNode {
   void act_if_alive();
   void unlink();
   void insert_before(OrganismNode* reference_organism);
+  Ecosystem* get_parent_ecosystem_ptr();
 };
 
 template <class T>
 class ObjectsPool {
- private:
+ public:
   void create_more_objects();
   int buffer_size;
   std::vector<std::vector<T>> objects_pool;
   std::stack<T*> available_objects;
- public:
+  // Methods:
   ObjectsPool();
   T* get_new();
   void set_available(T* object_ptr);
@@ -377,6 +380,9 @@ public:
 
   std::vector<OrganismNode*> ghost_organisms_ptrs;
   
+  // This is for debugging:
+  std::map<OrganismType, int> number_of_organisms_that_acted;
+
   // methods:
   Ecosystem();
   void initialize();

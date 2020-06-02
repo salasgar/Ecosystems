@@ -12,7 +12,9 @@
 #include "basic_tools.hpp"
 #include "classes.hpp"
 
+// This is for debugging:
 long int global_variable = 0;
+
 // ***********************************************************************
 //                        N O D E   M A K E R
 // ***********************************************************************
@@ -218,6 +220,10 @@ bool OrganismNode::is_alive() {
 };
 
 void OrganismNode::act_if_alive() {
+  
+  // This is for debugging:
+  this->get_parent_ecosystem_ptr()->number_of_organisms_that_acted[this->org_type]++;
+  
   switch (this->org_type) {
     case PLANT_A:
       if(this->plant_A_ptr->is_alive) this->plant_A_ptr->act();
@@ -249,6 +255,27 @@ void OrganismNode::insert_before(OrganismNode* reference_organism) {
   this->next = reference_organism;
   reference_organism->prev = this;
   if(this->prev != nullptr) this->prev->next = this;
+};
+
+Ecosystem* OrganismNode::get_parent_ecosystem_ptr() {
+  switch (this->org_type) {
+    case PLANT_A:
+      return this->plant_A_ptr->parent_ecosystem_ptr;
+      break;
+    case PLANT_B:
+      return this->plant_B_ptr->parent_ecosystem_ptr;
+      break;
+    case HERBIVORE:
+      return this->herbivore_ptr->parent_ecosystem_ptr;
+      break;
+    case CARNIVORE:
+      return this->carnivore_ptr->parent_ecosystem_ptr;
+      break;
+    default:
+      error("Unknown organism type");
+      return nullptr;
+      break;
+  };
 };
 
 
@@ -1116,7 +1143,7 @@ Ecosystem::Ecosystem() : random_nums_gen(), biotope(this) {
 };
 
 void Ecosystem::initialize() {
-  this->random_nums_gen.set_seed(0);
+  this->random_nums_gen.set_seed(10);
   this->cycle = 0;
   this->first_organism_node = nullptr;
   this->ghost_organisms_ptrs = {};
@@ -1166,6 +1193,11 @@ void Ecosystem::insert_new_organism_before(OrganismNode* new_organism, OrganismN
   new_organism->insert_before(reference_organism);
 };
 
+void nothing() {
+  int a = 3;
+  a++;
+};
+
 
 int Ecosystem::get_num_organisms() {
   return this->number_of_organisms;
@@ -1173,10 +1205,27 @@ int Ecosystem::get_num_organisms() {
 
 void Ecosystem::evolve() {
   this->clear_ghost_organisms();
-  OrganismNode* organism = this->first_organism_node;
-  while (organism != nullptr) {
-    organism->act_if_alive();
-    organism = organism->next;
+  OrganismNode* organism_node = this->first_organism_node;
+  while (organism_node != nullptr) {
+    
+    if(not organism_node->is_alive()) {
+      cout << "WTF!!! ";
+    };
+    
+    organism_node->act_if_alive();
+    
+    nothing();
+    
+    organism_node = organism_node->next;
+    
+    if(this->node_maker.organism_nodes_pool.objects_pool.size()>3)
+    // This is for debugging:
+    for(OrganismType org_type : {PLANT_A, PLANT_B, HERBIVORE, CARNIVORE}) {
+      cout << "Type" << org_type << " acted "
+        << this->number_of_organisms_that_acted[org_type]
+        << " times" << std::endl;
+      //this->number_of_organisms_that_acted[org_type] = 0;
+    };
   };
   this->biotope.evolve();
   this->cycle += 1;
