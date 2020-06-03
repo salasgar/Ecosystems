@@ -416,4 +416,15 @@ public:
  */
 
 
+class Matrix {
+public:
+  Matrix(Ecosystem &e, OrganismAttribute org_attr, OrganismType org_type);
+  float *data();
+  size_t rows();
+  size_t cols();
+private:
+  size_t m_rows, m_cols;
+  vector<float> m_data;
+};
+
 #endif /* classes_hpp */
