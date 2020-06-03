@@ -318,13 +318,13 @@ class Pathogen{
   OrganismNode* host_ptr;
   // Attributes:
   int antigen; // This is the pathogen's ID
-  OrganismType target;
+  OrganismType target; // the type of organism that can infect
   float probability_of_contagion_each_cycle;
   float probability_of_killing_host_each_cycle;
   float probability_of_host_recovery_each_cycle;
   float probability_of_host_obtaining_immunity_after_infection;
   float probability_of_mutation_before_new_infection;
-  float radius_of_contagion_possibility;
+  //float radius_of_contagion_possibility;
   float percentage_of_energy_reserve_destroyed_by_desease_each_cycle;
   // Methods:
   Pathogen();

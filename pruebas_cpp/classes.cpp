@@ -1018,10 +1018,28 @@ void Carnivore::subtract_costs_of_being_alive() {
 Pathogen::Pathogen() {};
 void Pathogen::initialize(RandomNumbersGenerator* random_nums_gen_ptr) {
   this->antigen = random_nums_gen_ptr->get_uniform_rand_int(100, 200);
-  
-  
-  
+  switch (random_nums_gen_ptr->get_uniform_rand_int(0, 3)) {
+    case 0:
+      this->target = PLANT_A;
+      break;
+    case 1:
+      this->target = PLANT_B;
+      break;
+    case 2:
+      this->target = HERBIVORE;
+      break;
+    case 3:
+      this->target = CARNIVORE;
+      break;
+  };
+  this->probability_of_contagion_each_cycle = random_nums_gen_ptr->get_uniform_rand_float(0, 1);
+  this->probability_of_killing_host_each_cycle = random_nums_gen_ptr->get_uniform_rand_float(0, 1);
+  this->probability_of_host_recovery_each_cycle = random_nums_gen_ptr->get_uniform_rand_float(0, 1);
+  this->probability_of_host_obtaining_immunity_after_infection = random_nums_gen_ptr->get_uniform_rand_float(0, 1);
+  this->probability_of_mutation_before_new_infection = random_nums_gen_ptr->get_uniform_rand_float(0, 1);
+  this->percentage_of_energy_reserve_destroyed_by_desease_each_cycle = random_nums_gen_ptr->get_uniform_rand_float(0, 1);
 };
+
 void Pathogen::set_host(OrganismNode* new_host) {};
 // actions:
 void Pathogen::act() {};
