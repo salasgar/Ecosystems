@@ -127,7 +127,7 @@ class Biotope {
   Ecosystem* parent_ecosystem_ptr;
   RandomNumbersGenerator* random_nums_gen_ptr;
   // Attributes:
-  std::vector<OrganismNode*> organisms_map;
+  std::vector<OrganismNode*> organisms_vector;
   int size_x;
   int size_y;
   int area;

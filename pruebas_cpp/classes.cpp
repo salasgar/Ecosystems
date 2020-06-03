@@ -436,7 +436,7 @@ void Biotope::initialize(RandomNumbersGenerator* random_nums_gen_ptr_) {
   this->size_x = 500;
   this->size_y = 500;
   this->area = this->size_x * this->size_y;
-  organisms_map.resize(this->area);
+  organisms_vector.resize(this->area);
   this->free_locs = std::vector<int> (this->size_x * this->size_y);
   iota (begin(free_locs), end(free_locs), 0);
   shuffle(free_locs.begin(), free_locs.end(),
@@ -455,12 +455,12 @@ ErrorType Biotope::evolve() {
 };
 
 OrganismNode* Biotope::get_organism(intLocation location) {
-  return this->organisms_map[location.x() * this->size_y +
-                             location.y()];
+  return this->organisms_vector[location.x() * this->size_y +
+    location.y()];
 };
 
 void Biotope::set_organism(intLocation location, OrganismNode* new_organism_ptr) {
-  this->organisms_map[location.x() * this->size_y +
+  this->organisms_vector[location.x() * this->size_y +
                       location.y()] = new_organism_ptr;
 };
 
@@ -1159,7 +1159,7 @@ Ecosystem::Ecosystem() : random_nums_gen(), biotope(this) {
 };
 
 void Ecosystem::initialize() {
-  this->random_nums_gen.set_seed(10);
+  this->random_nums_gen.set_seed(0);
   this->cycle = 0;
   this->first_organism_node = nullptr;
   this->ghost_organisms_ptrs = {};
