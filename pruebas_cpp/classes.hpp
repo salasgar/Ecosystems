@@ -79,7 +79,7 @@ class OrganismNode {
   void set_location(intLocation new_location);
   intLocation get_location();
   bool is_alive();
-  void act_if_alive();
+  void act();
   void unlink();
   void insert_before(OrganismNode* reference_organism);
   Ecosystem* get_parent_ecosystem_ptr();
@@ -238,7 +238,7 @@ class Plant_B : public Organism {
 public:
   // attributes:
   float photosynthesis_capacity();
-  static const int death_age = 500;
+  static const int death_age = 1000;
   constexpr static const float minimum_energy_reserve_for_procreating = 300;
   float energy_reserve;
   int age;
@@ -377,9 +377,6 @@ public:
   Statistics statistics;
 
   std::vector<OrganismNode*> ghost_organisms_ptrs;
-  
-  // This is for debugging:
-  std::map<OrganismType, int> number_of_organisms_that_acted;
 
   // methods:
   Ecosystem();

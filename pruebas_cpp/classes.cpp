@@ -12,9 +12,6 @@
 #include "basic_tools.hpp"
 #include "classes.hpp"
 
-// This is for debugging:
-long int global_variable = 0;
-
 // ***********************************************************************
 //                        N O D E   M A K E R
 // ***********************************************************************
@@ -219,23 +216,19 @@ bool OrganismNode::is_alive() {
   };
 };
 
-void OrganismNode::act_if_alive() {
-  
-  // This is for debugging:
-  this->get_parent_ecosystem_ptr()->number_of_organisms_that_acted[this->org_type]++;
-  
+void OrganismNode::act() {
   switch (this->org_type) {
     case PLANT_A:
-      if(this->plant_A_ptr->is_alive) this->plant_A_ptr->act();
+      this->plant_A_ptr->act();
       break;
     case PLANT_B:
-      if(this->plant_B_ptr->is_alive) this->plant_B_ptr->act();
+      this->plant_B_ptr->act();
       break;
     case HERBIVORE:
-      if(this->herbivore_ptr->is_alive) this->herbivore_ptr->act();
+      this->herbivore_ptr->act();
       break;
     case CARNIVORE:
-      if(this->carnivore_ptr->is_alive) this->carnivore_ptr->act();
+      this->carnivore_ptr->act();
       break;
     default:
       error("Unknown organism type");
@@ -248,10 +241,8 @@ void OrganismNode::unlink() {
     this->next->prev = this->prev;
   if (this->prev != nullptr)
     this->prev->next = this->next;
-  
-  // This is for debugging:
-  // this->next = nullptr;
-  // this->prev = nullptr;
+  // Do NOT do this->next = nullptr;
+  // because Ecosystem::evolve() needs that pointer
 };
 
 void OrganismNode::insert_before(OrganismNode* reference_organism) {
@@ -291,9 +282,6 @@ void ObjectsPool<T>::create_more_objects() {
   for (auto &o : this->objects_pool.back()) {
     this->available_objects.push(&o);
   };
-  cout << std::endl << "ObjectsPool created " << (this->objects_pool.size() * this->buffer_size) << " objects" << std::endl;
-  global_variable = this->objects_pool.size();
-  
 };
 
 template <class T>
@@ -741,14 +729,6 @@ void Plant_B::do_age() {
   this->age += 1;
   if (this->age > this->death_age) {
     this->do_die();
-    /*
-    // this is for debugging:
-    if((this->node->prev != nullptr) and (this->node->prev->next == this->node)) {
-      cout << "para el carrooooooooooooooooooooo!!!!" << std::endl;
-      cout << "para el carrooooooooooooooooooooo!!!!" << std::endl;
-      cout << "para el carrooooooooooooooooooooo!!!!" << std::endl;
-    };
-    */
   };
 };
 
@@ -1219,22 +1199,10 @@ void Ecosystem::evolve() {
   OrganismNode* organism_node = this->first_organism_node;
   while (organism_node != nullptr) {
     
-    if(not organism_node->is_alive()) {
-      cout << "WTF!!! " << organism_node->org_type;
-    };
+    assert(organism_node->is_alive());
     
-    organism_node->act_if_alive();
-    
+    organism_node->act();
     organism_node = organism_node->next;
-    
-    // This is for debugging:
-    if(this->node_maker.organism_nodes_pool.objects_pool.size()>3)
-    for(OrganismType org_type : {PLANT_A, PLANT_B, HERBIVORE, CARNIVORE}) {
-      cout << "Type" << org_type << " acted "
-        << this->number_of_organisms_that_acted[org_type]
-        << " times" << std::endl;
-      //this->number_of_organisms_that_acted[org_type] = 0;
-    };
   };
   this->biotope.evolve();
   this->cycle += 1;

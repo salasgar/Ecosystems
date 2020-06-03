@@ -16,7 +16,6 @@ void test_location () {
   cout << "d(A, B) = " << euclidean_distance(A, B) << "\n";
 };
 
-/*
 void test_organism() {
   //Organism o;
   
@@ -29,7 +28,6 @@ void test_1() {
   };
   //assert (e.get_num_organisms() == 108739);
 };
-*/
 
 void test_2() {
   Ecosystem ecosystem;
@@ -56,12 +54,6 @@ void test_2() {
                  std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count() <<
                  "[ms]   number of ghosts: " <<
                 ecosystem.ghost_organisms_ptrs.size() << std::endl;
-      for(OrganismType org_type : {PLANT_A, PLANT_B, HERBIVORE, CARNIVORE}) {
-        cout << "Type" << org_type << " acted "
-          << ecosystem.number_of_organisms_that_acted[org_type]
-          << " times" << std::endl;
-        ecosystem.number_of_organisms_that_acted[org_type] = 0;
-      };
     };
   };
 };
