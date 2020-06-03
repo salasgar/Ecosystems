@@ -123,6 +123,7 @@ void test_3() {
 };
 
 int main(int argc, char* argv[]) {
+  cout << "Program start" << std::endl;
   //test_location();
   test_2();
   //test_organism();

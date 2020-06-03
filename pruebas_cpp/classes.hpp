@@ -215,10 +215,8 @@ public:
   // attributes:
   static const int photosynthesis_capacity = 100;
   float energy_reserve;
-  constexpr static const float initial_minimum_energy_reserve_for_procreating = 300;
   float minimum_energy_reserve_for_procreating;
   float energy_reserve_at_birth;
-  constexpr static const float initial_energy_reserve_at_birth = 100;
   // methods:
   Plant_A();
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);

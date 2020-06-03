@@ -629,9 +629,9 @@ Plant_A::Plant_A() {};
 
 void Plant_A::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {
   Organism::initialize(location, biot_ptr, ecos_ptr);
-  this->minimum_energy_reserve_for_procreating = initial_minimum_energy_reserve_for_procreating;
-  this->energy_reserve_at_birth = initial_energy_reserve_at_birth;
-  this->energy_reserve = this->initial_energy_reserve_at_birth;
+  this->minimum_energy_reserve_for_procreating = 300;
+  this->energy_reserve_at_birth = 100;
+  this->energy_reserve = 100;
 };
 
 void Plant_A::act() {
