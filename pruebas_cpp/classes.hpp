@@ -31,7 +31,7 @@ class Organism;
 class Biotope;
 class Ecosystem;
 
-typedef enum OrganismType
+typedef enum OrganismType // AUTOMATIC
 {
   NULL_ORGANISM_TYPE,
   ALL_TYPES,
@@ -41,7 +41,7 @@ typedef enum OrganismType
   CARNIVORE
 } OrganismType;
 
-typedef enum OrganismAttribute
+typedef enum OrganismAttribute // AUTOMATIC
 {
   ENERGY_RESERVE,
   AGE,
@@ -57,10 +57,10 @@ typedef enum OrganismAttribute
   MOVING_FREQUENCY
 } OrganismAttribute;
 
-class Plant_A;
-class Plant_B;
-class Herbivore;
-class Carnivore;
+class Plant_A; // AUTOMATIC
+class Plant_B; // AUTOMATIC
+class Herbivore; // AUTOMATIC
+class Carnivore; // AUTOMATIC
 
 class OrganismNode {
  public:
@@ -68,10 +68,10 @@ class OrganismNode {
   OrganismNode* next;
   OrganismType org_type;
   union {
-    Plant_A* plant_A_ptr;
-    Plant_B* plant_B_ptr;
-    Herbivore* herbivore_ptr;
-    Carnivore* carnivore_ptr;
+    Plant_A* plant_A_ptr; // AUTOMATIC
+    Plant_B* plant_B_ptr; // AUTOMATIC
+    Herbivore* herbivore_ptr; // AUTOMATIC
+    Carnivore* carnivore_ptr; // AUTOMATIC
   };
   OrganismNode();
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
@@ -101,10 +101,10 @@ class ObjectsPool {
 class NodeMaker {
  public:
   // 4 different types of organisms:
-  ObjectsPool<Plant_A> plants_A_pool;
-  ObjectsPool<Plant_B> plants_B_pool;
-  ObjectsPool<Herbivore> herbivores_pool;
-  ObjectsPool<Carnivore> carnivores_pool;
+  ObjectsPool<Plant_A> plants_A_pool; // AUTOMATIC
+  ObjectsPool<Plant_B> plants_B_pool; // AUTOMATIC
+  ObjectsPool<Herbivore> herbivores_pool; // AUTOMATIC
+  ObjectsPool<Carnivore> carnivores_pool; // AUTOMATIC
   // and the nodes:
   ObjectsPool<OrganismNode> organism_nodes_pool;
   // methods:
@@ -134,8 +134,8 @@ class Biotope {
   std::vector<int> free_locs;
   int free_locs_counter;
   AdjacentLocationsPool adjacent_locations_pool;
-  SunLight* sun_light;
-  Temperature* temperature;
+  SunLight* sun_light;  // AUTOMATIC
+  Temperature* temperature; // AUTOMATIC
 
  // methods:
   Biotope(Ecosystem* parent_ecosystem_ptr);
@@ -157,7 +157,7 @@ class Biotope {
   intLocation normalize(intLocation location);
 };
 
-class SunLight {
+class SunLight { // AUTOMATIC or CUSTOM ?
  public:
   // connections:
   Biotope *parent_biotope_ptr;
@@ -167,7 +167,7 @@ class SunLight {
   float get_value(floatLocation location);
 };
 
-class Temperature {
+class Temperature { // AUTOMATIC or CUSTOM ?
  public:
   // attributes:
   std::vector<float> data;
@@ -208,7 +208,7 @@ public:
   // virtual bool decide_procreate();
 };
 
-class Plant_A : public Organism {
+class Plant_A : public Organism { // AUTOMATIC
   
   // class Plant_A:
 public:
@@ -230,7 +230,7 @@ public:
   void subtract_costs_of_procreating(Plant_A *offspring);
 }; // *************** class Plant_A ***************
 
-class Plant_B : public Organism {
+class Plant_B : public Organism { // AUTOMATIC
   
   // class Plant_B:
 public:
@@ -252,15 +252,17 @@ public:
   void subtract_costs_of_procreating(Plant_B *offspring);
 };  // *************** class Plant_B ***************
 
-class Herbivore : public Organism {
+class Herbivore : public Organism { // AUTOMATIC
 public:
   float energy_reserve;
+  float max_energy_reserve_capacity;
   float strength;
   OrganismType eatable_plant_type;
   //methods:
   Herbivore();
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void act();
+  void do_internal_changes();
   void do_move();
   void do_hunt();
   void do_eat(OrganismNode* food);
@@ -274,10 +276,11 @@ public:
   void subtract_costs_of_being_alive();
 };
 
-class Carnivore : public Organism {
+class Carnivore : public Organism { // AUTOMATIC
 public:
   // attributes:
   float energy_reserve;
+  float max_energy_reserve_capacity;
   float strength;
   float ideal_temperature;
   float max_temperature_deviation;
@@ -287,6 +290,7 @@ public:
   Carnivore();
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void act();
+  void do_internal_changes();
   void do_move();
   void do_hunt();
   void do_try_to_eat(Herbivore *herbivore);

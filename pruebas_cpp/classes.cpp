@@ -19,7 +19,7 @@
 OrganismNode::OrganismNode() {};
 
 void OrganismNode::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {
-  switch (this->org_type) {
+  switch (this->org_type) { // AUTOMATIC
     case PLANT_A:
       this->plant_A_ptr->initialize(location, biot_ptr, ecos_ptr);
       break;
@@ -40,7 +40,7 @@ void OrganismNode::initialize(intLocation location, Biotope* biot_ptr, Ecosystem
 
 float OrganismNode::get_float_attribute(OrganismAttribute org_attr) {
   
-  switch (org_attr) {
+  switch (org_attr) { // AUTOMATIC
     case ENERGY_RESERVE:
       switch (this->org_type) {
         case PLANT_A:
@@ -155,7 +155,7 @@ float OrganismNode::get_float_attribute(OrganismAttribute org_attr) {
 };
 
 void OrganismNode::set_location(intLocation new_location) {
-  switch (this->org_type) {
+  switch (this->org_type) { // AUTOMATIC
     case PLANT_A:
       this->plant_A_ptr->location = new_location;
       break;
@@ -175,7 +175,7 @@ void OrganismNode::set_location(intLocation new_location) {
 };
 
 intLocation OrganismNode::get_location() {
-  switch (this->org_type) {
+  switch (this->org_type) { // AUTOMATIC
     case PLANT_A:
       return this->plant_A_ptr->location;
       break;
@@ -196,7 +196,7 @@ intLocation OrganismNode::get_location() {
 };
 
 bool OrganismNode::is_alive() {
-  switch (this->org_type) {
+  switch (this->org_type) { // AUTOMATIC
     case PLANT_A:
       return this->plant_A_ptr->is_alive;
       break;
@@ -217,7 +217,7 @@ bool OrganismNode::is_alive() {
 };
 
 void OrganismNode::act() {
-  switch (this->org_type) {
+  switch (this->org_type) { // AUTOMATIC
     case PLANT_A:
       this->plant_A_ptr->act();
       break;
@@ -253,7 +253,7 @@ void OrganismNode::insert_before(OrganismNode* reference_organism) {
 };
 
 Ecosystem* OrganismNode::get_parent_ecosystem_ptr() {
-  switch (this->org_type) {
+  switch (this->org_type) { // AUTOMATIC
     case PLANT_A:
       return this->plant_A_ptr->parent_ecosystem_ptr;
       break;
@@ -313,12 +313,12 @@ NodeMaker::NodeMaker()
     plants_B_pool(),
     herbivores_pool(),
     carnivores_pool(),
-    organism_nodes_pool() {};
+    organism_nodes_pool() {}; // AUTOMATIC
 
 OrganismNode* NodeMaker::get_new(OrganismType org_type_) {
   OrganismNode* new_node = organism_nodes_pool.get_new();
   new_node->org_type = org_type_;
-  switch (org_type_) {
+  switch (org_type_) { // AUTOMATIC
     case PLANT_A:
       new_node->plant_A_ptr = this->plants_A_pool.get_new();
       new_node->plant_A_ptr->node = new_node;
@@ -343,7 +343,7 @@ OrganismNode* NodeMaker::get_new(OrganismType org_type_) {
 };
 
 void NodeMaker::set_available(OrganismNode* org_node) {
-  switch (org_node->org_type) {
+  switch (org_node->org_type) { // AUTOMATIC
     case PLANT_A:
       this->plants_A_pool.set_available(org_node->plant_A_ptr);
       break;
@@ -371,7 +371,8 @@ void NodeMaker::set_available(OrganismNode* org_node) {
 
 
 SunLight::SunLight(Biotope* parent_biotope, Ecosystem* parent_ecosystem)
-: parent_biotope_ptr(parent_biotope), parent_ecosystem_ptr(parent_ecosystem) {}; // El tamaño de la matriz es 0x0, es decir, que no hay matriz.
+    : parent_biotope_ptr(parent_biotope), parent_ecosystem_ptr(parent_ecosystem) // AUTOMATIC
+{}; // El tamaño de la matriz es 0x0, es decir, que no hay matriz.
 
 float float_module_int(float f, int i) {
   float answer = f - i * (lround(f) / i);
@@ -379,22 +380,22 @@ float float_module_int(float f, int i) {
   return answer;
 };
 
-float SunLight::get_value(floatLocation location) {
+float SunLight::get_value(floatLocation location) {  // CUSTOM
   return (1 + abs(sin(2 * M_PI * parent_ecosystem_ptr->cycle / 365.0))) * (1 + abs(sin(M_PI * float_module_int(location.second, this->parent_biotope_ptr->size_y)  / float(parent_biotope_ptr->size_y))));
 };
 
 Temperature::Temperature(Biotope* parent_biotope, Ecosystem* parent_ecosystem)
     : parent_biotope_ptr(parent_biotope), parent_ecosystem_ptr(parent_ecosystem),
-      data({})
+      data({})  // AUTOMATIC
 {
   // El tamaño de la matriz es 0x6, es decir, que hay 5 zonas climáticas que dependen únicamente de la latitud y no de la longitud.
 };
 
-void Temperature::initialize() {
+void Temperature::initialize() {  // CUSTOM
   this->data = {-10, 10, 30, 30, 10, -10};
 };
 
-float Temperature::get_value(intLocation location) {
+float Temperature::get_value(intLocation location) {  // CUSTOM
   int loc_y = location.second % this->parent_biotope_ptr->size_y;
   if (loc_y < 0) loc_y += this->parent_biotope_ptr->size_y;
   float y_float = float((data.size() - 1) * loc_y)/this->parent_biotope_ptr->size_y;
@@ -403,7 +404,7 @@ float Temperature::get_value(intLocation location) {
   return data[y_int]*(1-y_float) + data[y_int + 1] * y_float;
 };
 
-void Temperature::update() {
+void Temperature::update() { // CUSTOM
   for(int y=0; y<data.size(); y++) {
     data[y] *= 0.95; // cada ciclo se pierde un 5% de la temperatura
     floatLocation loc(
@@ -421,8 +422,8 @@ Biotope::Biotope(Ecosystem* parent_ecosystem) {
 void Biotope::initialize(RandomNumbersGenerator* random_nums_gen_ptr_) {
   // This function has to be called AFTER parent_ecosystem_ptr->random_nums_gen has been initialized
   this->random_nums_gen_ptr = random_nums_gen_ptr_;
-  this->size_x = 500;
-  this->size_y = 500;
+  this->size_x = 500;   // AUTOMATIC
+  this->size_y = 500;   // AUTOMATIC
   this->area = this->size_x * this->size_y;
   organisms_vector.resize(this->area);
   this->free_locs = std::vector<int> (this->size_x * this->size_y);
@@ -431,14 +432,14 @@ void Biotope::initialize(RandomNumbersGenerator* random_nums_gen_ptr_) {
           this->random_nums_gen_ptr->eng);
   this->free_locs_counter = 0;
   this->adjacent_locations_pool.initialize(&(this->random_nums_gen_ptr->eng));
-  this->temperature = new Temperature(this, this->parent_ecosystem_ptr);
-  this->temperature->initialize();
-  this->sun_light = new SunLight(this, this->parent_ecosystem_ptr);
+  this->temperature = new Temperature(this, this->parent_ecosystem_ptr); // AUTOMATIC
+  this->temperature->initialize(); // AUTOMATIC
+  this->sun_light = new SunLight(this, this->parent_ecosystem_ptr); // AUTOMATIC
 };
 
 ErrorType Biotope::evolve() {
   // Update those biotope features that need to be updated:
-  this->temperature->update();
+  this->temperature->update();  // AUTOMATIC
   return No_error;
 };
 
@@ -627,14 +628,14 @@ void Organism::unlink() {
 
 Plant_A::Plant_A() {};
 
-void Plant_A::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {
+void Plant_A::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) { // CUSTOM
   Organism::initialize(location, biot_ptr, ecos_ptr);
   this->minimum_energy_reserve_for_procreating = 300;
   this->energy_reserve_at_birth = 100;
   this->energy_reserve = 100;
 };
 
-void Plant_A::act() {
+void Plant_A::act() {  // CUSTOM
   // do photosynthesis:
   this->energy_reserve += -10 + 20 * (this->parent_biotope_ptr->sun_light->get_value(floatLocation(this->location)));
   // procreate:
@@ -643,7 +644,7 @@ void Plant_A::act() {
   if(this->energy_reserve < 100) do_die();
 };
 
-void Plant_A::do_procreate() {
+void Plant_A::do_procreate() {  // AUTOMATIC
   // get location:
   intLocation free_location = this->parent_biotope_ptr->get_free_adjacent_location(this->location);
   if(free_location != NULL_LOCATION) {
@@ -658,23 +659,23 @@ void Plant_A::do_procreate() {
   };
 };
 
-void Plant_A::copy(Plant_A *parent) {
+void Plant_A::copy(Plant_A *parent) {  // AUTOMATIC
   Organism::copy(parent);
   this->minimum_energy_reserve_for_procreating = parent->minimum_energy_reserve_for_procreating;
   this->energy_reserve_at_birth = parent->energy_reserve_at_birth;
 };
 
-void Plant_A::mutate() {
+void Plant_A::mutate() {  // CUSTOM
   this->energy_reserve = this->energy_reserve_at_birth;
   this->energy_reserve_at_birth = this->parent_ecosystem_ptr->random_nums_gen.proportional_mutation_float(this->energy_reserve_at_birth, 0.015);
   this->minimum_energy_reserve_for_procreating = this->parent_ecosystem_ptr->random_nums_gen.uniform_mutation_float_min(this->minimum_energy_reserve_for_procreating, 7.5, this->energy_reserve_at_birth);
 };
 
-bool Plant_A::decide_procreate() {
+bool Plant_A::decide_procreate() {  // CUSTOM
   return this->energy_reserve > this->minimum_energy_reserve_for_procreating;
 };
 
-void Plant_A::subtract_costs_of_procreating(Plant_A *offspring) {
+void Plant_A::subtract_costs_of_procreating(Plant_A *offspring) { // CUSTOM
   // proportional cost:
   this->energy_reserve -= 1.1 * offspring->energy_reserve;
   // fixed cost:
@@ -687,18 +688,18 @@ void Plant_A::subtract_costs_of_procreating(Plant_A *offspring) {
 // ******************************************************************
 // plant_B: plants that need much sunlight
 
-float Plant_B::photosynthesis_capacity() {
-  return sqrt(this->age + this->energy_reserve);
+float Plant_B::photosynthesis_capacity() {  // CUSTOM
+  return 2 * sqrt(this->age + this->energy_reserve);
 };
 
 Plant_B::Plant_B() {};
 
-void Plant_B::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {
+void Plant_B::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {   // CUSTOM
   Organism::initialize(location, biot_ptr, ecos_ptr);
   this->energy_reserve = ecos_ptr->random_nums_gen.get_uniform_rand_float(100, 1000);
 };
 
-void Plant_B::act() {
+void Plant_B::act() {  // CUSTOM
   // do photosynthesis:
   this->energy_reserve += -25 + 34 * (this->parent_biotope_ptr->sun_light->get_value(floatLocation(this->location)));
   // procreate:
@@ -709,7 +710,7 @@ void Plant_B::act() {
   if(this->is_alive) this->do_age();
 };
 
-void Plant_B::do_procreate() {
+void Plant_B::do_procreate() {  // AUTOMATIC
   // get location:
   intLocation free_location = this->parent_biotope_ptr->get_free_adjacent_location(this->location);
   if(free_location != NULL_LOCATION) {
@@ -725,18 +726,18 @@ void Plant_B::do_procreate() {
   };
 };
 
-void Plant_B::do_age() {
+void Plant_B::do_age() {  // CUSTOM
   this->age += 1;
   if (this->age > this->death_age) {
     this->do_die();
   };
 };
 
-bool Plant_B::decide_procreate() {
+bool Plant_B::decide_procreate() {  // CUSTOM
   return (this->energy_reserve > this->minimum_energy_reserve_for_procreating);
 };
 
-void Plant_B::subtract_costs_of_procreating(Plant_B *offspring) {
+void Plant_B::subtract_costs_of_procreating(Plant_B *offspring) {  // CUSTOM
   // proportional cost:
   this->energy_reserve -= 1.1 * offspring->energy_reserve;
 };
@@ -748,16 +749,19 @@ void Plant_B::subtract_costs_of_procreating(Plant_B *offspring) {
 
 Herbivore::Herbivore() {};
 
-void Herbivore::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {
+void Herbivore::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) { // CUSTOM
   Organism::initialize(location, biot_ptr, ecos_ptr);
-  this->energy_reserve = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(5000, 20000);
+  this->energy_reserve = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(5000, 15000);
+  this->max_energy_reserve_capacity = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(10000, 60000);;
   this->strength = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(0.5, 20);
   this->eatable_plant_type = this->parent_ecosystem_ptr->random_nums_gen.true_with_probability(0.5) ? PLANT_A : PLANT_B;
 };
 
-void Herbivore::act() {
+void Herbivore::act() { // CUSTOM
   this->do_hunt();
   this->do_move();
+  this->do_hunt();
+  this->do_internal_changes();
   if(this->can_procreate()) {
     this->do_procreate();
   };
@@ -767,7 +771,13 @@ void Herbivore::act() {
   };
 };
 
-void Herbivore::do_move() {
+void Herbivore::do_internal_changes() { // CUSTOM
+  if(this->energy_reserve > this->max_energy_reserve_capacity) {
+    this->energy_reserve = this->max_energy_reserve_capacity;
+  };
+};
+
+void Herbivore::do_move() { // CUSTOM
   intLocation new_location = this->parent_biotope_ptr
     ->get_free_location_close_to(this->location, 4.5, 2);
   if(new_location != NULL_LOCATION) {
@@ -775,7 +785,7 @@ void Herbivore::do_move() {
   };
 };
 
-void Herbivore::do_hunt() {
+void Herbivore::do_hunt() { // CUSTOM or AUTOMATIC ?
   OrganismNode* food = this->parent_biotope_ptr
   ->get_adjacent_organism_of_type(this->location, this->eatable_plant_type);
   if(food != nullptr) {
@@ -783,7 +793,7 @@ void Herbivore::do_hunt() {
   };
 };
 
-void Herbivore::do_eat(OrganismNode* food) {
+void Herbivore::do_eat(OrganismNode* food) { // AUTOMATIC
   switch (food->org_type) {
     case PLANT_A:
       this->energy_reserve += food->plant_A_ptr->energy_reserve;
@@ -799,10 +809,9 @@ void Herbivore::do_eat(OrganismNode* food) {
   };
 };
 
-void Herbivore::do_procreate() {
+void Herbivore::do_procreate() {  // AUTOMATIC
   // get location:
   intLocation free_location = this->parent_biotope_ptr->get_free_adjacent_location(this->location);
-
   if(free_location != NULL_LOCATION) {
     OrganismNode* offspring = this->parent_ecosystem_ptr->node_maker.get_new(HERBIVORE);
     offspring->herbivore_ptr->copy(this);
@@ -815,17 +824,20 @@ void Herbivore::do_procreate() {
   };
 };
 
-void Herbivore::copy(Herbivore* parent) {
+void Herbivore::copy(Herbivore* parent) { // AUTOMATIC
   Organism::copy(parent);
   this->strength = parent->strength;
   this->eatable_plant_type = parent->eatable_plant_type;
+  this->max_energy_reserve_capacity = parent->max_energy_reserve_capacity;
 };
 
-void Herbivore::mutate() {
+void Herbivore::mutate() { // CUSTOM
   this->energy_reserve = 500;
+  
   this->strength =
   parent_ecosystem_ptr->random_nums_gen
   .proportional_mutation_float_min(this->strength, 0.05, 0.01);
+  
   if(this->eatable_plant_type == PLANT_A) {
     if(this->parent_ecosystem_ptr->random_nums_gen
        .true_with_probability(0.1)) {
@@ -839,18 +851,24 @@ void Herbivore::mutate() {
       this->eatable_plant_type = PLANT_A;
     };
   };
+  
+  this->max_energy_reserve_capacity =
+  parent_ecosystem_ptr->random_nums_gen
+  .proportional_mutation_float(this->max_energy_reserve_capacity, 0.05);
 };
 
-bool Herbivore::can_procreate() {
+bool Herbivore::can_procreate() { // CUSTOM
   return (this->energy_reserve > 5000);
 };
 
-void Herbivore::subtract_costs_of_being_alive() {
+void Herbivore::subtract_costs_of_being_alive() { // CUSTOM
   this->energy_reserve -= 2 * this->strength;
   this->energy_reserve -= 100;
+  this->energy_reserve -= 0.001 * this->max_energy_reserve_capacity;
 }
 
 void Herbivore::subtract_costs_of_procreating(Herbivore *offspring) {
+  // CUSTOM
   // fixed cost:
   this->energy_reserve -= 3000;
 };
@@ -862,9 +880,10 @@ void Herbivore::subtract_costs_of_procreating(Herbivore *offspring) {
 
 Carnivore::Carnivore() {};
 
-void Carnivore::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) {
+void Carnivore::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr) { // CUSTOM
   Organism::initialize(location, biot_ptr, ecos_ptr);
-  this->energy_reserve = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(1500, 4000);
+  this->energy_reserve = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(1500, 15000);
+  this->max_energy_reserve_capacity = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(10000, 50000);;
   this->strength = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(0.5, 20);
   this->ideal_temperature = biot_ptr->temperature->get_value(location);
   this->max_temperature_deviation = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(0.5, 40);
@@ -873,12 +892,13 @@ void Carnivore::initialize(intLocation location, Biotope* biot_ptr, Ecosystem* e
 };
 
 
-void Carnivore::act() {
+void Carnivore::act() { // CUSTOM
   this->do_hunt();
   if(this->decide_move()) {
     this->do_move();
   };
   this->do_hunt(); // yes, again
+  this->do_internal_changes();
   if(this->decide_procreate() and this->can_procreate()) {
     this->do_procreate();
   };
@@ -888,7 +908,13 @@ void Carnivore::act() {
   };
 };
 
-void Carnivore::do_move() {
+void Carnivore::do_internal_changes() { // CUSTOM
+  if(this->energy_reserve > this->max_energy_reserve_capacity) {
+    this->energy_reserve = this->max_energy_reserve_capacity;
+  };
+};
+
+void Carnivore::do_move() { // CUSTOM
   intLocation new_location = this->parent_biotope_ptr
   ->get_free_location_close_to(this->location, 6.5, 4);
   if(new_location != NULL_LOCATION) {
@@ -897,7 +923,7 @@ void Carnivore::do_move() {
   };
 };
 
-void Carnivore::do_hunt() {
+void Carnivore::do_hunt() {  // CUSTOM or AUTOMATIC ?
   OrganismNode* food = this->parent_biotope_ptr
   ->get_adjacent_organism_of_type(this->location, HERBIVORE);
   if(food != nullptr) {
@@ -905,19 +931,19 @@ void Carnivore::do_hunt() {
   };
 };
 
-void Carnivore::do_try_to_eat(Herbivore *herbivore) {
+void Carnivore::do_try_to_eat(Herbivore *herbivore) { // CUSTOM
   if(this->parent_ecosystem_ptr->random_nums_gen
      .true_with_probability(this->strength / (this->strength + herbivore->strength))) {
     this->do_eat(herbivore);
   };
 };
 
-void Carnivore::do_eat(Herbivore *herbivore) {
+void Carnivore::do_eat(Herbivore *herbivore) { // AUTOMATIC
   this->energy_reserve += herbivore->energy_reserve;
   herbivore->do_die();
 };
 
-void Carnivore::do_procreate() {
+void Carnivore::do_procreate() { // AUTOMATIC
   // get location:
   intLocation free_location = this->parent_biotope_ptr->get_free_adjacent_location(this->location);
   if(free_location != NULL_LOCATION) {
@@ -932,16 +958,17 @@ void Carnivore::do_procreate() {
   };
 };
 
-void Carnivore::copy(Carnivore* parent) {
+void Carnivore::copy(Carnivore* parent) { // AUTOMATIC
   Organism::copy(parent);
   this->strength = parent->strength;
   this->ideal_temperature = parent->ideal_temperature;
   this->max_temperature_deviation = parent->max_temperature_deviation;
   this->moving_frequency = parent->moving_frequency;
   this->moving_time = 0.0;
+  this->max_energy_reserve_capacity = parent->max_energy_reserve_capacity;
 };
 
-void Carnivore::mutate() {
+void Carnivore::mutate() { // CUSTOM
   this->energy_reserve *= 0.25;
   
   this->strength =
@@ -958,9 +985,13 @@ void Carnivore::mutate() {
   this->moving_frequency = parent_ecosystem_ptr->random_nums_gen.proportional_mutation_float_min_max(this->moving_frequency, 0.1, 0.0, 1.0);
   
   this->moving_time = 0.0;
+  
+  this->max_energy_reserve_capacity =
+  parent_ecosystem_ptr->random_nums_gen
+  .proportional_mutation_float(this->max_energy_reserve_capacity, 0.05);
 };
 
-bool Carnivore::decide_move() {
+bool Carnivore::decide_move() {  // CUSTOM
   this->moving_time += this->moving_frequency;
   if(this->moving_time > 1)
   {
@@ -978,11 +1009,11 @@ bool Carnivore::decide_move() {
   };
 };
 
-bool Carnivore::decide_procreate() {
+bool Carnivore::decide_procreate() {  // CUSTOM
   return (this->energy_reserve > 5000);
 };
 
-bool Carnivore::can_procreate() {
+bool Carnivore::can_procreate() {  // CUSTOM
   return (
     std::abs(
       this->parent_biotope_ptr->temperature->get_value(this->location)
@@ -991,23 +1022,25 @@ bool Carnivore::can_procreate() {
   );
 };
 
-void Carnivore::subtract_costs_of_moving(intLocation new_location) {
+void Carnivore::subtract_costs_of_moving(intLocation new_location) { // CUSTOM
   this->energy_reserve -= 2.5 * taxi_distance(this->location, new_location);
   this->energy_reserve -= 0.3 * this->max_temperature_deviation;
 };
 
-void Carnivore::subtract_costs_of_procreating(Carnivore *offspring) {
+void Carnivore::subtract_costs_of_procreating(Carnivore *offspring) { // CUSTOM
   // proportional cost:
   this->energy_reserve -= 1.5 * offspring->energy_reserve;
   this->energy_reserve -= this->max_temperature_deviation;
   // fixed cost:
   this->energy_reserve -= 100;
+  this->energy_reserve -= 0.001 * this->max_energy_reserve_capacity;
 };
 
-void Carnivore::subtract_costs_of_being_alive() {
+void Carnivore::subtract_costs_of_being_alive() { // CUSTOM
   this->energy_reserve -= 2 * this->strength;
   this->energy_reserve -= 20;
   this->energy_reserve -= 0.8 * this->max_temperature_deviation;
+  this->energy_reserve -= 0.0005 * this->max_energy_reserve_capacity;
 };
 
 
@@ -1060,12 +1093,12 @@ void Statistics::initialize(Biotope* biot_ptr, Ecosystem* ecos_ptr) {
   this->parent_biotope_ptr = biot_ptr;
   this->parent_ecosystem_ptr = ecos_ptr;
   this->last_cycle_when_calculated_the_number_of_organisms_by_type = -1;
-  this->number_of_organisms_by_type[PLANT_A] = 0;
+  this->number_of_organisms_by_type[PLANT_A] = 0; // AUTOMATIC
   this->number_of_organisms_by_type[PLANT_B] = 0;
   this->number_of_organisms_by_type[HERBIVORE] = 0;
   this->number_of_organisms_by_type[CARNIVORE] = 0;
 
-  this->attributes_of_each_type[PLANT_A] = {
+  this->attributes_of_each_type[PLANT_A] = { // AUTOMATIC
     PHOTOSYNTHESIS_CAPACITY,
     ENERGY_RESERVE,
     MINIMUM_ENERGY_RESERVE_FOR_PROCREATING,
