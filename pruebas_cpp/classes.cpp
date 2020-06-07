@@ -1293,5 +1293,39 @@ void Ecosystem::keep_number_of_organism_above(OrganismType org_type, int num_org
   if(n>0) this->create_new_organisms(org_type, n);
 };
 
+Matrix::Matrix(Ecosystem &e, OrganismAttribute org_attr, OrganismType org_type) :
+    m_rows(e.biotope.size_x),
+    m_cols(e.biotope.size_y),
+    m_data(m_rows * m_cols) {
+  for(int x = 0; x < e.biotope.size_x; x++) {
+    for(int y = 0; y < e.biotope.size_y; y++) {
+      int i = x * e.biotope.size_y + y;
+      OrganismNode* org_node = e.biotope.get_organism(intLocation(x, y));
+      if(org_node != nullptr) {
+        if(org_node->org_type == org_type) {
+          m_data[i] = org_node->get_float_attribute(org_attr);
+        } else {
+          m_data[i] = -1.0f;
+        }
+      } else {
+        m_data[i] = -1.0f;
+      };
+    };
+  };
+};
+
+float* Matrix::data() {
+  return &m_data[0];
+};
+
+size_t Matrix::rows() {
+  return m_rows;
+};
+
+size_t Matrix::cols() {
+  return m_cols;
+};
+
+
 #endif /* classes_cpp */
 
