@@ -83,7 +83,11 @@ class OrganismNode {
   };
   // Methods:
   OrganismNode();
-  void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
+  void initialize(
+    intLocation location,
+    Biotope* biot_ptr,
+    Ecosystem* ecos_ptr
+  );
   float get_float_attribute(OrganismAttribute org_attr);
   void set_location(intLocation new_location);
   intLocation get_location();
