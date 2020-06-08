@@ -1,11 +1,17 @@
 
-//
-//  classes.hpp
-//  Ecosystems
-//
-//  Created by Juan Luis Salas García on 28/05/2020.
-//  Copyright © 2020 Juan Luis Salas García. All rights reserved.
-//
+// // // // // // // // // // // // // // // // // // // // //
+//                                                          //
+//    classes.hpp                                           //
+//    Ecosystems                                            //
+//                                                          //
+//    Created on 28/05/2020 by:                             //
+//                                                          //
+//      Emilio Molina Martínez                              //
+//      Juan Luis Salas García                              //
+//                                                          //
+//    Copyright © 2020 EMM & JLSG. All rights reserved.     //
+//                                                          //
+// // // // // // // // // // // // // // // // // // // // //
 
 #ifndef classes_hpp
 #define classes_hpp
@@ -64,8 +70,10 @@ class Carnivore; // AUTOMATIC
 
 class OrganismNode {
  public:
+  // Connections:
   OrganismNode* prev;
   OrganismNode* next;
+  // Attributes:
   OrganismType org_type;
   union {
     Plant_A* plant_A_ptr; // AUTOMATIC
@@ -73,6 +81,7 @@ class OrganismNode {
     Herbivore* herbivore_ptr; // AUTOMATIC
     Carnivore* carnivore_ptr; // AUTOMATIC
   };
+  // Methods:
   OrganismNode();
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   float get_float_attribute(OrganismAttribute org_attr);

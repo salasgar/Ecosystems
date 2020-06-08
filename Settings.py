@@ -712,7 +712,7 @@ _organisms_category_a = {
     'genes': {
         'category': {
             'initial value': 'A'
-            },
+        },
         'species': {
             # An organism will never attack any other organism
             # of the same species. It only
@@ -945,7 +945,7 @@ _organisms_category_a = {
                 '+': (
                     'photosynthesis capacity',
                     'photosynthesis capacity growth'
-                    )
+                )
             },
             'value after mutation': 0.5,
             'allowed interval': [0, 'infinity']
