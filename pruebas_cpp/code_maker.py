@@ -448,6 +448,96 @@ public:
 })
 
 
+classes_hpp += """
+
+// -----------------------------------------------------------------------
+//                           P A T H O G E N
+// -----------------------------------------------------------------------
+
+class Pathogen{
+ public:
+  // Connections:
+  OrganismNode* host_ptr;
+  // Attributes:
+  int antigen; // This is the pathogen's ID
+  OrganismType target; // the type of organism that can infect
+  float probability_of_contagion_each_cycle;
+  float probability_of_killing_host_each_cycle;
+  float probability_of_host_recovery_each_cycle;
+  float probability_of_host_obtaining_immunity_after_infection;
+  float probability_of_mutation_before_new_infection;
+  //float radius_of_contagion_possibility;
+  float percentage_of_energy_reserve_destroyed_by_desease_each_cycle;
+  // Methods:
+  Pathogen();
+  void initialize(RandomNumbersGenerator* random_nums_gen_ptr);
+  void set_host(OrganismNode* new_host);
+  // actions:
+  void act();
+  void kill_host();
+  void infect_new_host(OrganismNode* new_host);
+  void spread(); // Look for new host closer than radius_of_contagion_possibility
+  void steal_energy_reserve();
+  void mutate();
+};
+
+// -----------------------------------------------------------------------
+//                          S T A T I S T I C S
+// -----------------------------------------------------------------------
+
+class Statistics {
+ public:
+  // Connections:
+  Biotope* parent_biotope_ptr;
+  Ecosystem* parent_ecosystem_ptr;
+  // Data:
+  std::map<OrganismType, std::set<OrganismAttribute>> attributes_of_each_type;
+  std::map<OrganismAttribute, std::set<OrganismType>> types_that_have_each_attribute;
+  std::map<OrganismType, unsigned int> number_of_organisms_by_type;
+  long int last_cycle_when_calculated_the_number_of_organisms_by_type;
+  // Methods:
+  Statistics();
+  void initialize(Biotope* biot_ptr, Ecosystem* ecos_ptr);
+  unsigned int get_number_of_organisms(OrganismType org_type);
+  void calculate_number_of_organisms_by_type();
+  float mean_of_attribute(OrganismAttribute org_attr, OrganismType org_type);
+};
+
+// -----------------------------------------------------------------------
+//                           E C O S Y S T E M
+// -----------------------------------------------------------------------
+
+
+class Ecosystem {
+public:
+  Biotope biotope;
+  long int cycle;
+  int number_of_organisms;
+  RandomNumbersGenerator random_nums_gen;
+  OrganismNode* first_organism_node;
+  NodeMaker node_maker;
+  Statistics statistics;
+
+  std::vector<OrganismNode*> ghost_organisms_ptrs;
+
+  // methods:
+  Ecosystem();
+  void initialize();
+  void create_new_organisms(OrganismType organism_type, int number_of_new_organisms);
+  void create_one_new_organism(OrganismType organism_type);
+  void append_first_organism(OrganismNode* first_organism);
+  void append_organism(OrganismNode* new_organism);
+  void insert_new_organism_before(OrganismNode* new_organism, OrganismNode* reference_organism);
+  int get_num_organisms();
+  void evolve();
+  void move_dead_organism_to_ghost_list(Organism* org);
+  void clear_ghost_organisms();
+  std::vector<float> get_attribute_matrix(OrganismAttribute org_attr, OrganismType org_type);
+  void keep_number_of_organism_above(OrganismType org_type, int num_orgs);
+};
+"""
+
+
 # ***********************************************************************
 
 # ***********************************************************************
