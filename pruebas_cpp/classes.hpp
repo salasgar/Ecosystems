@@ -63,6 +63,14 @@ typedef enum OrganismAttribute // AUTOMATIC
   MOVING_FREQUENCY
 } OrganismAttribute;
 
+
+typedef enum BiotopeAttribute // AUTOMATIC
+{
+  SUN_LIGHT,
+  TEMPERATURE
+} BiotopeAttribute;
+
+
 class Plant_A; // AUTOMATIC
 class Plant_B; // AUTOMATIC
 class Herbivore; // AUTOMATIC
@@ -443,6 +451,7 @@ public:
 class Matrix {
 public:
   Matrix(Ecosystem &e, OrganismAttribute org_attr, OrganismType org_type);
+  Matrix(Ecosystem &e, BiotopeAttribute bio_attr);
   float *data();
   size_t rows();
   size_t cols();

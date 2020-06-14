@@ -27,6 +27,12 @@ PYBIND11_MODULE(eco, m) {
     .value("MAX_TEMPERATURE_DEVIATION", OrganismAttribute::MAX_TEMPERATURE_DEVIATION)
     .value("MOVING_FREQUENCY", OrganismAttribute::MOVING_FREQUENCY)
     .export_values();
+  
+  py::enum_<BiotopeAttribute>(m, "BiotopeAttribute")
+    .value("SUN_LIGHT", BiotopeAttribute::SUN_LIGHT)
+    .value("TEMPERATURE", BiotopeAttribute::TEMPERATURE)
+    .export_values();
+
 
   py::class_<Ecosystem>(m, "Ecosystem")
     .def(py::init<>())
@@ -37,6 +43,7 @@ PYBIND11_MODULE(eco, m) {
 
   py::class_<Matrix>(m, "Matrix", py::buffer_protocol())
     .def(py::init<Ecosystem &, OrganismAttribute, OrganismType>())
+    .def(py::init<Ecosystem &, BiotopeAttribute>())
     .def_buffer([](Matrix &m) -> py::buffer_info {
       return py::buffer_info(
         m.data(),                               /* Pointer to buffer */

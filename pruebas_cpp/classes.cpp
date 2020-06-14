@@ -1340,6 +1340,24 @@ Matrix::Matrix(Ecosystem &e, OrganismAttribute org_attr, OrganismType org_type) 
   };
 };
 
+
+Matrix::Matrix(Ecosystem &e, BiotopeAttribute bio_attr) :
+    m_rows(e.biotope.size_x),
+    m_cols(e.biotope.size_y),
+    m_data(m_rows * m_cols) {
+  for(int x = 0; x < e.biotope.size_x; x++) {
+    for(int y = 0; y < e.biotope.size_y; y++) {
+      int i = x * e.biotope.size_y + y;
+      if (bio_attr == BiotopeAttribute::SUN_LIGHT) {
+        m_data[i] = e.biotope.sun_light->get_value(floatLocation(x, y));
+      } else if (bio_attr == BiotopeAttribute::TEMPERATURE) {
+        m_data[i] = e.biotope.temperature->get_value(intLocation(x, y));
+      }
+    }
+  }
+}
+
+
 float* Matrix::data() {
   return &m_data[0];
 };
