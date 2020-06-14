@@ -4,9 +4,10 @@
 namespace py = pybind11;
 
 
-
 PYBIND11_MODULE(eco, m) {
   py::enum_<OrganismType>(m, "OrganismType")
+    .value("NULL_ORGANISM_TYPE", OrganismType::NULL_ORGANISM_TYPE)
+    .value("ALL_TYPES", OrganismType::ALL_TYPES)
     .value("PLANT_A", OrganismType::PLANT_A)
     .value("PLANT_B", OrganismType::PLANT_B)
     .value("HERBIVORE", OrganismType::HERBIVORE)
@@ -39,7 +40,9 @@ PYBIND11_MODULE(eco, m) {
     .def("initialize", &Ecosystem::initialize)
     .def("get_num_organisms", &Ecosystem::get_num_organisms)
     .def("create_new_organisms", &Ecosystem::create_new_organisms)
-    .def("evolve", &Ecosystem::evolve);
+    .def("evolve", &Ecosystem::evolve)
+    .def("get_attribute_matrix", &Ecosystem::get_attribute_matrix)
+    .def("keep_number_of_organism_above", &Ecosystem::keep_number_of_organism_above);
 
   py::class_<Matrix>(m, "Matrix", py::buffer_protocol())
     .def(py::init<Ecosystem &, OrganismAttribute, OrganismType>())

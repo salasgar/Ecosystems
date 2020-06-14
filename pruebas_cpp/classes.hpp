@@ -395,16 +395,6 @@ class Statistics {
   float mean_of_attribute(OrganismAttribute org_attr, OrganismType org_type);
 };
 
-// -----------------------------------------------------------------------
-//                             C E N S U S
-// -----------------------------------------------------------------------
-
-class Census {
- public:
-  map<OrganismType, int> num_each_type;
-  map<OrganismType, int> num_each_type_dead;
-  Census();
-};
 
 // -----------------------------------------------------------------------
 //                           E C O S Y S T E M
@@ -422,9 +412,7 @@ public:
   Statistics statistics;
 
   std::vector<OrganismNode*> ghost_organisms_ptrs;
-  
-  Census census;
-  
+ 
   // methods:
   Ecosystem();
   void initialize();
@@ -433,7 +421,8 @@ public:
   void append_first_organism(OrganismNode* first_organism);
   void append_organism(OrganismNode* new_organism);
   void insert_new_organism_before(OrganismNode* new_organism, OrganismNode* reference_organism);
-  int get_num_organisms();
+  unsigned int get_num_organisms();
+  unsigned int get_num_organisms(OrganismType org_type);
   void evolve();
   void move_dead_organism_to_ghost_list(Organism* org);
   void clear_ghost_organisms();
