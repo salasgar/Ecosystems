@@ -47,6 +47,8 @@ typedef enum OrganismType // AUTOMATIC
   CARNIVORE
 } OrganismType;
 
+const std::vector<OrganismType> ORGANISM_TYPES = {PLANT_A, PLANT_B, HERBIVORE, CARNIVORE};
+
 typedef enum OrganismAttribute // AUTOMATIC
 {
   ENERGY_RESERVE,
@@ -70,6 +72,7 @@ typedef enum BiotopeAttribute // AUTOMATIC
   TEMPERATURE
 } BiotopeAttribute;
 
+const std::vector<BiotopeAttribute> BIOTOPE_ATTRIBUTES = {SUN_LIGHT, TEMPERATURE};
 
 class Plant_A; // AUTOMATIC
 class Plant_B; // AUTOMATIC
@@ -97,6 +100,7 @@ class OrganismNode {
     Ecosystem* ecos_ptr
   );
   float get_float_attribute(OrganismAttribute org_attr);
+  OrganismType get_organism_type_attribute(OrganismAttribute org_attr);
   void set_location(intLocation new_location);
   intLocation get_location();
   bool is_alive();
@@ -392,6 +396,17 @@ class Statistics {
 };
 
 // -----------------------------------------------------------------------
+//                             C E N S U S
+// -----------------------------------------------------------------------
+
+class Census {
+ public:
+  map<OrganismType, int> num_each_type;
+  map<OrganismType, int> num_each_type_dead;
+  Census();
+};
+
+// -----------------------------------------------------------------------
 //                           E C O S Y S T E M
 // -----------------------------------------------------------------------
 
@@ -407,7 +422,9 @@ public:
   Statistics statistics;
 
   std::vector<OrganismNode*> ghost_organisms_ptrs;
-
+  
+  Census census;
+  
   // methods:
   Ecosystem();
   void initialize();
@@ -422,6 +439,7 @@ public:
   void clear_ghost_organisms();
   std::vector<float> get_attribute_matrix(OrganismAttribute org_attr, OrganismType org_type);
   void keep_number_of_organism_above(OrganismType org_type, int num_orgs);
+  void make_census();
 };
 
 /*

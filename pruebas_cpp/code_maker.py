@@ -1,42 +1,6 @@
 import string
 
 
-def type_name(token):
-    return string.upper(variable_name(token))
-
-
-def variable_name(token):
-    if string.islower(token):
-        return token.replace(' ', '_')
-    if string.isupper(token):
-        return string.lower(token).replace(' ', '_')
-    result_token = string.lower(token[0])
-    for letter in token[1:]:
-        if string.isupper(letter):
-            result_token += '_' + string.lower(letter)
-        result_token += letter
-    return result_token
-
-def class_name(token):
-    if string.isupper(token) or string.islower(token):
-        result_token = ""
-        next_upper = true
-        for letter in token:
-            if letter == '_':
-                next_upper = true
-            else:
-                if next_upper:
-                    result_token += string.upper(letter)
-                    next_upper = false
-                else:
-                    result_token += string.lower(letter)
-        return result_token
-    else:
-        return token
-
-
-
-
 
 # Information extracted from settings:
 organisms_types_matrix = [
@@ -50,7 +14,7 @@ organisms_types = {}
 
 for vector in organisms_types_matrix:
     organisms_types[vector[0]] = {
-        'type name': vector[0],
+        'enum name': vector[0],
         'class name': vector[1],
         'variable name': vector[2],
         'plural': vector[3]
@@ -58,13 +22,37 @@ for vector in organisms_types_matrix:
 
 
 def get_organisms_types_vector(label):
-    return [organisms_types[type_name][label] for type_name in organisms_types]
+    return [organisms_types[enum_name][label] for enum_name in organisms_types]
 
 
-organisms_type_names = get_organisms_types_vector('type name')
+organisms_enum_names = get_organisms_types_vector('enum name')
 organisms_types_class_names = get_organisms_types_vector('class name')
 organisms_types_variable_names = get_organisms_types_vector('variable name')
 organisms_types_variable_plural_names = get_organisms_types_vector('plural')
+
+
+organisms_attributes = ['ENERGY_RESERVE', 'AGE', 'DEATH_AGE', 'GENERATION',
+    'PHOTOSYNTHESIS_CAPACITY',
+    'STRENGTH',
+    'MINIMUM_ENERGY_RESERVE_FOR_PROCREATING', 'ENERGY_RESERVE_AT_BIRTH',
+    'EATABLE_PLANT_TYPE', 'IDEAL_TEMPERATURE', 'MAX_TEMPERATURE_DEVIATION',
+    'MOVING_FREQUENCY']
+
+organism_enum_type_for_each_attribute = {
+    'ENERGY_RESERVE': ['PLANT_A', 'PLANT_B', 'HERBIVORE', 'CARNIVORE'],
+    'AGE': ['PLANT_B'],
+    'DEATH_AGE': ['PLANT_B'],
+    'GENERATION': [],
+    'PHOTOSYNTHESIS_CAPACITY': ['PLANT_A', 'PLANT_B'],
+    'STRENGTH': ['HERBIVORE', 'CARNIVORE'],
+    'MINIMUM_ENERGY_RESERVE_FOR_PROCREATING': ['PLANT_A', 'PLANT_B'],
+    'ENERGY_RESERVE_AT_BIRTH': ['PLANT_A'],
+    'EATABLE_PLANT_TYPE': ['HERBIVORE'],
+    'IDEAL_TEMPERATURE': ['CARNIVORE'],
+    'MAX_TEMPERATURE_DEVIATION': ['CARNIVORE'],
+    'MOVING_FREQUENCY': ['CARNIVORE']
+}
+
 
 organism_types_attributes_declaration = [
 
@@ -100,12 +88,6 @@ organism_types_attributes_declaration = [
   float moving_time;
 """
 ]
-organisms_attributes = ['ENERGY RESERVE', 'AGE', 'DEATH AGE', 'GENERATION',
-    'PHOTOSYNTHESIS CAPACITY',
-    'STRENGTH',
-    'MINIMUM ENERGY RESERVE FOR PROCREATING', 'ENERGY RESERVE AT BIRTH',
-    'EATABLE PLANT TYPE', 'IDEAL TEMPERATURE', 'MAX TEMPERATURE DEVIATION',
-    'MOVING FREQUENCY']
 
 organisms_types_actions_declaration = [
 
@@ -205,7 +187,44 @@ biotope_features_class_names = ['SunLight', 'Temperature']
 biotope_features_variable_names = ['sun_light', 'temperature']
 biotope_features_data = ['', '  std::vector<float> data;']
 
+
+
 # making code:
+
+def variable_name(token):
+    return enum_name(token).lower()
+
+
+def class_name(token):
+    if token.isupper() or token.islower():
+        result_token = ""
+        next_upper = True
+        for letter in token.replace(' ', '_'):
+            if letter == '_':
+                next_upper = True
+            else:
+                if next_upper:
+                    result_token += letter.upper()
+                    next_upper = False
+                else:
+                    result_token += letter.lower()
+        return result_token
+    else:
+        result_token = token.replace(' ', '_')
+        result_token = result_token[0].upper() + result_token[1:]
+        return result_token
+
+
+def enum_name(token):
+    if token.isupper() or token.islower():
+        return token.upper().replace(' ', '_')
+    else:
+        result_token = token.replace(' ', '_')[0].upper()
+        for letter in token.replace(' ', '_')[1:]:
+            if letter.isupper():
+                result_token += '_'
+            result_token += letter.upper()
+        return result_token
 
 
 def transpose_dict(dictionary):
@@ -274,7 +293,7 @@ typedef enum OrganismType // AUTOMATIC
 """
 
 
-classes_hpp += repeat_with('  #,\n', {'#': organisms_type_names})[:-2]
+classes_hpp += repeat_with('  #,\n', {'#': organisms_enum_names})[:-2]
 
 
 classes_hpp += """
@@ -367,8 +386,7 @@ dictionary = {
 classes_hpp += repeat_with('  ObjectsPool<#1> #2_pool;\n', dictionary)
 
 
-classes_hpp += """
-  // and the nodes:
+classes_hpp += """  // and the nodes:
   ObjectsPool<OrganismNode> organism_nodes_pool;
   // methods:
   NodeMaker();
@@ -445,7 +463,7 @@ class #1 {
   Biotope *parent_biotope_ptr;
   Ecosystem *parent_ecosystem_ptr;
   // methods:
-  #(Biotope* parent_biotope, Ecosystem* parent_ecosystem);
+  #1(Biotope* parent_biotope, Ecosystem* parent_ecosystem);
   void initialize();
   float get_value(intLocation location);
   void update();
@@ -487,7 +505,7 @@ public:
 
 classes_hpp += repeat_with("""
 class #1 : public Organism { // AUTOMATIC
-public:
+ public:
   // attributes:
 #2
   // methods:
@@ -600,6 +618,45 @@ public:
   std::vector<float> get_attribute_matrix(OrganismAttribute org_attr, OrganismType org_type);
   void keep_number_of_organism_above(OrganismType org_type, int num_orgs);
 };
+
+
+class Matrix {
+public:
+  Matrix(Ecosystem &e, OrganismAttribute org_attr, OrganismType org_type);
+  float *data();
+  size_t rows();
+  size_t cols();
+private:
+  size_t m_rows, m_cols;
+  vector<float> m_data;
+};
+
+#endif /* classes_hpp */
+
+
+/*
+ COMANDOS GIT:
+ 
+ // Send changes to repository:
+ git add -u
+ git commit -m "Rename few files"
+ git push origin pruebas_cpp
+ 
+ // See status:
+ git status
+ 
+ // Temporary hide or show last changes (uncommited changes):
+ git stash
+ git stash pop
+ 
+ // Erase last changes in a file:
+ git checkout filename.cpp
+ 
+ // Update from repository:
+ git pull origin pruebas_cpp
+ 
+ */
+
 """
 
 
@@ -651,7 +708,7 @@ void OrganismNode::initialize(intLocation location, Biotope* biot_ptr, Ecosystem
 classes_cpp += repeat_with("""
     case #1:
       this->#2_ptr->initialize(location, biot_ptr, ecos_ptr);
-      break;""", {'#1': organisms_type_names, '#2': organisms_types_variable_names})
+      break;""", {'#1': organisms_enum_names, '#2': organisms_types_variable_names})
 
 
 classes_cpp += """
@@ -666,150 +723,56 @@ classes_cpp += """
 classes_cpp += """
 float OrganismNode::get_float_attribute(OrganismAttribute org_attr) {
 
-  switch (org_attr) { // AUTOMATIC """
+  switch (org_attr) {"""
 
-"""
-
-for float_attribute in float_attributes:
+for org_attr in organisms_attributes:
     classes_cpp += """
 
-"""
-    case """ 
-
-"""
-    + float_attribute + """
-
-"""
-    :
+    case """ + org_attr + """
       switch (this->org_type) {"""
-
-"""
-    classes_cpp += repeat_with("""
-
-"""
-        case #1:
-          return this->#2_ptr->"""
-
-"""
-        + float_attribute_variable_names[float_attribute] + """
-"""
-        ;
+    for org_type in organism_enum_type_for_each_attribute[org_attr]:
+        classes_cpp += """
+        case """ + org_type + ':'
+        classes_cpp += """
+          return this->""" + variable_name(org_type) + '_ptr->'
+        classes_cpp += variable_name(org_attr) + """;
+          break;"""
+    classes_cpp += """
+        default:
+          return 0;
           break;"""
 
-"""
-          , {
-
-          }
-        case PLANT_B:
-          return this->plant_B_ptr->energy_reserve;
-          break;
-        case HERBIVORE:
-          return this->herbivore_ptr->energy_reserve;
-          break;
-        case CARNIVORE:
-          return this->carnivore_ptr->energy_reserve;
-          break;
-        default:
-          return 0;
-          break;
-      };
-    break;
-      
-    case AGE:
-      switch (this->org_type) {
-        case PLANT_B:
-          return this->plant_B_ptr->age;
-          break;
-        default:
-          return 0;
-          break;
-      };
-    break;
-      
-    case PHOTOSYNTHESIS_CAPACITY:
-      switch (this->org_type) {
-        case PLANT_A:
-          return this->plant_A_ptr->photosynthesis_capacity;
-          break;
-        case PLANT_B:
-          return this->plant_B_ptr->photosynthesis_capacity();
-          break;
-        default:
-          return 0;
-          break;
-      };
-    break;
-
-    case STRENGTH:
-      switch (this->org_type) {
-        case HERBIVORE:
-          return this->herbivore_ptr->strength;
-          break;
-        case CARNIVORE:
-          return this->carnivore_ptr->strength;
-          break;
-        default:
-          return 0;
-          break;
-       };
-
-    break;
-      
-    case MINIMUM_ENERGY_RESERVE_FOR_PROCREATING:
-      switch (this->org_type) {
-        case PLANT_A:
-          return this->plant_A_ptr->minimum_energy_reserve_for_procreating;
-          break;
-        case PLANT_B:
-          return this->plant_B_ptr->minimum_energy_reserve_for_procreating;
-          break;
-        default:
-          return 0;
-          break;
-      };
-    break;
-
-    case ENERGY_RESERVE_AT_BIRTH:
-      switch (this->org_type) {
-        case PLANT_A:
-          return this->plant_A_ptr->energy_reserve_at_birth;
-          break;
-        default:
-          return 0;
-          break;
-      };
-    break;
-      
-    case IDEAL_TEMPERATURE:
-      switch (this->org_type) {
-        case CARNIVORE:
-          return this->carnivore_ptr->ideal_temperature;
-          break;
-        default:
-          return 0;
-          break;
-      };
-    break;
-      
-    case MAX_TEMPERATURE_DEVIATION:
-      switch (this->org_type) {
-        case CARNIVORE:
-          return this->carnivore_ptr->max_temperature_deviation;
-          break;
-        default:
-          return 0;
-          break;
-      };
-    break;
+classes_cpp += """
 
     default:
       return 0;
       break;
   };
-};
+};"""
+
+
+classes_cpp += """
+
 
 void OrganismNode::set_location(intLocation new_location) {
-  switch (this->org_type) { // AUTOMATIC
+  switch (this->org_type) {"""
+
+for org_type in organisms_enum_names:
+    classes_cpp += """
+    case """ + org_type + """
+      this->""" + variable_name(org_type) + """_ptr->location = new_location;
+      break;"""
+
+classes_cpp += """
+    default:
+      error("Unknown organism type");
+      break;
+  };
+};
+"""
+
+
+"""
     case PLANT_A:
       this->plant_A_ptr->location = new_location;
       break;

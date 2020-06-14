@@ -46,6 +46,26 @@ void OrganismNode::initialize(intLocation location, Biotope* biot_ptr, Ecosystem
   };
 };
 
+OrganismType OrganismNode::get_organism_type_attribute(OrganismAttribute org_attr) {
+  switch (org_attr) {
+    case EATABLE_PLANT_TYPE:
+      switch (this->org_type) {
+        case HERBIVORE:
+          return this->herbivore_ptr->eatable_plant_type;
+          break;
+          
+        default:
+          return NULL_ORGANISM_TYPE;
+          break;
+      }
+      break;
+      
+    default:
+      return NULL_ORGANISM_TYPE;
+      break;
+  }
+};
+  
 float OrganismNode::get_float_attribute(OrganismAttribute org_attr) {
   
   switch (org_attr) { // AUTOMATIC
@@ -1318,6 +1338,25 @@ void Ecosystem::keep_number_of_organism_above(OrganismType org_type, int num_org
   int n = num_orgs - this->statistics.get_number_of_organisms(org_type);
   if(n>0) this->create_new_organisms(org_type, n);
 };
+
+void Ecosystem::make_census() {
+  for (auto org_type_ptr = ORGANISM_TYPES.begin(); org_type_ptr != ORGANISM_TYPES.end(); org_type_ptr++) {
+    this->census.num_each_type[*org_type_ptr] = 0;
+    this->census.num_each_type_dead[*org_type_ptr] = 0;
+  };
+  OrganismNode* organism_node = this->first_organism_node;
+  while (organism_node != nullptr) {
+    if(organism_node->is_alive()) {
+      this->census.num_each_type[organism_node->org_type]++;
+    } else {
+      this->census.num_each_type_dead[organism_node->org_type]++;
+    };  
+    organism_node->act();
+    organism_node = organism_node->next;
+  };
+};
+
+Census::Census() {};
 
 Matrix::Matrix(Ecosystem &e, OrganismAttribute org_attr, OrganismType org_type) :
     m_rows(e.biotope.size_x),
