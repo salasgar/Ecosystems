@@ -322,6 +322,13 @@ public:
   void subtract_costs_of_being_alive();
 };
 
+class SuperPredator : public Carnivore {
+public:
+  std::vector<u_char> V;
+  SuperPredator();
+  void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
+  void mutate();
+};
 
 // -----------------------------------------------------------------------
 //                           P A T H O G E N

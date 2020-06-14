@@ -697,7 +697,7 @@ void Plant_A::subtract_costs_of_procreating(Plant_A *offspring) { // CUSTOM
 // plant_B: plants that need much sunlight
 
 float Plant_B::photosynthesis_capacity() {  // CUSTOM
-  return 2 * sqrt(this->age + this->energy_reserve);
+  return 4 * sqrt(100 + this->age + this->energy_reserve);
 };
 
 Plant_B::Plant_B() {};
@@ -848,13 +848,13 @@ void Herbivore::mutate() { // CUSTOM
   
   if(this->eatable_plant_type == PLANT_A) {
     if(this->parent_ecosystem_ptr->random_nums_gen
-       .true_with_probability(0.1)) {
+       .true_with_probability(0.001)) {
       this->eatable_plant_type = PLANT_B;
     }
   }
   else {
     if(this->parent_ecosystem_ptr->random_nums_gen
-       .true_with_probability(0.25))
+       .true_with_probability(0.0025))
     {
       this->eatable_plant_type = PLANT_A;
     };
@@ -1032,13 +1032,13 @@ bool Carnivore::can_procreate() {  // CUSTOM
 
 void Carnivore::subtract_costs_of_moving(intLocation new_location) { // CUSTOM
   this->energy_reserve -= 2.5 * taxi_distance(this->location, new_location);
-  this->energy_reserve -= 0.3 * this->max_temperature_deviation;
+  this->energy_reserve -= 5.3 * this->max_temperature_deviation;
 };
 
 void Carnivore::subtract_costs_of_procreating(Carnivore *offspring) { // CUSTOM
   // proportional cost:
   this->energy_reserve -= 1.5 * offspring->energy_reserve;
-  this->energy_reserve -= this->max_temperature_deviation;
+  this->energy_reserve -= 5 * this->max_temperature_deviation;
   // fixed cost:
   this->energy_reserve -= 100;
   this->energy_reserve -= 0.001 * this->max_energy_reserve_capacity;
@@ -1047,10 +1047,28 @@ void Carnivore::subtract_costs_of_procreating(Carnivore *offspring) { // CUSTOM
 void Carnivore::subtract_costs_of_being_alive() { // CUSTOM
   this->energy_reserve -= 2 * this->strength;
   this->energy_reserve -= 20;
-  this->energy_reserve -= 0.8 * this->max_temperature_deviation;
+  this->energy_reserve -= 5.8 * this->max_temperature_deviation;
   this->energy_reserve -= 0.0005 * this->max_energy_reserve_capacity;
 };
 
+SuperPredator::SuperPredator() {
+  V.resize(64);
+};
+
+void SuperPredator::initialize(intLocation location, Biotope *biot_ptr, Ecosystem *ecos_ptr) {
+  Carnivore::initialize(location, biot_ptr, ecos_ptr);
+  for(int i = 0; i<V.size(); i++) V[i] =
+    (u_char) this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_int(0, 255);
+};
+
+void SuperPredator::mutate() {
+  Carnivore::mutate();
+  if(this->parent_ecosystem_ptr->random_nums_gen.true_with_probability(0.10)) {
+    float f = this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_float(-64.0, 256.0);
+    V[(int) exp(f * log(64) / 256)] =
+    (u_char) this->parent_ecosystem_ptr->random_nums_gen.get_uniform_rand_int(0, 255);
+  };
+};
 
 // ******************************************************************
 //                           P A T H O G E N
