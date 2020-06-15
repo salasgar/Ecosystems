@@ -39,10 +39,11 @@ PYBIND11_MODULE(eco, m) {
     .def(py::init<>())
     .def("initialize", &Ecosystem::initialize)
     .def("get_num_organisms", &Ecosystem::get_num_organisms)
+    .def("get_num_organisms_of_type", &Ecosystem::get_num_organisms_of_type)
     .def("create_new_organisms", &Ecosystem::create_new_organisms)
     .def("evolve", &Ecosystem::evolve)
     .def("get_attribute_matrix", &Ecosystem::get_attribute_matrix)
-    .def("keep_number_of_organism_above", &Ecosystem::keep_number_of_organism_above);
+    .def("keep_number_of_organisms_above", &Ecosystem::keep_number_of_organisms_above);
 
   py::class_<Matrix>(m, "Matrix", py::buffer_protocol())
     .def(py::init<Ecosystem &, OrganismAttribute, OrganismType>())

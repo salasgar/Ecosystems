@@ -754,6 +754,11 @@ void Plant_B::do_procreate() {  // AUTOMATIC
   };
 };
 
+void Plant_B::copy(Plant_B *parent) {
+  Organism::copy(parent);
+  this->energy_reserve = parent->energy_reserve / 3;
+};
+
 void Plant_B::do_age() {  // CUSTOM
   this->age += 1;
   if (this->age > this->death_age) {
@@ -762,7 +767,13 @@ void Plant_B::do_age() {  // CUSTOM
 };
 
 bool Plant_B::decide_procreate() {  // CUSTOM
-  return (this->energy_reserve > this->minimum_energy_reserve_for_procreating);
+  /*
+  cout << this->energy_reserve << "   ";
+  if (this->energy_reserve > 300) { cout << "true"; }
+  else {cout << "false"; };
+  cout << "\n";
+   */
+  return (this->energy_reserve > 100); //this->minimum_energy_reserve_for_procreating
 };
 
 void Plant_B::subtract_costs_of_procreating(Plant_B *offspring) {  // CUSTOM
@@ -807,7 +818,7 @@ void Herbivore::do_internal_changes() { // CUSTOM
 
 void Herbivore::do_move() { // CUSTOM
   intLocation new_location = this->parent_biotope_ptr
-    ->get_free_location_close_to(this->location, 4.5, 2);
+    ->get_free_location_close_to(this->location, 4, 2);
   if(new_location != NULL_LOCATION) {
     this->parent_biotope_ptr->move_organism(this->location, new_location);
   };
@@ -944,7 +955,7 @@ void Carnivore::do_internal_changes() { // CUSTOM
 
 void Carnivore::do_move() { // CUSTOM
   intLocation new_location = this->parent_biotope_ptr
-  ->get_free_location_close_to(this->location, 6.5, 4);
+  ->get_free_location_close_to(this->location, 6, 4);
   if(new_location != NULL_LOCATION) {
     this->subtract_costs_of_moving(new_location);
     this->parent_biotope_ptr->move_organism(this->location, new_location);
@@ -1291,7 +1302,7 @@ unsigned int Ecosystem::get_num_organisms() {
   return this->number_of_organisms;
 };
 
-unsigned int Ecosystem::get_num_organisms(OrganismType org_type) {
+unsigned int Ecosystem::get_num_organisms_of_type(OrganismType org_type) {
   return this->statistics.get_number_of_organisms(org_type);
 };
 
@@ -1338,7 +1349,7 @@ std::vector<float> Ecosystem::get_attribute_matrix(OrganismAttribute org_attr, O
   return matrix;
 };
 
-void Ecosystem::keep_number_of_organism_above(OrganismType org_type, int num_orgs) {
+void Ecosystem::keep_number_of_organisms_above(OrganismType org_type, int num_orgs) {
   int n = num_orgs - this->statistics.get_number_of_organisms(org_type);
   if(n>0) this->create_new_organisms(org_type, n);
 };

@@ -270,6 +270,7 @@ public:
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void act();
   void do_procreate();
+  void copy(Plant_B *parent);
   void do_age();
   // decisions:
   bool decide_procreate();
@@ -422,13 +423,12 @@ public:
   void append_organism(OrganismNode* new_organism);
   void insert_new_organism_before(OrganismNode* new_organism, OrganismNode* reference_organism);
   unsigned int get_num_organisms();
-  unsigned int get_num_organisms(OrganismType org_type);
+  unsigned int get_num_organisms_of_type(OrganismType org_type);
   void evolve();
   void move_dead_organism_to_ghost_list(Organism* org);
   void clear_ghost_organisms();
   std::vector<float> get_attribute_matrix(OrganismAttribute org_attr, OrganismType org_type);
-  void keep_number_of_organism_above(OrganismType org_type, int num_orgs);
-  void make_census();
+  void keep_number_of_organisms_above(OrganismType org_type, int num_orgs);
 };
 
 /*
