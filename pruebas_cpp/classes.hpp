@@ -99,7 +99,7 @@ class OrganismNode {
     Biotope* biot_ptr,
     Ecosystem* ecos_ptr
   );
-  float get_float_attribute(OrganismAttribute org_attr);
+  float get_numeric_attribute(OrganismAttribute org_attr);
   OrganismType get_organism_type_attribute(OrganismAttribute org_attr);
   void set_location(intLocation new_location);
   intLocation get_location();
@@ -393,7 +393,20 @@ class Statistics {
   void initialize(Biotope* biot_ptr, Ecosystem* ecos_ptr);
   unsigned int get_number_of_organisms(OrganismType org_type);
   void calculate_number_of_organisms_by_type();
+  std::vector<float> get_attribute_of_all_organisms_of_type(OrganismAttribute org_attr, OrganismType org_type);
+  std::vector<float> get_attribute_of_all_organisms_of_type(OrganismAttribute org_attr, std::set<OrganismType> org_type_set);
+  float calculate_mean(std::vector<float> data);
+  float calculate_variance(std::vector<float> data);
+  float calculate_max(std::vector<float> data);
+  float calculate_min(std::vector<float> data);
   float mean_of_attribute(OrganismAttribute org_attr, OrganismType org_type);
+  float variance_of_attribute(OrganismAttribute org_attr, OrganismType org_type);
+  float max_of_attribute(OrganismAttribute org_attr, OrganismType org_type);
+  float min_of_attribute(OrganismAttribute org_attr, OrganismType org_type);
+  float mean_of_attribute(OrganismAttribute org_attr, std::set<OrganismType> org_type_set);
+  float variance_of_attribute(OrganismAttribute org_attr, std::set<OrganismType> org_type_set);
+  float max_of_attribute(OrganismAttribute org_attr, std::set<OrganismType> org_type_set);
+  float min_of_attribute(OrganismAttribute org_attr, std::set<OrganismType> org_type_set);
 };
 
 
@@ -431,6 +444,22 @@ public:
   void keep_number_of_organisms_above(OrganismType org_type, int num_orgs);
 };
 
+
+
+class Matrix {
+public:
+  Matrix(Ecosystem &e, OrganismAttribute org_attr, OrganismType org_type);
+  Matrix(Ecosystem &e, BiotopeAttribute bio_attr);
+  float *data();
+  size_t rows();
+  size_t cols();
+private:
+  size_t m_rows, m_cols;
+  vector<float> m_data;
+};
+
+
+
 /*
  COMANDOS GIT:
  
@@ -454,17 +483,5 @@ public:
  
  */
 
-
-class Matrix {
-public:
-  Matrix(Ecosystem &e, OrganismAttribute org_attr, OrganismType org_type);
-  Matrix(Ecosystem &e, BiotopeAttribute bio_attr);
-  float *data();
-  size_t rows();
-  size_t cols();
-private:
-  size_t m_rows, m_cols;
-  vector<float> m_data;
-};
 
 #endif /* classes_hpp */

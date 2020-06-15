@@ -66,7 +66,7 @@ OrganismType OrganismNode::get_organism_type_attribute(OrganismAttribute org_att
   }
 };
   
-float OrganismNode::get_float_attribute(OrganismAttribute org_attr) {
+float OrganismNode::get_numeric_attribute(OrganismAttribute org_attr) {
   
   switch (org_attr) { // AUTOMATIC
     case ENERGY_RESERVE:
@@ -1228,7 +1228,107 @@ void Statistics::calculate_number_of_organisms_by_type() {
   };
 };
 
-float Statistics::mean_of_attribute(OrganismAttribute org_attr, OrganismType org_type) { return 0; };
+
+std::vector<float>  Statistics::get_attribute_of_all_organisms_of_type(OrganismAttribute org_attr, std::set<OrganismType> org_type_set) {
+  std::vector<float> data = {};
+  OrganismNode* org_node = this->parent_ecosystem_ptr->first_organism_node;
+  while(org_node != nullptr) if (org_type_set.find(org_node->org_type) != org_type_set.end()) {
+    data.push_back(org_node->get_numeric_attribute(org_attr));
+    org_node = org_node->next;
+  };
+  return data;
+};
+
+std::vector<float>  Statistics::get_attribute_of_all_organisms_of_type(OrganismAttribute org_attr, OrganismType org_type) {
+  std::vector<float> data = {};
+  OrganismNode* org_node = this->parent_ecosystem_ptr->first_organism_node;
+  if(org_type == ALL_TYPES) {
+    while(org_node != nullptr) {
+      data.push_back(org_node->get_numeric_attribute(org_attr));
+      org_node = org_node->next;
+    };
+  } else {
+    while(org_node != nullptr) if (org_node->org_type == org_type) {
+      data.push_back(org_node->get_numeric_attribute(org_attr));
+      org_node = org_node->next;
+    };
+  };
+  return data;
+};
+
+float Statistics::calculate_mean(std::vector<float> data) {
+  double sum = accumulate(begin(data), end(data), 0, plus<int>());
+  return sum / data.size();
+};
+
+float Statistics::calculate_variance(std::vector<float> data) {
+  double sum = accumulate(begin(data), end(data), 0, plus<int>());
+  float mean = sum / data.size();
+  std::vector<float> data_for_variance = {};
+  for (auto value_ptr = data.begin(); value_ptr != data.end(); value_ptr++) {
+    float deviation = *value_ptr - mean;
+    data_for_variance.push_back(deviation * deviation);
+  };
+  sum = accumulate(begin(data_for_variance), end(data_for_variance), 0, plus<int>());
+  return sum / data_for_variance.size();
+};
+
+float Statistics::calculate_max(std::vector<float> data) {
+  if(data.size() > 0) {
+    float max = data[0];
+    for (auto value_ptr = data.begin(); value_ptr != data.end(); value_ptr++) {
+      if(*value_ptr > max) max = *value_ptr;
+    };
+    return max;
+  } else {
+    return 0;
+  };
+};
+
+float Statistics::calculate_min(std::vector<float> data) {
+  if(data.size() > 0) {
+    float min = data[0];
+    for (auto value_ptr = data.begin(); value_ptr != data.end(); value_ptr++) {
+      if(*value_ptr < min) min = *value_ptr;
+    };
+    return min;
+  } else {
+    return 0;
+  };
+};
+
+float Statistics::mean_of_attribute(OrganismAttribute org_attr, OrganismType org_type) {
+  return this->calculate_mean(this->get_attribute_of_all_organisms_of_type(org_attr, org_type));
+};
+
+float Statistics::variance_of_attribute(OrganismAttribute org_attr, OrganismType org_type) {
+  return this->calculate_variance(this->get_attribute_of_all_organisms_of_type(org_attr, org_type));
+};
+
+float Statistics::max_of_attribute(OrganismAttribute org_attr, OrganismType org_type) {
+  return this->calculate_max(this->get_attribute_of_all_organisms_of_type(org_attr, org_type));
+};
+
+float Statistics::min_of_attribute(OrganismAttribute org_attr, OrganismType org_type) {
+  return this->calculate_min(this->get_attribute_of_all_organisms_of_type(org_attr, org_type));
+};
+
+float Statistics::mean_of_attribute(OrganismAttribute org_attr, std::set<OrganismType> org_type_set) {
+  return this->calculate_mean(this->get_attribute_of_all_organisms_of_type(org_attr, org_type_set));
+};
+
+float Statistics::variance_of_attribute(OrganismAttribute org_attr, std::set<OrganismType> org_type_set) {
+  return this->calculate_variance(this->get_attribute_of_all_organisms_of_type(org_attr, org_type_set));
+};
+
+float Statistics::max_of_attribute(OrganismAttribute org_attr, std::set<OrganismType> org_type_set) {
+  return this->calculate_max(this->get_attribute_of_all_organisms_of_type(org_attr, org_type_set));
+};
+
+float Statistics::min_of_attribute(OrganismAttribute org_attr, std::set<OrganismType> org_type_set) {
+  return this->calculate_min(this->get_attribute_of_all_organisms_of_type(org_attr, org_type_set));
+};
+
 
 
 // ******************************************************************
@@ -1342,7 +1442,7 @@ std::vector<float> Ecosystem::get_attribute_matrix(OrganismAttribute org_attr, O
     for(int y = 0; y<this->biotope.size_y; y++) {
       OrganismNode* org_node = this->biotope.get_organism(intLocation(x, y));
       if(org_node != nullptr) {
-        if(org_node->org_type == org_type) { matrix.push_back(org_node->get_float_attribute(org_attr));
+        if(org_node->org_type == org_type) { matrix.push_back(org_node->get_numeric_attribute(org_attr));
         } else { matrix.push_back(0); }
       } else { matrix.push_back(0); };
     };
@@ -1364,7 +1464,7 @@ Matrix::Matrix(Ecosystem &e, OrganismAttribute org_attr, OrganismType org_type) 
       OrganismNode* org_node = e.biotope.get_organism(intLocation(x, y));
       if(org_node != nullptr) {
         if(org_node->org_type == org_type) {
-          m_data[i] = org_node->get_float_attribute(org_attr);
+          m_data[i] = org_node->get_numeric_attribute(org_attr);
         } else {
           m_data[i] = -1.0f;
         }
