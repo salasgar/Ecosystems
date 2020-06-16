@@ -1253,21 +1253,47 @@ std::vector<float>  Statistics::get_attribute_of_all_organisms_of_type(OrganismA
   return data;
 };
 
+long double Statistics::add_vector(std::vector<float>& data, size_t from, size_t to) {
+  if(to - from > 10) {
+    size_t middle = (from + to) / 2;
+    if (from + to % 2 == 0) {
+      long double first = this->add_vector(data, from, middle - 1);
+      long double second = this->add_vector(data, middle + 1, to);
+      return first + second + data[middle];
+    } else {
+      long double first = this->add_vector(data, from, middle);
+      long double second = this->add_vector(data, middle + 1, to);
+      return first + second;
+    };
+  } else {
+    long double result = 0;
+    for(size_t i = from; i <= to; i++) {
+      result += data[i];
+    };
+    return result;
+  };
+};
+
+long double Statistics::add_vector(std::vector<float>& data) {
+  return this->add_vector(data, 0, data.size() - 1);
+};
+
 float Statistics::calculate_mean(std::vector<float> data) {
-  double sum = accumulate(begin(data), end(data), 0, plus<int>());
+  //long double sum = accumulate(begin(data), end(data), 0.0);
+  //long double sum = accumulate(begin(data), end(data), 0, plus<long double>());
+  long double sum = this->add_vector(data);
   return sum / data.size();
 };
 
 float Statistics::calculate_variance(std::vector<float> data) {
-  double sum = accumulate(begin(data), end(data), 0, plus<int>());
-  float mean = sum / data.size();
+  //long double sum = accumulate(begin(data), end(data), 0, plus<long double>());
+  float mean = this->add_vector(data) / data.size();
   std::vector<float> data_for_variance = {};
   for (auto value_ptr = data.begin(); value_ptr != data.end(); value_ptr++) {
     float deviation = *value_ptr - mean;
     data_for_variance.push_back(deviation * deviation);
   };
-  sum = accumulate(begin(data_for_variance), end(data_for_variance), 0, plus<int>());
-  return sum / data_for_variance.size();
+  return this->add_vector(data_for_variance) / data_for_variance.size();
 };
 
 float Statistics::calculate_max(std::vector<float> data) {

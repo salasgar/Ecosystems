@@ -396,6 +396,8 @@ class Statistics {
   void calculate_number_of_organisms_by_type();
   std::vector<float> get_attribute_of_all_organisms_of_type(OrganismAttribute org_attr, OrganismType org_type);
   std::vector<float> get_attribute_of_all_organisms_of_type(OrganismAttribute org_attr, std::set<OrganismType> org_type_set);
+  long double add_vector(std::vector<float>& data, size_t from, size_t to);
+  long double add_vector(std::vector<float>& data);
   float calculate_mean(std::vector<float> data);
   float calculate_variance(std::vector<float> data);
   float calculate_max(std::vector<float> data);

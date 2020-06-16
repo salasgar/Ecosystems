@@ -138,6 +138,12 @@ void test_4() {
     };
     e.evolve();
   };
+  std::vector<float> V;
+  V.resize(10000000, 123456789);
+  float f = e.statistics.calculate_mean(V);
+  cout << e.statistics.calculate_mean(V) << "\n";
+  cout << V[0] << "\n";
+  cout << f << "\n";
 };
 
 int main(int argc, char* argv[]) {
