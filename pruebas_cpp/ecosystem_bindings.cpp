@@ -38,12 +38,20 @@ PYBIND11_MODULE(eco, m) {
   py::class_<Ecosystem>(m, "Ecosystem")
     .def(py::init<>())
     .def("initialize", &Ecosystem::initialize)
-    .def("get_num_organisms", &Ecosystem::get_num_organisms)
-    .def("get_num_organisms_of_type", &Ecosystem::get_num_organisms_of_type)
     .def("create_new_organisms", &Ecosystem::create_new_organisms)
     .def("evolve", &Ecosystem::evolve)
     .def("get_attribute_matrix", &Ecosystem::get_attribute_matrix)
-    .def("keep_number_of_organisms_above", &Ecosystem::keep_number_of_organisms_above);
+    .def("keep_number_of_organisms_above", &Ecosystem::keep_number_of_organisms_above)
+    .def("get_num_organisms", &Ecosystem::get_num_organisms)
+    .def("get_num_organisms_of_type", &Ecosystem::get_num_organisms_of_type)
+    .def("mean_of_attribute", &Ecosystem::mean_of_attribute)
+    .def("variance_of_attribute", &Ecosystem::variance_of_attribute)
+    .def("max_of_attribute", &Ecosystem::max_of_attribute)
+    .def("min_of_attribute", &Ecosystem::min_of_attribute)
+    .def("mean_of_attribute_several_types", &Ecosystem::mean_of_attribute_several_types)
+    .def("variance_of_attribute_several_types", &Ecosystem::variance_of_attribute_several_types)
+    .def("max_of_attribute_several_types", &Ecosystem::max_of_attribute_several_types)
+    .def("min_of_attribute_several_types", &Ecosystem::min_of_attribute_several_types);
 
   py::class_<Matrix>(m, "Matrix", py::buffer_protocol())
     .def(py::init<Ecosystem &, OrganismAttribute, OrganismType>())

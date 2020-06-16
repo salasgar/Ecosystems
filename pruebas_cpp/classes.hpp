@@ -39,15 +39,16 @@ class Ecosystem;
 
 typedef enum OrganismType // AUTOMATIC
 {
-  NULL_ORGANISM_TYPE,
-  ALL_TYPES,
   PLANT_A,
   PLANT_B,
   HERBIVORE,
-  CARNIVORE
+  CARNIVORE,
+  NULL_ORGANISM_TYPE,
+  ALL_TYPES
 } OrganismType;
 
 const std::vector<OrganismType> ORGANISM_TYPES = {PLANT_A, PLANT_B, HERBIVORE, CARNIVORE};
+const std::vector<string> ORGANISM_TYPE_NAMES = {"PLANT_A", "PLANT_B", "HERBIVORE", "CARNIVORE"};
 
 typedef enum OrganismAttribute // AUTOMATIC
 {
@@ -435,13 +436,23 @@ public:
   void append_first_organism(OrganismNode* first_organism);
   void append_organism(OrganismNode* new_organism);
   void insert_new_organism_before(OrganismNode* new_organism, OrganismNode* reference_organism);
-  unsigned int get_num_organisms();
-  unsigned int get_num_organisms_of_type(OrganismType org_type);
   void evolve();
   void move_dead_organism_to_ghost_list(Organism* org);
   void clear_ghost_organisms();
   std::vector<float> get_attribute_matrix(OrganismAttribute org_attr, OrganismType org_type);
   void keep_number_of_organisms_above(OrganismType org_type, int num_orgs);
+
+  // statistics:
+  unsigned int get_num_organisms();
+  unsigned int get_num_organisms_of_type(OrganismType org_type);
+  float mean_of_attribute(OrganismAttribute org_attr, OrganismType org_type);
+  float variance_of_attribute(OrganismAttribute org_attr, OrganismType org_type);
+  float max_of_attribute(OrganismAttribute org_attr, OrganismType org_type);
+  float min_of_attribute(OrganismAttribute org_attr, OrganismType org_type);
+  float mean_of_attribute_several_types(OrganismAttribute org_attr, std::set<OrganismType> org_type_set);
+  float variance_of_attribute_several_types(OrganismAttribute org_attr, std::set<OrganismType> org_type_set);
+  float max_of_attribute_several_types(OrganismAttribute org_attr, std::set<OrganismType> org_type_set);
+  float min_of_attribute_several_types(OrganismAttribute org_attr, std::set<OrganismType> org_type_set);
 };
 
 

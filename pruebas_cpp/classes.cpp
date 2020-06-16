@@ -67,7 +67,6 @@ OrganismType OrganismNode::get_organism_type_attribute(OrganismAttribute org_att
 };
   
 float OrganismNode::get_numeric_attribute(OrganismAttribute org_attr) {
-  
   switch (org_attr) { // AUTOMATIC
     case ENERGY_RESERVE:
       switch (this->org_type) {
@@ -450,7 +449,7 @@ Biotope::Biotope(Ecosystem* parent_ecosystem) {
 void Biotope::initialize(RandomNumbersGenerator* random_nums_gen_ptr_) {
   // This function has to be called AFTER parent_ecosystem_ptr->random_nums_gen has been initialized
   this->random_nums_gen_ptr = random_nums_gen_ptr_;
-  this->size_x = 500;   // AUTOMATIC
+  this->size_x = 1000;   // AUTOMATIC
   this->size_y = 500;   // AUTOMATIC
   this->area = this->size_x * this->size_y;
   organisms_vector.resize(this->area);
@@ -767,13 +766,7 @@ void Plant_B::do_age() {  // CUSTOM
 };
 
 bool Plant_B::decide_procreate() {  // CUSTOM
-  /*
-  cout << this->energy_reserve << "   ";
-  if (this->energy_reserve > 300) { cout << "true"; }
-  else {cout << "false"; };
-  cout << "\n";
-   */
-  return (this->energy_reserve > 100); //this->minimum_energy_reserve_for_procreating
+  return (this->energy_reserve > this->minimum_energy_reserve_for_procreating);
 };
 
 void Plant_B::subtract_costs_of_procreating(Plant_B *offspring) {  // CUSTOM
@@ -1232,8 +1225,10 @@ void Statistics::calculate_number_of_organisms_by_type() {
 std::vector<float>  Statistics::get_attribute_of_all_organisms_of_type(OrganismAttribute org_attr, std::set<OrganismType> org_type_set) {
   std::vector<float> data = {};
   OrganismNode* org_node = this->parent_ecosystem_ptr->first_organism_node;
-  while(org_node != nullptr) if (org_type_set.find(org_node->org_type) != org_type_set.end()) {
-    data.push_back(org_node->get_numeric_attribute(org_attr));
+  while(org_node != nullptr) {
+    if (org_type_set.find(org_node->org_type) != org_type_set.end()) {
+      data.push_back(org_node->get_numeric_attribute(org_attr));
+    };
     org_node = org_node->next;
   };
   return data;
@@ -1248,8 +1243,10 @@ std::vector<float>  Statistics::get_attribute_of_all_organisms_of_type(OrganismA
       org_node = org_node->next;
     };
   } else {
-    while(org_node != nullptr) if (org_node->org_type == org_type) {
-      data.push_back(org_node->get_numeric_attribute(org_attr));
+    while(org_node != nullptr) {
+      if (org_node->org_type == org_type) {
+        data.push_back(org_node->get_numeric_attribute(org_attr));
+      };
       org_node = org_node->next;
     };
   };
@@ -1398,14 +1395,6 @@ void Ecosystem::insert_new_organism_before(OrganismNode* new_organism, OrganismN
   new_organism->insert_before(reference_organism);
 };
 
-unsigned int Ecosystem::get_num_organisms() {
-  return this->number_of_organisms;
-};
-
-unsigned int Ecosystem::get_num_organisms_of_type(OrganismType org_type) {
-  return this->statistics.get_number_of_organisms(org_type);
-};
-
 void Ecosystem::evolve() {
   this->clear_ghost_organisms();
   OrganismNode* organism_node = this->first_organism_node;
@@ -1453,6 +1442,51 @@ void Ecosystem::keep_number_of_organisms_above(OrganismType org_type, int num_or
   int n = num_orgs - this->statistics.get_number_of_organisms(org_type);
   if(n>0) this->create_new_organisms(org_type, n);
 };
+
+
+unsigned int Ecosystem::get_num_organisms() {
+  return this->number_of_organisms;
+};
+
+unsigned int Ecosystem::get_num_organisms_of_type(OrganismType org_type) {
+  return this->statistics.get_number_of_organisms(org_type);
+};
+
+float Ecosystem::mean_of_attribute(OrganismAttribute org_attr, OrganismType org_type) {
+  return this->statistics.mean_of_attribute(org_attr, org_type);
+};
+
+float Ecosystem::variance_of_attribute(OrganismAttribute org_attr, OrganismType org_type) {
+  return this->statistics.variance_of_attribute(org_attr, org_type);
+};
+
+float Ecosystem::max_of_attribute(OrganismAttribute org_attr, OrganismType org_type) {
+  return this->statistics.max_of_attribute(org_attr, org_type);
+};
+
+float Ecosystem::min_of_attribute(OrganismAttribute org_attr, OrganismType org_type) {
+  return this->statistics.min_of_attribute(org_attr, org_type);
+};
+
+float Ecosystem::mean_of_attribute_several_types(OrganismAttribute org_attr, std::set<OrganismType> org_type_set) {
+  return this->statistics.mean_of_attribute(org_attr, org_type_set);
+};
+
+float Ecosystem::variance_of_attribute_several_types(OrganismAttribute org_attr, std::set<OrganismType> org_type_set) {
+  return this->statistics.variance_of_attribute(org_attr, org_type_set);
+};
+
+float Ecosystem::max_of_attribute_several_types(OrganismAttribute org_attr, std::set<OrganismType> org_type_set) {
+  return this->statistics.max_of_attribute(org_attr, org_type_set);
+};
+
+float Ecosystem::min_of_attribute_several_types(OrganismAttribute org_attr, std::set<OrganismType> org_type_set) {
+  return this->statistics.min_of_attribute(org_attr, org_type_set);
+};
+
+
+
+
 
 Matrix::Matrix(Ecosystem &e, OrganismAttribute org_attr, OrganismType org_type) :
     m_rows(e.biotope.size_x),

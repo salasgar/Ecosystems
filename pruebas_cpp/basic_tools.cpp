@@ -121,9 +121,11 @@ float euclidean_distance(intLocation A, intLocation B) {
 
 RandomNumbersGenerator::RandomNumbersGenerator() :
 eng((std::random_device())()) {
+  /*
   std::uniform_real_distribution<float> distribution(- 0.01, 0.01);
   cout << "Just after initializing eng: " << distribution(eng) << endl;
   cout << "and after this: " << this->proportional_mutation_float(100.02, 0.5) << endl;
+   */
 };
 
 void RandomNumbersGenerator::set_seed(int seed) {
