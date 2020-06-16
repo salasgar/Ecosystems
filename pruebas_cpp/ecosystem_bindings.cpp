@@ -16,6 +16,7 @@ PYBIND11_MODULE(eco, m) {
 
   py::enum_<OrganismAttribute>(m, "OrganismAttribute")
     .value("ENERGY_RESERVE", OrganismAttribute::ENERGY_RESERVE)
+    .value("MAX_ENERGY_RESERVE_CAPACITY", OrganismAttribute::MAX_ENERGY_RESERVE_CAPACITY)
     .value("AGE", OrganismAttribute::AGE)
     .value("DEATH_AGE", OrganismAttribute::DEATH_AGE)
     .value("GENERATION", OrganismAttribute::GENERATION)

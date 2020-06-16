@@ -53,6 +53,7 @@ const std::vector<string> ORGANISM_TYPE_NAMES = {"PLANT_A", "PLANT_B", "HERBIVOR
 typedef enum OrganismAttribute // AUTOMATIC
 {
   ENERGY_RESERVE,
+  MAX_ENERGY_RESERVE_CAPACITY,
   AGE,
   DEATH_AGE,
   GENERATION,
@@ -234,6 +235,10 @@ public:
   // virtual bool decide_procreate();
 };
 
+// -----------------------------------------------------------------------
+//                       P L A N T S   A   a n d   B
+// -----------------------------------------------------------------------
+
 class Plant_A : public Organism { // AUTOMATIC
   
   // class Plant_A:
@@ -279,6 +284,10 @@ public:
   void subtract_costs_of_procreating(Plant_B *offspring);
 };  // *************** class Plant_B ***************
 
+// -----------------------------------------------------------------------
+//                          H E R B I V O R E
+// -----------------------------------------------------------------------
+
 class Herbivore : public Organism { // AUTOMATIC
 public:
   float energy_reserve;
@@ -302,6 +311,10 @@ public:
   void subtract_costs_of_procreating(Herbivore *offspring);
   void subtract_costs_of_being_alive();
 };
+
+// -----------------------------------------------------------------------
+//                           C A R N I V O R E
+// -----------------------------------------------------------------------
 
 class Carnivore : public Organism { // AUTOMATIC
 public:
@@ -498,3 +511,4 @@ private:
 
 
 #endif /* classes_hpp */
+

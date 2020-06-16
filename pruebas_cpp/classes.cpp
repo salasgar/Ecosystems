@@ -86,8 +86,20 @@ float OrganismNode::get_numeric_attribute(OrganismAttribute org_attr) {
           return 0;
           break;
       };
-    break;
-      
+
+    case MAX_ENERGY_RESERVE_CAPACITY:
+      switch (this->org_type) {
+        case HERBIVORE:
+          return this->herbivore_ptr->max_energy_reserve_capacity;
+          break;
+        case CARNIVORE:
+          return this->carnivore_ptr->max_energy_reserve_capacity;
+          break;
+        default:
+          return 0;
+          break;
+      };
+
     case AGE:
       switch (this->org_type) {
         case PLANT_B:
@@ -97,21 +109,36 @@ float OrganismNode::get_numeric_attribute(OrganismAttribute org_attr) {
           return 0;
           break;
       };
-    break;
-      
+
+    case DEATH_AGE:
+      switch (this->org_type) {
+        case PLANT_B:
+          return this->plant_B_ptr->death_age;
+          break;
+        default:
+          return 0;
+          break;
+      };
+
+    case GENERATION:
+      switch (this->org_type) {
+        default:
+          return 0;
+          break;
+      };
+
     case PHOTOSYNTHESIS_CAPACITY:
       switch (this->org_type) {
         case PLANT_A:
           return this->plant_A_ptr->photosynthesis_capacity;
           break;
         case PLANT_B:
-          return this->plant_B_ptr->photosynthesis_capacity();
+          return this->plant_B_ptr->photosynthesis_capacity(); // THIS IS A FUNCTION
           break;
         default:
           return 0;
           break;
       };
-    break;
 
     case STRENGTH:
       switch (this->org_type) {
@@ -124,10 +151,8 @@ float OrganismNode::get_numeric_attribute(OrganismAttribute org_attr) {
         default:
           return 0;
           break;
-       };
+      };
 
-    break;
-      
     case MINIMUM_ENERGY_RESERVE_FOR_PROCREATING:
       switch (this->org_type) {
         case PLANT_A:
@@ -140,7 +165,6 @@ float OrganismNode::get_numeric_attribute(OrganismAttribute org_attr) {
           return 0;
           break;
       };
-    break;
 
     case ENERGY_RESERVE_AT_BIRTH:
       switch (this->org_type) {
@@ -151,8 +175,17 @@ float OrganismNode::get_numeric_attribute(OrganismAttribute org_attr) {
           return 0;
           break;
       };
-    break;
-      
+
+    case EATABLE_PLANT_TYPE:
+      switch (this->org_type) {
+        case HERBIVORE:
+          return this->herbivore_ptr->eatable_plant_type;
+          break;
+        default:
+          return 0;
+          break;
+      };
+
     case IDEAL_TEMPERATURE:
       switch (this->org_type) {
         case CARNIVORE:
@@ -162,8 +195,7 @@ float OrganismNode::get_numeric_attribute(OrganismAttribute org_attr) {
           return 0;
           break;
       };
-    break;
-      
+
     case MAX_TEMPERATURE_DEVIATION:
       switch (this->org_type) {
         case CARNIVORE:
@@ -173,13 +205,23 @@ float OrganismNode::get_numeric_attribute(OrganismAttribute org_attr) {
           return 0;
           break;
       };
-    break;
+
+    case MOVING_FREQUENCY:
+      switch (this->org_type) {
+        case CARNIVORE:
+          return this->carnivore_ptr->moving_frequency;
+          break;
+        default:
+          return 0;
+          break;
+      };
 
     default:
       return 0;
       break;
   };
 };
+
 
 void OrganismNode::set_location(intLocation new_location) {
   switch (this->org_type) { // AUTOMATIC
@@ -1279,21 +1321,21 @@ long double Statistics::add_vector(std::vector<float>& data) {
 };
 
 float Statistics::calculate_mean(std::vector<float> data) {
-  //long double sum = accumulate(begin(data), end(data), 0.0);
-  //long double sum = accumulate(begin(data), end(data), 0, plus<long double>());
-  long double sum = this->add_vector(data);
+  long double sum = accumulate(begin(data), end(data), 0.0);
+  //long double sum = this->add_vector(data);
   return sum / data.size();
 };
 
 float Statistics::calculate_variance(std::vector<float> data) {
-  //long double sum = accumulate(begin(data), end(data), 0, plus<long double>());
-  float mean = this->add_vector(data) / data.size();
+  long double sum = accumulate(begin(data), end(data), 0.0);
+  float mean = sum / data.size();
   std::vector<float> data_for_variance = {};
   for (auto value_ptr = data.begin(); value_ptr != data.end(); value_ptr++) {
     float deviation = *value_ptr - mean;
     data_for_variance.push_back(deviation * deviation);
   };
-  return this->add_vector(data_for_variance) / data_for_variance.size();
+  sum = accumulate(begin(data_for_variance), end(data_for_variance), 0.0);
+  return sum / data_for_variance.size();
 };
 
 float Statistics::calculate_max(std::vector<float> data) {
