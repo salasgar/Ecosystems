@@ -1,5 +1,5 @@
 
-organisms_types = ['PLANT A', 'PLANT B', 'HERBIVORE', 'CARNIVORE']
+organisms_types_order = ['PLANT A', 'PLANT B', 'HERBIVORE', 'CARNIVORE']
 
 
 

@@ -31,7 +31,7 @@ PYBIND11_MODULE(eco, m) {
     .export_values();
   
   py::enum_<BiotopeAttribute>(m, "BiotopeAttribute")
-    .value("SUN_LIGHT", BiotopeAttribute::SUN_LIGHT)
+    .value("SUNLIGHT", BiotopeAttribute::SUNLIGHT)
     .value("TEMPERATURE", BiotopeAttribute::TEMPERATURE)
     .export_values();
 

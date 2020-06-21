@@ -1,4 +1,5 @@
 
+
 // // // // // // // // // // // // // // // // // // // // //
 //                                                          //
 //    classes.hpp                                           //
@@ -12,6 +13,7 @@
 //    Copyright © 2020 EMM & JLSG. All rights reserved.     //
 //                                                          //
 // // // // // // // // // // // // // // // // // // // // //
+
 
 #ifndef classes_hpp
 #define classes_hpp
@@ -31,7 +33,6 @@ using std::endl;
 using std::iota;
 using std::begin;
 using std::end;
-
 
 class Organism;
 class Biotope;
@@ -70,16 +71,18 @@ typedef enum OrganismAttribute // AUTOMATIC
 
 typedef enum BiotopeAttribute // AUTOMATIC
 {
-  SUN_LIGHT,
+  SUNLIGHT,
   TEMPERATURE
 } BiotopeAttribute;
 
-const std::vector<BiotopeAttribute> BIOTOPE_ATTRIBUTES = {SUN_LIGHT, TEMPERATURE};
+const std::vector<BiotopeAttribute> BIOTOPE_ATTRIBUTES = {SUNLIGHT, TEMPERATURE};
 
 class Plant_A; // AUTOMATIC
 class Plant_B; // AUTOMATIC
 class Herbivore; // AUTOMATIC
 class Carnivore; // AUTOMATIC
+
+// --------------------------  O R G A N I S M   N O D E  --------------------------
 
 class OrganismNode {
  public:
@@ -145,7 +148,7 @@ class NodeMaker {
 //                           B I O T O P E
 // -----------------------------------------------------------------------
 
-class SunLight;
+class Sunlight;
 class Temperature;
 
 class Biotope {
@@ -161,7 +164,7 @@ class Biotope {
   std::vector<int> free_locs;
   int free_locs_counter;
   AdjacentLocationsPool adjacent_locations_pool;
-  SunLight* sun_light;  // AUTOMATIC
+  Sunlight* sunlight;  // AUTOMATIC
   Temperature* temperature; // AUTOMATIC
 
  // methods:
@@ -177,21 +180,23 @@ class Biotope {
   OrganismNode* get_random_organism();
   intLocation get_one_free_location();
   intLocation get_free_location_close_to(intLocation center, int radius);
-  intLocation get_free_location_close_to(intLocation center, int radius, int number_of_attempts);
+  intLocation get_free_location_close_to(intLocation center, int radius,
+    int number_of_attempts);
   intLocation get_free_adjacent_location(intLocation center);
-  OrganismNode* get_adjacent_organism_of_type(intLocation center, OrganismType org_type);
+  OrganismNode* get_adjacent_organism_of_type(intLocation center,
+    OrganismType org_type);
   int get_num_organisms();
   intLocation normalize(intLocation location);
 };
 
-class SunLight { // AUTOMATIC or CUSTOM ?
+class Sunlight { // AUTOMATIC or CUSTOM ?
  public:
   // connections:
   Biotope *parent_biotope_ptr;
   Ecosystem *parent_ecosystem_ptr;
   // methods:
-  SunLight(Biotope* parent_biotope, Ecosystem* parent_ecosystem);
-  float get_value(floatLocation location);
+  Sunlight(Biotope* parent_biotope, Ecosystem* parent_ecosystem);
+  float get_value(intLocation location);
 };
 
 class Temperature { // AUTOMATIC or CUSTOM ?
@@ -224,11 +229,12 @@ public:
   Ecosystem* parent_ecosystem_ptr;
   // methods:
   Organism();
-  void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
+  void initialize(intLocation location,
+    Biotope* biot_ptr, Ecosystem* ecos_ptr);
   virtual void act();
   void set_location(intLocation new_location);
   void do_procreate();
-  virtual void copy(Organism* parent);
+  void copy_connections(Organism* parent);
   void mutate();
   void do_die();
   void unlink();
@@ -244,7 +250,6 @@ class Plant_A : public Organism { // AUTOMATIC
   // class Plant_A:
 public:
   // attributes:
-  static const int photosynthesis_capacity = 100;
   float energy_reserve;
   float minimum_energy_reserve_for_procreating;
   float energy_reserve_at_birth;
@@ -252,11 +257,13 @@ public:
   Plant_A();
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void act();
+  void update_attributes();
   void do_procreate();
-  void copy(Plant_A *parent);
-  void mutate();
+  void copy_and_mutate(Plant_A *parent);
   // decisions:
   bool decide_procreate();
+  // constraints:
+  bool can_stay_alive();
   // costs:
   void subtract_costs_of_procreating(Plant_A *offspring);
 }; // *************** class Plant_A ***************
@@ -266,7 +273,7 @@ class Plant_B : public Organism { // AUTOMATIC
   // class Plant_B:
 public:
   // attributes:
-  float photosynthesis_capacity();
+  float photosynthesis_capacity;
   static const int death_age = 1000;
   constexpr static const float minimum_energy_reserve_for_procreating = 300;
   float energy_reserve;
@@ -275,11 +282,13 @@ public:
   Plant_B();
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void act();
+  void update_attributes();
   void do_procreate();
-  void copy(Plant_B *parent);
-  void do_age();
+  void copy_and_mutate(Plant_B *parent);
   // decisions:
   bool decide_procreate();
+  // constraints:
+  bool can_stay_alive();
   // costs:
   void subtract_costs_of_procreating(Plant_B *offspring);
 };  // *************** class Plant_B ***************
@@ -298,15 +307,15 @@ public:
   Herbivore();
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void act();
-  void do_internal_changes();
+  void update_attributes();
   void do_move();
   void do_hunt();
   void do_eat(OrganismNode* food);
   void do_procreate();
-  void copy(Herbivore* parent);
-  void mutate();
+  void copy_and_mutate(Herbivore* parent);
   // constraints:
   bool can_procreate();
+  bool can_stay_alive();
   // costs:
   void subtract_costs_of_procreating(Herbivore *offspring);
   void subtract_costs_of_being_alive();
@@ -330,19 +339,19 @@ public:
   Carnivore();
   void initialize(intLocation location, Biotope* biot_ptr, Ecosystem* ecos_ptr);
   void act();
-  void do_internal_changes();
+  void update_attributes();
   void do_move();
   void do_hunt();
   void do_try_to_eat(Herbivore *herbivore);
   void do_eat(Herbivore *herbivore);
   void do_procreate();
-  void copy(Carnivore* parent);
-  void mutate();
+  void copy_and_mutate(Carnivore* parent);
   // decisions:
   bool decide_move();
   bool decide_procreate();
   // constraints:
   bool can_procreate();
+  bool can_stay_alive();
   // costs:
   void subtract_costs_of_moving(intLocation new_location);
   void subtract_costs_of_procreating(Carnivore *offspring);
@@ -386,6 +395,9 @@ class Pathogen{
   void spread(); // Look for new host closer than radius_of_contagion_possibility
   void steal_energy_reserve();
   void mutate();
+  // constraints:
+  bool can_infect_new_host(OrganismNode* new_host);
+  bool can_kill_host();
 };
 
 // -----------------------------------------------------------------------

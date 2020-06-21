@@ -129,7 +129,7 @@ void test_4() {
   e.create_new_organisms(PLANT_B, 20);
   e.create_new_organisms(HERBIVORE, 20);
   e.create_new_organisms(CARNIVORE, 20);
-  for(int i = 0; i < 5; i++) {
+  for(int i = 0; i < 50; i++) {
     cout << "num of organisms || mean energy reserve: \n";
     for(auto org_type = ORGANISM_TYPES.begin(); org_type != ORGANISM_TYPES.end(); org_type++) {
       cout << "   " << ORGANISM_TYPE_NAMES[*org_type] << ": ";
