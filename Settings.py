@@ -712,7 +712,7 @@ _organisms_category_a = {
     'genes': {
         'category': {
             'initial value': 'A'
-            },
+        },
         'species': {
             # An organism will never attack any other organism
             # of the same species. It only
@@ -945,7 +945,7 @@ _organisms_category_a = {
                 '+': (
                     'photosynthesis capacity',
                     'photosynthesis capacity growth'
-                    )
+                )
             },
             'value after mutation': 0.5,
             'allowed interval': [0, 'infinity']
@@ -1585,4 +1585,77 @@ my_example_of_ecosystem_settings = {
 }
 
 
+""" # TO REMOVE:
 
+def make_variable_name(token):
+    return make_enum_name(token).lower()
+
+
+def make_class_name(token):
+    if token.isupper() or token.islower():
+        result_token = ""
+        next_upper = True
+        for letter in token.replace(' ', '_'):
+            if letter == '_':
+                next_upper = True
+            else:
+                if next_upper:
+                    result_token += letter.upper()
+                    next_upper = False
+                else:
+                    result_token += letter.lower()
+        return result_token
+    else:
+        result_token = token.replace(' ', '_')
+        result_token = result_token[0].upper() + result_token[1:]
+        return result_token
+
+
+def make_enum_name(token):
+    if token.isupper() or token.islower():
+        return token.upper().replace(' ', '_')
+    else:
+        result_token = token.replace(' ', '_')[0].upper()
+        for letter in token.replace(' ', '_')[1:]:
+            if letter.isupper() and len(result_token) > 0 and result_token[-1] != '_':
+                result_token += '_'
+            result_token += letter.upper()
+        return result_token
+
+
+class Information:
+    def __init__(self, settings):
+        self.settings = settings
+        self.extract_organisms_types_order()
+        self.extract_organisms_attributes()
+        self.extract_biotope_attributes()
+
+    def extract_organisms_types_order(self):
+        if 'organisms types order' in self.settings:
+            self.organisms_types_order = [
+                make_enum_name(org_type)
+                for org_type in self.settings['organisms types order']]
+        else:
+            self.organisms_types_order = [
+                make_enum_name(org_type)
+                for org_type in self.settings['organisms']]
+
+    def extract_organisms_attributes(self):
+        self.organisms_attributes = set(
+            make_enum_name(org_attr)
+            for org_type in self.settings['organisms']
+            for org_attr in self.settings['organisms'][org_type]['genes'])
+
+    def extract_biotope_attributes(self):
+        self.biotope_attributes = [
+            make_enum_name(biot_attr)
+            for biot_attr in self.settings['biotope']['biotope features']]
+
+
+
+I = Information(my_example_of_ecosystem_settings)
+
+print(I.organisms_types_order)
+print(I.organisms_attributes)
+print(I.biotope_attributes)
+"""
