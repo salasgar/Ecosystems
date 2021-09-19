@@ -1,4 +1,9 @@
-from Basic_tools import *
+from Basic_tools import gauss, is_tuple_or_list
+from Basic_tools import chi_squared, Matrix
+from math import pi
+from random import uniform
+from Basic_tools import make_variation, random_true
+from Basic_tools import deep_copy_of_a_dictionary
 
 """ ******************************************************* """
 """                                                         """
@@ -81,6 +86,7 @@ def my_operator(a, b):
         (a+b)/2,
         abs(a-b)/5
         )
+
 
 # User-defined operators:
 
@@ -342,6 +348,7 @@ def _calculate_value_nutrien_C(x, y):
 def _calculate_value_nutrien_D(x, y):
     return nutrient_C_matrix.get_value_from_normalized_x_y(x, y)
 
+
 _nutrient_C = {
     'matrix size': (10, 10),
     'initial value #x #y': _calculate_value_nutrien_C,
@@ -426,6 +433,7 @@ def _default_value_after_mutation_C(gene):
     # called and two parameters will be passed
     # to it: The values of gene and 'mutation frequency':
     return {'function': (_value, gene, 'mutation frequency')}
+
 
 _ecosystem_features = {
 
@@ -705,6 +713,7 @@ def _gene_creator(gene_name, mean=1):
                 )
             }
         }
+
 
 _organisms_category_a = {
     # Define initial number of organisms:
@@ -1583,6 +1592,3 @@ my_example_of_ecosystem_settings = {
     'constraints': _constraints,
     'costs': _costs
 }
-
-
-

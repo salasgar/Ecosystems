@@ -1,9 +1,7 @@
 import pygame
-from Basic_tools import *
-from geology_settings import *
-# from pygame.locals import *
-# from random import random
-# sfrom time import sleep  # To remove
+from Basic_tools import make_color_component
+from Basic_tools import draw_geology
+from geology_settings import rain
 
 
 class GUI(object):

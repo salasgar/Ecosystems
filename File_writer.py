@@ -1,6 +1,8 @@
-from Basic_tools import *
-from SYNTAX import *
-from copy import *
+from Basic_tools import is_dict, is_number
+from SYNTAX import All_operator_names, Auxiliar_directives
+from SYNTAX import Directives_that_comunicate_an_organism_with_its_environment
+from SYNTAX import No_effect_directives
+from copy import deepcopy
 
 
 def get_skeleton_of_settings(settings, final_element):
@@ -8,7 +10,7 @@ def get_skeleton_of_settings(settings, final_element):
         result = {}
         for item in settings:
             if item in (
-                All_operators +
+                All_operator_names +
                 Auxiliar_directives +
                 Directives_that_comunicate_an_organism_with_the_environment +
                 [
@@ -38,6 +40,7 @@ def get_skeleton_of_settings(settings, final_element):
         return result
     else:
         return final_element
+
 
 """
     When we change the settings of the ecosystem, we can
@@ -132,20 +135,3 @@ class Data_storer:
         # Check if it's time to flush self.data into a file, and do it.
 
         return current_data
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

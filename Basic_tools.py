@@ -1,7 +1,7 @@
-from random import *
+from random import shuffle, random, gauss
 from functools import reduce
-from math import *
-from copy import *
+from math import exp, fsum
+from copy import deepcopy, copy
 from types import FunctionType, MethodType, LambdaType
 from sys import exit
 
@@ -30,6 +30,7 @@ class Default:
         self.speed = 1.5
         self.radius_of_procreation = 1.5
 
+
 DEFAULT = Default()
 
 
@@ -49,7 +50,7 @@ class Matrix(object):
         x, y = coordinates
         self.data[x % self.size_x][y % self.size_y] = value
 
-    def get_value_from_normalized_x_y(x, y):
+    def get_value_from_normalized_x_y(self, x, y):
         return self[x*self.size_x, y*self.size_y]
 
     def copy_matrix(self, other_matrix):
@@ -519,9 +520,3 @@ def default_error_messenger(*error_messages):
 
 def make_color_component(value, factor=1, start=0):
     return int(127*(1+sigmoid((value - start) * factor)))
-
-
-
-
-
-

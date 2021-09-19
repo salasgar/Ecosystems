@@ -1,5 +1,13 @@
-from Basic_tools import *
-from Function_settings_reader import *
+from Basic_tools import is_number, is_dict, is_function
+from Basic_tools import dictionary_to_string, extract_all_strings
+from Basic_tools import print_reserves, print_methods_names
+from Basic_tools import print_costs, print_organism
+from Basic_tools import print_trade_transactions
+from Basic_tools import random_true, shuffle
+from Basic_tools import deep_copy_of_a_dictionary
+from Basic_tools import print_births, print_killed
+from Basic_tools import print_deths
+from Basic_tools import DEFAULT
 
 
 actions_dictionary = {
@@ -327,7 +335,7 @@ class Organism(dict):
         """
         try:
             trade_radius = self['trade radius']
-        except:
+        except Exception:
             trade_radius = DEFAULT.trade_radius
 
         def condition(organism):
@@ -511,7 +519,7 @@ class Organism(dict):
                 condition = check_if_prey_is_not_self
             try:
                 hunt_radius = self['hunt radius']
-            except:
+            except Exception:
                 hunt_radius = 1.5
             prey_location = self.parent_ecosystem.biotope.\
                 seek_organism_close_to(
@@ -589,7 +597,7 @@ class Organism(dict):
         # Get a new location for the new baby:
         try:
             radius_of_procreation = self['radius of procreation']
-        except:
+        except Exception:
             radius_of_procreation = 1.5
         new_location = self.parent_ecosystem.biotope.\
             seek_free_location_close_to(
@@ -661,8 +669,3 @@ class Organism(dict):
                 ), cause
         self.subtract_costs('die', {'#organism': self, '#cause': cause})
         self.parent_ecosystem.new_deads.append(self)
-
-
-
-
-        

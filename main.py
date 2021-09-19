@@ -1,11 +1,13 @@
 from GUI import GUI
-from Basic_tools import *
-from Biotope import *
-from Settings import *
-from Organism import *
+from Basic_tools import print_ages, print_organisms
+from Basic_tools import print_organism
+from Basic_tools import print_number_of_deths
+from Basic_tools import print_number_of_births
+from Basic_tools import print_metabolic_speed
+from Settings import my_example_of_ecosystem_settings
+from Settings import Store_data
+from Ecosystem import Ecosystem
 from time import sleep
-from Ecosystem import *
-from random import *
 import logging
 
 logger = logging.getLogger('ecosystems')
@@ -84,13 +86,15 @@ def main():
             )
         )
 
-    f_set = {'-': ('nutrient A reserve', 'minimum nutrient A reserve for procreating')}
+    f_set = {'-': ('nutrient A reserve',
+                   'minimum nutrient A reserve for procreating')}
     f = ecosystem.function_maker.read_function_settings(
         '#organism',
         f_set)
 
 
-    print_organism(org, 'nutrient A reserve', 'minimum nutrient A reserve for procreating')
+    print_organism(org, 'nutrient A reserve',
+                   'minimum nutrient A reserve for procreating')
     print_organism(org, 'nutrient A surplus')
 
     print f(org)
@@ -184,16 +188,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-
-
-
-
-
-
-
-
-
-
-

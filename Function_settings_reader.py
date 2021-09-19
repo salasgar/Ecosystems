@@ -1,5 +1,21 @@
-from SYNTAX import *
-from Basic_tools import *
+from SYNTAX import All_operator_names, No_effect_directives
+from SYNTAX import Associative_operators
+from SYNTAX import Unary_operators
+from SYNTAX import Directives_that_comunicate_an_organism_with_its_environment
+from SYNTAX import Operators_definitions
+from Basic_tools import extract_all_gene_names
+from Basic_tools import is_string
+from Basic_tools import is_dict, is_iterable
+from Basic_tools import is_tuple_or_list
+from Basic_tools import extract_biotope_feature_names
+from Basic_tools import extract_ecosystem_feature_names
+from Basic_tools import remove_tags, get_tags_list
+from Basic_tools import extract_all_strings
+from Basic_tools import print_operators, bounded_value
+from Basic_tools import is_number, is_function
+from Basic_tools import print_methods_names
+from copy import deepcopy
+from Basic_tools import default_error_messenger
 
 
 def remove_no_effect_directives(function_settings):
@@ -392,11 +408,13 @@ class Function_maker:
                 # 'allowed interval' of 'help' can't be main directives
                 if directive in self.all_main_directive_names:
                     return directive
-        self.error_messenger('Syntax error. Directive not found in', expression)
+        self.error_messenger('Syntax error. Directive not found in',
+                             expression)
         return None
 
     def make_function_from_dict(self, function_settings):
-        directive = self.main_directive(function_settings, self.error_messenger)
+        directive = self.main_directive(function_settings,
+                                        self.error_messenger)
         if directive in function_settings:
             inputs = function_settings[directive]
         else:
@@ -642,7 +660,3 @@ class Function_maker:
             return function_to_evaluate(*inputs)
 
         return function_to_return
-
-
-
-

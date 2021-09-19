@@ -1,4 +1,14 @@
-from Basic_tools import *
+from Basic_tools import is_tuple_or_list, is_number
+from Basic_tools import random_true
+from random import uniform, gauss, triangular
+from Basic_tools import chi_squared
+from Basic_tools import is_list
+from Basic_tools import shuffle_function
+from Basic_tools import is_function, sigmoid
+from Basic_tools import extract_from_dict
+from random import random, randint
+from math import sqrt, log, exp
+from math import sin, cos, tan
 
 No_effect_directives = ['help', 'comment', 'label']
 
@@ -177,6 +187,7 @@ def output_function_of_discrete_distribution(*inputs):
         else:
             r -= probability
 
+
 # EXPRESSIONS:
 
 Operators_definitions = {
@@ -185,7 +196,7 @@ Operators_definitions = {
 
     '+': {
         'check number of inputs': lambda inputs:
-            is_tuple_or_list(inputs) and (en(inputs) > 1),
+            is_tuple_or_list(inputs) and (len(inputs) > 1),
         'type of inputs': 'Number',
         'type of output': 'Number',
         'output function': lambda x, y: x + y
@@ -509,8 +520,7 @@ Operators_definitions = {
         'output function': lambda x: int(round(x, 0))
     },
 
-
-# RANDOM OPERATORS:
+    # RANDOM OPERATORS:
 
     'random integer': {
         'check number of inputs': lambda inputs:
@@ -1014,7 +1024,7 @@ All_action_names = [
         #           The parent gives a fraction of its own reserves to the newborn. Different options:
         #               If it exist the gene 'energy reserve at birth' (or any other substance reserve at birth):
         #                   Decide the amount of reserve substances that the newborn will have
-        #           The newborn do the action 'mutate'       
+        #           The newborn do the action 'mutate'
     'fertilize', 
         #   If the decision 'decide fertilize' returns True: 
         #       The organism gives its genetic information to another, in order to mix both
@@ -1094,5 +1104,3 @@ Other_decisions = {
     # improve its capacities
     'decide grow': ''
 }
-
-

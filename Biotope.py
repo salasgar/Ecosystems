@@ -1,8 +1,8 @@
-from random import *
-from math import *
-# from Basic_tools import *
-# import Organism
-from SYNTAX import *
+from Basic_tools import Matrix, is_number
+from random import shuffle, choice
+from math import sqrt
+from Basic_tools import is_function
+from Basic_tools import print_methods_names
 
 
 class Feature(object):  # A float variable
@@ -24,11 +24,11 @@ class Feature(object):  # A float variable
             try:
                 self.update_once_every = functions_dict[
                     'update once every'](self.parent_ecosystem)
-            except:
+            except Exception:
                 self.update_once_every = 1
             self.time_of_next_update = \
                 self.parent_ecosystem.time + self.update_once_every
-        except:
+        except Exception:
             pass
 
     def update(self):  # or def evolve(self):
@@ -87,11 +87,11 @@ class Feature_map(object):  # A function f(x, y)
             try:
                 self.update_once_every = functions_dict['update once every'](
                     self.parent_ecosystem)
-            except:
+            except Exception:
                 self.update_once_every = 1
             self.time_of_next_update = (
                 self.parent_ecosystem.time + self.update_once_every)
-        except:
+        except Exception:
             pass
 
     def update(self):  # or   def evolve(self):
@@ -188,7 +188,7 @@ class Biotope(object):
         # metric we use (euclidean, chess, taxicab,...). So, we define:
         try:
             self.set_distance(self.settings['distance'])
-        except:
+        except Exception:
             self.set_distance('euclidean distance')
 
     def __getitem__(self, keys):
@@ -262,7 +262,7 @@ class Biotope(object):
         if location == 'find location':
             try:
                 location = organism['location']
-            except:
+            except Exception:
                 location = self.seek_free_location()
         if location is not None and self.organisms_matrix[location] is None:
             # this way we assure that everything is in its place

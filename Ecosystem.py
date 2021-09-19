@@ -1,11 +1,10 @@
-from Basic_tools import *
-from Biotope import *
-from Organism import *
-from time import *
-from SYNTAX import *
-from Function_settings_reader import *
-from File_writer import *
-from copy import *
+from Basic_tools import extract_all_gene_names
+from Basic_tools import get_tags_list, remove_tags
+from Biotope import Biotope, Feature
+from Organism import Organism
+from random import sample
+from Function_settings_reader import Function_maker
+from File_writer import Data_storer
 import logging
 
 
@@ -273,4 +272,3 @@ class Ecosystem(object):
 
     def get_random_organisms(self, number_of_random_organisms):
         return sample(self.organisms_list, number_of_random_organisms)
-        
