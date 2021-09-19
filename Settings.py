@@ -13,9 +13,9 @@ from basic_tools import deep_copy_of_a_dictionary
 
 _biotope_size = (400, 200)
 
-Store_data = False
+flag_store_data = True
 
-Elements_to_store = {
+elements_to_store = {
     'help':
 
     """
@@ -32,11 +32,11 @@ Elements_to_store = {
         'nutrient B reserve at birth': None,
         'photosynthesis capacity growth': None,
         'nutrient B storage capacity': None,
-        'generation': 20000,
-        'energy reserve': 10000,
+        'generation': 5,
+        'energy reserve': 1,
         'nutrient A reserve': None,
-        'temperature adaptation level': 4000,
-        'aggressiveness': 2000,
+        'temperature adaptation level': 2,
+        'aggressiveness': 2,
         'moving frequency': None,
         'photosynthesis capacity': None,
         'defense capacity': None,
@@ -56,7 +56,7 @@ Elements_to_store = {
         'procreation frequency': None,
         'species identity mutation frequency': None,
         'basal defense capacity': None,
-        'age': 2000,
+        'age': 1,
         'minimum nutrient A reserve for procreating': None,
         'nutrient A storage capacity': None,
         'radius of procreation': None,

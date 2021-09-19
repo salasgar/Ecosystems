@@ -5,7 +5,8 @@ from basic_tools import print_number_of_deths
 from basic_tools import print_number_of_births
 from basic_tools import print_metabolic_speed
 from settings import my_example_of_ecosystem_settings
-from settings import Store_data
+from settings import flag_store_data
+from settings import elements_to_store
 from ecosystem import Ecosystem
 from time import sleep
 import logging
@@ -70,7 +71,8 @@ def main():
     time_lapse = 4
     Total_time = 5000
 
-    ecosystem = Ecosystem(my_example_of_ecosystem_settings)
+    ecosystem = Ecosystem(my_example_of_ecosystem_settings,
+                          elements_to_store)
 
     ecosystem.minimum_population_allowed = 200
 
@@ -165,7 +167,7 @@ def main():
             print_ecosystem_status(ecosystem)
             # organism1, organism2 = ecosystem.get_random_organisms(
             #    number_of_random_organisms = 2)
-        if Store_data:
+        if flag_store_data:
             ecosystem.data_storer.store_data()
         # Evolve:
         ecosystem.evolve()

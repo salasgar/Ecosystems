@@ -3,6 +3,9 @@ from syntax import All_operator_names, Auxiliar_directives
 from syntax import directives_that_comunicate_an_organism_with_its_environment
 from syntax import no_effect_directives
 from copy import deepcopy
+import os
+import shutil
+import pickle
 
 
 def get_skeleton_of_settings(settings, final_element):
@@ -65,7 +68,10 @@ class DataStorer:
     def __init__(self, parent_ecosystem, elements_to_store):
         self.parent_ecosystem = parent_ecosystem
         self.elements_to_store = elements_to_store
-        self.data = []
+        if os.path.isdir('historic'):
+            shutil.rmtree('historic')
+        os.mkdir('historic')
+
 
     def store_data(self):
 
@@ -129,9 +135,6 @@ class DataStorer:
                         data[gene] = deepcopy(organism[gene])
             current_data['organisms list'].append(data)
 
-        self.data.append(current_data)
-
-        # TODO:
-        # Check if it's time to flush self.data into a file, and do it.
-
-        return current_data
+        file_path = "historic/{0}.pickle".format(self.parent_ecosystem.time)
+        with open(file_path, 'wb') as f:
+            pickle.dump(current_data, f)

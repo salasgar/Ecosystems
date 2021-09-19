@@ -213,9 +213,6 @@ class Ecosystem(object):
         self.newborns = []
 
     def evolve(self):
-        # This sentence stores data in the buffer of self.data_storer, and
-        # if it's time, it also flushes the buffer into the file:
-        self.data_storer.store_data()
         # Biotope actions:
         self.biotope.evolve()
         # Ecosystem actions:
