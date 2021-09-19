@@ -1,9 +1,9 @@
-from Basic_tools import gauss, is_tuple_or_list
-from Basic_tools import chi_squared, Matrix
+from basic_tools import gauss, is_tuple_or_list
+from basic_tools import chi_squared, Matrix
 from math import pi
 from random import uniform
-from Basic_tools import make_variation, random_true
-from Basic_tools import deep_copy_of_a_dictionary
+from basic_tools import make_variation, random_true
+from basic_tools import deep_copy_of_a_dictionary
 
 """ ******************************************************* """
 """                                                         """

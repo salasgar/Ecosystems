@@ -1,13 +1,13 @@
-from Basic_tools import is_number, is_dict, is_function
-from Basic_tools import dictionary_to_string, extract_all_strings
-from Basic_tools import print_reserves, print_methods_names
-from Basic_tools import print_costs, print_organism
-from Basic_tools import print_trade_transactions
-from Basic_tools import random_true, shuffle
-from Basic_tools import deep_copy_of_a_dictionary
-from Basic_tools import print_births, print_killed
-from Basic_tools import print_deths
-from Basic_tools import DEFAULT
+from basic_tools import is_number, is_dict, is_function
+from basic_tools import dictionary_to_string, extract_all_strings
+from basic_tools import print_reserves, print_methods_names
+from basic_tools import print_costs, print_organism
+from basic_tools import print_trade_transactions
+from basic_tools import random_true, shuffle
+from basic_tools import deep_copy_of_a_dictionary
+from basic_tools import print_births, print_killed
+from basic_tools import print_deths
+from basic_tools import DEFAULT
 
 
 actions_dictionary = {

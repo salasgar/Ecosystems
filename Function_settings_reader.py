@@ -1,26 +1,26 @@
-from SYNTAX import All_operator_names, No_effect_directives
-from SYNTAX import Associative_operators
-from SYNTAX import Unary_operators
-from SYNTAX import Directives_that_comunicate_an_organism_with_its_environment
-from SYNTAX import Operators_definitions
-from Basic_tools import extract_all_gene_names
-from Basic_tools import is_string
-from Basic_tools import is_dict, is_iterable
-from Basic_tools import is_tuple_or_list
-from Basic_tools import extract_biotope_feature_names
-from Basic_tools import extract_ecosystem_feature_names
-from Basic_tools import remove_tags, get_tags_list
-from Basic_tools import extract_all_strings
-from Basic_tools import print_operators, bounded_value
-from Basic_tools import is_number, is_function
-from Basic_tools import print_methods_names
+from syntax import All_operator_names, no_effect_directives
+from syntax import Associative_operators
+from syntax import Unary_operators
+from syntax import directives_that_comunicate_an_organism_with_its_environment
+from syntax import Operators_definitions
+from basic_tools import extract_all_gene_names
+from basic_tools import is_string
+from basic_tools import is_dict, is_iterable
+from basic_tools import is_tuple_or_list
+from basic_tools import extract_biotope_feature_names
+from basic_tools import extract_ecosystem_feature_names
+from basic_tools import remove_tags, get_tags_list
+from basic_tools import extract_all_strings
+from basic_tools import print_operators, bounded_value
+from basic_tools import is_number, is_function
+from basic_tools import print_methods_names
 from copy import deepcopy
-from Basic_tools import default_error_messenger
+from basic_tools import default_error_messenger
 
 
 def remove_no_effect_directives(function_settings):
     if is_dict(function_settings):
-        for item in No_effect_directives:
+        for item in no_effect_directives:
             if item in function_settings:
                 del function_settings[item]
         for item in function_settings:
@@ -31,7 +31,7 @@ def remove_no_effect_directives(function_settings):
     return function_settings
 
 
-class Function_maker:
+class FunctionMaker:
 
     """
         This object reads function settings like:
@@ -72,7 +72,7 @@ class Function_maker:
         self.unary_operators = deepcopy(Unary_operators)
         self.all_main_directive_names = (
             self.all_operator_names
-            + Directives_that_comunicate_an_organism_with_its_environment
+            + directives_that_comunicate_an_organism_with_its_environment
             + ['literal']
         )
         self.operators_definitions = deepcopy(Operators_definitions)
@@ -95,7 +95,7 @@ class Function_maker:
             new_operators_settings = self.ecosystem_settings['new operators']
             new_operator_names = [
                 operator for operator in new_operators_settings.keys()
-                if operator not in No_effect_directives
+                if operator not in no_effect_directives
             ]
             self.all_operator_names += new_operator_names
             self.all_main_directive_names += new_operator_names
@@ -283,7 +283,7 @@ class Function_maker:
                         exit()
                 else:
                     self.error_messenger(
-                        'Syntax error in ',
+                        'syntax error in ',
                         function_settings,
                         tag,
                         'not in tags list',
@@ -390,7 +390,7 @@ class Function_maker:
                     """
                     return lambda *arguments: function_settings
             else:
-                self.error_messenger('Syntax error. ', function_settings)
+                self.error_messenger('syntax error. ', function_settings)
                 exit()
 
     def apply_associative_operator(self, main_operation, inputs):
@@ -408,7 +408,7 @@ class Function_maker:
                 # 'allowed interval' of 'help' can't be main directives
                 if directive in self.all_main_directive_names:
                     return directive
-        self.error_messenger('Syntax error. Directive not found in',
+        self.error_messenger('syntax error. Directive not found in',
                              expression)
         return None
 
@@ -509,7 +509,7 @@ class Function_maker:
                     return lambda *arguments: \
                         main_operation(*(inputs_function(*arguments)))
         else:
-            self.error_messenger('Syntax error in', function_settings)
+            self.error_messenger('syntax error in', function_settings)
             self.error_messenger('Unknown directive', directive)
             exit()
 
@@ -624,7 +624,7 @@ class Function_maker:
                     )
                 offer_to_sell['prices'] = price
                 result['offer to sell'] = offer_to_sell
-            elif item not in No_effect_directives:
+            elif item not in no_effect_directives:
                 function_name = remove_tags(item)
                 self.tags_list = [caller, ] + get_tags_list(item)
                 # print 'tags_list', self.tags_list # ***

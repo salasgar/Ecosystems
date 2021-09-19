@@ -1,8 +1,8 @@
-from Basic_tools import Matrix, is_number
+from basic_tools import Matrix, is_number
 from random import shuffle, choice
 from math import sqrt
-from Basic_tools import is_function
-from Basic_tools import print_methods_names
+from basic_tools import is_function
+from basic_tools import print_methods_names
 
 
 class Feature(object):  # A float variable
@@ -60,7 +60,7 @@ class Feature(object):  # A float variable
         return increment
 
 
-class Feature_map(object):  # A function f(x, y)
+class FeatureMap(object):  # A function f(x, y)
 
     def __init__(self, feature_name, feature_settings, parent_ecosystem):
         self.feature_name = feature_name
@@ -221,7 +221,7 @@ class Biotope(object):
 
     def add_feature_map(self, feature_name, feature_settings):
         # print 'add_feature_map:', feature_name # ***
-        self.biotope_features[feature_name] = Feature_map(
+        self.biotope_features[feature_name] = FeatureMap(
             feature_name, feature_settings, self.parent_ecosystem)
 
     def initialize_biotope_features(self):

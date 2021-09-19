@@ -1,16 +1,16 @@
-from Basic_tools import is_tuple_or_list, is_number
-from Basic_tools import random_true
+from basic_tools import is_tuple_or_list, is_number
+from basic_tools import random_true
 from random import uniform, gauss, triangular
-from Basic_tools import chi_squared
-from Basic_tools import is_list
-from Basic_tools import shuffle_function
-from Basic_tools import is_function, sigmoid
-from Basic_tools import extract_from_dict
+from basic_tools import chi_squared
+from basic_tools import is_list
+from basic_tools import shuffle_function
+from basic_tools import is_function, sigmoid
+from basic_tools import extract_from_dict
 from random import random, randint
 from math import sqrt, log, exp
 from math import sin, cos, tan
 
-No_effect_directives = ['help', 'comment', 'label']
+no_effect_directives = ['help', 'comment', 'label']
 
 ecosystem_settings_syntax = {
 
@@ -734,7 +734,7 @@ Auxiliar_directives = ['allowed interval', 'substance']
 # 'allowed interval' can be used in all numeric operators expressions
 # 'substance' can be used in 'cost' expressions
 
-Directives_that_comunicate_an_organism_with_its_environment = [
+directives_that_comunicate_an_organism_with_its_environment = [
     'cost',
     'constraint',
     'extract feature (percentage)',
@@ -745,9 +745,9 @@ Directives_that_comunicate_an_organism_with_its_environment = [
 
 All_allowed_directives_in_expression = (
     All_operator_names
-    + No_effect_directives
+    + no_effect_directives
     + Auxiliar_directives
-    + Directives_that_comunicate_an_organism_with_its_environment
+    + directives_that_comunicate_an_organism_with_its_environment
     + ['literal', 'infinity'])
 
 All_allowed_directives = \

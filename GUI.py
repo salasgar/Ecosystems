@@ -1,6 +1,6 @@
 import pygame
-from Basic_tools import make_color_component
-from Basic_tools import draw_geology
+from basic_tools import make_color_component
+from basic_tools import draw_geology
 from geology_settings import rain
 
 

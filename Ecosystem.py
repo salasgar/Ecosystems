@@ -1,10 +1,10 @@
-from Basic_tools import extract_all_gene_names
-from Basic_tools import get_tags_list, remove_tags
-from Biotope import Biotope, Feature
-from Organism import Organism
+from basic_tools import extract_all_gene_names
+from basic_tools import get_tags_list, remove_tags
+from biotope import Biotope, Feature
+from organism import Organism
 from random import sample
-from Function_settings_reader import Function_maker
-from File_writer import Data_storer
+from function_settings_reader import FunctionMaker
+from file_writer import DataStorer
 import logging
 
 
@@ -18,7 +18,7 @@ class Ecosystem(object):
     def __init__(self, ecosystem_settings, elements_to_store={}):
         self.settings = ecosystem_settings
         self.all_gene_names = extract_all_gene_names(self.settings)
-        self.function_maker = Function_maker(self, ecosystem_settings)
+        self.function_maker = FunctionMaker(self, ecosystem_settings)
         self.organisms_list = []
         self.newborns = []
         self.new_deads = []
@@ -34,7 +34,7 @@ class Ecosystem(object):
             # to do: add more thigs
         }
         self.initialize_statistics()
-        self.data_storer = Data_storer(self, elements_to_store)
+        self.data_storer = DataStorer(self, elements_to_store)
         self.number_of_new_deths = 0
         self.number_of_new_births = 0
 

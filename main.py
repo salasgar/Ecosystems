@@ -1,12 +1,12 @@
-from GUI import GUI
-from Basic_tools import print_ages, print_organisms
-from Basic_tools import print_organism
-from Basic_tools import print_number_of_deths
-from Basic_tools import print_number_of_births
-from Basic_tools import print_metabolic_speed
-from Settings import my_example_of_ecosystem_settings
-from Settings import Store_data
-from Ecosystem import Ecosystem
+from gui import GUI
+from basic_tools import print_ages, print_organisms
+from basic_tools import print_organism
+from basic_tools import print_number_of_deths
+from basic_tools import print_number_of_births
+from basic_tools import print_metabolic_speed
+from settings import my_example_of_ecosystem_settings
+from settings import Store_data
+from ecosystem import Ecosystem
 from time import sleep
 import logging
 

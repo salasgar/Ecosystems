@@ -1,7 +1,7 @@
-from Basic_tools import is_dict, is_number
-from SYNTAX import All_operator_names, Auxiliar_directives
-from SYNTAX import Directives_that_comunicate_an_organism_with_its_environment
-from SYNTAX import No_effect_directives
+from basic_tools import is_dict, is_number
+from syntax import All_operator_names, Auxiliar_directives
+from syntax import directives_that_comunicate_an_organism_with_its_environment
+from syntax import no_effect_directives
 from copy import deepcopy
 
 
@@ -33,7 +33,7 @@ def get_skeleton_of_settings(settings, final_element):
                 ]
                     ):
                 return final_element
-            elif item not in No_effect_directives:
+            elif item not in no_effect_directives:
                 result[item] = get_skeleton_of_settings(
                     settings[item],
                     final_element)
@@ -61,7 +61,7 @@ def store(element, file):
     pass
 
 
-class Data_storer:
+class DataStorer:
     def __init__(self, parent_ecosystem, elements_to_store):
         self.parent_ecosystem = parent_ecosystem
         self.elements_to_store = elements_to_store

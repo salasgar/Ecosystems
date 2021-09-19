@@ -1,11 +1,11 @@
-from math import *
-from random import *
+from math import sin, cos, exp
+from random import random, randint
 
 _geology_matrix_size = (100, 100)
 _geology_updating_frequency = 1
 
 
-class Altitude_creator:
+class AltitudeCreator:
 
     def __init__(self, n_of_mountains):
         self.mountains_list = []
@@ -28,7 +28,8 @@ class Altitude_creator:
             )
         return result
 
-_altitude_creator = Altitude_creator(n_of_mountains=randint(3, 10))
+
+_altitude_creator = AltitudeCreator(n_of_mountains=randint(3, 10))
 
 """
 def _water_flow_auxiliar_function(
@@ -68,6 +69,7 @@ def _water_flow_auxiliar_function(*inputs):
             water_depth_1 + altitude_1 - water_depth_0 - altitude_0
         )
     )
+
 
 altitude = {
     'matrix size': _geology_matrix_size,
@@ -213,6 +215,7 @@ def _water_flow_auxiliar_function(
         )
     )
 
+
 water_depth = {
     'matrix size': _geology_matrix_size,
     'initial value #x #y': 0,
@@ -343,6 +346,3 @@ water_depth = {
     )},
     'update once every': _geology_updating_frequency
 }
-
-
-
